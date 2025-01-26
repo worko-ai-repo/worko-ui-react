@@ -1,0 +1,124 @@
+/* styles/index.css */
+@import url(./styles/font.css);
+@import url(./styles/input.css);
+@import url(./styles/buttons.css);
+@import url(./styles/checkbox.css);
+@import url(./styles/animation.css);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+:root {
+	 /* Background color that will be applied to main body */
+	--primary-background-color: #d9d9d9;
+	--secondary-background-color: #4B7EFF;
+	--color-hover: #747bff;
+	--background-color-hover: #f9f9f9;
+	--text-color: #213547;
+	--background: #ffffff;
+	--text: #1a1a1a;
+	--brand: #170155; /* Brand color */
+	--brand-bright: #22019c;
+	--header-scrolled: rgba(255, 255, 255, 0.8);
+
+	--text-xxs: 0.8rem;
+	--text-xs: 1rem;
+	--text-s: 1.2rem;
+	--text-sm: 1.6rem;
+	--text-md: 2rem;
+	--text-lg: 3rem;
+	--text-xl: 4rem;
+	--text-2xl: 8rem;
+
+	font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;;
+
+	color-scheme: light dark;
+	color: rgb(0, 0, 0);
+	background-color: var(--background-color);
+
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+	--primary-background-color: #1a1a1a;
+	--background-color: #121212;
+	--color-hover: #747bff;
+	--background-color-hover: #333333;
+	--text-color: #ffffff;
+	--background: #181818;
+	--text: #1a1a1a;
+	--brand: #170155; /* Brand color */
+	--header-scrolled: rgb(0 8 39 / 80%);
+}
+* {
+	transition: all 0.3s ease-in-out;
+}
+::selection {
+	background: var(--brand);
+}
+
+body {
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: auto;
+	min-height: 100vh;
+}
+
+.section-wrapper {
+	position: relative;
+	z-index: 10;
+	width: 100%;
+	max-width: 1280px;
+	margin: auto;
+	padding: var(--text-lg);
+	overflow: hidden;
+}
+button {
+	cursor: pointer;
+	&:active {
+		outline: none;
+		transform: scale(0.95);
+	}
+}
+h1 {
+	font-size: var(--text-lg);
+}
+p {
+	font-size: var(--text-xs) ;
+}
+
+@media screen and (max-width: 768px) {
+	.section-wrapper {
+		padding: 5rem 2rem;
+	}
+	h1 {
+		font-size: var(--text-lg);
+	}
+	p {
+		font-size: var(--text-xs) ;
+	}
+}
+@media screen and (max-width: 480px) {
+	.section-wrapper {
+		padding: 5rem 0.5em;
+	}
+	h1 {
+		font-size: var(--text-md);
+	}
+	p {
+		font-size: var(--text-xs) ;
+	}
+}

@@ -1,0 +1,6 @@
+.checkbox:checked + label #container #light{
+    background: rgb(11, 246, 11);
+    transform:translate(150%, 0%) ;
+  /*   justify-content: flex-end; */
+  /*   background: grey; */
+  }

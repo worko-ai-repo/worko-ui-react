@@ -1,0 +1,85 @@
+/* Common styles for both animation types */
+.hidden {
+    opacity: 0;
+  }
+  
+  .visible {
+    opacity: 1;
+  }
+  
+  /* Dual-Animate Styles */
+  .Dual-Animate {
+    transform: translateY(175px);
+    transition: opacity 1s ease, transform 0.5s ease;
+    width: fit-content;
+  }
+  
+  .Dual-Animate.visible {
+    transform: translateY(0);
+  }
+  
+  /* Slide effect styles */
+  .slide-effect {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgb(0, 255, 0);
+    z-index: 20;
+    transition: left 0.5s ease-in;
+  }
+  
+  .slide-effect.visible {
+    left: 100%;
+  }
+  
+  /* Single-Animate Styles */
+  .Single-Animate,.Top{
+    width: 100%;
+    height: 100%;
+    
+  }
+  .Single-Animate>*{
+    transform: translateX(-275px);
+    filter: blur(5px);
+    transition: opacity 1s ease, transform 1.5s ease, filter 1.5s ease;
+  }
+  
+  .Single-Animate.visible >*{
+    filter: blur(0);
+    transform: translateX(0);
+  }
+  
+  
+  
+  .Single-Animate.Top>*{
+    transform: translateY(-275px);
+    filter: blur(5px);
+    transition: opacity 1s ease, transform 1.5s ease, filter 1.5s ease;
+  }
+  
+  .Single-Animate.Top.visible >*{
+    filter: blur(0);
+    transform: translateX(0);
+  }
+  
+  /* Staggered animation for Single-Animate */
+  .Single-Animate>*:nth-child(1),.Single-Animate.Top>*:nth-child(1) {
+    transition-delay: 0.2s;
+  }
+  
+  .Single-Animate>*:nth-child(2),.Single-Animate.Top>*:nth-child(2) {
+    transition-delay: 0.8s;
+  }
+  
+  .Single-Animate>*:nth-child(3),.Single-Animate.Top>*:nth-child(3) {
+    transition-delay: 1s;
+  }
+  
+  .Single-Animate>*:nth-child(4),.Single-Animate.Top>*:nth-child(4) {
+    transition-delay: 1.4s;
+  }
+  .Single-Animate>*:nth-child(5),.Single-Animate.Top>*:nth-child(5) {
+    transition-delay: 1.6s;
+  }

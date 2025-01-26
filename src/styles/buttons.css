@@ -1,0 +1,77 @@
+/* Reusable Button Base Styles */
+.btn_t1 {
+  @apply inline-flex items-center px-4 py-2 border text-sm font-semibold rounded-md transition-all duration-200 ease-in-out cursor-pointer;
+}
+
+/* btn_t1: login style */
+.btn_t1.login {
+  @apply text-gray-800 bg-gray-50 border-transparent;
+}
+
+.btn_t1.login:hover {
+  @apply bg-transparent text-blue-600;
+}
+
+/* btn_t1: signup style */
+.btn_t1.signup {
+  @apply rounded-lg border border-[#4b7eff] bg-gradient-to-b from-[#316bff] to-[#38a1d6] shadow-md text-white;
+}
+
+.btn_t1.signup:hover {
+  @apply bg-gradient-to-b from-[#316bff] to-[#38a1d6];
+}
+
+/* btn_t1: logout style */
+.btn_t1.logout {
+  @apply text-white bg-red-600;
+}
+
+.btn_t1.logout:hover {
+  @apply bg-red-700;
+}
+
+/* Button 2 styles (for 404 page) */
+.btn_t2 {
+  @apply font-['PlusJakartaSans'] text-base inline-flex items-center h-12 rounded-md font-semibold px-5 text-gray-300 bg-blend-darken cursor-pointer;
+}
+
+.btn_t2:hover {
+  @apply text-white bg-gray-700;
+}
+
+/* Button 3 styles (for dashboard in mock interview page) */
+.btn_t3 {
+  @apply bg-blue-500 text-white border-none py-3 px-8 rounded-lg font-semibold text-base transition-all duration-200 ease-in-out;
+}
+
+.btn_t3:hover {
+  @apply bg-blue-600;
+}
+
+.btn_find_job {
+  @apply bg-gradient-to-t from-[#0E0E0E] to-[#747474] text-white py-2 px-4 border-none rounded-3xl font-medium text-base transition-all duration-200 ease-in-out;
+}
+
+.btn_hire_talent {
+  @apply bg-transparent text-white py-2 px-4 border-2 border-white rounded-3xl font-medium text-base transition-all duration-200 ease-in-out;
+}
+
+/* btn_t1: signup style */
+.btn_primary {
+  @apply px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out cursor-pointer rounded-lg border border-[#4b7eff] bg-gradient-to-b from-[#316bff] to-[#38a1d6] shadow-md text-white;
+}
+.btn_primary.disabled{
+  background: transparent;
+  border:none;
+  box-shadow: none;
+  color: rgba(128, 128, 128, 0.332);
+}
+.btn_primary.disabled:hover{
+  background: transparent;
+  border:none;
+  box-shadow: none;
+  color: rgba(128, 128, 128, 0.332);
+}
+.btn_primary:hover {
+  @apply bg-gradient-to-b from-[#2857cf] to-[#2c7da5];
+}

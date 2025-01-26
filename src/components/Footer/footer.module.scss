@@ -1,0 +1,15 @@
+
+  .label_and_buttons{
+   padding: 0.25rem;
+   display: grid;
+   gap: 0.5rem;
+  }
+  .footer_list{
+    li{
+      &:hover{
+        color: #f5f5f5;
+        cursor:pointer;
+      }
+    }
+  }
+  
