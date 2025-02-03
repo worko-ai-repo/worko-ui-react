@@ -55,8 +55,8 @@ const ProductHighlight = () => {
                                 </div>
                             ))}
                         </div>
-                        <div className="hidden sm:inline-block product_highlight_img w-[400px] h-[100%]">
-                            <img src={mini_frame1} alt="mini_frame1" className="hidden sm:inline-block" />
+                        <div className="w-[0px] product_highlight_img sm:w-[400px] h-[100%]">
+                            <img src={mini_frame1} alt="mini_frame1" className="invisible sm:visible " />
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@ const ProductHighlight = () => {
                         </b>
                     </p>
                     <div className="gap-0 sm:gap-10 mt-10 flex w-[100%] items-center justify-center">
-                        <div className="hidden sm:inline-block product_highlight_img w-[400px] h-[100%]">
+                        <div className="w-[0px] product_highlight_img sm:w-[400px] h-[100%]">
                             <img src={mini_frame2} alt="mini_frame1" />
                         </div>
                         <div className="dropdown_and_frame flex flex-col gap-3 relative">

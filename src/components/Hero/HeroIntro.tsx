@@ -1,8 +1,11 @@
 import styles from '@Pages/hero/hero.module.scss';
 import WorkoFrame from './WorkoFrame';
 import Reveal from '../../Layout/IntersectionObs';
+import { useNavigate } from 'react-router-dom';
 const HeroIntro = () => {
+	const navigateTo = useNavigate();
 	const items = ['REQUEST REFERRALS', 'APPLY JOBS', 'GET GUIDANCE & INTERVIEW HANDHOLDING'];
+
 	return (
 		<div className="rounded-b-[2.5rem] pb-52 bg-white ">
 			<div className="section-wrapper !pb-0 text-sm  font-bold ">
@@ -23,7 +26,7 @@ const HeroIntro = () => {
 						</div>
 					))}
 				</div>
-				<button className="btn_primary mt-5"> Start For Free</button>
+				<button className="btn_primary mt-5" onClick={() => navigateTo('/job')}> Start For Free</button>
 			</div>
 			<div className={' lg:max-w-[1120px] mt-10 mx-auto md:max-w-[80%] relative bg-gradient-to-b from-[#57E1E1] to-[#86BDF8] rounded-[34px] sm:h-[600px] w-full min-w-[300px] p-4 md:p-20 ' + styles.frame_outer_container}>
 				<WorkoFrame />

@@ -11,7 +11,7 @@ import styles from './layout.module.scss';
  */
 function Layout(): JSX.Element {
 	return (
-		<div id="layout">
+		<div id="layout" className='bg-white'>
 			<Header />
                 <main className={styles.main} id='main_container'>
                     <Outlet />

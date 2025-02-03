@@ -9,8 +9,8 @@ export const getHttpOptions = (authorization = true, params: HttpParamsOptions =
 		// Fetch the token from the local storage
 		const token = localStorage.getItem('accessToken');
 		if (!token) {
-			console.log('Token not present , Aborting request');
-			return;
+			console.log('Token not present ,Using Empty Token');
+			headers['Authorization'] = `Bearer `;
 		}
 		headers['Authorization'] = `Bearer ${token}`;
 	}

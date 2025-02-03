@@ -36,6 +36,9 @@ export class HttpService {
 	 */
 	post = async (path: string, data: object, authorization: boolean = true, params = {}) => {
 		try {
+			// Build query string and append it to the path
+			const queryString = new URLSearchParams(params as Record<string, string>).toString();
+			const fullPath = queryString ? `${path}?${queryString}` : path;
 			// Prepare the options for the POST
 			const options = {
 				method: 'POST',
@@ -44,7 +47,7 @@ export class HttpService {
 			};
 
 			// Make the POST request to the API
-			const response = await fetch(`${this.API_URI}${path}`, options);
+			const response = await fetch(`${this.API_URI}${fullPath}`, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -78,12 +81,16 @@ export class HttpService {
 	 */
 	get = async (path: string, authorization: boolean = true, params = {}) => {
 		try {
+			// Build query string and append it to the path
+			const queryString = new URLSearchParams(params as Record<string, string>).toString();
+			const fullPath = queryString ? `${path}?${queryString}` : path;
+
 			const options = {
 				method: 'GET',
 				...getHttpOptions(authorization, params),
 			};
 			// Make the GET request to the API
-			const response = await fetch(`${this.API_URI}${path}`, options);
+			const response = await fetch(`${this.API_URI}${fullPath}`, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -115,6 +122,10 @@ export class HttpService {
 	 */
 	put = async (path: string, data: object, authorization: boolean = true, params = {}) => {
 		try {
+			// Build query string and append it to the path
+			const queryString = new URLSearchParams(params as Record<string, string>).toString();
+			const fullPath = queryString ? `${path}?${queryString}` : path;
+
 			const options = {
 				method: 'PUT',
 				...getHttpOptions(authorization, params),
@@ -122,7 +133,7 @@ export class HttpService {
 			};
 
 			// Make the PUT request to the API
-			const response = await fetch(`${this.API_URI}${path}`, options);
+			const response = await fetch(`${this.API_URI}${fullPath}`, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -153,6 +164,9 @@ export class HttpService {
 	 */
 	patch = async (path: string, data: object, authorization: boolean = true, params = {}) => {
 		try {
+			// Build query string and append it to the path
+			const queryString = new URLSearchParams(params as Record<string, string>).toString();
+			const fullPath = queryString ? `${path}?${queryString}` : path;
 			const options = {
 				method: 'PATCH',
 				...getHttpOptions(authorization, params),
@@ -160,7 +174,7 @@ export class HttpService {
 			};
 
 			// Make the PATCH request to the API
-			const response = await fetch(`${this.API_URI}${path}`, options);
+			const response = await fetch(`${this.API_URI}${fullPath}`, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -190,13 +204,16 @@ export class HttpService {
 	 */
 	delete = async (path: string, authorization: boolean = true, params = {}) => {
 		try {
+			// Build query string and append it to the path
+			const queryString = new URLSearchParams(params as Record<string, string>).toString();
+			const fullPath = queryString ? `${path}?${queryString}` : path;
 			const options = {
 				method: 'DELETE',
 				...getHttpOptions(authorization, params),
 			};
 
 			// Make the DELETE request to the API
-			const response = await fetch(`${this.API_URI}${path}`, options);
+			const response = await fetch(`${this.API_URI}${fullPath}`, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {

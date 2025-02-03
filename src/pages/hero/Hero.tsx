@@ -3,7 +3,6 @@ import Loader from '@Components/Loader/Loader';
 import HeroIntro from '@Components/Hero/HeroIntro';
 import CompaniesList from '@Components/Hero/CompaniesList';
 import { useEffect } from 'react';
-import WorkoFrame from '@Components/Hero/WorkoFrame';
 import PromoCard from '@Components/Hero/PromoCard';
 import { worko_new } from '@Assets';
 import ProductHighlight from '@Components/Hero/ProductHighlight';
@@ -18,9 +17,16 @@ const Hero = () => {
 
 	useEffect(() => {
 		const layout = document.getElementById('layout');
-		if(layout){
-			layout.style.backgroundColor = '#4B7EFF';
+		if (layout) {
+			layout.style.backgroundColor = '#4B7EFF'; // Set blue background for the Hero page
 		}
+	
+		return () => {
+			// Reset the background color when leaving the Hero page
+			if (layout) {
+				layout.style.backgroundColor = ''; // Or set it to a default color like '#FFFFFF'
+			}
+		};
 	}, []);
 
 	const isVerified = true; // Use the hook to validate the token

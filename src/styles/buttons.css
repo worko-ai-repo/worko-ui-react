@@ -39,14 +39,7 @@
   @apply text-white bg-gray-700;
 }
 
-/* Button 3 styles (for dashboard in mock interview page) */
-.btn_t3 {
-  @apply bg-blue-500 text-white border-none py-3 px-8 rounded-lg font-semibold text-base transition-all duration-200 ease-in-out;
-}
 
-.btn_t3:hover {
-  @apply bg-blue-600;
-}
 
 .btn_find_job {
   @apply bg-gradient-to-t from-[#0E0E0E] to-[#747474] text-white py-2 px-4 border-none rounded-3xl font-medium text-base transition-all duration-200 ease-in-out;
@@ -74,4 +67,13 @@
 }
 .btn_primary:hover {
   @apply bg-gradient-to-b from-[#2857cf] to-[#2c7da5];
+}
+
+/* Button 3 styles (for dashboard in mock interview page) */
+.btn_secondary {
+  @apply bg-blue-500 text-white border-none py-1.5 px-6 rounded-lg font-semibold text-base transition-all duration-200 ease-in-out;
+}
+
+.btn_secondary:hover {
+  @apply bg-blue-600;
 }

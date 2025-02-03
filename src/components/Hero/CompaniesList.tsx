@@ -30,7 +30,7 @@ const CompaniesList = () => {
 						<CompanyCard key={`second-${index}`} company={company} />
 					))}
 				</div>
-				<div className="hidden  marquee-content md:flex">
+				<div className="h-0  marquee-content sm:flex sm:h-auto ">
 					{/* First set of companies */}
 					{companies.map((company, index) => (
 						<CompanyCard key={`first-${index}`} company={company} />

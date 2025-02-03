@@ -1,0 +1,32 @@
+.Company_Content {
+      display: flex;
+      flex-direction: column;
+
+
+  
+    .Company_Content_Filters {
+      border: 1px solid rgb(192, 191, 191);
+      transition: all 0.5s ease-in-out;
+  
+      &.open {
+        bottom: 0; /* Filters fully visible */
+      }
+  
+      &.closed {
+        bottom: -100%; /* Filters hidden */
+      }
+    }
+  
+    .Company_Content_Jobs {
+      width: 100%;
+      @apply bg-white;
+  
+      .job {
+        @apply mb-4;
+      }
+    }
+  }
+  .Company_Content_Companies{
+    grid-auto-rows: min-content ; 
+    
+  }

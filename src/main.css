@@ -4,7 +4,7 @@
 @import url(./styles/buttons.css);
 @import url(./styles/checkbox.css);
 @import url(./styles/animation.css);
-
+@import url(./styles/select.css);
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -41,7 +41,7 @@
 
 	color-scheme: light dark;
 	color: rgb(0, 0, 0);
-	background-color: var(--background-color);
+	background-color: var(--primary-background-color);
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -65,7 +65,7 @@
 	transition: all 0.3s ease-in-out;
 }
 ::selection {
-	background: var(--brand);
+	
 }
 
 body {
@@ -76,7 +76,9 @@ body {
 	width: auto;
 	min-height: 100vh;
 }
-
+.bc{
+	border:2px solid red;
+}
 .section-wrapper {
 	position: relative;
 	z-index: 10;

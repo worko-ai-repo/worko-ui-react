@@ -1,36 +1,35 @@
-import './App.css';
-import Layout from './Layout/Layout';
-import { Route, Routes } from 'react-router-dom';
-import { Hero, MockInterview, PageNotFound } from '@Routes';
+import './App.css'
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Layout from "./Layout/Main-Layout/Layout";
+import { AppProvider } from "./context/MainContext";
+import PageNotFound from "@Pages/errors/404/PageNotFound";
+import Loader from '@Components/Loader/Loader';
 
-import { useEffect } from 'react';
-import { AppProvider } from './context/MainContext';
+// Lazy Load Components
+const Hero = lazy(() => import("@Pages/hero/Hero"));
+const MockInterview = lazy(() => import("@Pages/mock-interview/MockInterview"));
+const Company = lazy(() => import("@Pages/company/Company"));
 
+// Router Configuration in JSON format
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <AppProvider>
+        <Layout />
+      </AppProvider>
+    ),
+    children: [
+      { index: true, element: <Suspense fallback={<Loader />}><Hero /></Suspense> },
+      { path: "mock-interview", element: <Suspense fallback={<Loader />}><MockInterview /></Suspense> },
+      { path: "job/*", element: <Suspense fallback={<Loader />}><Company /></Suspense> },
+      { path: "referral/*", element: <Suspense fallback={<Loader />}><Company /></Suspense> },
+    ],
+  },
+  { path: "*", element: <PageNotFound /> },
+]);
 
-/**
- * @function App
- *
- * @description The main component of the application
- *
- * @returns {JSX.Element} The JSX code for the App component
- */
-function App(): JSX.Element {
-	useEffect(() => {
-		console.log(import.meta.env);
-	}, []);
-
-	 return (
-		<Routes>
-		  {/* Wrap only the parts that need the context */}
-		  <Route path="/" element={<AppProvider> <Layout /> </AppProvider>}>
-		  	<Route index element={<Hero />} />
-			<Route path="/mock-interview" element={<MockInterview />} />
-		  </Route>
-		  
-		  {/* PageNotFound route remains outside the context provider */}
-		  <Route path="/*" element={<PageNotFound />} />
-		</Routes>
-	  );
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App;

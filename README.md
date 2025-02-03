@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Worko (React + TypeScript + Vite)
 
 This project provides a minimal setup to build a React application using TypeScript and Vite, along with SCSS for styling and essential development tools.
@@ -453,5 +452,3 @@ worko/
 ---
 
 For questions or issues, feel free to reach out to the project maintainers.
-
->>>>>>> c2235ef1d0a965597bfb8aea2f41dd9753eb2d91
