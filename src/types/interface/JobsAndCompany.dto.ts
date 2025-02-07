@@ -110,8 +110,8 @@ export interface CompanyDto {
    * @description This interface is used to define the structure of the BaseApiFiltersDto object
    */
     export interface BaseApiFiltersDto {
-        pageSize: number | 50; // Default page size is 50
-        sortOrder: 'ascending' | 'descending'
+        pageSize?: number | 50; // Default page size is 50
+        sortOrder?: 'ascending' | 'descending'
         lastKey?: string;
         searchText?: string;
     }

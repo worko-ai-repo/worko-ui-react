@@ -1,24 +1,20 @@
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { useEffect, useState } from 'react';
-import { useCompanyContext } from '../../context/CompanyContext';
+import { useCompanyContext } from '../../context/Company.context';
 import { useNavigate } from 'react-router-dom';
 
 const JobRefButton = () => {
-    const Navigate = useNavigate();
+	const Navigate = useNavigate();
 
 	const { companyPageMode } = useCompanyContext();
 
 	const [activeFrame, setActiveFrame] = useState<CompanyPageModeEnum>(companyPageMode);
 
-
-
 	const toggleCompanyPageMode = (event: any) => {
 		if (event.target.name === 'job_toggle') {
-			
-            Navigate(`/job`);
+			Navigate(`/job`);
 		} else {
-		
-            Navigate(`/referral`);
+			Navigate(`/referral`);
 		}
 	};
 	return (
@@ -30,7 +26,7 @@ const JobRefButton = () => {
 				{/* Jobs Toggle */}
 				<div className="relative flex-1">
 					<input type="radio" onClick={e => toggleCompanyPageMode(e)} id="jobs" name="job_toggle" value="jobs" checked={activeFrame === CompanyPageModeEnum.JOB} onChange={() => setActiveFrame(CompanyPageModeEnum.JOB)} className="peer absolute opacity-0 w-full h-auto cursor-pointer" />
-					<label htmlFor="jobs" className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200">
+					<label htmlFor="jobs" className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200">
 						<span className={activeFrame === CompanyPageModeEnum.JOB ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>Jobs</span>
 					</label>
 				</div>
@@ -38,7 +34,7 @@ const JobRefButton = () => {
 				{/* Referrals Toggle */}
 				<div className="relative flex-1">
 					<input type="radio" onClick={e => toggleCompanyPageMode(e)} id="referrals" name="ref_toggle" value="referrals" checked={activeFrame === CompanyPageModeEnum.REFERRAL} onChange={() => setActiveFrame(CompanyPageModeEnum.REFERRAL)} className="peer absolute opacity-0 w-full h-full cursor-pointer" />
-					<label htmlFor="referrals" className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200">
+					<label htmlFor="referrals" className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200">
 						<span className={activeFrame === CompanyPageModeEnum.REFERRAL ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>Referrals</span>
 					</label>
 				</div>

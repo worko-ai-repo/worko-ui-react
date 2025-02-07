@@ -15,6 +15,8 @@ import check from './backgrounds/check.png'
 import worko_new from './worko-assets/Worko_new_logo.png'
 import mini_frame1 from './backgrounds/Mini_Frame_1.png'
 import mini_frame2 from './backgrounds/Mini_Frame_2.png'
+import auth_bg from './backgrounds/auth_bg.png'
+import auth_bg2 from './backgrounds/auth_bg2.png'
 export { 
     // Backgrounds
     bg_plexus,
@@ -26,6 +28,8 @@ export {
     check,
     mini_frame1,
     mini_frame2,
+    auth_bg,
+    auth_bg2,
      
     // Worko Assets
     favicon,

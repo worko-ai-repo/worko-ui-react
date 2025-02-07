@@ -1,5 +1,5 @@
 import { SecureStorageServiceDto } from '@Interfaces/SecureStorage.dto';
-import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
+import { SecureStorageKeyEnum } from 'src/types/enums/SecureStorage.enum';
 
 /**
  * Storage Service for React

@@ -3,6 +3,7 @@ import { XCircle, AlertTriangle, CheckCircle, Info, Share } from "lucide-react";
 
 interface ModalProps {
   type: "error" | "warning" | "success" | "info" | "share";
+  isdisabled?: boolean;
   title: string;
   children: ReactNode;
   onSubmit: () => void;
@@ -20,6 +21,7 @@ const icons = {
 
 export default function CustomModal({
   type,
+  isdisabled,
   title,
   children,
   onSubmit,
@@ -53,14 +55,15 @@ export default function CustomModal({
         <div className="mt-4">{children}</div>
         <div className="flex justify-end gap-2 mt-4">
           <button
+           disabled = {isdisabled || false}
             onClick={onSubmit}
-            className="btn_secondary"
+            className="btn_secondary disabled:opacity-50 disabled:pointer-events-all disabled:cursor-not-allowed "
           >
             Submit
           </button>
           {onClose && (
             <button
-              onClick={onClose}
+              onClick={onClose }
               className="btn_t1 logout !text-[18px] border-[1px] border-red-500 "
             >
               Cancel

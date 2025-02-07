@@ -17,13 +17,14 @@
 
 :root {
 	 /* Background color that will be applied to main body */
-	--primary-background-color: #d9d9d9;
+	--primary-background-color: #eeeeee;
 	--secondary-background-color: #4B7EFF;
 	--color-hover: #747bff;
 	--background-color-hover: #f9f9f9;
 	--text-color: #213547;
 	--background: #ffffff;
 	--text: #1a1a1a;
+	--brand-light:#005dfd;
 	--brand: #170155; /* Brand color */
 	--brand-bright: #22019c;
 	--header-scrolled: rgba(255, 255, 255, 0.8);
@@ -39,7 +40,7 @@
 
 	font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;;
 
-	color-scheme: light dark;
+	/* color-scheme: light dark; */
 	color: rgb(0, 0, 0);
 	background-color: var(--primary-background-color);
 
@@ -63,9 +64,6 @@
 }
 * {
 	transition: all 0.3s ease-in-out;
-}
-::selection {
-	
 }
 
 body {
@@ -101,7 +99,19 @@ h1 {
 p {
 	font-size: var(--text-xs) ;
 }
+input{
+	background-color: var(--primary-background-color);
+	outline: none;
+	font-weight: 600;
+	color:rgb(120, 158, 193)
+}
 
+label{
+	font-size: var(--text-xxs);
+	margin:5px ;
+	color: rgb(55, 55, 55);
+	text-align: left;
+}
 @media screen and (max-width: 768px) {
 	.section-wrapper {
 		padding: 5rem 2rem;

@@ -1,6 +1,16 @@
+input[type="checkbox"]{
+  cursor: pointer;
+  accent-color: var(--brand-light);
+}
+input[type="checkbox"]:checked{
+  box-shadow:  0px 0px 10px 4px rgba(5, 84, 255, 0.3);
+}
 .checkbox:checked + label #container #light{
     background: rgb(11, 246, 11);
     transform:translate(150%, 0%) ;
   /*   justify-content: flex-end; */
   /*   background: grey; */
   }
+.checkbox_primary{
+  @apply flex rounded-md border border-[#a2a1a833] bg-[#e8e8e8] peer-checked:bg-[#7152f3] transition;
+}

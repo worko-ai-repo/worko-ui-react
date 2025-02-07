@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { emailDomainDenyListValidator } from '@Utils/Validator.utils';
+import { emailDomainDenyListValidator } from '@Utils/CorporateMailValidator.utils';
 
 const RequestCompany = () => {
 	const {

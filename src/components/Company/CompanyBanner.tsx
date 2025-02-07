@@ -1,6 +1,6 @@
 import styles from './company.module.scss';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
-import { useCompanyContext } from '../../context/CompanyContext';
+import { useCompanyContext } from '../../context/Company.context';
 
 const companyStaticData = {
 	[CompanyPageModeEnum.JOB]: {

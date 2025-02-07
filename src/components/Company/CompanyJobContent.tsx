@@ -1,13 +1,12 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import styles from './company.module.scss';
-import { useCompanyContext } from '../../context/CompanyContext';
+import { useCompanyContext } from '../../context/Company.context';
 import { formatRange } from '@Utils/RangeFormater.utils';
 import { Loader, X } from 'lucide-react';
 import MainLoader from '@Components/Loader/Loader';
 import CompanyCard from './CompanyCard';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
-import { useInView } from 'react-intersection-observer'
-
+import { useInView } from 'react-intersection-observer';
 
 // Lazy load components
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
@@ -17,21 +16,21 @@ const RequestCompany = lazy(() => import('./RequestCompany'));
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-	const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData,isError, hasNextPage,isFetchingNextPage,fetchNextPage } = useCompanyContext();
+	const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useCompanyContext();
 
 	const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
 
 	const searchInputRef = useRef<HTMLInputElement | null>(null);
 
 	// Intersection Observer for Infinite Scroll
-const { ref: inViewRef } = useInView({
-	triggerOnce: false,
-	onChange: (inView) => {
-	  if (inView && hasNextPage && !isFetchingNextPage) {
-		fetchNextPage();
-	  }
-	}
-  });
+	const { ref: inViewRef } = useInView({
+		triggerOnce: false,
+		onChange: inView => {
+			if (inView && hasNextPage && !isFetchingNextPage) {
+				fetchNextPage();
+			}
+		},
+	});
 
 	return (
 		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1280px] mx-auto ${styles.Company_Content}`}>
@@ -48,8 +47,7 @@ const { ref: inViewRef } = useInView({
 										searchInputRef.current.value = '';
 									}
 								}}
-								className=" scale-50 active:scale-[45%] absolute right-[5%]   h-full w-fit rounded-full "
-							>
+								className=" scale-50 active:scale-[45%] absolute right-[5%]   h-full w-fit rounded-full ">
 								<X className=" p-1 text-white bg-blue-600 rounded-full w-full h-full relative " />
 							</button>
 						)}
@@ -72,59 +70,52 @@ const { ref: inViewRef } = useInView({
 				{/* Filters Section */}
 				<div
 					className={`absolute w-full top-0 bottom-0 max-w-[300px] shadow-2xl md:relative md:w-auto filters rounded-lg p-5 transition-all duration-500 ease-in-out bg-white z-50 
-        ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}
-				>
+        ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}>
 					<Suspense
 						fallback={
 							<div className="h-16 flex justify-center items-center">
 								<Loader />
 							</div>
-						}
-					>
+						}>
 						{isLoading ? <Loader className="relative left-[45%]  " /> : <JobFilterPanel toggleFilters={toggleFilters} />}
 					</Suspense>
-					{companyPageMode === CompanyPageModeEnum.REFERRAL ? (<RequestCompany />) : null}
+					{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
 				</div>
-
-
 
 				{/* Jobs/Referral Section sm:shadow-[inset_0px_0px_16px_22px_rgba(0,_0,_0,_0.1)]*/}
 				{companyPageMode === CompanyPageModeEnum.JOB ? (
-				<div className="w-full px-2 sm:px-0 sm:min-w-[525px] rounded-2xl flex justify-center sm:py-5 flex-wrap gap-2 mx-auto min-h-[350px] sm:shadow-[0px_0px_16px_12px_rgba(0,_0,_0,_0.1)]">
-				{/* Show loader only if there’s no initial data */}
-				{isLoading ? (
-					<MainLoader />
-				) : companyJobData && companyJobData.length > 0 ? (
-					companyJobData.map((job, index) => (
-						<JobCard
-							key={job.id || index}
-							job={{
-								companyLogo: job.companyDetails?.logoUrl,
-								title: job.jobTitle,
-								department: job.department,
-								salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
-								location: job.location,
-								employmentType: job.typeofEmployment,
-								workMode: job.workMode,
-								skills: [...(job.technicalSkills || []), ...(job.coreSkills || [])].slice(0, 4),
-								createdAt: job.createdAt,
-								matchPercentage: 75,
-							}}
-						/>
-					))
-				) : (
-					<p className="text-2xl relative font-medium text-gray-500 top-[43%]">
-						{isError ? 'Something went wrong.' : "Sorry, we couldn't find anything here."}
-					</p>
-				)}
-			
-				{/* Show bottom loading indicator when fetching more */}
-				{isFetchingNextPage && <Loader />}
-			
-				{/* Intersection Observer for infinite scroll */}
-				<div ref={inViewRef} />
-			</div>
-			
+					<div className="w-full px-2 sm:px-0 sm:min-w-[525px] rounded-2xl flex justify-center sm:py-5 flex-wrap gap-2 mx-auto min-h-[350px] sm:shadow-[0px_0px_16px_12px_rgba(0,_0,_0,_0.1)]">
+						{/* Show loader only if there’s no initial data */}
+						{isLoading ? (
+							<MainLoader />
+						) : companyJobData && companyJobData.length > 0 ? (
+							companyJobData.map((job, index) => (
+								<JobCard
+									key={job.id || index}
+									job={{
+										companyLogo: job.companyDetails?.logoUrl,
+										title: job.jobTitle,
+										department: job.department,
+										salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
+										location: job.location,
+										employmentType: job.typeofEmployment,
+										workMode: job.workMode,
+										skills: [...(job.technicalSkills || []), ...(job.coreSkills || [])].slice(0, 4),
+										createdAt: job.createdAt,
+										matchPercentage: 75,
+									}}
+								/>
+							))
+						) : (
+							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">{isError ? 'Something went wrong.' : "Sorry, we couldn't find anything here."}</p>
+						)}
+
+						{/* Show bottom loading indicator when fetching more */}
+						{isFetchingNextPage && <Loader />}
+
+						{/* Intersection Observer for infinite scroll */}
+						<div ref={inViewRef} />
+					</div>
 				) : (
 					<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] sm:shadow-[0px_0px_16px_12px_rgba(0,_0,_0,_0.1)] ` + styles.Company_Content_Companies}>
 						{isLoading ? (
@@ -137,15 +128,13 @@ const { ref: inViewRef } = useInView({
 									<CompanyCard companyData={company} />
 								</div>
 							))
-						)  : (
-							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">
-								{isError ? 'Something went wrong.' : "Sorry, we couldn't find anything here."}
-							</p>
+						) : (
+							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">{isError ? 'Something went wrong.' : "Sorry, we couldn't find anything here."}</p>
 						)}
-					
+
 						{/* Show bottom loading indicator when fetching more */}
-						{isFetchingNextPage && <Loader className='absolute bottom-1 left-[50%] '/>}
-					
+						{isFetchingNextPage && <Loader className="absolute bottom-1 left-[50%] " />}
+
 						{/* Intersection Observer for infinite scroll */}
 						<div ref={inViewRef} />
 					</div>

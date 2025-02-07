@@ -6,7 +6,7 @@ import { CompanyContextType, CompanyPageModeEnum } from '@Interfaces/CompanyCont
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect } from 'react';
 import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from '@Interfaces/JobsAndCompany.dto';
 import { filterMetaData } from '@Components/Company/FilterData';
-import ErrorWarning from '@Components/ContextErrorHandler';
+import ErrorWarning from '@Components/Shared/ContextErrorHandler';
 import { generateFilterForRender, normalizeSkills } from '@Utils/GenerateFiltersForRender';
 
 // Create the context object
@@ -15,9 +15,7 @@ const queryClient = new QueryClient();
 
 // Create the provider component
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
-	const initialMode = location.pathname.includes('job')
-    ? CompanyPageModeEnum.JOB
-    : CompanyPageModeEnum.REFERRAL;
+	const initialMode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
 	// States
 	const [companyPageMode, setCompanyPageMode] = useState<CompanyPageModeEnum>(initialMode);
@@ -28,7 +26,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 	const [searchText, setSearchText] = useState<string>('');
 
-	const [apiHasData , setApiHasData] = useState<boolean>(false);
+	const [apiHasData, setApiHasData] = useState<boolean>(false);
 
 	const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
 		pageSize: 10,
@@ -38,18 +36,16 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
 
-
 	// useLayoutEffect to check if we are on job page or referral page
-    useLayoutEffect(() => {
-        const mode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
-        setCompanyPageMode(mode);
+	useLayoutEffect(() => {
+		const mode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
+		setCompanyPageMode(mode);
 		//Reset data on mode change
 		setCompanyJobData([]);
 		setCompanyRefData([]);
-        setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
-        queryClient.invalidateQueries({ queryKey: ['GET', mode] });
-    }, [location.pathname]);
-	
+		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
+		queryClient.invalidateQueries({ queryKey: ['GET', mode] });
+	}, [location.pathname]);
 
 	// useEffect to reset the queryClient when the component unmounts
 	useEffect(() => {
@@ -66,16 +62,16 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	 * @description - This function is used to handle the search functionality
 	 */
 	const handleSearch = () => {
-        setJobFilters((prev) => ({ ...prev, searchText }));
-        queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
-    };
+		setJobFilters(prev => ({ ...prev, searchText }));
+		queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
+	};
 
-    const resetSearch = () => {
-        setSearchText('');
-        setJobFilters((prev) => ({ ...prev, searchText: '' }));
+	const resetSearch = () => {
+		setSearchText('');
+		setJobFilters(prev => ({ ...prev, searchText: '' }));
 		// console.log('🔍 Reset Search Invoked');
-        queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
-    };
+		queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
+	};
 
 	/**
 	 * Handle Query Function
@@ -85,46 +81,48 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	const CompanyQueryHandler = useCallback(
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
 			const updatedFilters = { ...filters, lastKey: pageParam }; // Attach lastKey for pagination
-	
-			const { response, error } = await httpServiceObj.get(
-				`/${location.pathname.includes('job') ? 'job' : 'company'}`,
-				true,
-				updatedFilters
-			);
-	
+
+			const { response, error } = await httpServiceObj.get(`/${location.pathname.includes('job') ? 'job' : 'company'}`, true, updatedFilters);
+
 			if (error) throw error;
-	
+
 			generateFilterForRender(response.data, companyPageMode, filterMetaData, setJobFilterForRender);
-	
+
 			setApiHasData(response.data.length > 0);
-	
+
 			if (location.pathname.includes('job')) {
-				setCompanyJobData((prev) => [...(prev || []), ...response.data]); // Append new data
+				setCompanyJobData(prev => [...(prev || []), ...response.data]); // Append new data
 			} else {
-				setCompanyRefData((prev) => [...(prev || []), ...response.data]);
+				setCompanyRefData(prev => [...(prev || []), ...response.data]);
 			}
-	
+
 			return {
 				data: response.data,
-				nextPage: response.pagination.lastKey ?? undefined // Pass lastKey for pagination
+				nextPage: response.pagination.lastKey ?? undefined, // Pass lastKey for pagination
 			};
 		},
 		[companyPageMode]
 	);
-	
-	/**
-	 * useQuery Hook
-	 *
-	 * @description - This hook is used to fetch data from the API
-	 */
+
+   /**
+	* useInfiniteQuery
+    *
+	* @description - This hook is used to fetch data from the API
+	*	* Handles fetching more data using infinite pagination.
+	*	* - When `fetchNextPage()` is called, React Query executes `getNextPageParam`.
+	*	* - `getNextPageParam: lastPage => lastPage.nextPage || undefined` extracts `nextPage` from the last fetched page.
+	*	* - The `lastPage.nextPage` contains `lastKey`, which is returned from the API response.
+	*	* - React Query automatically injects this `nextPage` value as `pageParam` into the next request.
+	*	*
+	*	* This ensures seamless infinite scrolling or paginated data fetching.
+	*/
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteQuery({
-		queryKey: ['GET', companyPageMode, jobFilters], 
+		queryKey: ['GET', companyPageMode, jobFilters],
 		queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
-		getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
+		getNextPageParam: lastPage => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
 		initialPageParam: null, // Set initial page param to null
-		enabled: !!companyPageMode && jobFilters.pageSize > 0
+		enabled: !!companyPageMode && jobFilters.pageSize! > 0, //@Can Cause Error bc I made pageSize optional
 	});
-	
 
 	/**
 	 * Context Value
@@ -132,32 +130,33 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	 * This object contains the values and functions that will be available to the components
 	 * that are children of the provider and useMemo is used to memoize the context value
 	 */
-	const contextValue:CompanyContextType = useMemo(() => ({
-        companyPageMode,
-        setCompanyPageMode,
-        setJobFilters,
-        jobFilterForRender,
-        companyJobData,
-        setSearchText,
-        searchText,
-        handleSearch,
-        resetSearch,
-        isLoading,
-        companyRefData,
-		apiHasData,
-		isError,
-		hasNextPage,
-		isFetchingNextPage,
-		fetchNextPage,
-    }), [companyPageMode, jobFilterForRender, searchText, isLoading,handleSearch,fetchNextPage,isFetchingNextPage]);
-
+	const contextValue: CompanyContextType = useMemo(
+		() => ({
+			companyPageMode,
+			setCompanyPageMode,
+			setJobFilters,
+			jobFilterForRender,
+			companyJobData,
+			setSearchText,
+			searchText,
+			handleSearch,
+			resetSearch,
+			isLoading,
+			companyRefData,
+			apiHasData,
+			isError,
+			hasNextPage,
+			isFetchingNextPage,
+			fetchNextPage,
+		}),
+		[companyPageMode, jobFilterForRender, searchText, isLoading, handleSearch, fetchNextPage, isFetchingNextPage]
+	);
 
 	return (
 		<CompanyContext.Provider value={contextValue}>
 			<div className="relative">
 				{children}
-				{isError && error ? <ErrorWarning isError={isError} error={error}  />
- : null}
+				{isError && error ? <ErrorWarning isError={isError} error={error} /> : null}
 			</div>
 		</CompanyContext.Provider>
 	);

@@ -1,9 +1,7 @@
-import { CompanyShortDto } from "@Interfaces/JobsAndCompany.dto";
-import { Users } from "lucide-react";
+import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
+import { Users } from 'lucide-react';
 
-
-const CompanyCard =({ companyData }: { companyData: CompanyShortDto }) => {
-
+const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 	return (
 		<>
 			<div className="h-fit border-4 border-gray-300 bg-white shadow-[0px_0px_16px_6px_rgba(0,_0,_0,_0.1)] p-2 w-full rounded-lg ">
@@ -17,7 +15,10 @@ const CompanyCard =({ companyData }: { companyData: CompanyShortDto }) => {
 					<div className=" flex flex-col items-start justify-between w-[70%]   ">
 						<h3 className="text-sm font-semibold capitalize mb-0 leading-6  sm:text-lg truncate w-[100%] text-left  ">{companyData.name}</h3>
 						<p className="text-gray-500 text-[10px] sm:text-xs capitalize truncate w-[100%] text-left ">{companyData.industry}</p>
-						<p className="text-black text-[10px] sm:text-xs font-semibold "><i className=" text-gray-500 fa-solid fa-users"></i>{` ${companyData.teamSize}`}</p>
+						<p className="text-black text-[10px] sm:text-xs font-semibold ">
+							<i className=" text-gray-500 fa-solid fa-users"></i>
+							{` ${companyData.teamSize}`}
+						</p>
 					</div>
 				</div>
 
@@ -41,7 +42,7 @@ const CompanyCard =({ companyData }: { companyData: CompanyShortDto }) => {
 							</a>
 						</div>
 						<button className="scale-90 btn_secondary text-[12px] w-[150px] px-0 ">Request Guidance</button>
-						</div>
+					</div>
 				</div>
 			</div>
 		</>

@@ -2,6 +2,7 @@ import  { useState } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { logo_text } from '@Assets';
 import styles from './header.module.scss';
+import { useNavigate } from 'react-router-dom';
 
 interface NavItem {
   label: string;
@@ -31,18 +32,19 @@ const navItems: NavItem[] = [
 ];
 
  const Header = () => {
+  const navigateTo = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const toggleDropdown = (label: string) => {
     setActiveDropdown(activeDropdown === label ? null : label);
   };
-
+ 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         {/* Logo */}
-        <div className={styles.logo}>
+        <div className={`cursor-pointer ${styles.logo}`}  onClick={()=>navigateTo('/')}>
           <img src={logo_text} alt="Logo" />
         </div>
 
@@ -77,8 +79,8 @@ const navItems: NavItem[] = [
             ))}
           </ul>
           <div className={styles.authButtons}>
-            <button className="btn_t1 login">Login</button>
-            <button className="btn_t1 signup">Sign-up for free</button>
+            <button className="btn_t1 login" onClick={()=>navigateTo('/auth/login')}>Login</button>
+            <button className="btn_t1 signup" onClick={()=>navigateTo('/auth/signup')}>Sign-up for free</button>
           </div>
         </nav>
 

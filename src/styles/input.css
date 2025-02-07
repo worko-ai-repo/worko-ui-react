@@ -1,4 +1,32 @@
 /* This file contains only the styles for the reusable Input component. */
+input{
+    position: relative;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    opacity: 0;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .input_primary{
     background-color: white;
 
@@ -6,8 +34,11 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    margin-bottom: 10px;
+
     font-size: 1rem;
     outline: none;
     transition: all 0.3s;
+}
+.error{
+    @apply focus:outline-none  focus:ring-2 focus:ring-red-500 focus:border-transparent text-red-500
 }

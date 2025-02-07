@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useCompanyContext } from '../../context/CompanyContext';
+import { useCompanyContext } from '../../context/Company.context';
 
 const JobFilterPanel = ({ toggleFilters }: { toggleFilters: () => void }) => {
 	const { setJobFilters, jobFilterForRender } = useCompanyContext();
@@ -7,8 +7,8 @@ const JobFilterPanel = ({ toggleFilters }: { toggleFilters: () => void }) => {
 	// Reset all filters
 	const resetFilters = () => {
 		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
-	}
-	
+	};
+
 	// Create refs for each select input
 	const selectRefs = useRef<(HTMLSelectElement | null)[]>([]);
 

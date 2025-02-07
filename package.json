@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "@tanstack/react-query": "^5.65.1",
     "@types/crypto-js": "^4.2.2",
     "@types/jwt-decode": "^3.1.0",

@@ -8,11 +8,14 @@ export default defineConfig({
   envPrefix: 'APP_', // Manually specify the prefix for the environment variables
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, 'src'), // Add alias for `src`
       '@Assets': path.resolve(__dirname, 'src/assets/assets.ts'),
       '@Components': path.resolve(__dirname, 'src/components'),
-      '@Enums': path.resolve(__dirname, 'src/enums'),
+      '@Context': path.resolve(__dirname, 'src/context'),
+      '@Enums': path.resolve(__dirname, 'src/types/enums'),
       '@Hooks': path.resolve(__dirname, 'src/hooks'),
-      '@Interfaces': path.resolve(__dirname, 'src/interface'),
+      '@Interfaces': path.resolve(__dirname, 'src/types/interface'),
+      '@Layouts': path.resolve(__dirname, 'src/layouts'),
       '@Pages': path.resolve(__dirname, 'src/pages'),
       '@Styles': path.resolve(__dirname, 'src/styles'),
       '@Services': path.resolve(__dirname, 'src/services'),

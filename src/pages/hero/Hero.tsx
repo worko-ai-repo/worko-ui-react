@@ -9,18 +9,17 @@ import ProductHighlight from '@Components/Hero/ProductHighlight';
 import Testimonials from '@Components/Hero/Testimonials';
 import HeroOutro from '@Components/Hero/HeroOutro';
 
-
 const Hero = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get('token'); // This will always resolve, so it's safe.
 
 	useEffect(() => {
-		const layout = document.getElementById('layout');
+		const layout = document.getElementById('MainLayout');
 		if (layout) {
 			layout.style.backgroundColor = '#4B7EFF'; // Set blue background for the Hero page
 		}
-	
+
 		return () => {
 			// Reset the background color when leaving the Hero page
 			if (layout) {
@@ -46,8 +45,8 @@ const Hero = () => {
 			<CompaniesList />
 			<PromoCard />
 			<div className=" lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-5 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
-			Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
-			<img src={worko_new} className='absolute top-[-12px] left-[-40px] -rotate-45' alt='worko_new' />
+				Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
+				<img src={worko_new} className="absolute top-[-12px] left-[-40px] -rotate-45" alt="worko_new" />
 			</div>
 			<ProductHighlight />
 			<Testimonials />

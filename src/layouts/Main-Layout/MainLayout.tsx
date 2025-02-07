@@ -1,17 +1,17 @@
 import Header from '@Components/Header/Header';
 import Footer from '@Components/Footer/Footer';
 import { Outlet } from 'react-router-dom';
-import styles from './layout.module.scss';
+import styles from '../layout.module.scss';
 /**
- * @function Layout
+ * @function MainLayout
  *
- * @description A layout component for nested routes
+ * @description A MainLayout component for nested routes
  *
- * @returns {JSX.Element} The JSX code for the Layout component
+ * @returns {JSX.Element} The JSX code for the MainLayout component
  */
-function Layout(): JSX.Element {
+function MainLayout(): JSX.Element {
 	return (
-		<div id="layout" className='bg-white'>
+		<div id="MainLayout" className='bg-white'>
 			<Header />
                 <main className={styles.main} id='main_container'>
                     <Outlet />
@@ -21,4 +21,4 @@ function Layout(): JSX.Element {
 	);
 }
 
-export default Layout;
+export default MainLayout;
