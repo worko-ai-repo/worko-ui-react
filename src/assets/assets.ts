@@ -1,4 +1,4 @@
-import bg_plexus from './backgrounds/plexus.png';
+import bg_plexus from './backgrounds/plexus.webp';
 import bg_globe_abstract from './backgrounds/globe_abstract.png';
 
 // Worko Assets
@@ -17,6 +17,9 @@ import mini_frame1 from './backgrounds/Mini_Frame_1.png'
 import mini_frame2 from './backgrounds/Mini_Frame_2.png'
 import auth_bg from './backgrounds/auth_bg.png'
 import auth_bg2 from './backgrounds/auth_bg2.png'
+import Login_Boy from "./backgrounds/Login_Boy.webp"
+import Forgot_Password from "./backgrounds/Forgot_Password.webp"
+import Forgot_Password_1 from "./backgrounds/Forgot_Password_1.webp"
 export { 
     // Backgrounds
     bg_plexus,
@@ -30,6 +33,9 @@ export {
     mini_frame2,
     auth_bg,
     auth_bg2,
+    Login_Boy,
+    Forgot_Password,
+    Forgot_Password_1,
      
     // Worko Assets
     favicon,

@@ -30,7 +30,7 @@ const PromoCard = () => {
                 </>}
 
 
-				<div className={`content_changer border-[2px] border-${sadView ? 'red' : 'green'}-600 shadow-md shadow-${sadView ? 'red' : 'green'}-600 rounded-full`}>
+				<div className={`content_changer border-[2px] border-${sadView ? 'red' : 'green'}-600 shadow-md shadow-${sadView ? 'red' : 'green'}-600 `}>
 					<input className="checkbox hidden  " type="checkbox" id="toggle" onClick={toggleView} />
 					<label htmlFor="toggle" className="cursor-pointer">
 						<div id="container" className="m-auto rounded-full h-8 w-16 bg-black flex items-center p-1">

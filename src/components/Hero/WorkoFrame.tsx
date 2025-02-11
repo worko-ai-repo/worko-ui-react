@@ -19,7 +19,7 @@ const WorkoFrame = () => {
             <div className="rounded-t-3xl w-full bg-blue-600 h-[60px]" />
   
             {/* Absolutely positioned toggle container */}
-            <div className="absolute left-1/2 -translate-x-1/2 scale-50 sm:scale-100 top-[40px] w-full max-w-[200px] z-10">
+            <div className="absolute left-1/2 -translate-x-1/2 scale-50 sm:scale-90 top-[40px] w-full max-w-[200px] z-10">
               <div className="group relative flex w-full rounded-lg border-3 border-white bg-white shadow-md p-1">
                 {/* Sliding background */}
                 <div 
@@ -41,7 +41,7 @@ const WorkoFrame = () => {
                   />
                   <label
                     htmlFor="jobs"
-                    className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200"
+                    className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200"
                   >
                     <span className={activeFrame === 'jobs' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
                       Jobs
@@ -62,7 +62,7 @@ const WorkoFrame = () => {
                   />
                   <label
                     htmlFor="referrals"
-                    className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200"
+                    className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200"
                   >
                     <span className={activeFrame === 'referrals' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
                       Referrals

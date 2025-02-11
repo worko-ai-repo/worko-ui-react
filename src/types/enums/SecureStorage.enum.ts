@@ -7,4 +7,12 @@
  */
 export enum SecureStorageKeyEnum {
 	USERTOKEN = 'USERTOKEN',
+	SIGNINDETAILS = 'SIGNINDETAILS',
+	REDACTED_SECRET = 'REDACTED_SECRET',
+	USEREMAIL = 'USEREMAIL',
+	COGNITOUSERID = 'cognitoUserId',
+	USERTYPE = 'userType',
+	ACCESSTOKEN = 'ACCESSTOKEN',
+	LASTACCESSEDDASH = 'lastAccessedDash',
+	USERNAME = 'userName',
 }

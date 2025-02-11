@@ -39,6 +39,8 @@
  * />
  */
 
+import { emailDomainDenyListValidator } from "./CorporateMailValidator.utils";
+
 export const validationRules = {
 	name: {
 		required: 'Name is required',
@@ -57,6 +59,15 @@ export const validationRules = {
 			value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
 			message: 'Invalid email address',
 		},
+	},
+	corporateEmail: {
+		required: 'Email is required',
+		pattern: {
+			value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+			message: 'Invalid email address',
+		},
+		validate: (email: string) => 
+			emailDomainDenyListValidator(email) || 'Personal email domains are not allowed',
 	},
 	linkedInPage: {
 		required: 'LinkedIn page is required',

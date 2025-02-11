@@ -24,3 +24,16 @@ export interface HttpParamsOptions {
     fileType?: string;
     [key : string]: string | undefined;
 }
+
+/**
+ * HttpMethodResponseDto Interface
+ * 
+ * @description The interface for the HttpMethodResponseDto object like response and error
+ * @generic ResponseDataDto - The type of the response data
+ * @export HttpMethodResponseDto
+ */
+export interface HttpMethodResponseDto<ResponseDataDto>{
+    response:ResponseDataDto | null;
+    error:Error | null;
+    status?:number;
+}

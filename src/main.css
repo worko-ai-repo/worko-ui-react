@@ -102,8 +102,8 @@ p {
 input{
 	background-color: var(--primary-background-color);
 	outline: none;
-	font-weight: 600;
-	color:rgb(120, 158, 193)
+	font-weight: 500;
+	color:rgb(65, 111, 153)
 }
 
 label{

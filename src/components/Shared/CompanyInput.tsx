@@ -3,28 +3,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Search, Building2, X, Linkedin } from 'lucide-react';
 import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
+import CustomModal from '@Components/Modals/FormModal';
 import { toast } from 'react-toastify';
-import { FieldErrors, } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
+import { validationRules } from '@Utils/FormValidator.utils';
 import RequestCompany from './RequestCompany';
 import { useAppContext } from '@Context/Main.context';
 
-export default function CompanyInput({
-	 errors,
-    setValue,
-    setError,
-    clearErrors,
-	hasLabel,
-	formKey,
-	
-}: {
-	hasLabel: boolean;
-	formKey: string
-    errors?: FieldErrors<any>;
-    setValue: any;
-    setError?: any;
-    clearErrors?:any;
-
-}) {
+export default function CompanyInput({errors , setValue,clearErrors,setCompanyName,isOtpSent}: {errors:FieldErrors<any> ; setValue: any , clearErrors:any,setCompanyName:any,isOtpSent:boolean}) {
 	const [searhText, setSearchText] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedCompany, setSelectedCompany] = useState<CompanyShortDto | null>(null);
@@ -67,52 +53,42 @@ export default function CompanyInput({
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-    const handleCompanySelect = (company: CompanyShortDto | null) => {
-        if (company) {
-            const value = company.SK;
-            setValue(formKey, value, { shouldValidate: true });
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchText(e.target.value);
+		setIsOpen(true);
+	};
+
+	const handleCompanySelect = (company: CompanyShortDto) => {
+		if (company) {
             setSelectedCompany(company);
             setSearchText(company.name);
+			setCompanyName(company.name);
+            setValue('company', company.SK);
+           
+                clearErrors('company');
+           
         } else {
-            setValue(formKey, undefined, { shouldValidate: true }); // Set to undefined when no company
             setSelectedCompany(null);
             setSearchText('');
+			setCompanyName('');
+            setValue('company', '');
         }
         setIsOpen(false);
-        if (clearErrors) { clearErrors(formKey); }
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchText(e.target.value);
-        setIsOpen(true);
-        if (!e.target.value) {  // Clear if input is empty
-            handleCompanySelect(null); // or setValue(formKey, undefined, { shouldValidate: true });
-        }
-    };
-
-	const handleBlurValidation = () => {
-		if (!selectedCompany) {
-			setValue(formKey, '', { shouldValidate: true });
-			setError(formKey, {
-				type: 'manual',
-				message: 'Please select a company from the dropdown',
-			});
-			setSearchText('');
-		}
 	};
+
 	return (
-		<div className="w-full max-w-md mx-auto">
+		<div className="w-full max-w-auto mx-auto">
 			<div className="relative" ref={dropdownRef}>
 				<div className="relative">
-					<input type="text" value={searhText} onBlur={()=>handleBlurValidation()} onChange={handleInputChange} onFocus={() => setIsOpen(true)} readOnly={selectedCompany ? true : false} placeholder="Search for a company..." className={`w-full px-4 py-2.5 pl-14 text-sm border bg-white border-gray-300 rounded-lg ${errors?.formKey && 'error'}`} />
+					<input disabled={isOtpSent} type="text" value={searhText} onChange={handleInputChange} onFocus={() => setIsOpen(true)} readOnly={selectedCompany ? true : false} placeholder="Search for a company..." className={`input_primary auth_input w-full px-4 py-3 pl-14 text-sm border  ${errors.companyName && 'error'}`} />
 					{selectedCompany ? (
 						<div className="">
 							{selectedCompany.logo ? <img src={selectedCompany.logoUrl} alt={selectedCompany.name} className="bg-white object-contain absolute left-3 top-1.5 h-8 w-8 rounded" /> : <Building2 className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />}
 							<X
 								onClick={() => {
 									setSelectedCompany(null);
+									setValue('company', null ,  { shouldValidate: true });
 									setSearchText('');
-									setValue(formKey, '', { shouldValidate: true });
 								}}
 								className=" active:scale-90 cursor-pointer p-1 text-white bg-blue-600 rounded-full absolute right-3 top-3.5 h-4 w-4 "
 							/>

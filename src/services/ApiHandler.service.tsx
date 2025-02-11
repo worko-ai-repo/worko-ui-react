@@ -1,3 +1,4 @@
+import { HttpMethodResponseDto } from '@Interfaces/HttpOption.dto';
 import { getHttpOptions } from '@Utils/HttpOptions.utils';
 
 /**
@@ -34,11 +35,12 @@ export class HttpService {
 	 *         > HttpServiceObj.post('/path', { data: 'data' }, true, { xTenantId: 'tenantId' });
 	 *         > HttpServiceObj.post('/api/resource', { name: 'Test' }, false, { page: 1, limit: 10 });
 	 */
-	post = async (path: string, data: object, authorization: boolean = true, params = {}) => {
+	async post<ResponseDataDto>(path: string, data: object, authorization: boolean = true, params = {}, fullUri: boolean = false): Promise<HttpMethodResponseDto<ResponseDataDto>> {
 		try {
 			// Build query string and append it to the path
 			const queryString = new URLSearchParams(params as Record<string, string>).toString();
 			const fullPath = queryString ? `${path}?${queryString}` : path;
+			let FetchApiPath;
 			// Prepare the options for the POST
 			const options = {
 				method: 'POST',
@@ -46,8 +48,14 @@ export class HttpService {
 				body: JSON.stringify(data),
 			};
 
+			// Check if the fullUri is true, then use the path as is
+			if (fullUri) {
+				FetchApiPath = path;
+			} else {
+				FetchApiPath = `${this.API_URI}${fullPath}`;
+			}
 			// Make the POST request to the API
-			const response = await fetch(`${this.API_URI}${fullPath}`, options);
+			const response = await fetch(FetchApiPath, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -56,16 +64,16 @@ export class HttpService {
 				return { response: null, error: new Error(errorMessage) };
 			}
 			// Parse and return the JSON response
-			const jsonResponse = await response.json();
+			const jsonResponse = (await response.json()) as ResponseDataDto;
 
 			// Return the response and error as null
 			return { response: jsonResponse, error: null };
 		} catch (error) {
 			// Log the error for debugging
 			console.error(`Error in POST request to ${path}:`, error);
-			return { response: null, error };
+			return { response: null, error: error as Error };
 		}
-	};
+	}
 
 	/**
 	 * @method get
@@ -120,11 +128,12 @@ export class HttpService {
 	 * @param {boolean} authorization The flag to check if the request needs authorization
 	 * @param params The additional parameters to be sent to the API
 	 */
-	put = async (path: string, data: object, authorization: boolean = true, params = {}) => {
+	async put<ResponseDataDto>(path: string, data: object, authorization: boolean = true, params = {}, fullUri: boolean = false): Promise<HttpMethodResponseDto<ResponseDataDto>> {
 		try {
 			// Build query string and append it to the path
 			const queryString = new URLSearchParams(params as Record<string, string>).toString();
 			const fullPath = queryString ? `${path}?${queryString}` : path;
+			let FetchApiPath;
 
 			const options = {
 				method: 'PUT',
@@ -132,8 +141,11 @@ export class HttpService {
 				body: JSON.stringify(data),
 			};
 
+			// Determine the final URL
+			FetchApiPath = fullUri ? path : `${this.API_URI}${fullPath}`;
+
 			// Make the PUT request to the API
-			const response = await fetch(`${this.API_URI}${fullPath}`, options);
+			const response = await fetch(FetchApiPath, options);
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -141,17 +153,22 @@ export class HttpService {
 				console.error(`HTTP error on PUT ${path}:`, errorMessage);
 				return { response: null, error: new Error(errorMessage) };
 			}
-			// Parse and return the JSON response
-			const jsonResponse = await response.json();
 
-			// Return the response and error as null
+			// Handle empty responses (204 No Content or other cases)
+			let jsonResponse: ResponseDataDto | null = null;
+			const contentType = response.headers.get('content-type');
+
+			if (contentType && contentType.includes('application/json')) {
+				jsonResponse = await response.json() as ResponseDataDto;
+			}
+
 			return { response: jsonResponse, error: null };
 		} catch (error) {
-			// Log the error for debugging
 			console.error(`Error in PUT request to ${path}:`, error);
-			return { response: null, error };
+			return { response: null, error: error as Error };
 		}
-	};
+	}
+
 	/**
 	 * @method patch
 	 *
@@ -162,37 +179,56 @@ export class HttpService {
 	 * @param {boolean} authorization The flag to check if the request needs authorization
 	 * @param params The additional parameters to be sent to the API
 	 */
-	patch = async (path: string, data: object, authorization: boolean = true, params = {}) => {
+	async patch<ResponseDataDto>(
+		path: string,
+		data: object,
+		authorization: boolean = true,
+		params = {},
+		fullUri: boolean = false
+	  ): Promise<HttpMethodResponseDto<ResponseDataDto>> {
 		try {
-			// Build query string and append it to the path
-			const queryString = new URLSearchParams(params as Record<string, string>).toString();
-			const fullPath = queryString ? `${path}?${queryString}` : path;
-			const options = {
-				method: 'PATCH',
-				...getHttpOptions(authorization, params),
-				body: JSON.stringify(data),
-			};
-
-			// Make the PATCH request to the API
-			const response = await fetch(`${this.API_URI}${fullPath}`, options);
-
-			// Check if the response is not OK
-			if (!response.ok) {
-				const errorMessage = `HTTP error! status: ${response.status}, message: ${response.statusText}`;
-				console.error(`HTTP error on PATCH ${path}:`, errorMessage);
-				return { response: null, error: new Error(errorMessage) };
-			}
-			// Parse and return the JSON response
-			const jsonResponse = await response.json();
-
-			// Return the response and error as null
-			return { response: jsonResponse, error: null };
+		  const queryString = new URLSearchParams(params as Record<string, string>).toString();
+		  const fullPath = queryString ? `${path}?${queryString}` : path;
+		  const FetchApiPath = fullUri ? path : `${this.API_URI}${fullPath}`;
+	  
+		  const options = {
+			method: 'PATCH',
+			...getHttpOptions(authorization, params),
+			body: JSON.stringify(data),
+		  };
+	  
+		  console.log('PATCH request:', FetchApiPath, options); // Debugging
+	  
+		  const response = await fetch(FetchApiPath, options);
+	  
+		  // If the response status is 204 No Content, return immediately
+		  if (response.status === 204) {
+			return { response: null, error: null, status: 204 };
+		  }
+	  
+		  if (!response.ok) {
+			const errorText = await response.text(); // Read response as text
+			const errorMessage = `HTTP error! status: ${response.status}, message: ${errorText || "No response body"}`;
+			console.error(`HTTP error on PATCH ${path}:`, errorMessage);
+			return { response: null, error: new Error(errorMessage), status: response.status };
+		  }
+	  
+		  const contentType = response.headers.get('content-type');
+	  
+		  let jsonResponse: ResponseDataDto | null = null;
+		  if (contentType && contentType.includes('application/json')) {
+			const responseText = await response.text();
+			jsonResponse = responseText ? JSON.parse(responseText) : null;
+		  }
+	  
+		  return { response: jsonResponse, error: null, status: response.status };
 		} catch (error) {
-			// Log the error for debugging
-			console.error(`Error in PATCH request to ${path}:`, error);
-			return { response: null, error };
+		  console.error(`Error in PATCH request to ${path}:`, error);
+		  return { response: null, error: error as Error, status: 500 };
 		}
-	};
+	  }
+	  
+	  
 	/**
 	 * @method delete
 	 *
@@ -223,7 +259,6 @@ export class HttpService {
 			}
 			// Delete most likely won't return anything
 			return { response: null, error: null };
-
 		} catch (error) {
 			// Log the error for debugging
 			console.error(`Error in DELETE request to ${path}:`, error);
