@@ -10,7 +10,7 @@ import { validationRules } from '@Utils/FormValidator.utils';
 import RequestCompany from './RequestCompany';
 import { useAppContext } from '@Context/Main.context';
 
-export default function CompanyInput({errors , setValue,clearErrors,setCompanyName,isOtpSent}: {errors:FieldErrors<any> ; setValue: any , clearErrors:any,setCompanyName:any,isOtpSent:boolean}) {
+export default function CompanyInput({errors , setValue,clearErrors,setCompanyName,isOtpSent}: {errors:FieldErrors<any> ; setValue: any , clearErrors:any,setCompanyName:any,isOtpSent?:boolean}) {
 	const [searhText, setSearchText] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedCompany, setSelectedCompany] = useState<CompanyShortDto | null>(null);
@@ -23,7 +23,7 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 
 	const findCompanies = useCallback<() => Promise<CompanyShortDto[]>>(async () => {
 		if (!searhText || searhText.length < 2) return [];
-		const { response, error } = await httpServiceObj.get('/company', true, { searchText: searhText });
+		const { response, error } = await httpServiceObj.get<any>('/company', true, { searchText: searhText });
 		if (error) throw error;
 		return response.data as CompanyShortDto[];
 	}, [searhText]);

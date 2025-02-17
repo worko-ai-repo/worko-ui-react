@@ -114,3 +114,50 @@ export interface FileUpload {
     file: any;
     awsS3Tag: string | undefined;
   }
+
+/**
+ * AuthLoginForGeneralUserDto
+ * 
+ */
+export interface AuthLoginForGeneralUserDto {
+    referralCount: number;
+    userType: string[];
+    coverLetter: string;
+    GSI1SK: string;
+    email: string;
+    country: string;
+    name: string;
+    YOE: number;
+    cvExtractDate: string;
+    profileImage: string;
+    CTC: number;
+    candidateExperience: CandidateExperience;
+    isWhatsappNotificationEnabled: boolean;
+    emailList: EmailList;
+    about: string;
+    id: string;
+    isSubscribed: boolean;
+    isNumberVerified: boolean;
+    isEmailVerified: boolean;
+    ECTC: number;
+    location: string;
+    createdAt: string;
+    GSI1PK: string;
+    CV: string;
+    expiryDate: string;
+    lastAccessedDash: string;
+    number: string;
+    noticePeriod: number;
+    updatedAt: string;
+    PK: string;
+    cvAwsS3SignedUrl: string;
+    profileImageAwsS3SignedUrl: string;
+}
+export interface CandidateExperience {
+    department: string;
+    companyName: string;
+    designation: string;
+}
+export interface EmailList {
+    primary: string;
+}

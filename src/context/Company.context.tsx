@@ -82,22 +82,22 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
 			const updatedFilters = { ...filters, lastKey: pageParam }; // Attach lastKey for pagination
 
-			const { response, error } = await httpServiceObj.get(`/${location.pathname.includes('job') ? 'job' : 'company'}`, true, updatedFilters);
+			const { response, error } = await httpServiceObj.get<any>(`/${location.pathname.includes('job') ? 'job' : 'company'}`, true, updatedFilters);
 
 			if (error) throw error;
 
-			generateFilterForRender(response.data, companyPageMode, filterMetaData, setJobFilterForRender);
+			generateFilterForRender(response, companyPageMode, filterMetaData, setJobFilterForRender);
 
-			setApiHasData(response.data.length > 0);
+			setApiHasData(response.length > 0);
 
 			if (location.pathname.includes('job')) {
-				setCompanyJobData(prev => [...(prev || []), ...response.data]); // Append new data
+				setCompanyJobData(prev => [...(prev || []), ...response]); // Append new data
 			} else {
-				setCompanyRefData(prev => [...(prev || []), ...response.data]);
+				setCompanyRefData(prev => [...(prev || []), ...response]);
 			}
 
 			return {
-				data: response.data,
+				data: response,
 				nextPage: response.pagination.lastKey ?? undefined, // Pass lastKey for pagination
 			};
 		},

@@ -14,6 +14,7 @@ const ForgotPassword = () => {
 
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
+	const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
 	const [isStepOne, setIsStepOne] = React.useState<boolean>(true);
 	const {
 		register,
@@ -33,7 +34,7 @@ const ForgotPassword = () => {
 
 	const heading = isStepOne ? 'Forgot Your Password ?' : 'Reset Your Password';
 	const headingInfo = isStepOne ? 'Forgot your password! No Worries Follow these Two Easy Steps to resolve it.' : 'Fill all the deatils to reset your password along with the OTP sent to your email.';
-
+	const Steps = isStepOne ? 'STEP I : Enter your email address to receive a code.' : 'STEP II : Enter the OTP sent to your email and reset your password';
 	// functions
 	// STEP 1 : This will be opened Once you set the email and clicked on the forgot password, it will open the handleResetPassword page and pass your email to next function
 	async function onSendCode(e:any) {
@@ -93,51 +94,53 @@ const ForgotPassword = () => {
 };
 
 	return (
-		<div className="  flex justify-center relative w-full min-h-[500px] max-w-[1120px] overflow-hidden rounded-3xl bg-white shadow z-20 ">
-			<div className="sm:hidden absolute top-3 rounded-full border-[1px] border-blue-600 flex items-center justify-center w-[80px] h-[50px] ">
-				<i className="fa-sharp-duotone fa-solid fa-key fa-fade fa-2xl text-blue-600 animate-pulse"></i>
-			</div>
-			<div className=" px-8 pt-8 pb-16  sm:px:14 flex justify-between w-full items-center ">
+		<div className=" scale-90 flex justify-center relative w-full min-h-[420px] max-w-[1120px] overflow-hidden rounded-3xl bg-white shadow z-20 ">
+
+			<div className=" px-8 py-8   sm:px:14 flex justify-between w-full items-center ">
 				{/* Form and Image */}
 				<div className=" img hidden sm:block h-full max-w-[50%]">
 					<img src={isStepOne ? Forgot_Password_1 : Forgot_Password} alt="login_img" className="  w-full h-full object-contain  rounded-3xl " />
 				</div>
-				<div className=" img h-full w-full sm:w-[50%]  flex flex-col justify-center">
-					<div className="text-left   max-w-[350px]  mx-auto ">
+
+				{/* Form */}
+				<div className=" img h-full w-full sm:w-[50%]  flex flex-col justify-center ">
+				
+					<div className="text-left mb-5 sm:mb-0  max-w-[350px] mx-auto ">
 						<p className="font-bold text-xl  md:text-2xl text-gray-700 mx-auto text-left   max-w-[350px] mt-2 "> {heading} </p>
 						<small className="max-w-[350px] text-justify  ">{headingInfo}</small>
+						<br />
 					</div>
 					<div className="min-h-[50%]  flex items-center">
 						<form onSubmit={isStepOne ? (e) =>  onSendCode(e) : handleSubmit(onChangePassword)} className=" min-w-full flex flex-col  items-center justify-center  ">
-							<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 items-baseline  ">
+							<div className="mainForm  min-w-full grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full  sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 items-baseline  ">
 								{/* Name */}
 								<div className="w-full max-w-[350px] sm:max-w-[350px] ">
-									<label className="block font-medium">Email</label>
+									<label className="hidden sm:block font-medium">Email</label>
 									<input disabled={!isStepOne} type="text" placeholder="Email or phone number" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', pagetype === 'GEN' ? validationRules.email : validationRules.corporateEmail)} />
 									{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 								</div>
 								<div className={`${isStepOne ? 'hidden' : 'block'} w-full max-w-[350px] sm:max-w-[350px] `}>
 									{/* Enter Otp */}
-									<div className="w-full max-w-[350px] sm:max-w-[350px] ">
-										<label className="block font-medium">Enter OTP</label>
+									<div className="mb-4 sm:mb-0 w-full max-w-[350px] sm:max-w-[350px] ">
+										<label className="hidden sm:block font-medium">Enter OTP</label>
 										<input type="text" placeholder="Enter OTP" className={`input_primary auth_input ${errors.otp && 'error'}`} {...register('otp', validationRules.otp)} />
 										{errors.otp && <p className="text-sm text-left text-red-500">{errors.otp.message?.toString()}</p>}
 									</div>
 									{/* Password */}
-									<div className="relative w-full max-w-[350px] sm:max-w-[350px]">
-										<label className="block font-medium">Password</label>
+									<div className=" mb-4 sm:mb-0 relative w-full max-w-[350px] sm:max-w-[350px]">
+										<label className="hidden sm:block font-medium">Password</label>
 										<input type={showPassword ? 'text' : 'password'} placeholder="Enter Password" className={`input_primary auth_input ${errors.password && 'error'}`} {...register('password', validationRules.password)} />
-										<span className="absolute right-3 top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
+										<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
 											{showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
 										</span>
 										{errors.password && <p className="text-sm text-left text-red-500">{errors.password.message?.toString()}</p>}
 									</div>
 									{/* Confirm Password */}
-									<div className="relative w-full max-w-[350px] sm:max-w-[350px]">
-										<label className="block font-medium">Confirm Password</label>
-										<input type={showPassword ? 'text' : 'password'} placeholder="Confirm Password" className={`input_primary auth_input ${errors.confirmPassword && 'error'}`} {...register('confirmPassword', validationRules.confirmPassword(watch))} />
-										<span className="absolute right-3 top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
+									<div className=" relative w-full max-w-[350px] sm:max-w-[350px]">
+										<label className="hidden sm:block font-medium">Confirm Password</label>
+										<input type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" className={`input_primary auth_input ${errors.confirmPassword && 'error'}`} {...register('confirmPassword', validationRules.confirmPassword(watch))} />
+										<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+											{showConfirmPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
 										</span>
 										{errors.confirmPassword && <p className="text-sm text-left text-red-500">{errors.confirmPassword.message?.toString()}</p>}
 									</div>
@@ -146,7 +149,7 @@ const ForgotPassword = () => {
 								{/* Submit Button */}
 								<div className="w-full ">
 									<button type="submit" /* onClick={() => setIsStepOne(prev => !prev)} */ className="cursor-pointer btn_primary px-4 py-3 w-full max-w-[350px] sm:max-w-[350px] ">
-										{isStepOne ? 'Send Code' : 'Reset Password'}
+										{isStepOne ? 'Continue' : 'Reset Password'}
 									</button>
 									{/* Register */}
 									<div className="w-full ">

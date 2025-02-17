@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 /**
  * Interface for the ContextProvider
@@ -12,4 +12,6 @@ export interface AppContextType {
   isLoggedIn: boolean;
   tokenData: any | null;
   setAuthState: (tokenData: any, isLoggedIn: boolean) => void;
+  setUpdateCheck: React.Dispatch<React.SetStateAction<boolean>>;
+  userDetails: any | null;
 }

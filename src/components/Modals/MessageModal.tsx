@@ -15,7 +15,7 @@ interface MessagePopupProps {
 const icons = {
 	none: null,
 	error: <XCircle className="text-red-500 w-6 h-6" />,
-	warning: <AlertTriangle className="text-yellow-500 w-6 h-6" />,
+	warning: <AlertTriangle className="text-yellow-500 w-6 h-6  " />,
 	success: <CheckCircle className="text-green-500 w-6 h-6" />,
 	info: <Info className="text-blue-500 w-6 h-6" />,
 };
@@ -62,10 +62,12 @@ export default function MessageModal({ type, heading, size = '2xl', message, but
 			<div className={`bg-white rounded-xl  shadow-xl p-5 transform transition-transform scale-95 opacity-1 animate-fadeIn ${
 				sizeClasses[size] || sizeClasses['2xl']
 			} `}>
-				<div className="flex flex-col  items-center gap-4 ">
-					{icons[type]}
-					{heading && <h2 className={`text-xl font-bold ${HeadingStyles[heading.type]}`}>{heading.message}</h2>}
-					<p className="text-gray-700 flex-1 text-justify max-h-[50vh] overflow-auto px-4" dangerouslySetInnerHTML={{ __html: message }}></p>
+				<div className="flex flex-col  items-center">
+					<div className="flex gap-2 items-center justify-center ">
+						{icons[type]}
+						{heading && <h2 className={` text-xl font-bold ${HeadingStyles[heading.type]}`}>{heading.message}</h2>}
+					</div>
+					<p className="mt-5 mb-2 text-gray-700 flex-1 text-justify max-h-[50vh] overflow-auto px-4" dangerouslySetInnerHTML={{ __html: message }}></p>
 					<div className="relative w-full">
 						{showCloseButton && onClose && (
 							<button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">

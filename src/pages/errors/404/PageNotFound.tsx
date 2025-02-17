@@ -9,7 +9,7 @@ const PageNotFound = () => {
         <p>
           Sorry, the page you're looking for doesn't exist. If you think this is a mistake, please contact us.
         </p>
-        <button className='btn_t2'>
+        <button className='btn_secondary '>
           Go Back Home
         </button>
 			</div>

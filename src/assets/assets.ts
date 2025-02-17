@@ -20,6 +20,9 @@ import auth_bg2 from './backgrounds/auth_bg2.png'
 import Login_Boy from "./backgrounds/Login_Boy.webp"
 import Forgot_Password from "./backgrounds/Forgot_Password.webp"
 import Forgot_Password_1 from "./backgrounds/Forgot_Password_1.webp"
+
+// svg
+import coin from './svgs/coin.svg'
 export { 
     // Backgrounds
     bg_plexus,
@@ -43,5 +46,8 @@ export {
     logo_text_bright,
     job_frame,
     ref_frame,
-    worko_new
+    worko_new,
+
+    //svgs
+    coin
 };

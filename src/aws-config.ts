@@ -28,7 +28,7 @@ const Awsconfig = {
       "domain":  import.meta.env.APP_COGNITO_DOMAIN,
       "redirectSignIn": import.meta.env.APP_LINKEDIN_REDIRECTION,
       "redirectSignOut":import.meta.env.LINKEDIN_LOGOUT,
-      "responseType": "code",
+      "responseType": 'code',
       "scope": [
          "email",
          "openid",

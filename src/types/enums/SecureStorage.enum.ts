@@ -8,6 +8,7 @@
 export enum SecureStorageKeyEnum {
 	USERTOKEN = 'USERTOKEN',
 	SIGNINDETAILS = 'SIGNINDETAILS',
+	LOGINDETAILS = 'loginDetails',
 	REDACTED_SECRET = 'REDACTED_SECRET',
 	USEREMAIL = 'USEREMAIL',
 	COGNITOUSERID = 'cognitoUserId',
@@ -15,4 +16,9 @@ export enum SecureStorageKeyEnum {
 	ACCESSTOKEN = 'ACCESSTOKEN',
 	LASTACCESSEDDASH = 'lastAccessedDash',
 	USERNAME = 'userName',
+	LINKEDINUSERTYPE = 'REDACTED_SECRET',
+	IS_LINKEDIN_USER = 'REDACTED_SECRET',
+	LASTACCESSED_DASH = 'lastAccessedDash',
+	IS_COMPANY_LISTING_ROUTE = 'isCompanyListingRoute',
+	DYNAMIC_ROUTE = 'dynamicRoute',
 }

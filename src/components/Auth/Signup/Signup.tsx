@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import CustomButtonWithButton from '../../Shared/CustomButtonWithButton';
 import SignupForm from './SignupForm';
 import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload } from '@Interfaces/Auth.dto';
@@ -7,9 +7,13 @@ import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '@Context/Main.context';
 
 export type SignupMode = 'EMP' | 'CAND';
 const Signup = () => {
+	const navigateTo = useNavigate();
+	const {isLoggedIn } = useAppContext();
 	const [activeFrame, setActiveFrame] = useState<SignupMode>('CAND');
 	const [cv, setCv] = useState<any>();
 	let resumeUserFileName: string;
@@ -33,6 +37,14 @@ const Signup = () => {
 	];
 
 	let CognitoResponse: CognitoSignupResponse;
+	/**
+	 * check if the user is already logged in
+	 */
+	useLayoutEffect(() => {
+		if (isLoggedIn) {
+			navigateTo('/');
+		}
+	},[isLoggedIn]);
 
 	/**
 	 * metaDataFilter
@@ -114,14 +126,14 @@ const Signup = () => {
 		};
 
 		const signedUrl: string = response?.awsS3SignedUrl || '';
-		debugger;
+		// debugger;
 		const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
 
 		if (fileUploadHandler.error) {
 			throw fileUploadHandler.error;
 		} else {
 			// Patch the data to the backend
-			debugger;
+			// debugger;
 			const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${formData.emailId}/cv`, { resume: response?.cloudFileName }, true);
 
 			if (CvNamePatchRequest.status !== 200) {
@@ -157,7 +169,7 @@ const Signup = () => {
 				await CvS3MemAllocation();
 			}
 		} else {
-			debugger;
+			// debugger;
 			// Add the data to the backend
 			let employeeData: DevEmployeeDto = {
 				name: formData.name,
@@ -206,11 +218,12 @@ const Signup = () => {
 				name: formData.name,
 				phone_number: '+91' + formData.phoneNumber,
 			};
-
+			debugger;
 			const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
 
 			if (error) {
-				throw error;
+				toast.error(error.message);
+				return false;
 			} else {
 				CognitoResponse = response;
 
@@ -254,21 +267,21 @@ const Signup = () => {
 	}, [activeFrame]);
 
 	return (
-		<div className=" flex justify-center  w-full min-h-[700px] md:min-w-[50%]  max-w-[1120px] overflow-hidden rounded-3xl bg-white shadow z-20 ">
+		<div className="sm:scale-90 flex justify-center  w-full mt-5 in-h-[650px]  md:min-w-[50%] sm:max-w-[80vw]  xl:max-w-[1120px] overflow-hidden rounded-md mx-2 sm:rounded-3xl bg-white shadow z-20 ">
 			<img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
 			<img src={auth_bg2} alt="auth_bg2" className="absolute z-10  bottom-10 right-0" />
 			<div className=" flex justify-center relative w-full min-h-[700px] md:min-w-[50%]  max-w-[1120px] overflow-hidden rounded-lg bg-white shadow z-20 ">
-				<div className="px-4 gap-2 py-5 sm:p-6  w-full flex flex-col ">
+				<div className="px-2 gap-2 py-5 sm:py-6  w-full flex flex-col ">
 					{/* Header and toggle button */}
-					<div className=" relative header flex justify-around flex-wrap w-full  items-center ">
-						<p className="font-semibold text-sm md:text-xl text-gray-500 self-center mt-2 "> Create your account as </p>
+					<div className="  relative header flex justify-around flex-wrap w-full  items-center ">
+						<p className="font-semibold text-sm md:text-xl text-gray-500 self-center my-2 "> Create your account as </p>
 						{/* onToggleChange={setActiveFrame} activeFrame={activeFrame} */}
-						<div className="w-[90vw] sm:w-fit   min-w-[50%] sm:pl-16 ">
+						<div className="w-[90vw] lg:w-fit   min-w-[50%] lg:pl-16 ">
 							<CustomButtonWithButton options={options} activeFrame={activeFrame} setActiveFrame={setActiveFrame} />
 						</div>
 					</div>
 					{/* Signup form */}
-					<div className="flex  flex-1 mx-auto sm:w-[80%] ">
+					<div className="scale-90 sm:scale-100  flex mt-2 flex-1 sm:mx-auto sm:w-[85%] ">
 						<SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} setCompanyName={setCompanyName} />
 					</div>
 				</div>

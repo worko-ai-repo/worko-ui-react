@@ -8,13 +8,21 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { fetchAuthSession } from '@aws-amplify/auth';
+import { fetchAuthSession, rememberDevice } from '@aws-amplify/auth';
+import { useAppContext } from '@Context/Main.context';
+import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
 const LoginForm = () => {
+	// Use Navigate Hook
 	const navigate = useNavigate();
+	// Update Check from App Context to broadcast the changes
+	const { setUpdateCheck } = useAppContext();
+	// Confirm Account State
+	const [confirmAccount, setConfirmAccount] = React.useState<boolean>(false);
+
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
-
+	const [isToggleEnabled, setIsToggleEnabled] = React.useState<boolean>(false);
 	const {
 		register,
 		handleSubmit,
@@ -29,6 +37,18 @@ const LoginForm = () => {
 	});
 
 	// Functions
+	const handleRememberDevice = async () => {
+		try {
+			console.log('Is Remembered me enabled :', isToggleEnabled);
+			// Remember the device
+			await rememberDevice();
+			// If the device is successfully remembered, refresh the session
+			await fetchAuthSession({ forceRefresh: isToggleEnabled });
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	/**
 	 * currentSession
 	 *
@@ -36,20 +56,21 @@ const LoginForm = () => {
 	 *
 	 * @returns void
 	 */
-	CognitoServiceObj.handleSignOut();
 	const currentSession = async () => {
-		CognitoServiceObj.removeAccessToken();
 		try {
-			const response = await fetchAuthSession({ forceRefresh: true });
+			const session = await fetchAuthSession({ forceRefresh: false }); // Use false to avoid unnecessary refresh
+			const authToken = session.tokens?.idToken?.toString();
+			const refreshToken = session.tokens?.accessToken?.toString();
 
-			await CognitoServiceObj.setAccessToken();
-			const authToken = response.tokens?.idToken?.toString();
-			if(authToken){
-			console.log(authToken);
-			// secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, authToken);}
+			if (authToken) {
+				secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, authToken);
+			}
+
+			if (refreshToken) {
+				secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, refreshToken);
 			}
 		} catch (err) {
-			// console.log(err);
+			console.error('Session retrieval error', err);
 		}
 	};
 
@@ -67,7 +88,7 @@ const LoginForm = () => {
 			password: data.password,
 		};
 
-		console.log("Login Data",loginData);
+		console.log('Login Data', loginData);
 		try {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 
@@ -75,72 +96,101 @@ const LoginForm = () => {
 				toast.error(error.message);
 				reset(undefined, { keepValues: false });
 				throw new Error(error.message);
-			}
+			} else {
+				// Fetch stored user data
+				const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
 
-			// Fetch stored user data
-			const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
-
-			/**
-			 * After successful sign-in, check if the user account is a corporate account.
-			 * If corporate, show a popup and log out the user.
-			 */
-			if (userType === 'Corporate') {
-				toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.");
-				CognitoServiceObj.handleSignOut();
-				return;
-			}
-
-			/**
-			 * If the account is not confirmed, prompt the user to confirm the email.
-			 */
-			if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
-				toast.error('Please confirm your email address before signing in.');
-				//@TODO: Open confirmation modal here
-				return;
-			}
-
-			if (response?.isSignedIn) {
-				
-				const email = data.email.toLowerCase();
-				const { response: userResponse, error: userError } = await httpServiceObj.get(`/user/${email}/profile`, true, { });
-
-				if (userError) {
-					toast.error('Error: ' + userError);
-					reset(undefined, { keepValues: false });
-					throw new Error();
+				/**
+				 * After successful sign-in, check if the user account is a corporate account.
+				 * If corporate, show a popup and log out the user.
+				 */
+				if (userType === 'Corporate') {
+					toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.");
+					CognitoServiceObj.handleSignOut();
+					return;
 				}
 
-				// Store user details
-				secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, userResponse.data.lastAccessedDash);
-				secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userResponse.data.name);
+				/**
+				 * If the account is not confirmed, prompt the user to confirm the email.
+				 */
+				if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
+					toast.error('Please confirm your email address before signing in.');
+					setConfirmAccount(true);
+					return;
+				}
 
-				// Refresh session
-				await currentSession();
+				if (response?.isSignedIn) {
+					const email = data.email.toLowerCase();
+					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+
+					if (userError) {
+						toast.error('Error: ' + userError);
+						reset(undefined, { keepValues: false });
+						throw new Error();
+					} else {
+						// Extract the first element from the array response
+						let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+
+						if (!user) {
+							toast.error('Error: No user data found');
+							reset(undefined, { keepValues: false });
+							throw new Error();
+						}
+
+						// Create userDetails from the first element
+						const userDetails: Partial<AuthLoginForGeneralUserDto> = {
+							lastAccessedDash: user.lastAccessedDash,
+							name: user.name,
+							email: user.email,
+							id: user.id,
+							profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
+							referralCount: user.referralCount,
+						};
+						// Store user details
+						secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
+						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
+						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
+
+						// Refresh session
+						await handleRememberDevice();
+						await currentSession();
+						setUpdateCheck(true);
+						toast.success('Successfully signed in');
+						setTimeout(() => {
+							navigate('/'); // Redirect to home page
+						}, 3000);
+					}
+				}
 			}
 		} catch (error: any) {
 			toast.error(error?.message || 'Something went wrong');
+			// CognitoServiceObj.handleSignOut();
 		}
 	};
 
 	return (
 		<div>
-			<form onSubmit={handleSubmit((data) => toast.promise(() => onSubmit(data), {
-				pending: 'Signing in...',
-				success: 'Signed in successfully',
-				error: 'Error: An error occurred while signing in',
-			}))} className=" min-w-full ">
+			<form
+				onSubmit={handleSubmit(data =>
+					toast.promise(() => onSubmit(data), {
+						pending: 'Signing in...',
+						error: 'Error: An error occurred while signing in',
+					})
+				)}
+				className=" min-w-full ">
 				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
+				<p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
 					{/* Name */}
 					<div className="w-full max-w-[350px] sm:max-w-[350px] ">
-						<label className="block font-medium">Email</label>
-						<input type="text" placeholder="Email or phone number" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', validationRules.email)} />
+						<label className="font-medium hidden sm:block">Email</label>
+						<input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', validationRules.email)} />
 						{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 					</div>
 					{/* Password */}
 					<div className="relative w-full max-w-[350px] sm:max-w-[350px]">
-						<label className="block font-medium">Password</label>
-						<input type={showPassword ? "text":"password"} placeholder="Enter Password" className={`input_primary auth_input ${errors.password && 'error'}`} {...register('password', validationRules.password)} />
-						<span className="absolute right-3 top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
+						<label className="hidden sm:block font-medium">Password</label>
+						<input type={showPassword ? 'text' : 'password'} placeholder="Enter Password" className={`input_primary auth_input ${errors.password && 'error'}`} {...register('password', validationRules.password)} />
+						<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
 							{showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
 						</span>
 						{errors.password && <p className="text-sm text-left text-red-500">{errors.password.message?.toString()}</p>}
@@ -149,34 +199,34 @@ const LoginForm = () => {
 					{/* Remember me and ForgotPassword */}
 					<div className="w-full max-w-[350px] sm:max-w-[350px] flex justify-between items-center">
 						<div className="flex items-center">
-							<ToggleBtn />
+							<ToggleBtn isToggleEnabled={isToggleEnabled} setIsToggleEnabled={() => setIsToggleEnabled(!isToggleEnabled)} />
 							<label className="text-sm">Remember me</label>
 						</div>
-						<a onClick={() => navigate('/auth/resetpassword', { state: { pagetype: 'GEN' } })} className="text-sm text-blue-600 ">
-							Forgot Password?
+						<a onClick={() => navigate('/auth/resetpassword', { state: { pagetype: 'GEN' } })} className="cursor-pointer text-sm text-blue-500 ">
+							Forgot password?
 						</a>
 					</div>
 
 					{/* Submit Button */}
 					<div className="w-full ">
-						<button type="submit" className="cursor-pointer btn_primary px-4 py-3 w-full max-w-[350px] sm:max-w-[350px] " disabled={!isValid}>
-							Sign In
+						<button type="submit" className="cursor-pointer btn_primary px-4 py-2 w-full max-w-[350px] sm:max-w-[350px] " disabled={!isValid}>
+							Sign in
 						</button>
 					</div>
 					<hr className="w-full max-w-[350px] " />
 					{/* LinkedIn */}
 					<div className="w-full ">
-						<button className="border px-4 py-3 rounded-md bg-black text-white  w-full max-w-[350px] sm:max-w-[350px] " type="button">
-							<i className="fa-brands fa-linkedin-in bg-[#0062ff] px-2 py-[4px] rounded-md  text-xs text-white mx-2 "></i> Or Sign In with LinkedIn
+						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " type="button">
+							<i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
 						</button>
 					</div>
 
 					{/* Register */}
 					<div className="w-full ">
 						<p className="text-center text-sm mt-3 ">
-							Don't have an account?
-							<a href="signup" className="cursor-pointer text-blue-600 ">
-								Sign Up Now
+							Don't have an account? &nbsp;
+							<a href="signup" className="cursor-pointer text-blue-500 ">
+								Sign up now
 							</a>
 						</p>
 					</div>

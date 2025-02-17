@@ -87,7 +87,7 @@ export class HttpService {
 	 * @example
 	 *         > HttpServiceObj.get('/path', true, { xTenantId: 'tenantId' });
 	 */
-	get = async (path: string, authorization: boolean = true, params = {}) => {
+	 async get<ResponseDataDto>(path: string, authorization: boolean = true, params = {}): Promise<HttpMethodResponseDto<ResponseDataDto>> {
 		try {
 			// Build query string and append it to the path
 			const queryString = new URLSearchParams(params as Record<string, string>).toString();
@@ -107,14 +107,14 @@ export class HttpService {
 				return { response: null, error: new Error(errorMessage) };
 			}
 			// Parse and return the JSON response
-			const jsonResponse = await response.json();
+			const jsonResponse = await response.json() as ResponseDataDto;
 
 			// Return the response and error as null
-			return { response: jsonResponse, error: null };
+			return { response: jsonResponse, error: null ,status: response.status};
 		} catch (error) {
 			// Log the error for debugging
 			console.error(`Error in GET request to ${path}:`, error);
-			return { response: null, error: error };
+			return { response: null, error: error as Error };
 		}
 	};
 

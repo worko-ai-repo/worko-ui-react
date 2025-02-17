@@ -23,7 +23,7 @@ interface ProtectedRouteProps {
  */
 const ProtectedRoute = ({ component: Component, requiredRoles, ...rest }: ProtectedRouteProps) => {
 	// Get the token from secure storage
-	const token = secureStorage.getItem(SecureStorageKeyEnum.USERTOKEN);
+	const token:any = secureStorage.getItem(SecureStorageKeyEnum.USERTOKEN);
 
 	if (!token) {
 		console.log('Token not found. Redirecting to login.');

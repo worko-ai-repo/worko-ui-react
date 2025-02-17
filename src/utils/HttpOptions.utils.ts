@@ -10,7 +10,7 @@ export const getHttpOptions = (authorization = true, params: HttpParamsOptions =
 	if (authorization) {
 		// Fetch the token from the local storage
 		
-		const token = secureStorage.getItem(SecureStorageKeyEnum.ACCESSTOKEN );
+		const token = secureStorage.getItem<string>(SecureStorageKeyEnum.ACCESSTOKEN );
 		if (!token) {
 			console.log('Token not present ,Using Empty Token');
 			headers['Authorization'] = `Bearer `;

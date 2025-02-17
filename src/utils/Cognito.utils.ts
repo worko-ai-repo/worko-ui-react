@@ -93,7 +93,7 @@ class CognitoService {
 	public async handleSocialSignIn(): Promise<void> {
 		const provider = { custom: 'LinkedIn' };
 		try {
-			debugger;
+			// debugger;
 			const res = await signInWithRedirect({ provider });
 			Hub.dispatch('auth', { event: 'signInWithRedirect_success', data: res });
 		} catch (error) {
@@ -135,7 +135,7 @@ class CognitoService {
 	 */
 	public async isLoggedIn(): Promise<boolean> {
 		this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || 'false';
-		this.linkedinSignInDetails = JSON.parse(secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || '{}');
+		this.linkedinSignInDetails =secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || '{}';
 
 		if (this.UserRegistered === 'true') {
 			return this.handleLinkedInLogin();
@@ -209,7 +209,7 @@ class CognitoService {
 		this.removeAccessToken();
 		localStorage.clear();
 	}
-
+	
 	/**
 	 * Handles user sign-up
 	 * @param params - Sign up parameters
@@ -217,7 +217,6 @@ class CognitoService {
 	 */
 	public async handleSignUp(params: SignUpParameters): Promise<AuthResponse> {
 		try {
-			
 			const signUpResponse = await signUp({
 				username: params.username,
 				password: params.password,
@@ -342,7 +341,7 @@ class CognitoService {
 				if (key?.startsWith('CognitoIdentityServiceProvider.') && key.includes('.accessToken')) {
 					const value = localStorage.getItem(key);
 					if (value) {
-						secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, value);
+						secureStorage.setItem<string>(SecureStorageKeyEnum.ACCESSTOKEN, value);
 					}
 				}
 			}

@@ -1,15 +1,28 @@
-'use client'
-
-import { useState } from 'react'
 import { Switch } from '@headlessui/react'
+/**
+ * ToggleBtnProps
+ * 
+ * @description - This will be the props for the ToggleBtn component
+ */
+interface ToggleBtnProps {
+  isToggleEnabled:boolean
+  setIsToggleEnabled:React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export default function ToggleBtn() {
-  const [enabled, setEnabled] = useState(false)
+/**
+ * ToggleBtn
+ * 
+ * @description - This will be the Toggle Button component will be used to toggle the state of the button, The state for this component must be stored by the parent componenet and managedby the child component. 
+ * 
+ * @state  isToggleEnabled 
+ * @stateUpdator  setIsToggleEnabled
+ */
+export default function ToggleBtn(prop:ToggleBtnProps) {
 
   return (
     <Switch
-      checked={enabled}
-      onChange={setEnabled}
+      checked={prop.isToggleEnabled}
+      onChange={prop.setIsToggleEnabled}
       className="group relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none  data-[checked]:bg-blue-600"
     >
       <span className="sr-only">Use setting</span>

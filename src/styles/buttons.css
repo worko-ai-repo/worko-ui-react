@@ -1,11 +1,12 @@
 /* Reusable Button Base Styles */
+
 .btn_t1 {
-  @apply inline-flex items-center px-4 py-2 border text-sm font-semibold rounded-md transition-all duration-200 ease-in-out cursor-pointer;
+  @apply  px-4 py-2 border text-sm font-semibold rounded-md transition-all duration-200 ease-in-out cursor-pointer;
 }
 
 /* btn_t1: login style */
 .btn_t1.login {
-  @apply text-gray-800 bg-gray-50 border-transparent;
+  @apply text-gray-800 bg-gray-50 border-transparent   ;
 }
 
 .btn_t1.login:hover {
@@ -23,7 +24,7 @@
 
 /* btn_t1: logout style */
 .btn_t1.logout {
-  @apply text-white bg-red-600;
+  @apply  text-white bg-red-600;
 }
 
 .btn_t1.logout:hover {

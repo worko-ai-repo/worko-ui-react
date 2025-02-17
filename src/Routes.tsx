@@ -4,6 +4,7 @@ import MainLayout from '@Layouts/Main-Layout/MainLayout';
 import PageNotFound from '@Pages/errors/404/PageNotFound';
 import Loader from '@Components/Loader/Loader';
 import CompanyInput from '@Components/Shared/CompanyInput';
+import TestPage from '@Pages/Test';
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
@@ -31,7 +32,7 @@ const AppRoutes = createBrowserRouter([
 				path: 'mock-interview',
 				element: (
 					<Suspense fallback={<Loader />}>
-						<CompanyInput />
+						<TestPage />
 					</Suspense>
 				),
 			},

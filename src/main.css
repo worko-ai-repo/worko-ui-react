@@ -38,8 +38,9 @@
 	--text-xl: 4rem;
 	--text-2xl: 8rem;
 
-	font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;;
-
+	font-family: 'Gilroy', 'Poppins', system-ui, Avenir, Helvetica, Arial, sans-serif;
+	
+	font-display: swap; /* Fallback font layout shift fix */
 	/* color-scheme: light dark; */
 	color: rgb(0, 0, 0);
 	background-color: var(--primary-background-color);
@@ -104,6 +105,9 @@ input{
 	outline: none;
 	font-weight: 500;
 	color:rgb(65, 111, 153)
+}
+.thin_border{
+	border: 1px solid hsla(0, 0%, 74%, .8);
 }
 
 label{
