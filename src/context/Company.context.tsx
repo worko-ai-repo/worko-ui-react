@@ -81,19 +81,19 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	const CompanyQueryHandler = useCallback(
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
 			const updatedFilters = { ...filters, lastKey: pageParam }; // Attach lastKey for pagination
-
+			// debugger;
 			const { response, error } = await httpServiceObj.get<any>(`/${location.pathname.includes('job') ? 'job' : 'company'}`, true, updatedFilters);
 
 			if (error) throw error;
 
-			generateFilterForRender(response, companyPageMode, filterMetaData, setJobFilterForRender);
+			generateFilterForRender(response.data, companyPageMode, filterMetaData, setJobFilterForRender);
 
-			setApiHasData(response.length > 0);
+			setApiHasData(response.data.length > 0);
 
 			if (location.pathname.includes('job')) {
-				setCompanyJobData(prev => [...(prev || []), ...response]); // Append new data
+				setCompanyJobData(prev => [...(prev || []), ...response.data]); // Append new data
 			} else {
-				setCompanyRefData(prev => [...(prev || []), ...response]);
+				setCompanyRefData(prev => [...(prev || []), ...response.data]);
 			}
 
 			return {

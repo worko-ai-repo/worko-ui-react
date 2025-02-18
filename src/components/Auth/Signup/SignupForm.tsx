@@ -13,6 +13,15 @@ import { useNavigate } from 'react-router-dom';
 
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
+/**
+ * @Interface LinkedInSignupForm
+ * @property activeFrame - SignupMode - Active Frame for the Signup either CAND or EMP
+ * @property runCognitoBasicSignup - Function - Function to run the Cognito Basic Signup
+ * @property handleVerifyOtp - Function - Function to handle the OTP verification
+ * @property setCompanyName - React.Dispatch<React.SetStateAction<string>> - Function to set the company name
+ * @property fetchLinkedinSessionData - Function - Function to fetch the linkedin session data like name email and cognito ID
+ */
+
 const SignupForm: React.FC<{
 	activeFrame: SignupMode;
 	runCognitoBasicSignup: (data: AuthFormDto) => Promise<boolean>;

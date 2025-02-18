@@ -1,3 +1,5 @@
+import { emailDomainDenyListValidator } from './CorporateMailValidator.utils';
+
 /**
  * How to use this file:
  *
@@ -39,20 +41,45 @@
  * />
  */
 
-import { emailDomainDenyListValidator } from "./CorporateMailValidator.utils";
-
 export const validationRules = {
+
+	/**
+	 * @type  {Object} name
+	 * 
+	 * @description - Validation rules for form fields for name entered.
+	 * 
+	 * @property {string} name.required - Error message when the name is not provided.
+	 * @property {Object} name.minLength - Minimum length validation for the name.
+	 */
 	name: {
 		required: 'Name is required',
 		minLength: { value: 3, message: 'Minimum 3 characters required' },
 	},
+
+	/**
+	 * @type  {Object} phone
+	 * 
+	 * @description - Validation rules for form fields for phone number entered.
+	 * 
+	 * @property {string} phone.required - Error message when the phone number is not provided.
+	 * @property {Object} phone.pattern - Pattern validation for the phone number that it should start from 6, 7, 8, or 9. and should be 10 digit long.
+	 */
 	phone: {
-		required: "Phone number is required",
-        pattern: {
-          value: /^[6-9]\d{9}$/, // Invalid if it doesn't start with 6, 7, 8, or 9
-          message: "Invalid phone number"
+		required: 'Phone number is required',
+		pattern: {
+			value: /^[6-9]\d{9}$/, // Invalid if it doesn't start with 6, 7, 8, or 9
+			message: 'Invalid phone number',
 		},
 	},
+
+	/**
+	 * @type  {Object} email
+	 * 
+	 * @description - Validation rules for form fields for email entered.
+	 * 
+	 * @property {string} email.required - Error message when the email is not provided.
+	 * @property {Object} email.pattern - Pattern validation for the email.
+	 */
 	email: {
 		required: 'Email is required',
 		pattern: {
@@ -60,15 +87,32 @@ export const validationRules = {
 			message: 'Invalid email address',
 		},
 	},
+
+	/**
+	 * @type  {Object} corporateEmail
+	 * 
+	 * @description - Validation rules for form fields for corporate email entered.
+	 * 
+	 * @property {string} corporateEmail.required - Error message when the corporate email is not provided.
+	 * @property {Object} corporateEmail.pattern - Pattern validation for the corporate email.
+	 */
 	corporateEmail: {
 		required: 'Email is required',
 		pattern: {
 			value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
 			message: 'Invalid email address',
 		},
-		validate: (email: string) => 
-			emailDomainDenyListValidator(email) || 'Personal email domains are not allowed',
+		validate: (email: string) => emailDomainDenyListValidator(email) || 'Personal email domains are not allowed',
 	},
+
+	/**
+	 * @type  {Object} linkedInPage
+	 * 
+	 * @description - Validation rules for form fields for linkedin url entered.
+	 * 
+	 * @property {string} linkedInPage.required - Error message when the LinkedIn page is not provided.
+	 * @property {Object} linkedInPage.pattern - Pattern validation for the LinkedIn page.
+	 */
 	linkedInPage: {
 		required: 'LinkedIn page is required',
 		pattern: {
@@ -76,6 +120,15 @@ export const validationRules = {
 			message: 'Invalid LinkedIn page',
 		},
 	},
+
+	/**
+	 * @type  {Object} url
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @property {string} url.required - Error message when the URL is not provided.
+	 * @property {Object} url.pattern - Pattern validation for the URL.
+	 */
 	url: {
 		required: 'URL is required',
 		pattern: {
@@ -83,30 +136,68 @@ export const validationRules = {
 			message: 'Invalid URL',
 		},
 	},
+
+	/**
+	 * @type  {Object} company
+	 * 
+	 * @description - Validation rules for form fields for company by custom company component that will use the company sk to validate the company.
+	 * 
+	 * @property {string} company.required - Error message when the company name is not provided.
+	 * @property {Function} company.validate - Custom validation function for the company name.
+	 */
 	company: {
-        required: 'Company name is required',
-        validate: (value: string | undefined) => {
-            // If no value is provided or it's an empty string
-            if (!value || value.trim() === '') {
-                return 'Company name is required';
-            }
-            
-            // Check if it's a valid company selection (SK format)
-            if (!value.startsWith('COMPANY#')) {
-                return 'Please select a valid company';
-            }
-            
-            return true;
-        }
-    },
+		required: 'Company name is required',
+		validate: (value: string | undefined) => {
+			// If no value is provided or it's an empty string
+			if (!value || value.trim() === '') {
+				return 'Company name is required';
+			}
+
+			// Check if it's a valid company selection (SK format)
+			if (!value.startsWith('COMPANY#')) {
+				return 'Please select a valid company';
+			}
+
+			return true;
+		},
+	},
+
+	/**
+	 * @type  {Object} password
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @property {string} password.required - Error message when the password is not provided.
+	 * @property {Object} password.minLength - Minimum length validation for the password.
+	 */
 	password: {
 		required: 'Password is required',
 		minLength: { value: 6, message: 'Minimum 6 characters required' },
 	},
+
+	/**
+	 * @type  {Function} confirmPassword
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @param {Function} watch - Function to watch the value of the password field.
+	 * 
+	 * @property {string} confirmPassword.required - Error message when the confirm password is not provided.
+	 * @property {Function} confirmPassword.validate - Custom validation function for the confirm password.
+	 */
 	confirmPassword: (watch: any) => ({
 		required: 'Confirm Password is required',
 		validate: (value: any) => value === watch('password') || 'Passwords do not match',
 	}),
+
+	/**
+	 * @type  {Object} otp
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @property {string} otp.required - Error message when the otp is not provided.
+	 * @property {Object} otp.pattern - Pattern validation for the otp that it should be a 6-digit number.
+	 */
 	otp: {
 		required: 'OTP is required',
 		pattern: {
@@ -114,11 +205,28 @@ export const validationRules = {
 			message: 'OTP should be a 6-digit number',
 		},
 	},
+
+	/**
+	 * @type  {Object} termsAndConditions
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @property {Function} termsAndConditions.validate - Custom validation function for terms and conditions.
+	 */
 	termsAndConditions: {
 		validate: (value: boolean) => value || 'You must accept the terms and conditions',
 	},
+
+	/**
+	 * @type  {Object} cv
+	 * 
+	 * @description - Validation rules for form fields.
+	 * 
+	 * @property {string} cv.required - Error message when the cv is not provided.
+	 * @property {Function} cv.validate - Custom validation function for the cv file.
+	 */
 	cv: {
-		required: 'CV is required',  
+		required: 'CV is required',
 		validate: (fileList: FileList) => {
 			if (!fileList?.length) return 'File is required';
 			const file = fileList[0];
@@ -131,4 +239,17 @@ export const validationRules = {
 			return true;
 		},
 	},
+
+	/**
+	 * @type  {Object} department
+	 *
+	 * @description - Validation rules for form fields.
+	 *
+	 * @property {Object} department - Validation rules for the department field.
+	 * @property {string} department.required - Error message when the department is not provided.
+	 */
+	department: {
+		required: 'Department is required',
+	},
+
 };

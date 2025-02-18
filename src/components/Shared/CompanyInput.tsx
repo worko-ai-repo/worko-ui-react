@@ -3,7 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Search, Building2, X, Linkedin } from 'lucide-react';
 import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
-import CustomModal from '@Components/Modals/FormModal';
 import { toast } from 'react-toastify';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { validationRules } from '@Utils/FormValidator.utils';

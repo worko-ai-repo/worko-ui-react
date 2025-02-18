@@ -45,6 +45,9 @@
 	color: rgb(0, 0, 0);
 	background-color: var(--primary-background-color);
 
+	-ms-overflow-style: none !important;  /* IE and Edge */
+	scrollbar-width: none !important;  /* Firefox */
+	
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
@@ -74,7 +77,10 @@ body {
 	align-items: center;
 	width: auto;
 	min-height: 100vh;
+	-ms-overflow-style: none !important;  /* IE and Edge */
+	scrollbar-width: none !important;  /* Firefox */
 }
+
 .bc{
 	border:2px solid red;
 }
@@ -116,6 +122,31 @@ label{
 	color: rgb(55, 55, 55);
 	text-align: left;
 }
+
+/* Scrollbar Track */
+::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+    height: 10px;
+	scroll-behavior: smooth;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+	background: rgb(5,124,203);
+	background: linear-gradient(120deg, rgba(5,124,203,1) 0%, rgba(69,91,255,1) 37%, rgba(154,205,255,1) 76%);
+    border-radius: 10px; /* Rounded corners */
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #999; /* Color of the scrollbar handle on hover */
+  }
+  
+  /* Corner */
+  ::-webkit-scrollbar-corner {
+    background-color: transparent; /* Color of the scrollbar corner */
+  }
+ 
 @media screen and (max-width: 768px) {
 	.section-wrapper {
 		padding: 5rem 2rem;

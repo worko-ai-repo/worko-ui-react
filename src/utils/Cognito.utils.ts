@@ -286,6 +286,12 @@ class CognitoService {
 	 * Resends OTP for sign-up confirmation
 	 * @param params - Username for OTP resend
 	 * @returns Promise with response or error
+	 * 
+	 * @example
+	 * ```typescript
+	 * const params = { username: 'xyz@example.com' };
+	 * const { response, error } = await CognitoServiceObj.resendOtp(params);
+	 * ```
 	 */
 	public async resendOtp(params: ResendSignUpCodeInput): Promise<AuthResponse> {
 		try {

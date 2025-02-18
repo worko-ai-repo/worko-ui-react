@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { fetchAuthSession} from '@aws-amplify/auth';
+import { fetchAuthSession } from '@aws-amplify/auth';
 import { useQuery } from '@tanstack/react-query';
 import secureStorage from '@Utils/SecureStorage.utils';
 
@@ -8,12 +8,14 @@ import CognitoServiceObj from '@Utils/Cognito.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { LinkedinIcon } from 'lucide-react';
-
+import { useAppContext } from '@Context/Main.context';
+import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
 export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
-	let isCandidatePresent :any ;
+	const {setUpdateCheck} = useAppContext();
+	let isCandidatePresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
 	const [userEmail, setUserEmail] = useState<string>('');
 	const [userName, setUserName] = useState<string>('');
@@ -26,19 +28,6 @@ export default function CheckRedirection() {
 		[key: string]: any;
 	};
 
-	// Fetch user details query
-	const { data: userDetails, error: userError } = useQuery<UserDetails>({
-		queryKey: ['userDetails', userEmail],
-		queryFn: async () => {
-			const { response, error } = await httpServiceObj.get<UserDetails>(`user/${userEmail}/details`, true);
-			if (error) {
-				throw new Error(error.message);
-			}
-			return response as UserDetails;
-		},
-		enabled: !!userEmail, //Only run when the userEmail is present 
-		retry: 1,
-	});
 
 	// Define the type for profile completion
 	type ProfileCompletion = {
@@ -46,19 +35,8 @@ export default function CheckRedirection() {
 		employee: { curPerc: number }[];
 	};
 
-	// Fetch profile completion query
-	const { data: profileCompletion } = useQuery<ProfileCompletion>({
-		queryKey: ['profileCompletion', userEmail],
-		queryFn: async () => {
-			const { response } = await httpServiceObj.get<ProfileCompletion>(`user/${userEmail}/profilePercentage`, true);
-			return response as ProfileCompletion;
-		},
-		enabled: !!userEmail && !!userDetails,
-		retry: 1,
-	});
-
 	/**
-	 * useEffect that will run after we are redirect back by linkedin signin or you can say on page mount 
+	 * useEffect that will run after we are redirect back by linkedin signin or you can say on page mount
 	 */
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
@@ -74,9 +52,9 @@ export default function CheckRedirection() {
 
 	/**
 	 * executeProperAction
-	 * 
+	 *
 	 * @description - A function that will check if the action by linkedIn is for logout or sign up/In and will take action according to that.
-	 * @param action 
+	 * @param action
 	 */
 	const executeProperAction = async (action: 'checkRedirection' | 'logout') => {
 		try {
@@ -91,8 +69,8 @@ export default function CheckRedirection() {
 	};
 
 	/**
-	 * handleCheckRedirection 
-	 * 
+	 * handleCheckRedirection
+	 *
 	 * @description - This will exec only when the user has opt for signup/In and will store the token and proceed to signin if the user is present in cognito else signUp
 	 */
 	const handleCheckRedirection = async () => {
@@ -104,9 +82,9 @@ export default function CheckRedirection() {
 				secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, accessToken);
 
 				const userType = secureStorage.getItem(SecureStorageKeyEnum.LINKEDINUSERTYPE);
-				
-				isCandidatePresent = await getCandidateDetails();
 
+				isCandidatePresent = await getCandidateDetails();
+				// debugger;
 				if (userType === 'employeeSignUp') {
 					await employeeSignUp();
 				} else if (userType === 'candidateSignUp') {
@@ -131,19 +109,21 @@ export default function CheckRedirection() {
 
 	const employeeSignUp = async () => {
 		if (isCandidatePresent) {
-			navigate('/auth/linkedinSignup', {state:{formType: 'EMP'}});
+			navigate('/auth/linkedinSignup', { state: { formType: 'EMP' } });
 		}
 	};
 
 	const candidateSignUp = async () => {
 		if (isCandidatePresent) {
-			navigate('/auth/linkedinSignup' , {state:{formType: 'CAND'}} );
+			navigate('/auth/linkedinSignup', { state: { formType: 'CAND' } });
 		}
 	};
 
 	const signIn = async () => {
+		// debugger;
 		if (isCandidatePresent) {
 			setRegisterOptionScreen(true);
+			handleRegister();
 		}
 	};
 
@@ -151,7 +131,7 @@ export default function CheckRedirection() {
 		try {
 			// Get the token form the amplify -auth
 			const { tokens } = await fetchAuthSession();
-			// Store the data in the vars 
+			// Store the data in the vars
 			const email = tokens?.idToken?.payload['email']?.toString().toLowerCase();
 			const name = tokens?.idToken?.payload['given_name']?.toString();
 			const groups = tokens?.idToken?.payload['cognito:groups'] as string[];
@@ -163,18 +143,30 @@ export default function CheckRedirection() {
 			if (Array.isArray(groups) && groups.includes('admin')) {
 				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Admin');
 			}
-
-			// once the user email is set it will fetch the data related to use to check if the dynamodb has the data or not related to user if not then we will return true 
-			if (!userDetails || userError) {
+			// Refetch user details to get the latest data
+			const { response:userDetails, error } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
+			// once the user email is set it will fetch the data related to use to check if the dynamodb has the data or not related to user if not then we will return true
+			if (!userDetails) {
 				return true;
 			}
 
+
 			// if the userDetail is present then we will move to navigate the user to dashboard
-			const userDetail = userDetails;
+			const userDetail:Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
+			// Create userDetails from the first element
+			const FinaluserDetails: Partial<AuthLoginForGeneralUserDto> = {
+				lastAccessedDash: userDetail.lastAccessedDash,
+				name: userDetail.name,
+				email: userDetail.email,
+				id: userDetail.id,
+				profileImageAwsS3SignedUrl: userDetail.profileImageAwsS3SignedUrl,
+				referralCount: userDetail.referralCount,
+			};
 			secureStorage.setItem(SecureStorageKeyEnum.IS_LINKEDIN_USER, 'true');
 			secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSED_DASH, userDetail.lastAccessedDash);
 			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.name);
 			secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, email);
+			secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, FinaluserDetails);
 
 			const isCompanyListingRoute = secureStorage.getItem(SecureStorageKeyEnum.IS_COMPANY_LISTING_ROUTE);
 
@@ -186,20 +178,22 @@ export default function CheckRedirection() {
 				return false;
 			}
 
-			// If we have an account that has admin access then we will move him to switcher page 
+			// If we have an account that has admin access then we will move him to switcher page
 			if (groups.includes('admin')) {
 				navigate('/switcher');
 				return false;
 			}
-
+			const { response:profileCompletion } = await httpServiceObj.get<ProfileCompletion>(`/user/${email}/profilePercentage`, true);
 			if (profileCompletion) {
 				const profileType = userDetail.lastAccessedDash === 'CAND' ? profileCompletion.candidate : profileCompletion.employee;
 
 				const totalPercentage = profileType.reduce((sum: number, element: { curPerc: number }) => sum + element.curPerc, 0);
 
 				if (userDetail.lastAccessedDash === 'CAND') {
+					setUpdateCheck(true);
 					navigate(totalPercentage >= 60 ? '/candidate/dashboard' : '/candidate/edit-profile');
 				} else {
+					setUpdateCheck(true);
 					navigate(totalPercentage >= 60 ? '/employee/Dashboard' : '/employee/Edit-profile');
 				}
 			}
@@ -213,16 +207,16 @@ export default function CheckRedirection() {
 
 	const handleRegister = () => {
 		if (registrationType === 'candidate') {
-			navigate('/auth/linkedinSignup' , {state:{formType: 'CAND'}} );
+			navigate('/auth/linkedinSignup', { state: { formType: 'CAND' } });
 		} else if (registrationType === 'employee') {
-			navigate('/auth/linkedinSignup', {state:{formType: 'EMP'}});
+			navigate('/auth/linkedinSignup', { state: { formType: 'EMP' } });
 		}
 	};
 	/**registerOptionScreen */
-	if (true) {
+	if (registerOptionScreen) {
 		return (
 			<div className="bg-white min-w-[300px] max-w-[400px]  p-8 rounded-lg shadow-md">
-				<LinkedinIcon className='mx-auto mb-3  bg-blue-500 text-white p-2 rounded-lg box-content ' />
+				<LinkedinIcon className="mx-auto mb-3  bg-blue-500 text-white p-2 rounded-lg box-content " />
 				<div className="heading text-center ">
 					<h2 className="text-2xl text-center font-bold mb-4">Select Account Type</h2>
 					<p>

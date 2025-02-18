@@ -1,5 +1,6 @@
 import { useEffect, useState, ReactNode } from "react";
 import { XCircle, AlertTriangle, CheckCircle, Info, Share } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   type: "error" | "warning" | "success" | "info" | "share";
@@ -40,7 +41,7 @@ export default function CustomModal({
     };
   }, []);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
       <div className="bg-white rounded-xl shadow-xl w-[90%] max-w-md p-5 transform transition-transform scale-95 opacity-1 animate-fadeIn">
         <div className="flex items-start gap-4">
@@ -71,6 +72,7 @@ export default function CustomModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    	document.body
   );
 }

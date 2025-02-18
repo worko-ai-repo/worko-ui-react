@@ -54,7 +54,7 @@ const CorporateSignup = () => {
   // Fetch data function
   const fetchData = async () => {
     const { response, error, status } = await httpServiceObj.get<any>(`/corporate-invite/${id}`, true);
-    debugger;
+    // debugger;
     if (status === 404) return { errorType: "invalid" };
     if (error) throw new Error("Error fetching data" + error);
 
@@ -124,7 +124,7 @@ const CorporateSignup = () => {
     if(response){
     // Prepare data for DB
     const dbData = prepareDataforDB( response.userId);
-    debugger;
+    // debugger;
     const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>("/corporate-user/", dbData, true);
     if (dbError) {
       toast.error("Something went wrong. Please try again later.");

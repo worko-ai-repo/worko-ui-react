@@ -7,6 +7,8 @@ export interface AuthSignupBaseDto {
 	password: string;
 	candidateOtp: string;
 	phoneNumber: string;
+    companyEmailId?: string;   
+    department?: string;
 	confirmPassword: string;
 	checkboxChecked: boolean;
 	acceptedTermsAndConditions: boolean;
@@ -31,6 +33,8 @@ export interface AuthFormDto {
 	company: string;
 	cv: FileList;
 	email: string;
+    companyEmailId?: string;
+    department?: string;
 	password: string;
 	confirmPassword: string;
 	termsAndConditions: boolean;
@@ -50,6 +54,8 @@ export interface DevEmployeeDto {
 	email: string;
 	number: string;
 	YOE: number;
+    companyEmailId?: string;
+    department?: string;
 	companyName: string;
 	companySK: string;
 	userId: string;

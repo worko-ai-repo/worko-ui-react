@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import TermsAndConditions from './TermsAndConditions';
 import CompanyInput from '@Components/Shared/CompanyInput';
 import { Upload } from 'lucide-react';
-import { AuthFormDto } from '@Interfaces/Auth.dto';
-
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
@@ -29,25 +29,20 @@ type SignupMode = 'EMP' | 'CAND';
 /**
  * @Interface LinkedInSignupForm
  * @property activeFrame - SignupMode - Active Frame for the Signup either CAND or EMP
- * @property runCognitoBasicSignup - Function - Function to run the Cognito Basic Signup
- * @property handleVerifyOtp - Function - Function to handle the OTP verification
  * @property setCompanyName - React.Dispatch<React.SetStateAction<string>> - Function to set the company name
  * @property fetchLinkedinSessionData - Function - Function to fetch the linkedin session data like name email and cognito ID
  */
 interface LinkedInSignupForm {
 	activeFrame: SignupMode;
-	runCognitoBasicSignup: (data: AuthFormDto) => Promise<boolean>;
-	handleVerifyOtp: (email: string, otp: string) => Promise<any>;
+	handleDataMutationtoDb: (data: any) => Promise<boolean>;
 	setCompanyName: React.Dispatch<React.SetStateAction<string>>;
 	fetchLinkedinSessionData: () => Promise<AuthSessionDto>;
 }
 
-const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCognitoBasicSignup, setCompanyName, fetchLinkedinSessionData }) => {
+const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleDataMutationtoDb, setCompanyName, fetchLinkedinSessionData }) => {
 	const [ViewTerms, setViewTerms] = useState(false);
 	const [isSigningUp, setIsSigningUp] = useState(false);
-	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+	const navigate = useNavigate();
 	// An effect that will run on component mount it will check for the values like name email phone cognito ID that got stored while redirection of the linkedin.
 	useEffect(() => {
 		const fetchSessionData = async () => {
@@ -57,7 +52,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 				setValue('email', sessionData.email);
 			}
 		};
-	fetchSessionData()
+		fetchSessionData();
 	}, []);
 
 	/**
@@ -75,7 +70,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 		reset,
 		formState: { errors },
 	} = useForm({
-		defaultValues: { name: '', phone: '', whatsappActive: false, company: undefined, cv: '', email: '', password: '', confirmPassword: '', termsAndConditions: false },
+		defaultValues: { name: '', phone: '', whatsappActive: false, company: undefined, cv: '', email: '', corporateEmail: '', department: '', termsAndConditions: false },
 		mode: 'onChange',
 	});
 
@@ -95,6 +90,14 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 		reset(undefined, { keepValues: false });
 	}, [activeFrame, setValue, unregister]);
 
+	/**
+	 * onSubmit
+	 *
+	 * @description - onSubmit function is used to submit the form data and trigger the cognito basic signup.
+	 *
+	 * @param data
+	 * @returns
+	 */
 	const onSubmit = async (data: any) => {
 		if (isSigningUp) return; // Prevent multiple submissions
 		setIsSigningUp(true);
@@ -116,9 +119,10 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 		}
 		// Trigger Cognito Basic Signup
 		try {
-			const success = await runCognitoBasicSignup(data);
+			const success = await handleDataMutationtoDb(data);
 			if (success) {
-				// setIsOtpSent(true);
+				toast.success('Account created successfully');
+				navigate('/');
 			}
 		} catch (error) {
 			console.error('Cognito Basic Signup failed');
@@ -155,7 +159,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 	return (
 		<div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
 			<form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
-				<div className="mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
+				<div className="mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[250px] items-baseline ">
 					{/* Name */}
 					<div>
 						<label className="hidden sm:block font-medium">Name</label>
@@ -205,28 +209,28 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, runCogn
 						<div>
 							{/* Company Name */}
 							<label className="hidden sm:block font-medium">Company Name</label>
-							<CompanyInput errors={errors} setValue={setValue} clearErrors={clearErrors} setCompanyName={setCompanyName}  />
+							<CompanyInput errors={errors} setValue={setValue} clearErrors={clearErrors} setCompanyName={setCompanyName} />
 							{errors.company && <p className="text-sm text-left text-red-500">{errors.company.message?.toString()}</p>}
 						</div>
 					)}
-					{/* Password */}
-					<div className="relative">
-						<label className="hidden sm:block font-medium">Password</label>
-						<input placeholder="Enter Password" type={showPassword ? 'text' : 'password'} className={`input_primary auth_input  ${errors.password && 'error'}`} {...register('password', validationRules.password)} />
-						<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-							{showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
-						</span>
-						{errors.password && <p className="text-sm text-left text-red-500">{errors.password.message?.toString()}</p>}
+
+					{/* CorporateEmail  */}
+					{activeFrame === 'EMP' && (
+						
+							<div className="relative">
+								<label className="hidden sm:block font-medium">Work Email</label>
+								<input placeholder="Enter Work Email" type="email" className={`input_primary auth_input  ${errors.corporateEmail && 'error'}`} {...register('corporateEmail', validationRules.corporateEmail)} />
+								{errors.corporateEmail && <p className="text-sm text-left text-red-500">{errors.corporateEmail.message?.toString()}</p>}
+							</div>
+					)}
+					{/* department */}
+					{activeFrame === 'EMP' && (
+						<div className="relative">
+						<label className="hidden sm:block font-medium">Department</label>
+						<input placeholder="Enter Department" type="text" className={`input_primary auth_input  ${errors.department && 'error'}`} {...register('department', validationRules.department)} />
+						{errors.department && <p className="text-sm text-left text-red-500">{errors.department.message?.toString()}</p>}
 					</div>
-					{/* Confirm Password */}
-					<div className="relative">
-						<label className="hidden sm:block font-medium">Confirm Password</label>
-						<input placeholder="Confirm Password " type={showConfirmPassword ? 'text' : 'password'} className={`input_primary auth_input  ${errors.confirmPassword && 'error'}`} {...register('confirmPassword', validationRules.confirmPassword(watch))} />
-						<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-							{showConfirmPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
-						</span>
-						{errors.confirmPassword && <p className="text-sm text-left text-red-500">{errors.confirmPassword.message?.toString()}</p>}
-					</div>
+					)}
 				</div>
 
 				{/* Terms and Conditions */}

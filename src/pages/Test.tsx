@@ -1,18 +1,9 @@
-import React from 'react';
+import React from 'react'
 
-interface Props {
-    description: string;
-    svg: React.ReactNode;
-    position: string;
-  }
-  
+const Test = () => {
+  return (
+    <div>Test</div>
+  )
+}
 
-const TestPage = () => {
-return (
-    <div>
-        <h1>Test Page</h1>
-    </div>
-);
-};
-
-export default TestPage;
+export default Test

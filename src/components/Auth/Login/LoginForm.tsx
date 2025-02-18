@@ -11,22 +11,31 @@ import { toast } from 'react-toastify';
 import { fetchAuthSession, rememberDevice } from '@aws-amplify/auth';
 import { useAppContext } from '@Context/Main.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
+import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
+import CustomModal from '@Components/Modals/FormModal';
 
 const LoginForm = () => {
 	// Use Navigate Hook
 	const navigate = useNavigate();
+
+	// LinkedIn Signup Hook
+	const signUpWithLinkedIn = useLinkedInSignup();
+
 	// Update Check from App Context to broadcast the changes
 	const { setUpdateCheck } = useAppContext();
-	// Confirm Account State
-	const [confirmAccount, setConfirmAccount] = React.useState<boolean>(false);
-
+	
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
 	const [isToggleEnabled, setIsToggleEnabled] = React.useState<boolean>(false);
+	const [confirmAccount, setConfirmAccount] = React.useState<boolean>(false);
+	const [confEmail , setConfEmail] = React.useState("");
+	const [otp, setOtp] = React.useState("");
+  
 	const {
 		register,
 		handleSubmit,
 		reset,
+		getValues,
 		formState: { errors, isValid },
 	} = useForm({
 		defaultValues: {
@@ -115,6 +124,12 @@ const LoginForm = () => {
 				 */
 				if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
 					toast.error('Please confirm your email address before signing in.');
+					const { response, error } = await CognitoServiceObj.resendOtp({username:data.email});
+					if (error) {
+						toast.error(error.message);
+						reset(undefined, { keepValues: false });
+					}
+					setConfEmail(data.email);
 					setConfirmAccount(true);
 					return;
 				}
@@ -168,6 +183,43 @@ const LoginForm = () => {
 		}
 	};
 
+		// Simulate OTP verification
+		const handleVerifyOtpProcess = async() => {
+			try {
+				
+				let signupform = {
+					username: confEmail,
+					confirmationCode: otp,
+				};
+	
+				// Call handleSignUpConfirmation and await the result
+				// debugger;
+			const { response, error } = await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform),
+			{
+				pending: 'Verifying Otp',
+				success: 'Otp verified successfully',
+				error: 'Error verifying Otp',
+			});
+			// Get form values and submit login
+			const formData = getValues();  
+
+			toast.promise(() => onSubmit(formData), {
+					pending: 'Signing in...',
+					success: 'Successfully signed in',
+					error: 'Error: An error occurred while signing in',
+				})
+			
+			} catch (error) {
+				console.error('OTP verification failed', error);
+			}
+			finally {
+				// close the modal and reset the states and form
+				setConfirmAccount(false);
+				setOtp('');
+				reset(undefined, { keepValues: false });
+			}
+		  };
+
 	return (
 		<div>
 			<form
@@ -214,9 +266,9 @@ const LoginForm = () => {
 						</button>
 					</div>
 					<hr className="w-full max-w-[350px] " />
-					{/* LinkedIn */}
+					{/* LinkedIn  */}
 					<div className="w-full ">
-						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " type="button">
+						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " type="button" onClick={() => signUpWithLinkedIn('SignIn')}>
 							<i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
 						</button>
 					</div>
@@ -232,6 +284,29 @@ const LoginForm = () => {
 					</div>
 				</div>
 			</form>
+
+			{/* Verify Otp form */}
+			{confirmAccount && (
+					<CustomModal 
+					type="info" 
+					title="Verify Account" 
+					onSubmit={handleVerifyOtpProcess} 
+					onClose={() => setConfirmAccount(false)}
+					isdisabled={otp.length !== 6} // Disable if OTP is not entered
+				  >
+					<div className="flex flex-col gap-3">
+					 <p>An one time password has been sent to your registered email address.Please enter it in to verify your account.</p>
+					 <input
+						type="text"
+						placeholder="Enter OTP"
+						className={`input_primary auth_input ${otp.length !== 6 && 'error'}`}
+						value={otp}
+						onChange={e => setOtp(e.target.value)}
+					/>
+					<label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
+					</div>
+				  </CustomModal>
+				  )}
 		</div>
 	);
 };

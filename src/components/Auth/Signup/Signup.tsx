@@ -218,7 +218,7 @@ const Signup = () => {
 				name: formData.name,
 				phone_number: '+91' + formData.phoneNumber,
 			};
-			debugger;
+			// debugger;
 			const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
 
 			if (error) {
