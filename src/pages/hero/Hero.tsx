@@ -34,7 +34,6 @@ const Hero = () => {
 	if (!isVerified) {
 		return null; // Nothing will render as the navigation is handled in the hook
 	}
-
 	return (
 		<div className="w-full bg-transparent ">
 			<HeroIntro />
