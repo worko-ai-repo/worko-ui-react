@@ -1,5 +1,8 @@
 import bg_plexus from './backgrounds/plexus.png';
 import bg_globe_abstract from './backgrounds/globe_abstract.png';
+import employee_hero from './backgrounds/employee_hero.png';
+import employee_hero_mobile from './backgrounds/employee_hero_mobile.png';
+import employee_stepper_1_cursor from './backgrounds/employee_stepper_1_cursor.png';
 
 // Worko Assets
 import favicon from './worko-assets/favicon.png';
@@ -26,6 +29,9 @@ export {
     check,
     mini_frame1,
     mini_frame2,
+    employee_hero,
+    employee_hero_mobile,
+    employee_stepper_1_cursor,
      
     // Worko Assets
     favicon,

@@ -9,6 +9,7 @@ import { worko_new } from '@Assets';
 import ProductHighlight from '@Components/Hero/ProductHighlight';
 import Testimonials from '@Components/Hero/Testimonials';
 import HeroOutro from '@Components/Hero/HeroOutro';
+import { testimonials } from '@Components/Hero/data';
 
 
 const Hero = () => {
@@ -41,10 +42,10 @@ const Hero = () => {
 			<PromoCard />
 			<div className=" lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-5 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
 			Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
-			<img src={worko_new} className='absolute top-[-12px] left-[-40px] -rotate-45' alt='worko_new' />
+			<img src={worko_new} className='absolute max-w-[15%] top-[-12px] left-[-70px] -rotate-45' alt='worko_new' />
 			</div>
 			<ProductHighlight />
-			<Testimonials />
+			<Testimonials heading='TESTIMONIALS' title={`HOW THEY ARE GETTING THEIR JOBS WITH ${worko_new}`} titleImage={worko_new} testimonials={testimonials} badgeIcon='fa-md fa-solid fa-box-open' />
 			<HeroOutro />
 		</div>
 	);

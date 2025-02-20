@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { job_frame, ref_frame } from '@Assets';
 import styles from './hero_component.module.scss';
+import { useId } from 'react';
 
 const WorkoFrame = () => {
     const [activeFrame, setActiveFrame] = useState<'jobs' | 'referrals'>('jobs');
-
-   
-/*       setInterval(() => {
-        setActiveFrame(activeFrame === 'jobs' ? 'referrals' : 'jobs');
-      }, 5000);
-    */
+    const uniqueId = useId(); // For generating a new unique ID for both components (into and outro)
 
     return (
       <div className="flex justify-center items-center sm:scale-y-85 ">
@@ -32,15 +28,15 @@ const WorkoFrame = () => {
                 <div className="relative flex-1">
                   <input
                     type="radio"
-                    id="jobs"
-                    name="toggle"
+                    id={`jobs-${uniqueId}`} // Make ID unique
+                    name={`toggle-${uniqueId}`} // Make name unique
                     value="jobs"
                     checked={activeFrame === 'jobs'}
                     onChange={() => setActiveFrame('jobs')}
                     className="peer absolute opacity-0 w-full h-auto cursor-pointer"
                   />
                   <label
-                    htmlFor="jobs"
+                    htmlFor={`jobs-${uniqueId}`} // Match the unique ID
                     className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200"
                   >
                     <span className={activeFrame === 'jobs' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
@@ -53,15 +49,15 @@ const WorkoFrame = () => {
                 <div className="relative flex-1">
                   <input
                     type="radio"
-                    id="referrals"
-                    name="toggle"
+                    id={`referrals-${uniqueId}`} // Make ID unique
+                    name={`toggle-${uniqueId}`} // Make name unique
                     value="referrals"
                     checked={activeFrame === 'referrals'}
                     onChange={() => setActiveFrame('referrals')}
                     className="peer absolute opacity-0 w-full h-full cursor-pointer"
                   />
                   <label
-                    htmlFor="referrals"
+                    htmlFor={`referrals-${uniqueId}`} // Match the unique ID
                     className="relative block w-full text-center px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200"
                   >
                     <span className={activeFrame === 'referrals' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
@@ -74,16 +70,18 @@ const WorkoFrame = () => {
   
             {/* Content Area - Full height minus header height and padding */}
             <div className="h-auto">
-              
-                <div className="bg-gray-50 rounded-2xl max-h-[600px] sm:min-w-[500px] lg:min-w-[800px] p-4 ">
-                    <img src={activeFrame === 'jobs' ? job_frame : ref_frame} alt="job_frame" className='mx-auto max-h-[600px] md:min-w-[500px] object-contain'  />
-                </div>
-              
+              <div className="bg-gray-50 rounded-2xl max-h-[600px] sm:min-w-[500px] lg:min-w-[800px] p-4 ">
+                <img 
+                  src={activeFrame === 'jobs' ? job_frame : ref_frame} 
+                  alt="job_frame" 
+                  className='mx-auto max-h-[600px] md:min-w-[500px] object-contain'  
+                />
+              </div>
             </div>
           </div>
-          </div>
         </div>
+      </div>
     );
-  }
+}
   
 export default WorkoFrame;
