@@ -12,7 +12,7 @@
 		"skipLibCheck": true,
 
 		/* Bundler mode */
-		"moduleResolution": "bundler",
+		"moduleResolution": "node", //moveback to bundler if required
 		"allowImportingTsExtensions": true,
 		"isolatedModules": true,
 		"moduleDetection": "force",
@@ -22,24 +22,28 @@
 		/* Linting */
 		"strict": true,
 		"declaration": false,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
+		"noUnusedLocals": false, //Enable for strict unused locals
+		"noUnusedParameters": false, //Enable for strict unused parameters
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true,
+
 		// Allow importing using Aliases
 		"baseUrl": "./",
 		"paths": {
 			// Aliases Imports Start with @ and Capital Letter and it must be plural
 			"@Assets": ["src/assets/assets.ts"],
 			"@Components/*": ["src/components/*"],
-			"@Enums/*": ["src/enums/*"],
+			"@Context/*": ["src/context/*"],
+			"@Enums/*": ["src/types/enums/*"],
 			"@Hooks/*": ["src/hooks/*"],
-			"@Interfaces/*": ["src/interface/*"],
+			"@Interfaces/*": ["src/types/interface/*"],
+			"@Layouts/*": ["src/layouts/*"],
 			"@Pages/*": ["src/pages/*"],
 			"@Styles/*": ["src/styles/*"],
 			"@Services/*": ["src/services/*"],
 			"@Utils/*": ["src/utils/*"],
-			"@Routes": ["src/Routes.ts"]
+			"@Views/*": ["src/views/*"],
+			"@Routes": ["src/Routes.tsx"]
 		}
 	},
 	"include": ["src", "src/**/*", "vite-env.d.ts"],
