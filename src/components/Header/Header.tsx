@@ -19,12 +19,12 @@ const navItems: NavItem[] = [
 		href: '#candidate',
 		subItems: [
 			{ label: 'Job Portal', href: '/job' },
-			{ label: 'Request Referral', href: '#interview-tips' },
+			{ label: 'Request Referral', href: '/referral' },
 		],
 	},
-	{ label: 'For Employee', href: '#employee' },
-	{ label: 'Blog', href: '#blogs' },
-	{ label: 'About Us', href: '#about' },
+	{ label: 'For Employee', href: '/employee' },
+	{ label: 'Blog', href: '/blogs' },
+	{ label: 'About Us', href: '/about' },
 ];
 
 const Header = () => {

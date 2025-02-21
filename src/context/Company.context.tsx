@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	// Init useLocations to get the current path
 	const location = useLocation();
-	debugger;
+	//debugger;
 	const initialMode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
 	// States
@@ -36,7 +36,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		pageSize: 10,
 		sortOrder: 'descending',
 		searchText: searchText,
-		companyId: location.state.id || '',
+	//	companyId: location.state.id || '',
 	});
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);

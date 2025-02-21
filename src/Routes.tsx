@@ -11,6 +11,28 @@ const Hero = lazy(() => import('@Pages/hero/Hero'));
 const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
 const Company = lazy(() => import('@Pages/company/Company'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
+const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
+
+const underConstructionPaths = [
+    'employee',
+    'about',
+    'faqs',
+    'blogs',
+    'privacy',
+    'contact',
+    'pricing',
+    'terms'
+];
+
+// Create routes for under construction pages
+const underConstructionRoutes = underConstructionPaths.map(path => ({
+    path,
+    element: (
+        <Suspense fallback={<MainLoader />}>
+            <UnderConstruction />
+        </Suspense>
+    )
+}));
 
 // Route Configuration
 const AppRoutes = createBrowserRouter([
@@ -53,6 +75,7 @@ const AppRoutes = createBrowserRouter([
 					</Suspense>
 				),
 			},
+			...underConstructionRoutes,
 		],
 	},
 	{
