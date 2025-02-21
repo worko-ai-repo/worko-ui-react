@@ -1,7 +1,7 @@
-import { student, worko_new } from '@Assets';
+import { worko_new } from '@Assets';
 import { useState } from 'react';
 import { testimonials } from './data';
-import Reveal from '../../layouts/IntersectionObs';
+import Reveal from '../../views/intersection-observer/IntersectionObs';
 
 const Testimonials = () => {
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -15,7 +15,7 @@ const Testimonials = () => {
 	};
 
 	return (
-		<div className="bg-transparent p-1 md:p-5 ">
+		<section className="bg-transparent p-1 md:p-5 ">
 			<div className=" relative  section-wrapper min-h-96 !p-1 md:p-5 mx-auto font-bold text-[10px]">
 				{/* Header */}
 				<div className="flex gap-2 mb-5 w-fit mx-auto justify-between items-center border-[0.8px] border-blue-600 shadow-sm shadow-blue-500 rounded-full text-blue-600 bg-white px-2 py-1">
@@ -26,7 +26,7 @@ const Testimonials = () => {
 				{/* Carousel */}
 				<div className="relative flex flex-col items-center text-center">
 					{/* Heading */}
-					<Reveal CName="Dual-Animate" IsDual={false}>
+					<Reveal IsDual={false} CName="scale_up" threshold={0.5}>
 						<p className="text-2xl sm:w-[60%] mx-auto p-5 sm:text-3xl md:text-5xl relative text-wrap font-extrabold text-white" style={{ lineHeight: '1.2' }}>
 							See how people found jobs with <img src={worko_new} alt="worko_new" className="inline" />
 						</p>
@@ -70,7 +70,7 @@ const Testimonials = () => {
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 };
 

@@ -8,13 +8,13 @@ import CognitoServiceObj from '@Utils/Cognito.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { LinkedinIcon } from 'lucide-react';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
 export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const {setUpdateCheck} = useAppContext();
+	const { setUpdateCheck } = useAppContext();
 	let isCandidatePresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
 	const [userEmail, setUserEmail] = useState<string>('');
@@ -27,7 +27,6 @@ export default function CheckRedirection() {
 		name: string;
 		[key: string]: any;
 	};
-
 
 	// Define the type for profile completion
 	type ProfileCompletion = {
@@ -144,15 +143,14 @@ export default function CheckRedirection() {
 				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Admin');
 			}
 			// Refetch user details to get the latest data
-			const { response:userDetails, error } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
+			const { response: userDetails, error } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
 			// once the user email is set it will fetch the data related to use to check if the dynamodb has the data or not related to user if not then we will return true
 			if (!userDetails) {
 				return true;
 			}
 
-
 			// if the userDetail is present then we will move to navigate the user to dashboard
-			const userDetail:Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
+			const userDetail: Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
 			// Create userDetails from the first element
 			const FinaluserDetails: Partial<AuthLoginForGeneralUserDto> = {
 				lastAccessedDash: userDetail.lastAccessedDash,
@@ -183,7 +181,7 @@ export default function CheckRedirection() {
 				navigate('/switcher');
 				return false;
 			}
-			const { response:profileCompletion } = await httpServiceObj.get<ProfileCompletion>(`/user/${email}/profilePercentage`, true);
+			const { response: profileCompletion } = await httpServiceObj.get<ProfileCompletion>(`/user/${email}/profilePercentage`, true);
 			if (profileCompletion) {
 				const profileType = userDetail.lastAccessedDash === 'CAND' ? profileCompletion.candidate : profileCompletion.employee;
 

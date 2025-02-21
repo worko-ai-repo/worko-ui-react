@@ -1,6 +1,5 @@
 import { HttpHeaderOptionDto, HttpParamsOptions } from '@Interfaces/HttpOption.dto';
-import secureStorage from './SecureStorage.utils';
-import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
+import CognitoServiceObj from './Cognito.utils';
 
 export const getHttpOptions = (authorization = true, params: HttpParamsOptions = {}) => {
 	let headers: HttpHeaderOptionDto = {
@@ -10,7 +9,7 @@ export const getHttpOptions = (authorization = true, params: HttpParamsOptions =
 	if (authorization) {
 		// Fetch the token from the local storage
 		
-		const token = secureStorage.getItem<string>(SecureStorageKeyEnum.ACCESSTOKEN );
+		const token =CognitoServiceObj.getAccessToken();
 		if (!token) {
 			console.log('Token not present ,Using Empty Token');
 			headers['Authorization'] = `Bearer `;

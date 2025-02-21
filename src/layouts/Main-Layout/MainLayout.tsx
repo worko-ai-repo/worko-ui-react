@@ -1,7 +1,11 @@
-import Header from '@Components/Header/Header';
-import Footer from '@Components/Footer/Footer';
 import { Outlet } from 'react-router-dom';
 import styles from '../layout.module.scss';
+
+import Header from '@Components/Header/Header';
+import Footer from '@Components/Footer/Footer';
+import SmoothScroll from '@Views/scroll/SmoothScroll';
+import ScrollToTop from '@Utils/ScrollToTop.utils';
+
 /**
  * @function MainLayout
  *
@@ -11,11 +15,14 @@ import styles from '../layout.module.scss';
  */
 function MainLayout(): JSX.Element {
 	return (
-		<div id="MainLayout" className='bg-white'>
+		<div id="MainLayout" className="bg-white">
 			<Header />
-                <main className={styles.main} id='main_container'>
-                    <Outlet />
-                </main>
+			<SmoothScroll>
+				<ScrollToTop />
+				<main className={styles.main} id="main_container">
+					<Outlet />
+				</main>
+			</SmoothScroll>
 			<Footer />
 		</div>
 	);

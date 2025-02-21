@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { fetchAuthSession, rememberDevice } from '@aws-amplify/auth';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
 import CustomModal from '@Components/Modals/FormModal';
@@ -23,14 +23,14 @@ const LoginForm = () => {
 
 	// Update Check from App Context to broadcast the changes
 	const { setUpdateCheck } = useAppContext();
-	
+
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
 	const [isToggleEnabled, setIsToggleEnabled] = React.useState<boolean>(false);
 	const [confirmAccount, setConfirmAccount] = React.useState<boolean>(false);
-	const [confEmail , setConfEmail] = React.useState("");
-	const [otp, setOtp] = React.useState("");
-  
+	const [confEmail, setConfEmail] = React.useState('');
+	const [otp, setOtp] = React.useState('');
+
 	const {
 		register,
 		handleSubmit,
@@ -124,7 +124,7 @@ const LoginForm = () => {
 				 */
 				if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
 					toast.error('Please confirm your email address before signing in.');
-					const { response, error } = await CognitoServiceObj.resendOtp({username:data.email});
+					const { response, error } = await CognitoServiceObj.resendOtp({ username: data.email });
 					if (error) {
 						toast.error(error.message);
 						reset(undefined, { keepValues: false });
@@ -183,42 +183,38 @@ const LoginForm = () => {
 		}
 	};
 
-		// Simulate OTP verification
-		const handleVerifyOtpProcess = async() => {
-			try {
-				
-				let signupform = {
-					username: confEmail,
-					confirmationCode: otp,
-				};
-	
-				// Call handleSignUpConfirmation and await the result
-				// debugger;
-			const { response, error } = await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform),
-			{
+	// Simulate OTP verification
+	const handleVerifyOtpProcess = async () => {
+		try {
+			let signupform = {
+				username: confEmail,
+				confirmationCode: otp,
+			};
+
+			// Call handleSignUpConfirmation and await the result
+			// debugger;
+			const { response, error } = await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform), {
 				pending: 'Verifying Otp',
 				success: 'Otp verified successfully',
 				error: 'Error verifying Otp',
 			});
 			// Get form values and submit login
-			const formData = getValues();  
+			const formData = getValues();
 
 			toast.promise(() => onSubmit(formData), {
-					pending: 'Signing in...',
-					success: 'Successfully signed in',
-					error: 'Error: An error occurred while signing in',
-				})
-			
-			} catch (error) {
-				console.error('OTP verification failed', error);
-			}
-			finally {
-				// close the modal and reset the states and form
-				setConfirmAccount(false);
-				setOtp('');
-				reset(undefined, { keepValues: false });
-			}
-		  };
+				pending: 'Signing in...',
+				success: 'Successfully signed in',
+				error: 'Error: An error occurred while signing in',
+			});
+		} catch (error) {
+			console.error('OTP verification failed', error);
+		} finally {
+			// close the modal and reset the states and form
+			setConfirmAccount(false);
+			setOtp('');
+			reset(undefined, { keepValues: false });
+		}
+	};
 
 	return (
 		<div>
@@ -231,7 +227,7 @@ const LoginForm = () => {
 				)}
 				className=" min-w-full ">
 				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
-				<p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
+					<p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
 					{/* Name */}
 					<div className="w-full max-w-[350px] sm:max-w-[350px] ">
 						<label className="font-medium hidden sm:block">Email</label>
@@ -287,26 +283,20 @@ const LoginForm = () => {
 
 			{/* Verify Otp form */}
 			{confirmAccount && (
-					<CustomModal 
-					type="info" 
-					title="Verify Account" 
-					onSubmit={handleVerifyOtpProcess} 
+				<CustomModal
+					type="info"
+					title="Verify Account"
+					onSubmit={handleVerifyOtpProcess}
 					onClose={() => setConfirmAccount(false)}
 					isdisabled={otp.length !== 6} // Disable if OTP is not entered
-				  >
+				>
 					<div className="flex flex-col gap-3">
-					 <p>An one time password has been sent to your registered email address.Please enter it in to verify your account.</p>
-					 <input
-						type="text"
-						placeholder="Enter OTP"
-						className={`input_primary auth_input ${otp.length !== 6 && 'error'}`}
-						value={otp}
-						onChange={e => setOtp(e.target.value)}
-					/>
-					<label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
+						<p>An one time password has been sent to your registered email address.Please enter it in to verify your account.</p>
+						<input type="text" placeholder="Enter OTP" className={`input_primary auth_input ${otp.length !== 6 && 'error'}`} value={otp} onChange={e => setOtp(e.target.value)} />
+						<label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
 					</div>
-				  </CustomModal>
-				  )}
+				</CustomModal>
+			)}
 		</div>
 	);
 };

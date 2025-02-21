@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 import { fetchAuthSession, getCurrentUser } from '@aws-amplify/auth';
 import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
@@ -109,7 +109,7 @@ const LinkedInSignup = () => {
 			emailId: data.email,
 			password: data.password,
 			phoneNumber: data.phone,
-			department : data.department,
+			department: data.department,
 			acceptedTermsAndConditions: data.termsAndConditions,
 		}));
 

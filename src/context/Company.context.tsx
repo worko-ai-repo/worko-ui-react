@@ -8,6 +8,7 @@ import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from '@
 import { filterMetaData } from '@Components/Company/FilterData';
 import ErrorWarning from '@Components/Shared/ContextErrorHandler';
 import { generateFilterForRender, normalizeSkills } from '@Utils/GenerateFiltersForRender';
+import { useLocation } from 'react-router-dom';
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -15,6 +16,9 @@ const queryClient = new QueryClient();
 
 // Create the provider component
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
+	// Init useLocations to get the current path
+	const location = useLocation();
+	debugger;
 	const initialMode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
 	// States
@@ -32,9 +36,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		pageSize: 10,
 		sortOrder: 'descending',
 		searchText: searchText,
+		companyId: location.state.id || '',
 	});
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
+
 
 	// useLayoutEffect to check if we are on job page or referral page
 	useLayoutEffect(() => {

@@ -16,7 +16,7 @@
 }
 
 :root {
-	 /* Background color that will be applied to main body */
+	/* Background color that will be applied to main body */
 	--primary-background-color: #eeeeee;
 	--secondary-background-color: #4B7EFF;
 	--color-hover: #747bff;
@@ -24,8 +24,9 @@
 	--text-color: #213547;
 	--background: #ffffff;
 	--text: #1a1a1a;
-	--brand-light:#005dfd;
-	--brand: #170155; /* Brand color */
+	--brand-light: #005dfd;
+	--brand: #170155;
+	/* Brand color */
 	--brand-bright: #22019c;
 	--header-scrolled: rgba(255, 255, 255, 0.8);
 
@@ -39,15 +40,19 @@
 	--text-2xl: 8rem;
 
 	font-family: 'Gilroy', 'Poppins', system-ui, Avenir, Helvetica, Arial, sans-serif;
-	
-	font-display: swap; /* Fallback font layout shift fix */
+
+	font-display: swap;
+	/* Fallback font layout shift fix */
 	/* color-scheme: light dark; */
 	color: rgb(0, 0, 0);
 	background-color: var(--primary-background-color);
 
-	-ms-overflow-style: none !important;  /* IE and Edge */
-	scrollbar-width: none !important;  /* Firefox */
-	
+	-ms-overflow-style: none !important;
+	/* IE and Edge */
+	scrollbar-width: none !important;
+	/* Firefox */
+	scroll-behavior: smooth;
+
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
@@ -63,9 +68,11 @@
 	--text-color: #ffffff;
 	--background: #181818;
 	--text: #1a1a1a;
-	--brand: #170155; /* Brand color */
+	--brand: #170155;
+	/* Brand color */
 	--header-scrolled: rgb(0 8 39 / 80%);
 }
+
 * {
 	transition: all 0.3s ease-in-out;
 }
@@ -77,13 +84,16 @@ body {
 	align-items: center;
 	width: auto;
 	min-height: 100vh;
-	-ms-overflow-style: none !important;  /* IE and Edge */
-	scrollbar-width: none !important;  /* Firefox */
+	-ms-overflow-style: none !important;
+	/* IE and Edge */
+	scrollbar-width: none !important;
+	/* Firefox */
 }
 
-.bc{
-	border:2px solid red;
+.bc {
+	border: 2px solid red;
 }
+
 .section-wrapper {
 	position: relative;
 	z-index: 10;
@@ -93,79 +103,98 @@ body {
 	padding: var(--text-lg);
 	overflow: hidden;
 }
+
 button {
 	cursor: pointer;
+
 	&:active {
 		outline: none;
 		transform: scale(0.95);
 	}
 }
+
 h1 {
 	font-size: var(--text-lg);
 }
+
 p {
-	font-size: var(--text-xs) ;
+	font-size: var(--text-xs);
 }
-input{
+
+input {
 	background-color: var(--primary-background-color);
 	outline: none;
 	font-weight: 500;
-	color:rgb(65, 111, 153)
+	color: rgb(65, 111, 153)
 }
-.thin_border{
+
+.thin_border {
 	border: 1px solid hsla(0, 0%, 74%, .8);
 }
 
-label{
+label {
 	font-size: var(--text-xxs);
-	margin:5px ;
+	margin: 5px;
 	color: rgb(55, 55, 55);
 	text-align: left;
 }
 
 /* Scrollbar Track */
 ::-webkit-scrollbar {
-    width: 10px; /* Width of the scrollbar */
-    height: 10px;
-	scroll-behavior: smooth;
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-	background: rgb(5,124,203);
-	background: linear-gradient(120deg, rgba(5,124,203,1) 0%, rgba(69,91,255,1) 37%, rgba(154,205,255,1) 76%);
-    border-radius: 10px; /* Rounded corners */
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: #999; /* Color of the scrollbar handle on hover */
-  }
-  
-  /* Corner */
-  ::-webkit-scrollbar-corner {
-    background-color: transparent; /* Color of the scrollbar corner */
-  }
- 
+	width: 10px;
+	/* Width of the scrollbar */
+	height: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: rgb(5, 124, 203);
+	background: linear-gradient(120deg, rgba(5, 124, 203, 1) 0%, rgba(69, 91, 255, 1) 37%, rgba(154, 205, 255, 1) 76%);
+	border-radius: 10px;
+	/* Rounded corners */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background-color: #999;
+	/* Color of the scrollbar handle on hover */
+}
+
+/* Corner */
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+	/* Color of the scrollbar corner */
+}
+
+
 @media screen and (max-width: 768px) {
 	.section-wrapper {
 		padding: 5rem 2rem;
 	}
+
 	h1 {
 		font-size: var(--text-lg);
 	}
+
 	p {
-		font-size: var(--text-xs) ;
+		font-size: var(--text-xs);
 	}
 }
+
+[data-scroll-container] {
+	/* Ensures the container spans full height */
+}
+
 @media screen and (max-width: 480px) {
 	.section-wrapper {
 		padding: 5rem 0.5em;
 	}
+
 	h1 {
 		font-size: var(--text-md);
 	}
+
 	p {
-		font-size: var(--text-xs) ;
+		font-size: var(--text-xs);
 	}
 }

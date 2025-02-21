@@ -25,6 +25,7 @@ export default defineConfig({
 			'@Styles': path.resolve(__dirname, 'src/styles'),
 			'@Services': path.resolve(__dirname, 'src/services'),
 			'@Utils': path.resolve(__dirname, 'src/utils'),
+			'@Views': path.resolve(__dirname, 'src/views'),
 			'@Routes': path.resolve(__dirname, 'src/routes.ts'),
 		},
 	},

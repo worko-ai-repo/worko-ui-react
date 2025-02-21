@@ -153,6 +153,7 @@ class CognitoService {
 			const { tokens } = await fetchAuthSession();
 			if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
 				secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload['email']?.toString().toLowerCase() || '');
+				secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS , tokens?.idToken?.payload || '');
 			}
 			return true;
 		}
@@ -171,6 +172,7 @@ class CognitoService {
 			if (tokens) {
 				if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
 					secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload['email']?.toString().toLowerCase() || '');
+					secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS , tokens?.idToken?.payload || '');
 				}
 				return true;
 			}

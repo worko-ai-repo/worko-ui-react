@@ -42,6 +42,7 @@
 			"@Styles/*": ["src/styles/*"],
 			"@Services/*": ["src/services/*"],
 			"@Utils/*": ["src/utils/*"],
+			"@Views/*": ["src/views/*"],
 			"@Routes": ["src/Routes.tsx"]
 		}
 	},

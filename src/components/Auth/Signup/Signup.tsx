@@ -8,12 +8,12 @@ import { useMutation } from '@tanstack/react-query';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
 import { useNavigate } from 'react-router-dom';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 
 export type SignupMode = 'EMP' | 'CAND';
 const Signup = () => {
 	const navigateTo = useNavigate();
-	const {isLoggedIn } = useAppContext();
+	const { isLoggedIn } = useAppContext();
 	const [activeFrame, setActiveFrame] = useState<SignupMode>('CAND');
 	const [cv, setCv] = useState<any>();
 	let resumeUserFileName: string;
@@ -44,7 +44,7 @@ const Signup = () => {
 		if (isLoggedIn) {
 			navigateTo('/');
 		}
-	},[isLoggedIn]);
+	}, [isLoggedIn]);
 
 	/**
 	 * metaDataFilter

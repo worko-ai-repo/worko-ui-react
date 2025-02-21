@@ -14,15 +14,28 @@
   animation: scroll 30s linear infinite;
 }
 
+.marquee-content.reverse{
+  animation: scroll_reverse 30s linear infinite;  
+}
+
 .marquee-content:hover {
   animation-play-state: paused;
 }
+
 
 @keyframes scroll {
   0% {
     transform: translateX(0);
   }
   100% {
+    transform: translateX(calc(-100% - 2rem));
+  }
+}
+@keyframes scroll_reverse{
+  100% {
+    transform: translateX(0);
+  }
+  0% {
     transform: translateX(calc(-100% - 2rem));
   }
 }

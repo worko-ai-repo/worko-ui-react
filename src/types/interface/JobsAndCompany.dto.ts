@@ -89,6 +89,7 @@ export interface CompanyDto {
     coreSkills?: string[];
     softSkills?: string[];
     technicalSkills?: string[];
+    companyId?: string;
   }
 
   /**

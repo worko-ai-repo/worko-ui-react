@@ -2,9 +2,9 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '@Layouts/Main-Layout/MainLayout';
 import PageNotFound from '@Pages/errors/404/PageNotFound';
-import Loader from '@Components/Loader/Loader';
-import CompanyInput from '@Components/Shared/CompanyInput';
+import MainLoader from '@Components/Loader/Loader'; 
 import TestPage from '@Pages/Test';
+import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
@@ -16,6 +16,7 @@ const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
 const AppRoutes = createBrowserRouter([
 	{
 		path: '/',
+		errorElement: <ErrorFallback />,
 		element: (
 				<MainLayout />
 		),
@@ -23,7 +24,7 @@ const AppRoutes = createBrowserRouter([
 			{
 				index: true,
 				element: (
-					<Suspense fallback={<Loader />}>
+					<Suspense fallback={<MainLoader />}>
 						<Hero />
 					</Suspense>
 				),
@@ -31,7 +32,7 @@ const AppRoutes = createBrowserRouter([
 			{
 				path: 'mock-interview',
 				element: (
-					<Suspense fallback={<Loader />}>
+					<Suspense fallback={<MainLoader />}>
 						<TestPage />
 					</Suspense>
 				),
@@ -39,7 +40,7 @@ const AppRoutes = createBrowserRouter([
 			{
 				path: 'job/*',
 				element: (
-					<Suspense fallback={<Loader />}>
+					<Suspense fallback={<MainLoader />}>
 						<Company />
 					</Suspense>
 				),
@@ -47,7 +48,7 @@ const AppRoutes = createBrowserRouter([
 			{
 				path: 'referral/*',
 				element: (
-					<Suspense fallback={<Loader />}>
+					<Suspense fallback={<MainLoader />}>
 						<Company />
 					</Suspense>
 				),
@@ -57,7 +58,7 @@ const AppRoutes = createBrowserRouter([
 	{
 		path: 'auth/*',
 		element: (
-			<Suspense fallback={<Loader />}>
+			<Suspense fallback={<MainLoader />}>
 				<AuthRouter />
 			</Suspense>
 		),

@@ -7,18 +7,15 @@ import { toast } from 'react-toastify';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { validationRules } from '@Utils/FormValidator.utils';
 import RequestCompany from './RequestCompany';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 
-export default function CompanyInput({errors , setValue,clearErrors,setCompanyName,isOtpSent}: {errors:FieldErrors<any> ; setValue: any , clearErrors:any,setCompanyName:any,isOtpSent?:boolean}) {
+export default function CompanyInput({ errors, setValue, clearErrors, setCompanyName, isOtpSent }: { errors: FieldErrors<any>; setValue: any; clearErrors: any; setCompanyName: any; isOtpSent?: boolean }) {
 	const [searhText, setSearchText] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedCompany, setSelectedCompany] = useState<CompanyShortDto | null>(null);
 	const [showModal, setShowModal] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
-    const { isLoggedIn } = useAppContext();
-
-	
-
+	const { isLoggedIn } = useAppContext();
 
 	const findCompanies = useCallback<() => Promise<CompanyShortDto[]>>(async () => {
 		if (!searhText || searhText.length < 2) return [];
@@ -36,8 +33,6 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 		enabled: searhText.length >= 2,
 		staleTime: 200, // 2 sec
 	});
-
-
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -59,20 +54,19 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 
 	const handleCompanySelect = (company: CompanyShortDto) => {
 		if (company) {
-            setSelectedCompany(company);
-            setSearchText(company.name);
+			setSelectedCompany(company);
+			setSearchText(company.name);
 			setCompanyName(company.name);
-            setValue('company', company.SK);
-           
-                clearErrors('company');
-           
-        } else {
-            setSelectedCompany(null);
-            setSearchText('');
+			setValue('company', company.SK);
+
+			clearErrors('company');
+		} else {
+			setSelectedCompany(null);
+			setSearchText('');
 			setCompanyName('');
-            setValue('company', '');
-        }
-        setIsOpen(false);
+			setValue('company', '');
+		}
+		setIsOpen(false);
 	};
 
 	return (
@@ -86,7 +80,7 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 							<X
 								onClick={() => {
 									setSelectedCompany(null);
-									setValue('company', null ,  { shouldValidate: true });
+									setValue('company', null, { shouldValidate: true });
 									setSearchText('');
 								}}
 								className=" active:scale-90 cursor-pointer p-1 text-white bg-blue-600 rounded-full absolute right-3 top-3.5 h-4 w-4 "
@@ -113,14 +107,16 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 						) : searhText.length >= 2 ? (
 							<div className="p-4">
 								<div className="text-sm text-gray-500 mb-3">No companies found</div>
-								{isLoggedIn && <button
-									onClick={() => {
-										setShowModal(true);
-										setIsOpen(false);
-									}}
-									className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-									Request to add company
-								</button>}
+								{isLoggedIn && (
+									<button
+										onClick={() => {
+											setShowModal(true);
+											setIsOpen(false);
+										}}
+										className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+										Request to add company
+									</button>
+								)}
 							</div>
 						) : (
 							<div className="px-4 py-3 text-sm text-gray-500">Type at least 2 characters to searhText</div>
@@ -128,9 +124,7 @@ export default function CompanyInput({errors , setValue,clearErrors,setCompanyNa
 					</div>
 				)}
 			</div>
-			{showModal && (
-				<RequestCompany  setShowModal={setShowModal} />
-			)}
+			{showModal && <RequestCompany setShowModal={setShowModal} />}
 		</div>
 	);
 }

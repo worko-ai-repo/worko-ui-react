@@ -6,6 +6,7 @@
  * @enum SecureStorageKeyEnum
  */
 export enum SecureStorageKeyEnum {
+	COGNITOUSERDETAILS = 'cognitoUserDetails',
 	USERTOKEN = 'USERTOKEN',
 	SIGNINDETAILS = 'SIGNINDETAILS',
 	LOGINDETAILS = 'loginDetails',

@@ -3,7 +3,7 @@ import { Menu, X, ChevronDown, LogOut, User } from 'lucide-react';
 import { coin, logo_text } from '@Assets';
 import styles from './header.module.scss';
 import { useNavigate } from 'react-router-dom';
-import { useAppContext } from '@Context/Main.context';
+import { useAppContext } from '@Context/App.context';
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
@@ -28,6 +28,7 @@ const navItems: NavItem[] = [
 ];
 
 const Header = () => {
+	
 	const navigateTo = useNavigate();
 	// debugger;
 	// Context menu to manage the auth session
@@ -47,7 +48,7 @@ const Header = () => {
 		<header className={styles.header}>
 			<div className={styles.container}>
 				{/* Logo */}
-				<div className={`cursor-pointer ${styles.logo}`} onClick={() => navigateTo('/')}>
+				<div className={`cursor-pointer ${styles.logo}`} onClick={() =>{ navigateTo('/'); setUpdateCheck(true);}}>
 					<img src={logo_text} alt="Logo" />
 				</div>
 
@@ -79,7 +80,7 @@ const Header = () => {
 						<div className="group relative">
 							<div className="flex items-center justify-start gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-[55px] group-hover:bg-[#79bff848]">
 								<div className={styles.userDetails} onClick={() => navigateTo('/profile')}>
-									{userDetails?.profileImageAwsS3SignedUrl  ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}
+									{userDetails?.profileImageAwsS3SignedUrl ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}
 								</div>
 								<i className="fa-solid fa-chevron-down cursor-pointer" onClick={() => CognitoServiceObj.handleSignOut()}></i>
 							</div>
@@ -90,7 +91,7 @@ const Header = () => {
 									<li className="flex items-center justify-between  rounded-lg bg-white ">
 										<div className="flex items-center justify-start w-full gap-2 ">
 											{/* Avatar */}
-											<div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 overflow-hidden">{userDetails?.profileImageAwsS3SignedUrl  ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}</div>
+											<div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 overflow-hidden">{userDetails?.profileImageAwsS3SignedUrl ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}</div>
 
 											{/* User Info */}
 											<div className="flex flex-col justify-start items-start flex-1  ">

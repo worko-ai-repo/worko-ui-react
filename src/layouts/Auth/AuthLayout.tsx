@@ -1,6 +1,7 @@
 import Header from '@Components/Header/Header';
 import { Outlet } from 'react-router-dom';
 import styles from '../layout.module.scss';
+import ErrorBoundary from '../../error-boundary/ErrorBoundary';
 /**
  * @function Layout
  *
@@ -10,11 +11,11 @@ import styles from '../layout.module.scss';
  */
 function AuthLayout(): JSX.Element {
 	return (
-		<div id="Authlayout" className=' relative bg-gradient-to-t from-blue-700 via-blue-500 to-slate-50 '>
+		<div id="Authlayout" className=" relative bg-gradient-to-t from-blue-700 via-blue-500 to-slate-50 ">
 			<Header />
-                <main className={`flex items-center ${styles.main}`} id='main_container'>
-                    <Outlet />
-                </main>
+			<main className={`flex items-center ${styles.main}`} id="main_container">
+				<Outlet />
+			</main>
 		</div>
 	);
 }

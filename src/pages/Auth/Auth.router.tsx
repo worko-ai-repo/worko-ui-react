@@ -1,8 +1,8 @@
-import { Loader } from 'lucide-react';
 import { Route, Routes } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import CorporateLogin from '@Components/Auth/Corporate/Login/CorporateLogin';
 import CheckRedirection from '@Components/Auth/CheckRedirection';
+import MainLoader from '@Components/Loader/Loader';
 
 const Login = lazy(() => import('@Components/Auth/Login/Login'));
 const AuthLayout = lazy(() => import('@Layouts/Auth/AuthLayout'));
@@ -14,7 +14,7 @@ const CorporateSignup = lazy(() => import('@Components/Auth/Corporate/Signup/Cor
 
 const Auth = () => {
 	return (
-		<Suspense fallback={<Loader />}>
+		<Suspense fallback={<MainLoader />}>
 			<Routes>
 				<Route element={<AuthLayout />}>
 					<Route path="/login" element={<Login />} />
