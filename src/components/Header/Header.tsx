@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
 			{ label: 'Request Referral', href: '#interview-tips' },
 		],
 	},
-	{ label: 'For Employee', href: '#employee' },
+	{ label: 'For Employee', href: '/employee' },
 	{ label: 'Blog', href: '#blogs' },
 	{ label: 'About Us', href: '#about' },
 ];
