@@ -4,6 +4,7 @@ import { worko_new } from '@Assets';
 import { lazy, Suspense } from 'react';
 import MainLoader from '@Components/Loader/Loader';
 import Reveal from '@Views/intersection-observer/IntersectionObs';
+import { testimonials } from '@Components/Hero/data';
 
 const HeroIntro = lazy(() => import('@Components/Hero/HeroIntro'));
 const CompaniesList = lazy(() => import('@Components/Hero/CompaniesList'));
@@ -31,25 +32,21 @@ const Hero = () => {
 
 	return (
 		<div className="w-full bg-transparent " id="locoScrollMainContainer">
-
 			<Suspense fallback={<MainLoader />}>
-
 				<HeroIntro />
 				<CompaniesList />
 				<PromoCard />
 				{/* This section will always be rendered */}
 				<div className="lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-5 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
-				<Reveal CName='slide_up' threshold={0.5}>
-					Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
-					<img src={worko_new} className="absolute top-[-12px] left-[-40px] -rotate-45" alt="worko_new" />
-				</Reveal>
+					<Reveal CName="slide_up" threshold={0.5}>
+						Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
+						<img src={worko_new} className="absolute top-[-12px] left-[-40px] -rotate-45" alt="worko_new" />
+					</Reveal>
 				</div>
 				<ProductHighlight />
-				<Testimonials />
+				<Testimonials heading='TESTIMONIALS' title={`HOW THEY ARE GETTING THEIR JOBS WITH ${worko_new}`} titleImage={worko_new} testimonials={testimonials} badgeIcon='fa-md fa-solid fa-box-open' />
 				<HeroOutro />
-
 			</Suspense>
-
 		</div>
 	);
 };

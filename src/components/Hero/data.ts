@@ -36,3 +36,24 @@ export const testimonials = [
 		],
 	},
 ];
+
+export const EmployeeTestimonials = [
+	{	id:1,
+		items: [
+			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content: "Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation" },
+			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
+			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content:"Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation" },
+		],
+		
+	},
+	{
+		id: 2,
+		items: [
+			{ icon: student, student_name: 'Vikas', student_comp: 'AMAZON', content: 'Product 6 is amazing!' },
+			{ icon: student, student_name: 'Rohan', student_comp: 'AMAZON', content: 'Product 7 changed my life!' },
+			{ icon: student, student_name: 'Tina', student_comp: 'AMAZON', content: 'Product 8 is the best!' },
+			{ icon: student, student_name: 'Aditi', student_comp: 'AMAZON', content: 'Product 9 is fantastic!' },
+			{ icon: student, student_name: 'Manoj', student_comp: 'AMAZON', content: 'Product 10 is incredible!' },
+		],
+	},
+]

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { job_frame, ref_frame } from '@Assets';
 import styles from './hero_component.module.scss';
+import { useId } from 'react';
 
 const WorkoFrame = ({ frameId }: { frameId: string }) => {
   const [activeFrame, setActiveFrame] = useState<'jobs' | 'referrals'>('jobs');

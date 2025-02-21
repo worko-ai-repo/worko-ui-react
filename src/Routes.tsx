@@ -6,12 +6,14 @@ import MainLoader from '@Components/Loader/Loader';
 import TestPage from '@Pages/Test';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 
+
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
 const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
 const Company = lazy(() => import('@Pages/company/Company'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
 const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
+const Employee = lazy(() => import('@Pages/employee/Employee'));
 
 const underConstructionPaths = [
     'employee',
@@ -72,6 +74,14 @@ const AppRoutes = createBrowserRouter([
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Company />
+					</Suspense>
+				),
+			},
+			{
+				path: 'employee/*',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<Employee />
 					</Suspense>
 				),
 			},
