@@ -35,7 +35,13 @@ const JobFilterPanel = ({ toggleFilters }: { toggleFilters: () => void }) => {
 				} catch (error) {
 					console.error('Invalid range value:', value);
 				}
-			} else {
+				
+			} 
+			else if (key === 'industry') {
+                // Map 'industry' to 'industryName' for API compatibility
+                newFilters['industryName'] = value;
+            }
+			else {
 				newFilters[key] = value;
 			}
 			return newFilters;

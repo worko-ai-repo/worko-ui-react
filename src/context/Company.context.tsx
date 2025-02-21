@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	// Init useLocations to get the current path
 	const location = useLocation();
-	debugger;
+	// debugger;
 	const initialMode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
 	// States
@@ -36,7 +36,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		pageSize: 10,
 		sortOrder: 'descending',
 		searchText: searchText,
-		companyId: location.state.id || '',
+		// companyId: location.state.id || '',
 	});
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
@@ -87,21 +87,30 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	const CompanyQueryHandler = useCallback(
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
 			const updatedFilters = { ...filters, lastKey: pageParam }; // Attach lastKey for pagination
-			// debugger;
-			const { response, error } = await httpServiceObj.get<any>(`/${location.pathname.includes('job') ? 'job' : 'company'}`, true, updatedFilters);
-
+	
+			const { response, error } = await httpServiceObj.get<any>(
+				`/${location.pathname.includes('job') ? 'job' : 'company'}`,
+				true,
+				updatedFilters
+			);
+	
 			if (error) throw error;
-
+	
+			// Generate filters for rendering
 			generateFilterForRender(response.data, companyPageMode, filterMetaData, setJobFilterForRender);
-
+	
+			// Check if API returned data
 			setApiHasData(response.data.length > 0);
-
+	
+			// Determine if it's a new filter OR a paginated request
+			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
+	
 			if (location.pathname.includes('job')) {
-				setCompanyJobData(prev => [...(prev || []), ...response.data]); // Append new data
+				setCompanyJobData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
 			} else {
-				setCompanyRefData(prev => [...(prev || []), ...response.data]);
+				setCompanyRefData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
 			}
-
+	
 			return {
 				data: response,
 				nextPage: response.pagination.lastKey ?? undefined, // Pass lastKey for pagination
@@ -109,6 +118,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		},
 		[companyPageMode]
 	);
+	
 
    /**
 	* useInfiniteQuery

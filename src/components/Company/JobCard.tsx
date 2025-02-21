@@ -27,7 +27,7 @@ const JobCard = ({ job }: any) => {
 	};
 
 	return (
-		<div className="flex flex-col gap-4  mx-auto bg-white shadow-md rounded-2xl p-3 sm:p-3 md:p-4 w-full sm:mx-5 md:max-w-[100%] mx-auto21 border-[1px] border-gray-300 ">
+		<div className="flex h-fit flex-col gap-4  mx-auto bg-white shadow-md rounded-2xl p-3 sm:p-3 md:p-4 w-[95%] sm:mx-5 md:max-w-[100%] mx-auto21 border-[1px] border-gray-300 ">
 			{/* first col with images title and starts */}
 			<div className="flex items-start justify-start gap-2 md:gap-5 ">
 				{/* Left Section: Company Logo */}
