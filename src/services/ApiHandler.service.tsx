@@ -61,13 +61,13 @@ export class HttpService {
 			if (!response.ok) {
 				const errorMessage = `HTTP error! status: ${response.status}, message: ${response.statusText}`;
 				console.error(`HTTP error on POST ${path}:`, errorMessage);
-				return { response: null, error: new Error(errorMessage) };
+				return { response: null, error: new Error(errorMessage) ,status: response.status };
 			}
 			// Parse and return the JSON response
 			const jsonResponse = (await response.json()) as ResponseDataDto;
 
 			// Return the response and error as null
-			return { response: jsonResponse, error: null };
+			return { response: jsonResponse, error: null ,status: response.status};
 		} catch (error) {
 			// Log the error for debugging
 			console.error(`Error in POST request to ${path}:`, error);

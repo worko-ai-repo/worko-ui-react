@@ -40,7 +40,7 @@ const Hero = () => {
 				<div className="lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-5 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
 					<Reveal CName="slide_up" threshold={0.5}>
 						Revolutionizing Your Job Hunt – Referrals, Guidance, and Career Success Simplified!
-						<img src={worko_new} className="absolute top-[-12px] left-[-40px] -rotate-45" alt="worko_new" />
+						<img src={worko_new} className="absolute top-[-12px] left-[-40px] w-20 -rotate-45" alt="worko_new" />
 					</Reveal>
 				</div>
 				<ProductHighlight />

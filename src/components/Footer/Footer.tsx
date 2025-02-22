@@ -21,7 +21,7 @@ const Footer = () => {
 
 							<div className={styles.label_and_buttons}>
 								<p className="mb-0">Discover Top Talent For Your Team</p>
-								<button onClick={()=>{NavTo('/auth/signup')}} className="btn_hire_talent mt-0">Hire Candidate</button>
+								<button onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}} className="btn_hire_talent mt-0">Hire Candidate</button>
 							</div>
 
 							<div className="flex space-x-8 mt-4">
@@ -42,7 +42,7 @@ const Footer = () => {
 							<div>
 								<h3 className="font-semibold mb-4">For Companies</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list}>
-									<li onClick={()=>{NavTo('/auth/signup')}}>Hire Talent</li>
+									<li onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}}>Hire Talent</li>
 									<li>AI Resume Screening</li>						
 									<li onClick={()=>{NavTo('/pricing')}}>Pricing</li>
 								</ul>
@@ -52,7 +52,7 @@ const Footer = () => {
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list} >
 									<li onClick={()=>{NavTo('/job')}}>Browse jobs & Apply via AI</li>
 									<li onClick={()=>{NavTo('/referral')}}>Request a referral</li>
-									<li onClick={()=>{NavTo('/interview')}}>Request interview guidance</li>
+									<li onClick={()=>{NavTo('/guidance')}}>Request interview guidance</li>
 								</ul>
 							</div>
 							<div className="grow ">

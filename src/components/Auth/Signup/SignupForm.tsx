@@ -22,6 +22,24 @@ const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'))
  * @property fetchLinkedinSessionData - Function - Function to fetch the linkedin session data like name email and cognito ID
  */
 
+export function validateCV  (value: string) {
+	// Validate CV file
+	const fileList = (document.querySelector('input[name="cv"]') as HTMLInputElement)?.files;
+	if (!fileList || fileList.length === 0) return 'CV file is required';
+
+	const file = fileList[0];
+	const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+	if (!validTypes.includes(file.type)) {
+		return 'Only PDF, DOC, and DOCX files are allowed';
+	}
+	if (file.size > 2 * 1024 * 1024) {
+		// 2MB limit
+		return 'File size must be less than 2MB';
+	}
+	return true;
+};
+
 const SignupForm: React.FC<{
 	activeFrame: SignupMode;
 	runCognitoBasicSignup: (data: AuthFormDto) => Promise<boolean>;
@@ -123,23 +141,7 @@ const SignupForm: React.FC<{
 		}
 	}
 
-	const validateCV = (value: string) => {
-		// Validate CV file
-		const fileList = (document.querySelector('input[name="cv"]') as HTMLInputElement)?.files;
-		if (!fileList || fileList.length === 0) return 'CV file is required';
 
-		const file = fileList[0];
-		const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-
-		if (!validTypes.includes(file.type)) {
-			return 'Only PDF, DOC, and DOCX files are allowed';
-		}
-		if (file.size > 2 * 1024 * 1024) {
-			// 2MB limit
-			return 'File size must be less than 2MB';
-		}
-		return true;
-	};
 	return (
 		<div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
 			<form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">

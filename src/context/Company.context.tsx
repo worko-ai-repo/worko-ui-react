@@ -8,7 +8,7 @@ import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from '@
 import { filterMetaData } from '@Components/Company/FilterData';
 import ErrorWarning from '@Components/Shared/ContextErrorHandler';
 import { generateFilterForRender, normalizeSkills } from '@Utils/GenerateFiltersForRender';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -18,7 +18,9 @@ const queryClient = new QueryClient();
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	// Init useLocations to get the current path
 	const location = useLocation();
-	//debugger;
+	const [searchParams] = useSearchParams();
+	const companyId = searchParams.get("compid") || undefined; // Extract `compid` from query
+
 	const initialMode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
 	// States
@@ -36,11 +38,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		pageSize: 10,
 		sortOrder: 'descending',
 		searchText: searchText,
-	//	companyId: location.state.id || '',
+		//	companyId: location.state.id || '',
 	});
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
-
 
 	// useLayoutEffect to check if we are on job page or referral page
 	useLayoutEffect(() => {
@@ -86,54 +87,60 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	 */
 	const CompanyQueryHandler = useCallback(
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
-			const updatedFilters = { ...filters, lastKey: pageParam }; // Attach lastKey for pagination
-	
-			const { response, error } = await httpServiceObj.get<any>(
-				`/${location.pathname.includes('job') ? 'job' : 'company'}`,
-				true,
-				updatedFilters
-			);
-	
+			const updatedFilters = {
+				...filters,
+				lastKey: pageParam,
+				...((companyId && location.pathname.includes('job')) ? { companyId } : {}), // Only add companyId if it's defined
+			};
+			const company_path = companyId ? "company/"+companyId : 'company'; 
+			const { response, error } = await httpServiceObj.get<any>(`/${location.pathname.includes('job') ? 'job' : `${company_path}`}`, true, updatedFilters);
+
 			if (error) throw error;
-	
+			// Normalize response when `companyId` is provided
+			const normalizedResponse = companyId
+			? {
+				data: [response[0]], // Wrap single object in an array
+				pagination: { count: 1, pageSize: 10, lastKey: null }, // Adjust pagination to match the expected format
+				}
+			: response; // Use API response directly if no companyId
+			
 			// Generate filters for rendering
-			generateFilterForRender(response.data, companyPageMode, filterMetaData, setJobFilterForRender);
-	
+			generateFilterForRender(normalizedResponse.data, companyPageMode, filterMetaData, setJobFilterForRender);
+
 			// Check if API returned data
-			setApiHasData(response.data.length > 0);
-	
+			setApiHasData(normalizedResponse.data.length > 0);
+
 			// Determine if it's a new filter OR a paginated request
 			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
-	
+
 			if (location.pathname.includes('job')) {
-				setCompanyJobData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
+				setCompanyJobData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
 			} else {
-				setCompanyRefData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
+				setCompanyRefData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
 			}
-	
+
 			return {
-				data: response,
-				nextPage: response.pagination.lastKey ?? undefined, // Pass lastKey for pagination
+				data: normalizedResponse,
+				nextPage: normalizedResponse.pagination.lastKey ?? undefined, // Pass lastKey for pagination
 			};
 		},
-		[companyPageMode]
+		[companyPageMode,companyId]
 	);
-	
 
-   /**
-	* useInfiniteQuery
-    *
-	* @description - This hook is used to fetch data from the API
-	*	* Handles fetching more data using infinite pagination.
-	*	* - When `fetchNextPage()` is called, React Query executes `getNextPageParam`.
-	*	* - `getNextPageParam: lastPage => lastPage.nextPage || undefined` extracts `nextPage` from the last fetched page.
-	*	* - The `lastPage.nextPage` contains `lastKey`, which is returned from the API response.
-	*	* - React Query automatically injects this `nextPage` value as `pageParam` into the next request.
-	*	*
-	*	* This ensures seamless infinite scrolling or paginated data fetching.
-	*/
+	/**
+	 * useInfiniteQuery
+	 *
+	 * @description - This hook is used to fetch data from the API
+	 *	* Handles fetching more data using infinite pagination.
+	 *	* - When `fetchNextPage()` is called, React Query executes `getNextPageParam`.
+	 *	* - `getNextPageParam: lastPage => lastPage.nextPage || undefined` extracts `nextPage` from the last fetched page.
+	 *	* - The `lastPage.nextPage` contains `lastKey`, which is returned from the API response.
+	 *	* - React Query automatically injects this `nextPage` value as `pageParam` into the next request.
+	 *	*
+	 *	* This ensures seamless infinite scrolling or paginated data fetching.
+	 */
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteQuery({
-		queryKey: ['GET', companyPageMode, jobFilters],
+		queryKey: ['GET', companyPageMode,companyId, jobFilters],
 		queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
 		getNextPageParam: lastPage => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
 		initialPageParam: null, // Set initial page param to null

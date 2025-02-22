@@ -47,7 +47,7 @@ const CompaniesList = () => {
 
   // Handle button click
   const handleButtonClick = (id: string, type: "referral" | "job") => {
-    navigateTo(`/${type}`, { state: { id: id }, replace: true });
+    navigateTo(`/${type}?compid=${id}`, { replace: true });
   };
 
   const CompanyCard = ({ company }: { company: typeof companies[0] }) => (

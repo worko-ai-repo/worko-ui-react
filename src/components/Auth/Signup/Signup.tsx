@@ -7,20 +7,25 @@ import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppContext } from '@Context/App.context';
 
 export type SignupMode = 'EMP' | 'CAND';
 const Signup = () => {
 	const navigateTo = useNavigate();
 	const { isLoggedIn } = useAppContext();
-	const [activeFrame, setActiveFrame] = useState<SignupMode>('CAND');
+	const location = useLocation(); // Get location object
+
+	const initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
+
 	const [cv, setCv] = useState<any>();
-	let resumeUserFileName: string;
-	let resumeUserFileMimeType: string;
 	const [companySk, setCompanySk] = useState<string>('');
 	const [CompanyName, setCompanyName] = useState<string>('');
+	const [activeFrame, setActiveFrame] = useState<SignupMode>(initialFrame);
 
+	let resumeUserFileName: string;
+	let resumeUserFileMimeType: string;
+	
 	let formData: AuthSignupBaseDto = {
 		name: '',
 		emailId: '',

@@ -24,7 +24,7 @@ const Employee = () => {
             Worko enables you to find and refer top talent in minutes - < br/> and earn bonuses every step of the way.
         </p>
         
-        <button onClick={()=>{navTo('/auth/signup', {state :{key:val}});}} className="mt-8 bg-white text-black rounded-lg px-8 py-2 text-lg font-bold shadow-md hover:bg-gray-100 transition duration-200">
+        <button onClick={()=>{navTo('/auth/signup',  {state:{activeFrame:'EMP'}});}} className="mt-8 bg-white text-black rounded-lg px-8 py-2 text-lg font-bold shadow-md hover:bg-gray-100 transition duration-200">
             Join For Free
         </button>
     </div>
@@ -68,7 +68,7 @@ const Employee = () => {
             Bridge this gap and get paid in doing so.
         </p>
         
-        <button onClick={()=>{navTo('/auth/signup', {state :{key:val}});}} className="relative mt-8 pl-6 pr-6 h-[38.8px] rounded-[10.63px] bg-gradient-to-b from-[#fff] to-[#fbfbfb] shadow-md text-[14.88px] text-[#284468] font-[Poppins] font-semibold capitalize overflow-hidden mix-blend-normal leading-[21.25px]">
+        <button onClick={()=>{navTo('/auth/signup', {state:{activeFrame:'EMP'}});}} className="relative mt-8 pl-6 pr-6 h-[38.8px] rounded-[10.63px] bg-gradient-to-b from-[#fff] to-[#fbfbfb] shadow-md text-[14.88px] text-[#284468] font-[Poppins] font-semibold capitalize overflow-hidden mix-blend-normal leading-[21.25px]">
             Join For Free
         </button>
 
