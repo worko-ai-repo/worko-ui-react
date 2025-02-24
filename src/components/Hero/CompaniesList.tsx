@@ -47,13 +47,13 @@ const CompaniesList = () => {
 
   // Handle button click
   const handleButtonClick = (id: string, type: "referral" | "job") => {
-    navigateTo(`/${type}`, { state: { id: id }, replace: true });
+    navigateTo(`/${type}?compid=${id}`, { replace: true });
   };
 
   const CompanyCard = ({ company }: { company: typeof companies[0] }) => (
     <div className="w-[250px] mx-4 relative group h-full border-1 border-white cursor-pointer ">
       <div className="w-[200px] h-[100px] overflow-hidden flex items-center justify-center">
-        <img src={company.logoUrl} alt={company.name} loading='lazy' className=" h-[50%] w-[50%] object-contain  " />
+        <img src={company.logoUrl} alt={company.name} loading='lazy' className=" h-[85%] w-[85%] object-contain  " />
         
 		<div className="absolute opacity-0 inset-0 gap-2 flex flex-col items-center justify-center bg-black/75 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
           <button onClick={() => handleButtonClick(company.id, "referral")} className="btn_primary">
@@ -68,7 +68,7 @@ const CompaniesList = () => {
   );
 
   return (
-    <section className="lg:max-w-[1120px] mx-auto w-full overflow-hidden py-8 bg-transparent flex items-center my-5">
+    <section className="lg:max-w-[1500px] mx-auto w-full overflow-hidden py-8 bg-transparent flex items-center my-5">
       <div className="marquee-container w-full flex flex-col gap-4">
         <div className="flex marquee-content">
           {companies.map((company, index) => (

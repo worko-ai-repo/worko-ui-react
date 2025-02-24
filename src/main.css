@@ -117,14 +117,12 @@ h1 {
 	font-size: var(--text-lg);
 }
 
-p {
-	font-size: var(--text-xs);
-}
+
 
 input {
 	background-color: var(--primary-background-color);
 	outline: none;
-	font-weight: 500;
+	font-weight: 300;
 	color: rgb(65, 111, 153)
 }
 
@@ -176,9 +174,7 @@ label {
 		font-size: var(--text-lg);
 	}
 
-	p {
-		font-size: var(--text-xs);
-	}
+
 }
 
 [data-scroll-container] {
@@ -194,7 +190,5 @@ label {
 		font-size: var(--text-md);
 	}
 
-	p {
-		font-size: var(--text-xs);
-	}
+
 }

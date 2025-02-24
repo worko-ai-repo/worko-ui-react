@@ -13,7 +13,7 @@ const HeroOutro = () => {
 						Ready to give wings to your corporate journey
 					</p>
 					<div className="Outro_ref_buttons flex relative top-4 justify-center items-center md:text-lg  font-semibold  gap-2 sm:gap-4 mx-auto">
-						<button className="bg-white border-[1px] border-gray-700  text-gray-600 p-2 text-[12px] md:px-5 rounded-xl mx-2" onClick={()=>navTo('/job')}>Find Job Referral</button>
+						<button className="bg-white border-[1px] border-gray-700  text-gray-600 p-2 text-[12px] md:px-5 rounded-xl mx-2" onClick={()=>navTo('/referral')}>Find Job Referral</button>
 						<button className="bg-transparent border-[1px] border-white text-white p-2 text-[12px] md:px-5 rounded-xl mx-2" onClick={()=>navTo('/auth/signup', {state:{activeFrame:'EMP'}})}>Find Candidate</button>
 					</div>
 				</div>

@@ -19,12 +19,12 @@ const navItems: NavItem[] = [
 		href: '#candidate',
 		subItems: [
 			{ label: 'Job Portal', href: '/job' },
-			{ label: 'Request Referral', href: '#interview-tips' },
+			{ label: 'Request Referral', href: '/referral' },
 		],
 	},
-	{ label: 'For Employee', href: '/employee' },
-	{ label: 'Blog', href: '#blogs' },
-	{ label: 'About Us', href: '#about' },
+	{ label: 'For Employee', href: '/for-employee' },
+	{ label: 'Blog', href: '/blogs' },
+	{ label: 'About Us', href: '/about' },
 ];
 
 const Header = () => {
@@ -132,7 +132,7 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default">Support</span>
 									</li>
 									<li>
-										<a href="/profile/edit/personal" className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href="/support" className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Help
 										</a>
 									</li>

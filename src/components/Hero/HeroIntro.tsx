@@ -22,6 +22,7 @@ const HeroIntro = () => {
 			href: "/guidance",	
 		}
 	]
+	
 
 	return (
 		<section className="rounded-b-[2.5rem] pb-52 bg-white ">
@@ -30,7 +31,7 @@ const HeroIntro = () => {
 				<h1 className="  text-center leading-[1.2]">Increase your chances of getting a job by</h1>
 			</Reveal>
 			<Reveal IsDual={false} CName="slide_up" threshold={0.5} PCName="mx-auto w-fit">
-				<p className="font-bold text-2xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-4 py-2 tracking-wide rounded-2xl bg-[#6DE5E5] w-min mx-auto">10X</p>
+				<p className="font-bold text-4xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-6 py-1 sm:px-4 sm:py-2 tracking-wide rounded-lg bg-[#6DE5E5] w-min mx-auto">10X</p>
 			</Reveal>
 				<p className="text-gray-600 mt-5">Preparing Yourself For Success In The Interview</p>
 
@@ -44,8 +45,8 @@ const HeroIntro = () => {
 						</div>
 					))}
 				</div>
-				<button className={`btn_primary mt-5 ${isLoggedIn ? '': 'animate-pulse' }`}  onClick={() => navigateTo(isLoggedIn ? '/job' : '/signup')}>
-				{isLoggedIn ? 'Start For Free' : 'Sign Up For Free Referrals'}
+				<button className={`btn_primary mt-5 ${isLoggedIn ? '': 'animate-pulse' }`}  onClick={() => navigateTo(isLoggedIn ? '/job' : '/auth/signup')}>
+				{isLoggedIn ? 'Start For Free' : 'Sign Up Here'}
 				</button>
 			</div>
 			<div className={' lg:max-w-[1120px] mt-10 mx-auto md:max-w-[80%] relative bg-gradient-to-b from-[#57E1E1] to-[#86BDF8] rounded-[34px] sm:h-[600px] w-full min-w-[300px] p-4 md:p-20 ' + styles.frame_outer_container}>

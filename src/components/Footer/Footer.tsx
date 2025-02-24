@@ -1,8 +1,10 @@
 import { Instagram, Linkedin, X, Youtube } from 'lucide-react';
 import styles from './footer.module.scss';
 import { logo_text_bright } from '@Assets';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+	const NavTo = useNavigate()
 	return (
 		<div>
 			{/* Footer */}
@@ -14,19 +16,25 @@ const Footer = () => {
 
 							<div className={styles.label_and_buttons}>
 								<p className="text-white-400 mb-1 w-56">Explore Endless Career Opportunities</p>
-								<button className="btn_find_job mb-4 w-3/4">Find Job</button>
+								<button onClick={()=>{NavTo('/job')}} className="btn_find_job mb-4 w-3/4">Find Job</button>
 							</div>
 
 							<div className={styles.label_and_buttons}>
 								<p className="mb-0">Discover Top Talent For Your Team</p>
-								<button className="btn_hire_talent mt-0">Hire Candidate</button>
+								<button onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}} className="btn_hire_talent mt-0">Hire Candidate</button>
 							</div>
 
 							<div className="flex space-x-8 mt-4">
-								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-x-twitter"></i>
-								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-instagram"></i>
-								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-linkedin"></i>
-								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-youtube"></i>
+								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-x-twitter"
+									onClick={() => window.open('https://twitter.com', '_blank')}
+								></i>
+								<i 
+									className="fa-brands fa-xl hover:text-gray-600 cursor-pointer fa-instagram" 
+									onClick={() => window.open('https://instagram.com', '_blank')}
+								></i>
+								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-linkedin"
+									onClick={() => window.open('https://www.linkedin.com/company/worko/', '_blank')}
+								></i>
 							</div>
 						</div>
 						{/* flex justify-evenly flex-wrap justify-item-start gap-5 text-left */}
@@ -34,27 +42,26 @@ const Footer = () => {
 							<div>
 								<h3 className="font-semibold mb-4">For Companies</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list}>
-									<li>Hire Talent</li>
-									<li>AI Resume Screening</li>
-									<li>Find Candidates</li>
-									<li>Pricing</li>
+									<li onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}}>Hire Talent</li>
+									<li>AI Resume Screening</li>						
+									<li onClick={()=>{NavTo('/pricing')}}>Pricing</li>
 								</ul>
 							</div>
 							<div>
 								<h3 className="font-semibold mb-4">For Candidates</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list} >
-									<li>Browse Jobs</li>
-									<li>Resume Builder</li>
-									<li>Career Resources</li>
-									<li>Refer & Earn</li>
+									<li onClick={()=>{NavTo('/job')}}>Browse jobs & Apply via AI</li>
+									<li onClick={()=>{NavTo('/referral')}}>Request a referral</li>
+									<li onClick={()=>{NavTo('/guidance')}}>Request interview guidance</li>
 								</ul>
 							</div>
 							<div className="grow ">
 							<ul className={'space-y-2 text-gray-400 ' + styles.footer_list}>
-									<li>Our story</li>
-									<li>Contact us</li>
-									<li>Privacy policy</li>
-									<li>Terms of use</li> 
+									<li onClick={()=>{NavTo('/about')}}>Our story</li>
+									<li onClick={()=>{NavTo('/contact')}}>Contact us</li>
+									<li onClick={()=>{NavTo('/privacy')}}>Privacy policy</li>
+									<li onClick={()=>{NavTo('/terms')}}>Terms of use</li>
+									<li onClick={()=>{NavTo('/faqs')}}>FAQ</li>  
 								</ul>
 							</div>
 						</div>

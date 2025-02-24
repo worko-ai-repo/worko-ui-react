@@ -8,12 +8,40 @@ import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
 
 
+
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
 const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
 const Company = lazy(() => import('@Pages/company/Company'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
+const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
 const Employee = lazy(() => import('@Pages/employee/Employee'));
+const About = lazy(() => import('@Pages/About/About'));
+
+const underConstructionPaths = [
+    'faqs',
+    'blogs',
+    'privacy',
+    'contact',
+    'pricing',
+    'terms',
+	'guidance',
+	'employee/*',
+	'candidate/*',
+	'dashboard/*',
+	'profile/*',
+	'support',
+];
+
+// Create routes for under construction pages
+const underConstructionRoutes = underConstructionPaths.map(path => ({
+    path,
+    element: (
+        <Suspense fallback={<MainLoader />}>
+            <UnderConstruction />
+        </Suspense>
+    )
+}));
 
 // Route Configuration
 const AppRoutes = createBrowserRouter([
@@ -41,7 +69,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'job/*',
+				path: 'job*',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Company />
@@ -49,7 +77,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'referral/*',
+				path: 'referral*',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Company />
@@ -57,7 +85,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'employee',
+				path: 'for-employee',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Employee />
@@ -71,7 +99,15 @@ const AppRoutes = createBrowserRouter([
 						<FAQ />
 					</Suspense>
 				),
+			},{
+				path: 'about',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<About />
+					</Suspense>
+				),
 			},
+			...underConstructionRoutes,
 		],
 	},
 	{

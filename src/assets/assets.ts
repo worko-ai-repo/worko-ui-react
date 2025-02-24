@@ -29,8 +29,23 @@ import ph1 from './backgrounds/ph1.png'
 import ph2 from './backgrounds/ph2.png'
 import ph3 from './backgrounds/ph3.png'
 import ph4 from './backgrounds/ph4.png'
+
+import c11 from './backgrounds/c11.png';
+import c12 from './backgrounds/c12.png';
+import c13 from './backgrounds/c13.png';
+import c14 from './backgrounds/c14.png';
+import c21 from './backgrounds/c21.png';
+import c22 from './backgrounds/c22.png';
+import c23 from './backgrounds/c23.png';
+import c24 from './backgrounds/c24.png';
+import f1 from './backgrounds/f1.png';
+import f2 from './backgrounds/f2.png';
+import f3 from './backgrounds/f3.png';
+import gb_form from './backgrounds/gb_form.png';
+
 // svg
 import coin from './svgs/coin.svg'
+import about_bg  from './svgs/about_bg.svg'
 export { 
     // Backgrounds
     bg_plexus,
@@ -55,6 +70,11 @@ export {
     base_error_bg,
     ph1,ph2,ph3,ph4,
     
+    c11, c12, c13, c14,
+    c21, c22, c23, c24,
+    f1, f2, f3, gb_form,
+
+
     // Worko Assets
     favicon,
     logo_text,
@@ -64,5 +84,6 @@ export {
     worko_new,
 
     //svgs
-    coin
+    coin,
+    about_bg
 };
