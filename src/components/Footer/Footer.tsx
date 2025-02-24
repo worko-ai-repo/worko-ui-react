@@ -61,7 +61,7 @@ const Footer = () => {
 									<li onClick={()=>{NavTo('/contact')}}>Contact us</li>
 									<li onClick={()=>{NavTo('/privacy')}}>Privacy policy</li>
 									<li onClick={()=>{NavTo('/terms')}}>Terms of use</li>
-									<li onClick={()=>{NavTo('/faqs')}}>FAQ</li>  
+									<li onClick={()=>{NavTo('/faq')}}>FAQ</li>  
 								</ul>
 							</div>
 						</div>

@@ -21,9 +21,9 @@ const RequestCompany = () => {
 	};
 
 	return (
-		<div className="sticky top-[250px] mt-10 border-[1px] border-gray-300 rounded-lg p-2">
+		<div className=" mt-10 border-[1px] border-gray-100  rounded-2xl p-5 bg-[#FAFAFA] ">
 			<p className="font-semibold text-left ">Can’t find your desired company? Submit your details for a personalized referral!</p>
-			<form onSubmit={handleSubmit(onSubmit)}>
+			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 mt-2">
 				<input type="text" {...register('name', { required: 'Name is required' })} placeholder="Name" className="text-sm input_primary my-1" />
 				{errors.name?.message && <p className="text-red-500 text-sm">{String(errors.name.message)}</p>}
 
@@ -40,7 +40,7 @@ const RequestCompany = () => {
 				{errors.website?.message && <p className="text-red-500 text-sm">{String(errors.website.message)}</p>}
 
 				{/* Button wrapper to align it to the right */}
-				<div className="flex justify-end mt-2 ">
+				<div className="flex justify-center mt-2 ">
 					<button className="btn_secondary text-sm hover:bg-blue-600">Submit</button>
 				</div>
 			</form>

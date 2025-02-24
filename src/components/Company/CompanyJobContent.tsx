@@ -35,10 +35,11 @@ const CompanyJobContent = () => {
 	return (
 		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1280px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}
-			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center md:justify-end  gap-2 sm:max-w-full `}>
-				<div className=" flex-1  md:max-w-[700px] relative  Search_content flex  flex-row flex-nowrap">
+			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center sm:justify-end  gap-2 mb-5 sm:max-w-full `}>
+				<div className=" flex-1  md:max-w-[1000px] relative  Search_content flex  flex-row flex-nowrap">
 					<div className="w-full relative display flex ">
-						<input type="text" ref={searchInputRef} onChange={e => setSearchText(e.target.value)} className="font-semibold text-gray-500 relative outline-none w-full text-xs sm:text-base bg-transparent border-[1px] border-gray-400 rounded-s-xl px-3 py-2 " placeholder="Search for jobs" />
+					<i className="fa-solid fa-magnifying-glass absolute z-10 top-3 left-3 text-gray-300 "></i>
+						<input type="text" ref={searchInputRef} onChange={e => setSearchText(e.target.value)} className=" text-gray-500 relative outline-none w-full text-xs  border rounded-s-lg px-3 pl-10 py-2 bg-[#FAFAFA]" placeholder={companyPageMode === CompanyPageModeEnum.JOB ? 'Search for Job' : "Search for Company"} />
 						{searchText && (
 							<button
 								onClick={() => {
@@ -47,18 +48,18 @@ const CompanyJobContent = () => {
 										searchInputRef.current.value = '';
 									}
 								}}
-								className=" scale-50 active:scale-[45%] absolute right-[5%]   h-full w-fit rounded-full ">
+								className="scale-50 active:scale-[45%] absolute right-[5%]   h-full w-fit rounded-full ">
 								<X className=" p-1 text-white bg-blue-600 rounded-full w-full h-full relative " />
 							</button>
 						)}
 					</div>
-					<button onClick={handleSearch} className=" w-[80px] sm:min-w-[150px] text-xs sm:text-base md:text-lg bg-blue-600 rounded-e-xl px-3 py-2 border-[1px] border-blue-600 text-white">
-						<i className="fa-solid fa-magnifying-glass sm:hidden"></i> <span className="hidden sm:inline">Search Job</span>
+					<button onClick={handleSearch} className=" w-[80px] sm:min-w-max text-xs sm:text-base md:text-lg bg-gradient-to-b from-sky-400 to-blue-600 rounded-e-lg px-3 py-2  text-white flex justify-center items-center ">
+						<i className="fa-solid fa-magnifying-glass sm:hidden"></i> <span className="hidden sm:inline text-sm ">{companyPageMode === CompanyPageModeEnum.JOB ? 'Search Job' : "Search Company"}</span>
 					</button>
 				</div>
 
 				{/* Filters Button (Mobile) */}
-				<button onClick={toggleFilters} className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-2xl md:hidden font-semibold text-gray-600">
+				<button onClick={toggleFilters} className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
 					Filters <i className="fa-solid fa-filter"></i>
 				</button>
 			</div>
@@ -66,10 +67,10 @@ const CompanyJobContent = () => {
 			{/* Jobs Section 
 			 jobs w-[80%] rounded-lg   
 			 */}
-			<div className={`w-[90vw] min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
+			<div className={` w-[90vw] min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
 				{/* Filters Section */}
 				<div
-					className={`absolute w-full top-0 bottom-0 max-w-[300px] shadow-2xl md:relative md:w-auto filters rounded-lg p-5 transition-all duration-500 ease-in-out bg-white z-50 
+					className={`absolute  w-full top-0 bottom-0 max-w-[300px]  md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
         ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}>
 					<Suspense
 						fallback={
@@ -77,9 +78,9 @@ const CompanyJobContent = () => {
 								<Loader />
 							</div>
 						}>
-						{isLoading ? <Loader className="relative left-[45%]  " /> : <JobFilterPanel toggleFilters={toggleFilters} />}
+						{isLoading ? <Loader className="relative left-[45%]  " /> : <JobFilterPanel toggleFilters={toggleFilters} companyPageMode= {companyPageMode} />}
 					</Suspense>
-					{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
+					
 				</div>
 
 				{/* Jobs/Referral Section sm:shadow-[inset_0px_0px_16px_22px_rgba(0,_0,_0,_0.1)]*/}
@@ -124,7 +125,7 @@ const CompanyJobContent = () => {
 							</div>
 						) : companyRefData && companyRefData.length > 0 ? (
 							companyRefData.map((company, index) => (
-								<div key={company.SK || index} className="min-w-[300px] flex justify-center">
+								<div key={company.SK || index} className="min-w-[310px] flex justify-center">
 									<CompanyCard companyData={company} />
 								</div>
 							))

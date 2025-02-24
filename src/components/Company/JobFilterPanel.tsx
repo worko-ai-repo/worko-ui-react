@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import { useCompanyContext } from '../../context/Company.context';
+import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
+import RequestCompany from './RequestCompany';
 
-const JobFilterPanel = ({ toggleFilters }: { toggleFilters: () => void }) => {
+const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void , companyPageMode:CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender } = useCompanyContext();
 
 	// Reset all filters
@@ -57,37 +59,42 @@ const JobFilterPanel = ({ toggleFilters }: { toggleFilters: () => void }) => {
 	};
 
 	return (
-		<div className="sticky top-[20px]">
-			<div className="flex justify-between items-center mb-3">
-				<h3 className="text-lg font-semibold">Filters</h3>
-				<button onClick={toggleFilters} className="text-xl font-bold text-red-500 sm:hidden">
-					&times;
-				</button>
-			</div>
-			<div className="space-y-5">
-				{jobFilterForRender?.map((filter, index) => (
-					<div key={filter.paramKey} className="max-w-[200px] flex flex-col mx-auto gap-3 md:max-w-[90%]">
-						<select
-							ref={el => (selectRefs.current[index] = el)} // Store refs dynamically
-							className="text-xs sm:text-s select_primary cursor-pointer outline-none text-gray-500 bg-transparent w-full max-w-[300px] p-2 border border-gray-300 rounded-lg"
-							onChange={e => handleFilterChange(filter.paramKey, e.target.value)}
-						>
-							<option value="">{filter.placeholder}</option>
-							{filter.options.map((option, idx) => (
-								<option key={option} value={typeof filter.value[idx] === 'object' ? JSON.stringify(filter.value[idx]) : filter.value[idx]}>
-									{option}
-								</option>
-							))}
-						</select>
-					</div>
-				))}
-				<div className="resetFilters flex justify-end md:max-w-[90%] mx-auto">
-					<button onClick={handleResetFilters} className="btn_t1 logout text-xs text-red-500 font-semibold">
-						Reset Filters
+			
+		<div className="sticky top-[100px] ">
+		
+				<div className="  border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
+				<div className="flex justify-between items-center mb-3">
+					<h3 className="text-lg font-semibold">Filters</h3>
+					<button onClick={toggleFilters} className="text-xl font-bold text-red-500 sm:hidden">
+						&times;
 					</button>
 				</div>
+				<div className="space-y-5">
+					{jobFilterForRender?.map((filter, index) => (
+						<div key={filter.paramKey} className="flex flex-col mx-auto gap-3 ">
+							<select
+								ref={el => (selectRefs.current[index] = el)} // Store refs dynamically
+								className="text-xs sm:text-s select_primary  cursor-pointer outline-none text-gray-500 bg-transparent w-full max-w-[300px] p-3 border border-gray-200 rounded-xl "
+								onChange={e => handleFilterChange(filter.paramKey, e.target.value)}
+							>
+								<option value="">{filter.placeholder}</option>
+								{filter.options.map((option, idx) => (
+									<option key={option} value={typeof filter.value[idx] === 'object' ? JSON.stringify(filter.value[idx]) : filter.value[idx]}>
+										{option}
+									</option>
+								))}
+							</select>
+						</div>
+					))}
+					<div className="resetFilters flex justify-end md:max-w-[90%] mx-auto">
+						<button onClick={handleResetFilters} className="btn_t1 logout text-xs text-red-500 font-semibold">
+							Reset Filters
+						</button>
+					</div>
+				</div>
 			</div>
-		</div>
+				{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
+	</div>
 	);
 };
 
