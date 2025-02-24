@@ -84,7 +84,7 @@ const CompanyJobContent = () => {
 
 				{/* Jobs/Referral Section sm:shadow-[inset_0px_0px_16px_22px_rgba(0,_0,_0,_0.1)]*/}
 				{companyPageMode === CompanyPageModeEnum.JOB ? (
-					<div className="w-full px-2 sm:px-0 sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:py-5 flex-wrap gap-2 mx-auto min-h-[350px] sm:shadow-[0px_0px_16px_12px_rgba(0,_0,_0,_0.1)]">
+					<div className="w-full px-4 bg-[#F2F4F5] sm:px-4 sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:py-5 flex-wrap gap-2 mx-auto min-h-[350px]">
 						{/* Show loader only if there’s no initial data */}
 						{isLoading ? (
 							<MainLoader />

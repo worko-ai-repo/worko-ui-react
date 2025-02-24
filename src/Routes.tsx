@@ -5,6 +5,7 @@ import PageNotFound from '@Pages/errors/404/PageNotFound';
 import MainLoader from '@Components/Loader/Loader'; 
 import TestPage from '@Pages/Test';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
+import FAQ from '@Pages/faq/Faq';
 
 
 // Lazy Load Components
@@ -56,10 +57,18 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'employee/*',
+				path: 'employee',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Employee />
+					</Suspense>
+				),
+			},
+			{
+				path: 'faq',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<FAQ />
 					</Suspense>
 				),
 			},

@@ -17,12 +17,12 @@ function MainLayout(): JSX.Element {
 	return (
 		<div id="MainLayout" className="bg-white">
 			<Header />
-			<SmoothScroll>
+			{/* <SmoothScroll> */}
 				<ScrollToTop />
 				<main className={styles.main} id="main_container">
 					<Outlet />
 				</main>
-			</SmoothScroll>
+			{/* </SmoothScroll> */}
 			<Footer />
 		</div>
 	);

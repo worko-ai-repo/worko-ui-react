@@ -1,122 +1,160 @@
 import { useMemo, useState } from 'react';
-import { Briefcase, MapPin, Watch, Zap } from 'lucide-react';
-
-import GaugeComponent from './Gauge';
+import { Star, MapPin, Clock } from 'lucide-react';
 import CustomModal from '@Components/Modals/FormModal';
 
 const JobCard = ({ job }: any) => {
-	const { companyLogo, title, department, salary, location, employmentType, skills, createdAt, workMode, matchPercentage } = job;
+  const { 
+    companyLogo, 
+    title, 
+    department, 
+    salary, 
+    location, 
+    employmentType, 
+    createdAt,
+    matchPercentage 
+  } = job;
 
-	const isEarlyApplicant = useMemo(() => {
-		const createdDate = new Date(createdAt);
-		const threeDaysAgo = new Date();
-		threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-		return createdDate >= threeDaysAgo;
-	}, [createdAt]);
-
-	const [showModal, setShowModal] = useState(false);
-	const [formData, setFormData] = useState({ phone: "", email: "" });
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ phone: "", email: "" });
   
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-	  setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
   
-	const handleSubmit = () => {
-	  alert(`Job shared with: ${formData.phone}, ${formData.email}`);
-	  setShowModal(false);
-	};
+  const handleSubmit = () => {
+    alert(`Job shared with: ${formData.phone}, ${formData.email}`);
+    setShowModal(false);
+  };
 
-	return (
-		<div className="flex h-fit flex-col gap-4  mx-auto bg-white shadow-md rounded-2xl p-3 sm:p-3 md:p-4 w-[95%] sm:mx-5 md:max-w-[100%] mx-auto21 border-[1px] border-gray-300 ">
-			{/* first col with images title and starts */}
-			<div className="flex items-start justify-start gap-2 md:gap-5 ">
-				{/* Left Section: Company Logo */}
-				<div className="border-[1px] border-gray-400 flex items-center justify-center w-[60px] h-[60px] sm:w-[70px] sm:h-[70px]  md:min-w-[80px] md:min-h-[80px] overflow-hidden  bg-gray-100 rounded-xl shadow-2xl ">
-					<img src={companyLogo} alt={title} className="w-full h-full object-contain " />
-				</div>
-				{/* Right Section */}
-				<div className=" flex flex-col items-start justify-between w-fit max-w-[calc(100%-100px)] md:max-w-[80%] ">
-					<h3 className="text-sm font-semibold capitalize mb-0 leading-6  sm:text-lg truncate max-w-full sm:max-w-[35ch] md:max-w-[100%] ">{title}</h3>
-					<p className="text-gray-500 text-[10px] sm:text-xs capitalize ">{department}</p>
-					<p className="text-black text-[10px] sm:text-xs font-semibold ">{` ₹ ${salary}`}</p>
-				</div>
-			</div>
+  const timeAgo = useMemo(() => {
+    const now = new Date();
+    const posted = new Date(createdAt);
+    const diff = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
+    return `${diff} mins ago`;
+  }, [createdAt]);
 
-			<div className="flex flex-col  gap-0">
-				{/* Skills & Early Applicant */}
-				<div className="  relative basic_details_and_score flex flex-row justify-between items-start sm:mt-6 h-min gap-1">
-					<div className="  flex flex-col flex-wrap gap-2  h-min max-w-[75%]">
-						<div className="skill flex gap-1 flex-wrap">
-							{skills.slice(0, 4).map((skill: string, index: string) => (
-								<span key={index} className="h-min bg-blue-500 shadow-md  shadow-sky-300  text-white px-3 py-1 capitalize text-[10px] sm:text-xs rounded-2xl">
-									{skill}
-								</span>
-							))}
-							{
-								isEarlyApplicant && <span className="h-min flex items-center gap-1 bg-green-600 font-semibold text-white px-2 py-1 text-[10px] sm:text-xs rounded-lg">
-									<Zap size={14} /> Be an early applicant
-								</span>
-							}
-						</div>
+  return (
+    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] border-[0.8px] sm:border border-black/5 shadow-[0px_3px_12px_rgba(0,0,0,0.05)] sm:shadow-[0px_4px_16px_rgba(0,0,0,0.05)] p-4 sm:p-6">
+      <div className="flex">
+        {/* Company Logo */}
+        <div className="relative">
+          <img 
+            src={companyLogo} 
+            alt={title} 
+            className="w-[60px] h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] object-cover"
+          />
+        </div>
 
-						<div className="time_location">
-							{/* Time & Location */}
-							<div className="flex items-baseline  gap-2 text-gray-500 text-[10px] sm:text-xs">
-								<span className="flex font-semibold gap-1 capitalize">
-									<MapPin size={14} />
-									<span>{location}</span>
-								</span>
+        {/* Main Content */}
+        <div className="ml-[35px] sm:ml-11 flex-1">
+          <div className="flex flex-col">
+            <h2 className="text-lg sm:text-2xl text-left font-semibold text-[#0D0D0D]">{title}</h2>
+            <p className="text-[9px] sm:text-sm text-left text-[#313131]">{department}</p>
+            
+            {/* Rating */}
+            {/* <div className="flex items-center gap-1">
+              <div className="flex">
+                {[1,2,3,4,5].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className="w-[9.8px] h-[9px] sm:w-3 sm:h-3 text-yellow-400 -ml-[0.7px] sm:-ml-[1px] first:ml-0" 
+                    fill="currentColor" 
+                  />
+                ))}
+              </div>
+              <span className="text-[6px] sm:text-xs text-[#9B9B9B] ml-1">23 reviews</span>
+            </div> */}
 
-								<span className="flex font-semibold gap-1 capitalize">
-									<Briefcase size={14} />
-									<span>{employmentType}</span>
-								</span>
+            {/* Salary */}
+            <div className="flex items-center gap-1 text-[#0D0D0D] text-[9px] sm:text-base">
+              <span>₹</span>
+              <span>{salary}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-								<span className="flex font-semibold gap-1 capitalize">
-									<Watch size={14} />
-									<span>{workMode}</span>
-								</span>
-							</div>
-						</div>
-					</div>
+      {/* Tags Section */}
+      <div className="mt-5 sm:mt-6 flex gap-2">
+        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
+          16 applicants
+        </span>
+        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-[6px] rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
+          {timeAgo}
+        </span>
+        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
+          Be an early applicant
+        </span>
+      </div>
 
-					<div className=" min-w-auto max-w-[100px] sm:absolute right-0 -top-16  gauge  rounded-lg  bg-blue-600 shadow-md shadow-sky-400 sm:min-w-[120px] h-min p-1  ">
-						<GaugeComponent score={matchPercentage} />
-					</div>
-				</div>
+      {/* Footer Section */}
+<div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
+  {/* Footer Info */}
+  <div className="flex gap-6 sm:gap-8">
+    <div className="flex items-center gap-1 text-[#313131]">
+      <MapPin className="w-[11.3px] h-[11.3px] sm:w-4 sm:h-4" />
+      <span className="text-[9px] sm:text-sm">{location}</span>
+    </div>
+    <div className="flex items-center gap-1 text-[#313131]">
+      <Clock className="w-[12px] h-[12px] sm:w-4 sm:h-4" />
+      <span className="text-[9px] sm:text-sm">{employmentType}</span>
+    </div>
+  </div>
 
-				{/* Bottom Section */}
-				<div className="flex justify-end  items-center mt-5 relative ">
-					<div className="flex gap-2 scale-75 justify-end relative -right-7 sm:scale-90 sm:-right-5 md:scale-100 md:-right-0">
-						<button className="bg-gray-200 px-4 py-2 rounded-lg text-sm border-[0.5px] border-gray-500 " onClick={() => setShowModal(true)}>Refer a Friend</button>
-						<button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Apply for Job</button>
-					</div>
-				</div>
-			</div>
+  {/* Buttons */}
+  <div className="flex items-center gap-3 sm:gap-4">
+    <button 
+      onClick={() => setShowModal(true)}
+      className="px-[22.5px] py-[5.5px] sm:px-8 sm:py-2 border-[0.8px] sm:border border-[#0D0D0D] rounded-[6px] sm:rounded-lg text-[11.16px] sm:text-sm font-bold"
+    >
+      Refer A Friend
+    </button>
+    <button className="px-[22.5px] py-[5.5px] sm:px-8 sm:py-2 bg-[#4B7EFF] text-white rounded-[6px] sm:rounded-lg text-[12px] sm:text-base font-bold">
+      View Details
+    </button>
+  </div>
+</div>
 
-			
-			{showModal && (
+
+      {/* Match Score - Hidden on mobile */}
+      <div className="sm:block absolute right-[10px] top-8 w-[122px] h-[100px] rounded-lg bg-gradient-to-b from-[#316BFF] via-[#57E1E1] to-[#316BFF] overflow-hidden text-white p-4">
+        <p className="text-sm font-bold">Strong Match</p>
+        <div className="relative mt-2">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-3 border-[#6DE5E5] bg-[#367BFB] flex items-center justify-center">
+              <span className="font-bold">{matchPercentage}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
         <CustomModal
           type="share"
           title="Share Job with a Friend"
           onSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
         >
-          <form className="space-y-4 ">
+          <form className="space-y-4">
             <div>
-              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Phone Number :</label>
+              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">
+                Phone Number:
+              </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="input_primary text-semibold text-gray-500 "
+                className="input_primary text-semibold text-gray-500"
                 placeholder="Enter phone number"
                 required
               />
             </div>
             <div>
-              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Email :</label>
+              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">
+                Email:
+              </label>
               <input
                 type="email"
                 name="email"
@@ -130,8 +168,8 @@ const JobCard = ({ job }: any) => {
           </form>
         </CustomModal>
       )}
-		</div>
-	);
+    </div>
+  );
 };
 
 export default JobCard;
