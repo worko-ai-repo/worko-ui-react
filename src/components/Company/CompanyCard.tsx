@@ -5,7 +5,7 @@ import { Users } from 'lucide-react';
 const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 	return (
 		<>
-			<div className="h-fit  bg-white shadow-[0px_0px_16px_6px_rgba(0,_0,_0,_0.1)] p-4 w-full rounded-2xl border">
+			<div className="h-fit  bg-white  p-4 w-full rounded-2xl border">
 				{/* first col with images title and starts */}
 				<div className=" flex items-start justify-start gap-2 md:gap-5 mb-2 ">
 					{/* Left Section: Company Logo */}

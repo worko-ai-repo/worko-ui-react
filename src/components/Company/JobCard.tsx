@@ -53,9 +53,9 @@ const timeAgo = useMemo(() => {
   }, [createdAt]);
 
   return (
-    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] py-4 px-2 sm:pt-6 sm:px-4">
+    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] py-2 px-2 sm:pt-6 sm:px-4">
       {/* Top Section */}
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap  ">
         {/* Company Logo */}
         <div className="relative">
           <img 
@@ -68,8 +68,8 @@ const timeAgo = useMemo(() => {
         {/* Job Info */}
         <div className="ml-[5px] sm:ml-5 flex-1">
           <div className="flex flex-col">
-            <h2 className="text-lg sm:text-[24px] text-left font-semibold text-[#0D0D0D]">{title}</h2>
-            <p className="text-[9px] sm:text-[12px] text-left text-[#313131]">{department}</p>
+            <h2 className="text-sm  sm:text-[24px] text-left font-semibold text-[#0D0D0D] capitalize ">{title}</h2>
+            <p className="text-[9px] sm:text-[12px] text-left text-[#313131] capitalize ">{department}</p>
             
             {/* Salary */}
             <div className="flex items-center gap-1 text-[#0D0D0D] font-semibold text-[9px] sm:text-base">
@@ -81,22 +81,22 @@ const timeAgo = useMemo(() => {
 
         {/* Match Score - Moved inside the flex container */}
         <div className="sm:py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
-          flex-shrink-0 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-center max-[375px]:scale-90">
+          flex-shrink-0 bg-gradient-to-b from-blue-500 to-blue-600
+          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-end max-[375px]:scale-75">
           
           {/* Gauge Component */}
-          <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
-            bg-[#367BFB] flex items-center justify-center sm:scale-90">
+          <div className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
+             flex items-center justify-center sm:scale-90">
             <GaugeComponent score={matchPercentage} />
           </div>
 
           {/* Text Below Gauge */}
-          <p className="text-[10px] sm:text-sm font-bold mt-1 sm:mt-2 whitespace-nowrap">Strong Match</p>
+          <p className="text-[10px] sm:text-sm font-bold  whitespace-nowrap">Strong Match</p>
         </div>
       </div>
 
       {/* Tags Section - Now will naturally wrap */}
-      <div className="flex flex-wrap gap-1 sm:gap-2">
+      <div className="flex flex-wrap -mt-5 gap-1 sm:gap-2">
         {/* <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
           16 applicants
         </span> */}
@@ -116,17 +116,17 @@ const timeAgo = useMemo(() => {
         <div className="flex gap-1 sm:gap-6 items-center">
           <div className="flex items-center gap-1 text-[#313131]">
             <MapPin className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
-            <span className="text-[8px] font-semibold sm:text-sm">{location}</span>
+            <span className="text-[8px] font-semibold sm:text-sm capitalize">{location}</span>
           </div>
           <div className="flex items-center gap-1 text-[#313131]">
             <Clock className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
-            <span className="text-[8px] font-semibold sm:text-sm">{employmentType}</span>
+            <span className="text-[8px] font-semibold sm:text-sm capitalize ">{employmentType}</span>
           </div>
         </div>
       </div>
 
       {/* Buttons */}
-      <div className="mt-4 sm:mt-2 flex items-center justify-end gap-2 sm:gap-4">
+      <div className="mt-3 sm:mt-2 flex items-center justify-end gap-2 sm:gap-4">
         <button 
           onClick={() => setShowModal(true)}
           className="px-3 py-1 sm:px-6 sm:py-2 border border-[#0D0D0D] rounded-[4px] sm:rounded-lg text-[10px] sm:text-base font-bold"

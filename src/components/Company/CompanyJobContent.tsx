@@ -33,7 +33,7 @@ const CompanyJobContent = () => {
 	});
 
 	return (
-		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1280px] mx-auto ${styles.Company_Content}`}>
+		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}
 			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center sm:justify-end  gap-2 mb-5 sm:max-w-full `}>
 				<div className=" flex-1  md:max-w-[1000px] relative  Search_content flex  flex-row flex-nowrap">
@@ -118,7 +118,7 @@ const CompanyJobContent = () => {
 						<div ref={inViewRef} />
 					</div>
 				) : (
-					<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] sm:shadow-[0px_0px_16px_12px_rgba(0,_0,_0,_0.1)] ` + styles.Company_Content_Companies}>
+					<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ` + styles.Company_Content_Companies}>
 						{isLoading ? (
 							<div className="absolute left-[40%] ">
 								<MainLoader />

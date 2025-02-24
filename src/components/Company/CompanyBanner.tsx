@@ -34,7 +34,7 @@ const CompanyBanner = () => {
 	const currentData = companyStaticData[companyPageMode] || {};
 
 	return (
-		<div className="px-5 py-10 sm:px-auto relative w-full min-h-[200px] bg-blue-600 text-white flex  scale-105 ">
+		<div className="sm:px-5 py-10 sm:px-auto relative w-full min-h-[200px] bg-blue-600 text-white flex  ">
 			<div className="mx-auto max-w-[1280px] md:p-4 flex items-center justify-between  w-full">
 				<div className={'min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-justify  ' + styles.banner_content}>
 					<p className="w-full text-xl sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
