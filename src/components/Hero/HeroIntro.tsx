@@ -22,6 +22,7 @@ const HeroIntro = () => {
 			href: "/guidance",	
 		}
 	]
+	
 
 	return (
 		<section className="rounded-b-[2.5rem] pb-52 bg-white ">

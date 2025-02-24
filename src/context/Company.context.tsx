@@ -97,7 +97,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 			if (error) throw error;
 			// Normalize response when `companyId` is provided
-			const normalizedResponse = companyId
+			const normalizedResponse = location.pathname.includes('referral')
 			? {
 				data: [response[0]], // Wrap single object in an array
 				pagination: { count: 1, pageSize: 10, lastKey: null }, // Adjust pagination to match the expected format
