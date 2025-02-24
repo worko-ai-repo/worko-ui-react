@@ -16,7 +16,7 @@ const GaugeComponent: React.FC<GaugeProps> = ({ score }) => {
   const offset = circumference - (progress / 100) * circumference; // Animation logic
 
   return (
-    <div className="relative w-full h-min flex items-center justify-center">
+    <div className="w-full h-full relative flex items-center justify-center">
       {/* Background Circle */}
       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
         <circle
@@ -42,10 +42,9 @@ const GaugeComponent: React.FC<GaugeProps> = ({ score }) => {
         />
       </svg>
       {/* Score Text */}
-      <span className="absolute text-xs md:text-xl font-bold text-white">{progress}%
-      <div className="max-[350px]:hidden min-[350px]:block absolute text-[8px] md:text-xs font-bold text-white">Scores</div>
-      </span>
-      
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xs md:text-xl font-bold text-white">{progress}%</span>
+      </div>
     </div>
   );
 };

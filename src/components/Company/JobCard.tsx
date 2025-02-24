@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Star, MapPin, Clock } from 'lucide-react';
 import CustomModal from '@Components/Modals/FormModal';
+import GaugeComponent from './Gauge';
+import { logo_text } from '@Assets';
 
 const JobCard = ({ job }: any) => {
   const { 
-    companyLogo, 
     title, 
+	companyLogo,
     department, 
     salary, 
     location, 
@@ -13,6 +15,7 @@ const JobCard = ({ job }: any) => {
     createdAt,
     matchPercentage 
   } = job;
+
 
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ phone: "", email: "" });
@@ -26,106 +29,113 @@ const JobCard = ({ job }: any) => {
     setShowModal(false);
   };
 
-  const timeAgo = useMemo(() => {
-    const now = new Date();
-    const posted = new Date(createdAt);
-    const diff = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
-    return `${diff} mins ago`;
+  const isEarlyApplicant = useMemo(() => {
+	const createdDate = new Date(createdAt);
+	const threeDaysAgo = new Date();
+	threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+	return createdDate >= threeDaysAgo;
+}, [createdAt]);
+
+const timeAgo = useMemo(() => {
+	const now = new Date();
+	const posted = new Date(createdAt);
+	const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
+	
+	if (diffMinutes < 60) {
+	  return `${diffMinutes} mins ago`;
+	} else if (diffMinutes < 1440) { // Less than 24 hours
+	  const diffHours = Math.floor(diffMinutes / 60);
+	  return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+	} else {
+	  const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
+	  return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+	}
   }, [createdAt]);
 
   return (
-    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] border-[0.8px] sm:border border-black/5 shadow-[0px_3px_12px_rgba(0,0,0,0.05)] sm:shadow-[0px_4px_16px_rgba(0,0,0,0.05)] p-4 sm:p-6">
-      <div className="flex">
+    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] py-4 px-2 sm:pt-6 sm:px-4">
+      {/* Top Section */}
+      <div className="flex flex-wrap">
         {/* Company Logo */}
         <div className="relative">
           <img 
-            src={companyLogo} 
+            src={companyLogo || logo_text} 
             alt={title} 
-            className="w-[60px] h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] object-cover"
+            className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
           />
         </div>
 
-        {/* Main Content */}
-        <div className="ml-[35px] sm:ml-11 flex-1">
+        {/* Job Info */}
+        <div className="ml-[5px] sm:ml-5 flex-1">
           <div className="flex flex-col">
-            <h2 className="text-lg sm:text-2xl text-left font-semibold text-[#0D0D0D]">{title}</h2>
-            <p className="text-[9px] sm:text-sm text-left text-[#313131]">{department}</p>
+            <h2 className="text-lg sm:text-[24px] text-left font-semibold text-[#0D0D0D]">{title}</h2>
+            <p className="text-[9px] sm:text-[12px] text-left text-[#313131]">{department}</p>
             
-            {/* Rating */}
-            {/* <div className="flex items-center gap-1">
-              <div className="flex">
-                {[1,2,3,4,5].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className="w-[9.8px] h-[9px] sm:w-3 sm:h-3 text-yellow-400 -ml-[0.7px] sm:-ml-[1px] first:ml-0" 
-                    fill="currentColor" 
-                  />
-                ))}
-              </div>
-              <span className="text-[6px] sm:text-xs text-[#9B9B9B] ml-1">23 reviews</span>
-            </div> */}
-
             {/* Salary */}
-            <div className="flex items-center gap-1 text-[#0D0D0D] text-[9px] sm:text-base">
+            <div className="flex items-center gap-1 text-[#0D0D0D] font-semibold text-[9px] sm:text-base">
               <span>₹</span>
               <span>{salary}</span>
             </div>
           </div>
         </div>
+
+        {/* Match Score - Moved inside the flex container */}
+        <div className="sm:py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
+          flex-shrink-0 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
+          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-center max-[375px]:scale-90">
+          
+          {/* Gauge Component */}
+          <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
+            bg-[#367BFB] flex items-center justify-center sm:scale-90">
+            <GaugeComponent score={matchPercentage} />
+          </div>
+
+          {/* Text Below Gauge */}
+          <p className="text-[10px] sm:text-sm font-bold mt-1 sm:mt-2 whitespace-nowrap">Strong Match</p>
+        </div>
       </div>
 
-      {/* Tags Section */}
-      <div className="mt-5 sm:mt-6 flex gap-2">
-        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
+      {/* Tags Section - Now will naturally wrap */}
+      <div className="flex flex-wrap gap-1 sm:gap-2">
+        {/* <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
           16 applicants
-        </span>
-        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-[6px] rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
+        </span> */}
+        <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
           {timeAgo}
         </span>
-        <span className="px-[4.5px] py-[3px] sm:px-[4px] sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-xs">
-          Be an early applicant
-        </span>
+		{isEarlyApplicant && (
+			 <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
+			 Be an early applicant
+		   </span>
+		)}
       </div>
 
       {/* Footer Section */}
-<div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
-  {/* Footer Info */}
-  <div className="flex gap-6 sm:gap-8">
-    <div className="flex items-center gap-1 text-[#313131]">
-      <MapPin className="w-[11.3px] h-[11.3px] sm:w-4 sm:h-4" />
-      <span className="text-[9px] sm:text-sm">{location}</span>
-    </div>
-    <div className="flex items-center gap-1 text-[#313131]">
-      <Clock className="w-[12px] h-[12px] sm:w-4 sm:h-4" />
-      <span className="text-[9px] sm:text-sm">{employmentType}</span>
-    </div>
-  </div>
-
-  {/* Buttons */}
-  <div className="flex items-center gap-3 sm:gap-4">
-    <button 
-      onClick={() => setShowModal(true)}
-      className="px-[22.5px] py-[5.5px] sm:px-8 sm:py-2 border-[0.8px] sm:border border-[#0D0D0D] rounded-[6px] sm:rounded-lg text-[11.16px] sm:text-sm font-bold"
-    >
-      Refer A Friend
-    </button>
-    <button className="px-[22.5px] py-[5.5px] sm:px-8 sm:py-2 bg-[#4B7EFF] text-white rounded-[6px] sm:rounded-lg text-[12px] sm:text-base font-bold">
-      View Details
-    </button>
-  </div>
-</div>
-
-
-      {/* Match Score - Hidden on mobile */}
-      <div className="sm:block absolute right-[10px] top-8 w-[122px] h-[100px] rounded-lg bg-gradient-to-b from-[#316BFF] via-[#57E1E1] to-[#316BFF] overflow-hidden text-white p-4">
-        <p className="text-sm font-bold">Strong Match</p>
-        <div className="relative mt-2">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full border-3 border-[#6DE5E5] bg-[#367BFB] flex items-center justify-center">
-              <span className="font-bold">{matchPercentage}%</span>
-            </div>
+      <div className="mt-2 sm:mt-6 flex items-center justify-between w-full gap-1 sm:gap-4 flex-wrap sm:flex-nowrap">
+        {/* Footer Info */}
+        <div className="flex gap-1 sm:gap-6 items-center">
+          <div className="flex items-center gap-1 text-[#313131]">
+            <MapPin className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
+            <span className="text-[8px] font-semibold sm:text-sm">{location}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[#313131]">
+            <Clock className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
+            <span className="text-[8px] font-semibold sm:text-sm">{employmentType}</span>
           </div>
         </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="mt-4 sm:mt-2 flex items-center justify-end gap-2 sm:gap-4">
+        <button 
+          onClick={() => setShowModal(true)}
+          className="px-3 py-1 sm:px-6 sm:py-2 border border-[#0D0D0D] rounded-[4px] sm:rounded-lg text-[10px] sm:text-base font-bold"
+        >
+          Refer A Friend
+        </button>
+        <button className="px-3 py-1 sm:px-6 border border-[#4B7EFF] sm:py-2 bg-[#4B7EFF] text-white rounded-[4px] sm:rounded-lg text-[10px] sm:text-base font-bold">
+          View Details
+        </button>
       </div>
 
       {/* Modal */}
