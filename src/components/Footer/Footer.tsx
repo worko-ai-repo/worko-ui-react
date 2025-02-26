@@ -12,7 +12,9 @@ const Footer = () => {
 				<div className="max-w-6xl mx-auto px-6">
 					<div className="grid grid-cols-[repeat(auto-fit,_minmax(250px,_1fr))] gap-8">
 						<div className="footer_content one text-left flex flex-col gap-4 w-min ">
-							<img src={logo_text_bright} alt="Worko Logo" className="w-[130px] h-auto p-0 mt-0" />
+							<button onClick={()=>{NavTo('/')}}>
+								<img src={logo_text_bright} alt="Worko Logo" className="w-[130px] h-auto p-0 mt-0" />
+							</button>
 
 							<div className={styles.label_and_buttons}>
 								<p className="text-white-400 mb-1 w-56">Explore Endless Career Opportunities</p>

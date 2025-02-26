@@ -72,13 +72,11 @@ const CompanyJobContent = () => {
 				<div
 					className={`absolute  w-full top-0 bottom-0 max-w-[300px]  md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
         ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}>
-					<Suspense
-						fallback={
-							<div className="h-16 flex justify-center items-center">
-								<Loader />
-							</div>
-						}>
-						{isLoading ? <Loader className="relative left-[45%]  " /> : <JobFilterPanel toggleFilters={toggleFilters} companyPageMode= {companyPageMode} />}
+					<Suspense fallback={<Loader className="relative left-[45%]" />}>
+						<div className="relative">
+							{isLoading && <Loader className="absolute left-[45%] top-1/2" />}
+							<JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
+						</div>
 					</Suspense>
 					
 				</div>

@@ -6,6 +6,7 @@ import MainLoader from '@Components/Loader/Loader';
 import TestPage from '@Pages/Test';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
+import Corporate from '@Pages/corporate/Corporate';
 
 
 
@@ -104,6 +105,14 @@ const AppRoutes = createBrowserRouter([
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<About />
+					</Suspense>
+				),
+			},
+			{
+				path: 'for-corporate',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<Corporate />
 					</Suspense>
 				),
 			},
