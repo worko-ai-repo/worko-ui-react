@@ -1,141 +1,166 @@
-import { useMemo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Star, MapPin, Clock } from 'lucide-react';
-import CustomModal from '@Components/Modals/FormModal';
 import GaugeComponent from './Gauge';
+import CustomModal from '@Components/Modals/FormModal';
 import { logo_text } from '@Assets';
 
 const JobCard = ({ job }: any) => {
-  const { 
-    title, 
-	companyLogo,
-    department, 
-    salary, 
-    location, 
-    employmentType, 
-    createdAt,
-    matchPercentage 
-  } = job;
+    const { 
+      title, 
+      companyLogo,
+      department, 
+      salary, 
+      location, 
+      employmentType, 
+      createdAt,
+      matchPercentage 
+    } = job;
 
-
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ phone: "", email: "" });
+    const [showModal, setShowModal] = useState(false);
+    const [formData, setFormData] = useState({ phone: "", email: "" });
+      
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+      
+    const handleSubmit = () => {
+      alert(`Job shared with: ${formData.phone}, ${formData.email}`);
+      setShowModal(false);
+    };
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const isEarlyApplicant = useMemo(() => {
+      const createdDate = new Date(createdAt);
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+      return createdDate >= threeDaysAgo;
+    }, [createdAt]);
   
-  const handleSubmit = () => {
-    alert(`Job shared with: ${formData.phone}, ${formData.email}`);
-    setShowModal(false);
-  };
-
-  const isEarlyApplicant = useMemo(() => {
-	const createdDate = new Date(createdAt);
-	const threeDaysAgo = new Date();
-	threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-	return createdDate >= threeDaysAgo;
-}, [createdAt]);
-
-const timeAgo = useMemo(() => {
-	const now = new Date();
-	const posted = new Date(createdAt);
-	const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
-	
-	if (diffMinutes < 60) {
-	  return `${diffMinutes} mins ago`;
-	} else if (diffMinutes < 1440) { // Less than 24 hours
-	  const diffHours = Math.floor(diffMinutes / 60);
-	  return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-	} else {
-	  const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
-	  return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-	}
-  }, [createdAt]);
+    const timeAgo = useMemo(() => {
+      const now = new Date();
+      const posted = new Date(createdAt);
+      const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
+      
+      if (diffMinutes < 60) {
+        return `${diffMinutes} mins ago`;
+      } else if (diffMinutes < 1440) { // Less than 24 hours
+        const diffHours = Math.floor(diffMinutes / 60);
+        return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+      } else {
+        const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
+        return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+      }
+    }, [createdAt]);
+  
 
   return (
-    <div className="relative w-full bg-white rounded-[15px] sm:rounded-[20px] py-2 px-2 sm:pt-6 sm:px-4">
-      {/* Top Section */}
-      <div className="flex flex-wrap  ">
-        {/* Company Logo */}
-        <div className="relative">
-          <img 
-            src={companyLogo || logo_text} 
-            alt={title} 
-            className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
-          />
-        </div>
-
-        {/* Job Info */}
-        <div className="ml-[5px] sm:ml-5 flex-1">
-          <div className="flex flex-col">
-            <h2 className="text-sm  sm:text-[24px] text-left font-semibold text-[#0D0D0D] capitalize ">{title}</h2>
-            <p className="text-[9px] sm:text-[12px] text-left text-[#313131] capitalize ">{department}</p>
+    <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
+      <div className="flex flex-col gap-4">
+        {/* Header Section - Changed to flex-col on mobile */}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+          {/* Left section with image, title, and tags - Full width on mobile */}
+          <div className="flex flex-col w-full md:max-w-[70%] gap-2">
+            {/* Top row with image, title, department, and salary */}
+            <div className="flex w-full gap-4">
+              {/* Image column */}
+              <div className="relative flex-shrink-0">
+                <img 
+                  src={companyLogo || logo_text} 
+                  alt={title} 
+                  className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
+                />
+              </div>
+              
+              {/* Content column */}
+              <div className="flex flex-col flex-1 min-w-0">
+                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate">{title}</h2>
+                <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1">{department}</p>
+                
+                {/* Salary */}
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">
+                  ₹ {salary}
+                </div>
+              </div>
+            </div>
             
-            {/* Salary */}
-            <div className="flex items-center gap-1 text-[#0D0D0D] font-semibold text-[9px] sm:text-base">
-              <span>₹</span>
-              <span>{salary}</span>
+            {/* Mobile layout: Arrange tags and gauge on same row */}
+            <div className="flex flex-row justify-between mt-2 md:mt-1">
+              {/* Tags - Flex-wrap on mobile */}
+              <div className="flex flex-wrap gap-1 overflow-hidden">
+                {/* <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                  16 candidates
+                </span>
+                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                  16 candidates
+                </span>  @TODO - Apply candidate count in new release. */}
+                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                  {timeAgo}
+                </span>
+                {isEarlyApplicant && (
+                  <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                    Be an early applicant
+                  </span>
+                )}
+              </div>
+              
+              {/* Gauge on mobile only */}
+              <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[65px]
+                bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
+                overflow-hidden text-white p-2 flex flex-col items-center justify-center">
+                
+                {/* Gauge Component */}
+                <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
+                  bg-[#367BFB] flex items-center justify-center">
+                  <GaugeComponent score={matchPercentage} />
+                </div>
+
+                {/* Text Below Gauge */}
+                <p className="text-[9px] font-bold mt-1 whitespace-nowrap">Strong Match</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Match Score - Moved inside the flex container */}
-        <div className="sm:py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
+         {/* Match Score - Moved inside the flex container */}
+          <div className="hidden md:flex py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
           flex-shrink-0 bg-gradient-to-b from-blue-500 to-blue-600
-          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-end max-[375px]:scale-75">
-          
+          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-end scale-90">
+
           {/* Gauge Component */}
           <div className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
-             flex items-center justify-center sm:scale-90">
+            flex items-center justify-center sm:scale-90">
             <GaugeComponent score={matchPercentage} />
           </div>
 
           {/* Text Below Gauge */}
           <p className="text-[10px] sm:text-sm font-bold  whitespace-nowrap">Strong Match</p>
-        </div>
-      </div>
-
-      {/* Tags Section - Now will naturally wrap */}
-      <div className="flex flex-wrap -mt-5 gap-1 sm:gap-2">
-        {/* <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
-          16 applicants
-        </span> */}
-        <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
-          {timeAgo}
-        </span>
-		{isEarlyApplicant && (
-			 <span className="px-[4.5px] py-[3px] sm:px-2 sm:py-1 rounded-[75px] sm:rounded-full bg-[#6DE5E5] text-[7.5px] sm:text-sm">
-			 Be an early applicant
-		   </span>
-		)}
-      </div>
-
-      {/* Footer Section */}
-      <div className="mt-2 sm:mt-6 flex items-center justify-between w-full gap-1 sm:gap-4 flex-wrap sm:flex-nowrap">
-        {/* Footer Info */}
-        <div className="flex gap-1 sm:gap-6 items-center">
-          <div className="flex items-center gap-1 text-[#313131]">
-            <MapPin className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
-            <span className="text-[8px] font-semibold sm:text-sm capitalize">{location}</span>
-          </div>
-          <div className="flex items-center gap-1 text-[#313131]">
-            <Clock className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
-            <span className="text-[8px] font-semibold sm:text-sm capitalize ">{employmentType.replace(/_/g, " ")}</span>
           </div>
         </div>
-      </div>
 
-      {/* Buttons */}
-      <div className="mt-3 sm:mt-2 flex items-center justify-end gap-2 sm:gap-4">
-        <button 
-          onClick={() => setShowModal(true)}
-          className="px-3 py-1 sm:px-6 sm:py-2 border border-[#0D0D0D] rounded-[4px] sm:rounded-lg text-[10px] sm:text-base font-bold"
-        >
-          Refer A Friend
-        </button>
-        <button className="px-3 py-1 sm:px-6 border border-[#4B7EFF] sm:py-2 bg-[#4B7EFF] text-white rounded-[4px] sm:rounded-lg text-[10px] sm:text-base font-bold">
-          View Details
-        </button>
+        {/* Location, Job Type, and Buttons */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Location and Job Type */}
+          <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
+            <div className="flex items-center gap-1">
+              <MapPin size={16} className="md:w-3 md:h-3" />
+              <span>{location}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock size={16} className="md:w-3 md:h-3" />
+              <span>{employmentType.replace(/_/g, " ")}</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 sm:justify-end">
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+              Refer A Friend
+            </button>
+            <button className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+              View Details
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Modal */}
@@ -180,6 +205,8 @@ const timeAgo = useMemo(() => {
       )}
     </div>
   );
-};
+}
 
 export default JobCard;
+
+

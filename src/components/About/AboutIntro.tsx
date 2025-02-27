@@ -9,10 +9,11 @@ const AboutIntro = () => {
                 <p className='text-sky-500 font-semibold text-3xl mb-6 '> Welcome to Worko.ai</p>
             
                 <p  className="tracking-wider leading-[1.5] text-md font-medium text-[#0D0D0D] max-w-[90vw] md:max-w-[780px] mx-auto text-center "  >
-                Worko.ai was started with a bold vision: to change the way recruitment works by putting job seekers at the heart of the hiring process. We’ve created a platform where individuals feel valued, empowered, and supported at every step of their journey.
+                We created Worko when we had this bold idea: What if we turned the entire recruitment world on its head and built something that actually put you - the job seeker - in the driver's seat? Not the recruiters. Not the algorithms. You.
                  <br /><br />
-                By combining transparency, feedback, and cutting-edge technology, Worko ensures equal opportunities for all, making recruitment faster, more efficient, and cost-effective for everyone involved.
-
+                 Worko gives you clear insights, real feedback, and most importantly, worth. And while others try to cut corners, we’re actually making hiring more efficient and more human. You save time. Companies save money. Everyone wins.
+                 <br /><br />
+                 And we’re just getting started. 
                 </p>
             </div>
     </section>

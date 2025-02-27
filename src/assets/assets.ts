@@ -5,6 +5,16 @@ import employee_hero_mobile from './backgrounds/employee_hero_mobile.png';
 import employee_stepper_1_cursor from './backgrounds/employee_stepper_1_cursor.png';
 
 // Worko Assets
+import corporatehero from './worko-assets/corporatehero.png';
+import artmease from './worko-assets/artmease.png';
+import cars24 from './worko-assets/cars24.png';
+import niit from './worko-assets/niit.png';
+import nu from './worko-assets/nu.png';
+import onmeta from './worko-assets/onmeta.png';
+import rapido from './worko-assets/rapido.png';
+import email from './worko-assets/email.png';
+import whatsapp from './worko-assets/whatsapp.png';
+import call from './worko-assets/call.png';
 import favicon from './worko-assets/favicon.png';
 import logo_text from './worko-assets/logo-text.png';
 import logo_text_bright from './worko-assets/logo-text-bright.png';
@@ -46,6 +56,10 @@ import gb_form from './backgrounds/gb_form.png';
 // svg
 import coin from './svgs/coin.svg'
 import about_bg  from './svgs/about_bg.svg'
+import document from './svgs/document.svg';
+import lightening from './svgs/lightening.svg';
+import shield from './svgs/shield.svg';
+import time from './svgs/time.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -77,13 +91,27 @@ export {
 
     // Worko Assets
     favicon,
+    artmease,
+    cars24,
+    niit,
+    nu,
+    onmeta,
+    rapido,
+    call,
+    whatsapp,
+    email,
     logo_text,
     logo_text_bright,
     job_frame,
     ref_frame,
     worko_new,
+    corporatehero,
 
     //svgs
     coin,
-    about_bg
+    about_bg,
+    document,
+    lightening,
+    shield,
+    time,
 };
