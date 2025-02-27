@@ -163,6 +163,33 @@ export const validationRules = {
 	},
 
 	/**
+	 * @type  {Object} companyName
+	 * 
+	 * @description - Validation rules for form fields for company name entered.
+	 * 
+	 * @property {string} companyName.required - Error message when the company name is not provided.
+	 * @property {Object} companyName.minLength - Minimum length validation for the company name.
+	 */
+	companyName: {
+		required: 'Company name is required',
+		minLength: { value: 3, message: 'Minimum 3 characters required' },
+	},
+
+	/**
+	 * @type  {Object} designation
+	 * 
+	 * @description - Validation rules for form fields for designation entered.
+	 * 
+	 * @property {string} designation.required - Error message when the designation is not provided.
+	 * @property {Object} designation.minLength - Minimum length validation for the designation.
+	 */
+	designation: {
+		required: 'Designation is required',
+		minLength: { value: 3, message: 'Minimum 3 characters required' },
+	},
+
+
+	/**
 	 * @type  {Object} password
 	 * 
 	 * @description - Validation rules for form fields.
@@ -252,4 +279,14 @@ export const validationRules = {
 		required: 'Department is required',
 	},
 
+	/**
+	 * default
+	 * 
+	 * @description - Default validation rules for form fields.
+	 * 
+	 * @property {string} default.required - Error message when the field is not provided.
+	 */
+	default: {
+		required: 'This field is required',
+	},
 };

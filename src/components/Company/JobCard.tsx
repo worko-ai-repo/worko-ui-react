@@ -120,7 +120,7 @@ const timeAgo = useMemo(() => {
           </div>
           <div className="flex items-center gap-1 text-[#313131]">
             <Clock className="w-[8px] h-[8px] sm:w-4 sm:h-4" />
-            <span className="text-[8px] font-semibold sm:text-sm capitalize ">{employmentType}</span>
+            <span className="text-[8px] font-semibold sm:text-sm capitalize ">{employmentType.replace(/_/g, " ")}</span>
           </div>
         </div>
       </div>

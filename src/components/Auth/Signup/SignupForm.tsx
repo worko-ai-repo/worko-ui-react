@@ -10,7 +10,7 @@ import { Upload } from 'lucide-react';
 import { AuthFormDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
 import { useNavigate } from 'react-router-dom';
-
+import styles from '../Auth.module.scss'
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
 /**
@@ -55,8 +55,8 @@ const SignupForm: React.FC<{
 	const [isSigningUp, setIsSigningUp] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [otp, setOtp] = useState('- '.repeat(length).trim());
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [cognitoBasicSignup, setCognitoBasicSignup] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const {
 		register,
 		handleSubmit,
@@ -145,7 +145,7 @@ const SignupForm: React.FC<{
 	return (
 		<div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
 			<form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
-				<div className="mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
+				<div  className={"mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "} >
 					{/* Name */}
 					<div>
 						<label className="hidden sm:block font-medium">Name</label>
@@ -221,7 +221,7 @@ const SignupForm: React.FC<{
 				</div>
 
 				{/* OTP */}
-				<div className={`relative my-5 w-min justify-self-center transition-opacity ease-in-out delay-150 duration-300 ${isOtpSent ? 'h-auto opacity-100' : 'h-0 opacity-0 pointer-events-none'}`}>
+				<div className={`relative  w-min justify-self-center transition-opacity ease-in-out delay-150 duration-300 ${isOtpSent ? 'h-auto opacity-100 ' : ' opacity-0 h-0 pointer-events-none'}`}>
 					<label className="block font-medium text-center">OTP</label>
 					<OTPInput
 						length={6}

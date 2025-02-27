@@ -9,14 +9,17 @@ import FAQ from '@Pages/faq/Faq';
 
 
 
+
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
-const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
-const Company = lazy(() => import('@Pages/company/Company'));
-const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
-const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
-const Employee = lazy(() => import('@Pages/employee/Employee'));
 const About = lazy(() => import('@Pages/About/About'));
+const Company = lazy(() => import('@Pages/company/Company'));
+const Employee = lazy(() => import('@Pages/employee/Employee'));
+const Guidance = lazy(() => import('@Pages/guidance/Guidance'));
+const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
+const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
+const CorporateConnect  = lazy(() => import('@Pages/corporate-v1/CorporateConnect'));
+const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
 
 const underConstructionPaths = [
     'faqs',
@@ -25,7 +28,6 @@ const underConstructionPaths = [
     'contact',
     'pricing',
     'terms',
-	'guidance',
 	'employee/*',
 	'candidate/*',
 	'dashboard/*',
@@ -61,7 +63,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'mock-interview',
+				path: 'test',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<TestPage />
@@ -103,7 +105,37 @@ const AppRoutes = createBrowserRouter([
 				path: 'about',
 				element: (
 					<Suspense fallback={<MainLoader />}>
-						<About />
+						<About  />
+					</Suspense>
+				),
+			},
+			{
+				path: 'for-corporate',
+				children: [
+					{
+						index: true,
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<Company />
+							</Suspense>
+						),
+					},
+					{
+						path: 'connect-with-us',
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<CorporateConnect />
+							</Suspense>
+						),
+					}
+				]
+			},
+
+			{
+				path: 'guidance',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<Guidance />
 					</Suspense>
 				),
 			},

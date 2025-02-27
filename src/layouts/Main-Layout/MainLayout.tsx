@@ -5,6 +5,7 @@ import Header from '@Components/Header/Header';
 import Footer from '@Components/Footer/Footer';
 import SmoothScroll from '@Views/scroll/SmoothScroll';
 import ScrollToTop from '@Utils/ScrollToTop.utils';
+import DynamicBackgroundHandler from '@Utils/DynamicBackground';
 
 /**
  * @function MainLayout
@@ -20,6 +21,7 @@ function MainLayout(): JSX.Element {
 			{/* <SmoothScroll> */}
 				<ScrollToTop />
 				<main className={styles.main} id="main_container">
+					<DynamicBackgroundHandler />	
 					<Outlet />
 				</main>
 			{/* </SmoothScroll> */}

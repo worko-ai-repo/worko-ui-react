@@ -159,8 +159,8 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 	return (
 		<div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
 			<form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
-				<div className="mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[250px] items-baseline ">
-					{/* Name */}
+			<div  className={"mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "} >
+			{/* Name */}
 					<div>
 						<label className="hidden sm:block font-medium">Name</label>
 						<input placeholder="Enter Name" disabled type="text" className={`input_primary auth_input  ${errors.name && 'error'}`} {...register('name', validationRules.name)} />

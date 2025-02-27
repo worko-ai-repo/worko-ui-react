@@ -214,10 +214,14 @@ export default function CheckRedirection() {
 	if (registerOptionScreen) {
 		return (
 			<div className="bg-white min-w-[300px] max-w-[400px]  p-8 rounded-lg shadow-md">
-				<LinkedinIcon className="mx-auto mb-3  bg-blue-500 text-white p-2 rounded-lg box-content " />
-				<div className="heading text-center ">
-					<h2 className="text-2xl text-center font-bold mb-4">Select Account Type</h2>
-					<p>
+				
+				<div className="heading text-left ">
+					<div className="flex justify-between items-start ">
+					
+						<h2 className="text-xl text-left font-bold mb-4 ">Select Account Type</h2>
+						<LinkedinIcon className="  bg-blue-500 text-white p-2 w-4 h-4   rounded-lg box-content " />
+				</div>
+					<p className='font-medium text-gray-500 text-sm'>
 						It appears you're not yet part of our registered user community. No need to fret! Joining is a breeze.
 						<br />
 						<br /> Continue sign up as :<br />
@@ -225,12 +229,14 @@ export default function CheckRedirection() {
 					</p>
 				</div>
 				<div className="space-y-4">
-					<button onClick={() => setRegistrationType('candidate')} className={`w-full p-2 rounded-lg ${registrationType === 'candidate' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
-						Candidate
-					</button>
-					<button onClick={() => setRegistrationType('employee')} className={`w-full p-2 rounded-lg ${registrationType === 'employee' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
-						Employee
-					</button>
+					<div className="flex gap-4 ">
+						<button onClick={() => setRegistrationType('candidate')} className={`w-full p-2 drop-shadow-lg  rounded-lg ${registrationType === 'candidate' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}`}>
+							Candidate
+						</button>
+						<button onClick={() => setRegistrationType('employee')} className={`w-full p-2 drop-shadow-lg  rounded-lg ${registrationType === 'employee' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}`}>
+							Employee
+						</button>
+					</div>
 					<button onClick={handleRegister} className="w-full btn_primary" disabled={!registrationType}>
 						Continue
 					</button>

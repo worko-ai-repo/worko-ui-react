@@ -16,7 +16,7 @@ interface NavItem {
 const navItems: NavItem[] = [
 	{
 		label: 'For Candidate',
-		href: '#candidate',
+		href: '',
 		subItems: [
 			{ label: 'Job Portal', href: '/job' },
 			{ label: 'Request Referral', href: '/referral' },

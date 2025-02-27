@@ -25,7 +25,7 @@ const Signup = () => {
 
 	let resumeUserFileName: string;
 	let resumeUserFileMimeType: string;
-	
+
 	let formData: AuthSignupBaseDto = {
 		name: '',
 		emailId: '',
@@ -271,15 +271,16 @@ const Signup = () => {
 		};
 	}, [activeFrame]);
 
+
 	return (
-		<div className="sm:scale-90 flex justify-center  w-full mt-5 in-h-[650px]  md:min-w-[50%] sm:max-w-[80vw]  xl:max-w-[1120px] overflow-hidden rounded-md mx-2 sm:rounded-3xl bg-white shadow z-20 ">
-			<img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
-			<img src={auth_bg2} alt="auth_bg2" className="absolute z-10  bottom-10 right-0" />
-			<div className=" flex justify-center relative w-full min-h-[700px] md:min-w-[50%]  max-w-[1120px] overflow-hidden rounded-lg bg-white shadow z-20 ">
+		<>
+		<img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
+		<img src={auth_bg2} alt="auth_bg2" className="absolute z-10  bottom-10 right-0" />
+			<div className=" flex justify-center relative mt-10 w-full  sm:max-w-[80vw] md:w-[80vw]  md:max-w-[1000px] overflow-hidden rounded-md mx-2 sm:rounded-3xl bg-white shadow z-20 ">
 				<div className="px-2 gap-2 py-5 sm:py-6  w-full flex flex-col ">
 					{/* Header and toggle button */}
 					<div className="  relative header flex justify-around flex-wrap w-full  items-center ">
-						<p className="font-semibold text-sm md:text-xl text-gray-500 self-center my-2 "> Create your account as </p>
+						<p className="font-semibold text-sm md:text-xl text-gray-900 self-end "> Create your account as </p>
 						{/* onToggleChange={setActiveFrame} activeFrame={activeFrame} */}
 						<div className="w-[90vw] lg:w-fit   min-w-[50%] lg:pl-16 ">
 							<CustomButtonWithButton options={options} activeFrame={activeFrame} setActiveFrame={setActiveFrame} />
@@ -291,7 +292,7 @@ const Signup = () => {
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

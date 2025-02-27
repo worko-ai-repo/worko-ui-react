@@ -23,8 +23,8 @@ const Auth = () => {
 					<Route path="/checkRedirection*" element={<CheckRedirection />} />
 					<Route path = "/linkedinSignup" element = {<LinkedInSignup />} />
 				</Route>
-				<Route path="/corporate/signup/:id" element={<CorporateSignup />} />
-				<Route path="/corporate/login" element={<CorporateLogin />} />
+				{/* <Route path="/corporate/signup/:id" element={<CorporateSignup />} />
+				<Route path="/corporate/login" element={<CorporateLogin />} /> */}
 				<Route path="/*" element={<PageNotFound />} />
 			</Routes>
 		</Suspense>

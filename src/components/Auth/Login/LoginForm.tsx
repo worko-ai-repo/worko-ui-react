@@ -226,7 +226,7 @@ const LoginForm = () => {
 					})
 				)}
 				className=" min-w-full ">
-				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
+				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-2 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
 					<p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
 					{/* Name */}
 					<div className="w-full max-w-[350px] sm:max-w-[350px] ">
@@ -235,7 +235,7 @@ const LoginForm = () => {
 						{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 					</div>
 					{/* Password */}
-					<div className="relative w-full max-w-[350px] sm:max-w-[350px]">
+					<div className="relative w-full max-w-[350px] sm:max-w-[350px] ">
 						<label className="hidden sm:block font-medium">Password</label>
 						<input type={showPassword ? 'text' : 'password'} placeholder="Enter Password" className={`input_primary auth_input ${errors.password && 'error'}`} {...register('password', validationRules.password)} />
 						<span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
@@ -245,7 +245,7 @@ const LoginForm = () => {
 					</div>
 
 					{/* Remember me and ForgotPassword */}
-					<div className="w-full max-w-[350px] sm:max-w-[350px] flex justify-between items-center">
+					<div className="w-full max-w-[350px] sm:max-w-[350px] flex justify-between items-center my-2  ">
 						<div className="flex items-center">
 							<ToggleBtn isToggleEnabled={isToggleEnabled} setIsToggleEnabled={() => setIsToggleEnabled(!isToggleEnabled)} />
 							<label className="text-sm">Remember me</label>
@@ -261,7 +261,7 @@ const LoginForm = () => {
 							Sign in
 						</button>
 					</div>
-					<hr className="w-full max-w-[350px] " />
+					<hr className="w-full my-5 max-w-[350px] " />
 					{/* LinkedIn  */}
 					<div className="w-full ">
 						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " type="button" onClick={() => signUpWithLinkedIn('SignIn')}>

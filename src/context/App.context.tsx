@@ -1,3 +1,5 @@
+import { JwtPayload } from 'jwt-decode';
+import {fetchAuthSession} from '@aws-amplify/auth'
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import secureStorage from '@Utils/SecureStorage.utils';
 import httpServiceObj from '@Services/ApiHandler.service';
@@ -5,8 +7,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { AppContextType, ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo } from 'react';
-import {fetchAuthSession} from '@aws-amplify/auth'
-import { JwtPayload } from 'jwt-decode';
+
 
 // Corporate User Interface
 interface CorporateUserDetail extends AuthLoginForGeneralUserDto {
@@ -55,7 +56,7 @@ export const AppProvider = ({ children }: ContextProviderProps) => {
 	const [tokenData, setTokenData] = useState<any | null>(null);
 	const [userDetails, setUserDetails] = useState<Partial<AuthLoginForGeneralUserDto> | null>(null);
 	const [updateCheck, setUpdateCheck] = useState<boolean>(false);
-
+	
 	// Fetch user details based on user type
 	const fetchUserDetails = async (userType: string[] | undefined, userId: string | undefined, userEmail: string | undefined) => {
 		try {

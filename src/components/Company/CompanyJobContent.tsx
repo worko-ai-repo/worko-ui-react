@@ -4,11 +4,11 @@ import { useCompanyContext } from '../../context/Company.context';
 import { formatRange } from '@Utils/RangeFormater.utils';
 import { Loader, X } from 'lucide-react';
 import MainLoader from '@Components/Loader/Loader';
-import CompanyCard from './CompanyCard';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { useInView } from 'react-intersection-observer';
 
 // Lazy load components
+import CompanyCard from './CompanyCard';
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
 const RequestCompany = lazy(() => import('./RequestCompany'));
