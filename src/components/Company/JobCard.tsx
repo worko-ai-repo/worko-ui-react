@@ -18,8 +18,8 @@ const JobCard = ({ job }: any) => {
 
 
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ phone: "", email: "" });
-  
+  const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
+ 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -141,42 +141,63 @@ const timeAgo = useMemo(() => {
       {/* Modal */}
       {showModal && (
         <CustomModal
-          type="share"
-          title="Share Job with a Friend"
-          onSubmit={handleSubmit}
-          onClose={() => setShowModal(false)}
-        >
-          <form className="space-y-4">
-            <div>
-              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">
-                Phone Number:
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="input_primary text-semibold text-gray-500"
-                placeholder="Enter phone number"
-                required
-              />
-            </div>
-            <div>
-              <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">
-                Email:
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="input_primary text-semibold text-gray-500"
-                placeholder="Enter email"
-                required
-              />
-            </div>
-          </form>
-        </CustomModal>
+        type="share"
+        title="Refer a Friend and Earn Rewards!"
+        onSubmit={handleSubmit}
+        onClose={() => setShowModal(false)}
+      >
+        <div className="text-center px-4">
+          <p className="text-gray-600 text-sm mb-4">
+            Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
+          </p>
+        </div>
+        <form className="space-y-4 px-4">
+          <div>
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className="input_primary text-gray-500 w-full p-2 border rounded"
+              placeholder="Full Name"
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="input_primary text-gray-500 w-full p-2 border rounded"
+              placeholder="E-Mail ID"
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="input_primary text-gray-500 w-full p-2 border rounded"
+              placeholder="Contact Number / WhatsApp Number"
+              required
+            />
+          </div>
+          <div className="text-center mt-4">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full"
+            >
+              Submit Referral
+            </button>
+          </div>
+        </form>
+        <p className="text-gray-400 text-xs text-center mt-4 px-4">
+          Your information is secure and will only be used to process your referral and communicate about the program.
+        </p>
+      </CustomModal>
       )}
     </div>
   );
