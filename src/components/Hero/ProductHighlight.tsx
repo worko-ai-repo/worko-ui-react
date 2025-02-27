@@ -38,7 +38,7 @@ const ProductHighlight = () => {
 								<div key={index} className="relative cursor-pointer">
 									{/* Dropdown item */}
 									<div
-										className="w-[290px] sm:w-[250px] md:w-[300px] px-3 py-2 text-black rounded-md bg-[#CFEFFF] flex justify-between items-center"
+										className="w-[290px] sm:w-[250px] md:w-[350px] px-3 py-2 text-black rounded-md bg-[#CFEFFF] flex justify-between items-center"
 										onClick={() => toggleDropdown('one', index)}
 									>
 										<div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ const ProductHighlight = () => {
 								<div key={index} className="relative cursor-pointer">
 									{/* Dropdown item */}
 									<div
-										className="w-[290px] sm:w-[250px] md:w-[300px] px-3 py-2 text-black rounded-md bg-[#CFEFFF] flex justify-between items-center"
+										className="w-[290px] sm:w-[250px] md:w-[350px] px-3 py-2 text-black rounded-md bg-[#CFEFFF] flex justify-between items-center"
 										onClick={() => toggleDropdown('two', index)}
 									>
 										<div className="flex items-center gap-2">

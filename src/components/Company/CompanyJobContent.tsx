@@ -4,11 +4,11 @@ import { useCompanyContext } from '../../context/Company.context';
 import { formatRange } from '@Utils/RangeFormater.utils';
 import { Loader, X } from 'lucide-react';
 import MainLoader from '@Components/Loader/Loader';
-import CompanyCard from './CompanyCard';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { useInView } from 'react-intersection-observer';
 
 // Lazy load components
+import CompanyCard from './CompanyCard';
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
 const RequestCompany = lazy(() => import('./RequestCompany'));
@@ -35,7 +35,7 @@ const CompanyJobContent = () => {
 	return (
 		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}
-			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center sm:justify-end  gap-2 mb-5 sm:max-w-full `}>
+			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center gap-2 mb-5 sm:max-w-full `}>
 				<div className=" flex-1  md:max-w-[1000px] relative  Search_content flex  flex-row flex-nowrap">
 					<div className="w-full relative display flex ">
 					<i className="fa-solid fa-magnifying-glass absolute z-10 top-3 left-3 text-gray-300 "></i>
@@ -72,13 +72,11 @@ const CompanyJobContent = () => {
 				<div
 					className={`absolute  w-full top-0 bottom-0 max-w-[300px]  md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
         ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}>
-					<Suspense
-						fallback={
-							<div className="h-16 flex justify-center items-center">
-								<Loader />
-							</div>
-						}>
-						{isLoading ? <Loader className="relative left-[45%]  " /> : <JobFilterPanel toggleFilters={toggleFilters} companyPageMode= {companyPageMode} />}
+					<Suspense fallback={<Loader className="relative left-[45%]" />}>
+						<div className="relative">
+							{isLoading && <Loader className="absolute left-[45%] top-1/2" />}
+							<JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
+						</div>
 					</Suspense>
 					
 				</div>

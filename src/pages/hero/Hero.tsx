@@ -16,7 +16,7 @@ const Hero = () => {
 	/**
 	 * This useEffect hook will run when the component mounts and will set the background color of the layout to blue.
 	 */
-	useEffect(() => {
+/* 	useEffect(() => {
 		const layout = document.getElementById('MainLayout');
 		if (layout) {
 			layout.style.backgroundColor = '#4B7EFF'; // Set blue background for the Hero page
@@ -28,7 +28,7 @@ const Hero = () => {
 				layout.style.backgroundColor = ''; // Or set it to a default color like '#FFFFFF'
 			}
 		};
-	}, []);
+	}, []); */
 
 	return (
 		<div className="w-full bg-transparent " id="locoScrollMainContainer">

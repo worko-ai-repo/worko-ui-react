@@ -1,8 +1,11 @@
 import { logo_text } from '@Assets';
 import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
 import { Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
+	const nav = useNavigate();
+
 	return (
 		<>
 			<div className="h-fit  bg-white  p-4 w-full rounded-2xl border">
@@ -42,7 +45,7 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 								Career Page
 							</a>
 						</div>
-						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 ">Request Guidance</button>
+						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>nav('/guidance')}>Request Guidance</button>
 					</div>
 				</div>
 			</div>

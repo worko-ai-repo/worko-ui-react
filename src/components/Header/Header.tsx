@@ -16,7 +16,7 @@ interface NavItem {
 const navItems: NavItem[] = [
 	{
 		label: 'For Candidate',
-		href: '#candidate',
+		href: '',
 		subItems: [
 			{ label: 'Job Portal', href: '/job' },
 			{ label: 'Request Referral', href: '/referral' },
@@ -132,7 +132,7 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default">Support</span>
 									</li>
 									<li>
-										<a href="/support" className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href="/faq" className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Help
 										</a>
 									</li>

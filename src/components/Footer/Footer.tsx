@@ -12,7 +12,9 @@ const Footer = () => {
 				<div className="max-w-6xl mx-auto px-6">
 					<div className="grid grid-cols-[repeat(auto-fit,_minmax(250px,_1fr))] gap-8">
 						<div className="footer_content one text-left flex flex-col gap-4 w-min ">
-							<img src={logo_text_bright} alt="Worko Logo" className="w-[130px] h-auto p-0 mt-0" />
+							<button onClick={()=>{NavTo('/')}} className="w-[130px]">
+								<img src={logo_text_bright} alt="Worko Logo" className="w-[130px] h-auto p-0 mt-0" />
+							</button>
 
 							<div className={styles.label_and_buttons}>
 								<p className="text-white-400 mb-1 w-56">Explore Endless Career Opportunities</p>
@@ -26,11 +28,11 @@ const Footer = () => {
 
 							<div className="flex space-x-8 mt-4">
 								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-x-twitter"
-									onClick={() => window.open('https://twitter.com', '_blank')}
+									onClick={() => window.open('https://x.com/WorkoAI', '_blank')}
 								></i>
 								<i 
 									className="fa-brands fa-xl hover:text-gray-600 cursor-pointer fa-instagram" 
-									onClick={() => window.open('https://instagram.com', '_blank')}
+									onClick={() => window.open('https://www.instagram.com/worko_ai?igsh=em8wZ28xbG4xZWZy&utm_source=qr', '_blank')}
 								></i>
 								<i className="fa-brands fa-xl hover:text-gray-600 cursor-pointer  fa-linkedin"
 									onClick={() => window.open('https://www.linkedin.com/company/worko/', '_blank')}
