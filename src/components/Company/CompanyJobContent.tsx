@@ -35,7 +35,7 @@ const CompanyJobContent = () => {
 	return (
 		<div className={`min-h-[100vh] mb-[50px]  grid rounded-lg  gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}
-			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center sm:justify-end  gap-2 mb-5 sm:max-w-full `}>
+			<div className={` min-h-[50px] px-3 sm-px-0 p-1 flex justify-center gap-2 mb-5 sm:max-w-full `}>
 				<div className=" flex-1  md:max-w-[1000px] relative  Search_content flex  flex-row flex-nowrap">
 					<div className="w-full relative display flex ">
 					<i className="fa-solid fa-magnifying-glass absolute z-10 top-3 left-3 text-gray-300 "></i>

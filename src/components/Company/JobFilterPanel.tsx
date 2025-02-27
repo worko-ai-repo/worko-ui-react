@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useCompanyContext } from '../../context/Company.context';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
+import { invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
 import RequestCompany from './RequestCompany';
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void , companyPageMode:CompanyPageModeEnum }) => {
@@ -9,6 +10,8 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 	// Reset all filters
 	const resetFilters = () => {
 		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
+		// Reset the filter options cache when resetting filters
+		invalidateFilterCache();
 	};
 
 	// Create refs for each select input
@@ -59,10 +62,10 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 	};
 
 	return (
-			
+
 		<div className="sticky top-[100px] ">
-		
-				<div className="  border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
+			
+			<div className="  border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold">Filters</h3>
 					<button onClick={toggleFilters} className="text-xl font-bold text-red-500 sm:hidden">
@@ -93,8 +96,8 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 					</div>
 				</div>
 			</div>
-				{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
-	</div>
+			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
+		</div>
 	);
 };
 

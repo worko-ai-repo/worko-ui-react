@@ -86,12 +86,12 @@ const JobCard = ({ job }: any) => {
             <div className="flex flex-row justify-between mt-2 md:mt-1">
               {/* Tags - Flex-wrap on mobile */}
               <div className="flex flex-wrap gap-1 overflow-hidden">
-                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                {/* <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   16 candidates
                 </span>
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   16 candidates
-                </span>
+                </span>  @TODO - Apply candidate count in new release. */}
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   {timeAgo}
                 </span>

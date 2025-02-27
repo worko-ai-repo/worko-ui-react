@@ -56,6 +56,10 @@ import gb_form from './backgrounds/gb_form.png';
 // svg
 import coin from './svgs/coin.svg'
 import about_bg  from './svgs/about_bg.svg'
+import document from './svgs/document.svg';
+import lightening from './svgs/lightening.svg';
+import shield from './svgs/shield.svg';
+import time from './svgs/time.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -105,5 +109,9 @@ export {
 
     //svgs
     coin,
-    about_bg
+    about_bg,
+    document,
+    lightening,
+    shield,
+    time,
 };

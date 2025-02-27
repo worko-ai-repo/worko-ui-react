@@ -7,7 +7,7 @@ import { createContext, useState, useContext, useCallback, useLayoutEffect, useM
 import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from '@Interfaces/JobsAndCompany.dto';
 import { filterMetaData } from '@Components/Company/FilterData';
 import ErrorWarning from '@Components/Shared/ContextErrorHandler';
-import { generateFilterForRender, normalizeSkills } from '@Utils/GenerateFiltersForRender';
+import { generateFilterForRender, invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 // Create the context object
@@ -51,6 +51,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		setCompanyJobData([]);
 		setCompanyRefData([]);
 		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
+		// Reset the filter options cache when mode changes
+		invalidateFilterCache();
 		queryClient.invalidateQueries({ queryKey: ['GET', mode] });
 	}, [location.pathname]);
 
@@ -70,13 +72,16 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	 */
 	const handleSearch = () => {
 		setJobFilters(prev => ({ ...prev, searchText }));
+		// Reset the filter options cache when searching
+		invalidateFilterCache();
 		queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
 	};
 
 	const resetSearch = () => {
 		setSearchText('');
 		setJobFilters(prev => ({ ...prev, searchText: '' }));
-		// console.log('🔍 Reset Search Invoked');
+		// Reset the filter options cache when resetting search
+		invalidateFilterCache();
 		queryClient.invalidateQueries({ queryKey: ['GET', companyPageMode] });
 	};
 
@@ -104,14 +109,14 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 				}
 			: response; // Use API response directly if no companyId
 			
-			// Generate filters for rendering
-			generateFilterForRender(normalizedResponse.data, companyPageMode, filterMetaData, setJobFilterForRender);
+			// Determine if it's a new filter OR a paginated request
+			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
+			
+			// Generate filters for rendering, indicating if this is a filter request or pagination
+			generateFilterForRender(normalizedResponse.data, companyPageMode, filterMetaData, setJobFilterForRender, isFiltering);
 
 			// Check if API returned data
 			setApiHasData(normalizedResponse.data.length > 0);
-
-			// Determine if it's a new filter OR a paginated request
-			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
 
 			if (location.pathname.includes('job')) {
 				setCompanyJobData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
