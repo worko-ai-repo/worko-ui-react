@@ -11,11 +11,11 @@ const HeroIntro = () => {
 	const items = [
 		{
 			tag: "Request Referral",
-			href: "/referral",
+			href: "/referrals",
 		},
 		{
 			tag: "Apply Jobs",
-			href: "/job",
+			href: "/jobs",
 		},
 		{
 			tag: "GET GUIDANCE & INTERVIEW HANDHOLDING",
@@ -45,7 +45,7 @@ const HeroIntro = () => {
 						</div>
 					))}
 				</div>
-				<button className={`btn_primary mt-5 ${isLoggedIn ? '': 'animate-pulse' }`}  onClick={() => navigateTo(isLoggedIn ? '/job' : '/auth/signup')}>
+				<button className={`btn_primary mt-5 ${isLoggedIn ? '': 'animate-pulse' }`}  onClick={() => navigateTo(isLoggedIn ? '/jobs' : '/auth/signup')}>
 				{isLoggedIn ? 'Start For Free' : 'Sign Up Here'}
 				</button>
 			</div>

@@ -7,6 +7,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { AppContextType, ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo } from 'react';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 
 
 // Corporate User Interface
@@ -56,7 +57,8 @@ export const AppProvider = ({ children }: ContextProviderProps) => {
 	const [tokenData, setTokenData] = useState<any | null>(null);
 	const [userDetails, setUserDetails] = useState<Partial<AuthLoginForGeneralUserDto> | null>(null);
 	const [updateCheck, setUpdateCheck] = useState<boolean>(false);
-	
+	const [PendingApply , setPendingApply] = useState<continueReferralRequestDataDto | null>(null)
+	const [isModalOpen , setIsModalOpen] = useState<boolean>(false)
 	// Fetch user details based on user type
 	const fetchUserDetails = async (userType: string[] | undefined, userId: string | undefined, userEmail: string | undefined) => {
 		try {
@@ -145,8 +147,12 @@ export const AppProvider = ({ children }: ContextProviderProps) => {
 			setAuthState,
 			setUpdateCheck,
 			userDetails,
+			PendingApply,
+			setPendingApply,
+			isModalOpen,
+			setIsModalOpen,
 		}),
-		[isLoggedIn, tokenData, setAuthState, userDetails, setUpdateCheck]
+		[isLoggedIn, tokenData, setAuthState, userDetails, setUpdateCheck,PendingApply,setPendingApply,isModalOpen,setIsModalOpen]
 	);
 
 	return <AppContext.Provider value={memoizedValue}>{children}</AppContext.Provider>;

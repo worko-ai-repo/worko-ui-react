@@ -10,11 +10,12 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { LinkedinIcon } from 'lucide-react';
 import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 
 export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const { setUpdateCheck } = useAppContext();
+	const { setUpdateCheck, PendingApply, setPendingApply } = useAppContext();
 	let isCandidatePresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
 	const [userEmail, setUserEmail] = useState<string>('');
@@ -128,30 +129,27 @@ export default function CheckRedirection() {
 
 	const getCandidateDetails = async (): Promise<boolean> => {
 		try {
-			// Get the token form the amplify -auth
+			// Step 1: Get Auth Session
 			const { tokens } = await fetchAuthSession();
-			// Store the data in the vars
 			const email = tokens?.idToken?.payload['email']?.toString().toLowerCase();
 			const name = tokens?.idToken?.payload['given_name']?.toString();
 			const groups = tokens?.idToken?.payload['cognito:groups'] as string[];
-
-			// set the username and email for Backend Api call dynamodb
+	
+			// Step 2: Store User Data
 			if (email) setUserEmail(email);
 			if (name) setUserName(name);
-
+	
+			// Step 3: Store Admin Status in Secure Storage
 			if (Array.isArray(groups) && groups.includes('admin')) {
 				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Admin');
 			}
-			// Refetch user details to get the latest data
-			const { response: userDetails, error } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
-			// once the user email is set it will fetch the data related to use to check if the dynamodb has the data or not related to user if not then we will return true
-			if (!userDetails) {
-				return true;
-			}
-
-			// if the userDetail is present then we will move to navigate the user to dashboard
+	
+			// Step 4: Fetch User Details
+			const { response: userDetails } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
+			if (!userDetails) return true;
+	
+			// Step 5: Store User Details in Secure Storage
 			const userDetail: Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
-			// Create userDetails from the first element
 			const FinaluserDetails: Partial<AuthLoginForGeneralUserDto> = {
 				lastAccessedDash: userDetail.lastAccessedDash,
 				name: userDetail.name,
@@ -165,9 +163,9 @@ export default function CheckRedirection() {
 			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.name);
 			secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, email);
 			secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, FinaluserDetails);
-
+	
+			// Step 6: Handle Dynamic Routes (If Coming From Company Listing)
 			const isCompanyListingRoute = secureStorage.getItem(SecureStorageKeyEnum.IS_COMPANY_LISTING_ROUTE);
-
 			if (isCompanyListingRoute) {
 				const dynamicRoute = secureStorage.getItem(SecureStorageKeyEnum.DYNAMIC_ROUTE);
 				if (typeof dynamicRoute === 'string') {
@@ -175,33 +173,64 @@ export default function CheckRedirection() {
 				}
 				return false;
 			}
-
-			// If we have an account that has admin access then we will move him to switcher page
-			if (groups.includes('admin')) {
+	
+			// Step 7: Redirect Admin Users to Switcher Page
+			if (Array.isArray(groups) && groups.includes('admin')) {
 				navigate('/switcher');
 				return false;
 			}
-			const { response: profileCompletion } = await httpServiceObj.get<ProfileCompletion>(`/user/${email}/profilePercentage`, true);
+	
+			// Step 8: Get Profile Completion Percentage
+			const { response: profileCompletion } = await httpServiceObj.get<ProfileCompletion>(
+				`/user/${email}/profilePercentage`,
+				true
+			);
 			if (profileCompletion) {
-				const profileType = userDetail.lastAccessedDash === 'CAND' ? profileCompletion.candidate : profileCompletion.employee;
-
+				const profileType =
+					userDetail.lastAccessedDash === 'CAND' ? profileCompletion.candidate : profileCompletion.employee;
 				const totalPercentage = profileType.reduce((sum: number, element: { curPerc: number }) => sum + element.curPerc, 0);
-
-				if (userDetail.lastAccessedDash === 'CAND') {
-					setUpdateCheck(true);
-					navigate(totalPercentage >= 60 ? '/candidate/dashboard' : '/candidate/edit-profile');
-				} else {
-					setUpdateCheck(true);
-					navigate(totalPercentage >= 60 ? '/employee/Dashboard' : '/employee/Edit-profile');
+	
+				// Step 9: Set update check before navigation
+				setUpdateCheck(true);
+	
+				// Step 10: Determine Navigation Path Based on Profile Percentage
+				let dashboardPath =
+					userDetail.lastAccessedDash === 'CAND'
+						? totalPercentage >= 60
+							? '/candidate/dashboard'
+							: '/candidate/edit-profile'
+						: totalPercentage >= 60
+						? '/employee/Dashboard'
+						: '/employee/Edit-profile';
+	
+				// Step 11: If Total Percentage >= 60, Check Pending Application
+				if (totalPercentage >= 60) {
+					let pendingReferral =
+						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+	
+					// Sync PendingApply and SecureStorage
+					if (PendingApply) {
+						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+						window.location.href = PendingApply.url; // Redirect to referral page
+						return false; // Stop further execution
+					} else if (pendingReferral) {
+						setPendingApply(pendingReferral);
+						window.location.href = pendingReferral.url; // Redirect if referral found in storage
+						return false; // Stop further execution
+					}
 				}
+	
+				// Step 12: Navigate to Dashboard or Edit Profile if No Pending Application
+				navigate(dashboardPath);
 			}
-
+	
 			return false;
 		} catch (error) {
 			console.error('Error getting candidate details:', error);
 			return true;
 		}
 	};
+	
 
 	const handleRegister = () => {
 		if (registrationType === 'candidate') {
@@ -214,14 +243,12 @@ export default function CheckRedirection() {
 	if (registerOptionScreen) {
 		return (
 			<div className="bg-white min-w-[300px] max-w-[400px]  p-8 rounded-lg shadow-md">
-				
 				<div className="heading text-left ">
 					<div className="flex justify-between items-start ">
-					
 						<h2 className="text-xl text-left font-bold mb-4 ">Select Account Type</h2>
 						<LinkedinIcon className="  bg-blue-500 text-white p-2 w-4 h-4   rounded-lg box-content " />
-				</div>
-					<p className='font-medium text-gray-500 text-sm'>
+					</div>
+					<p className="font-medium text-gray-500 text-sm">
 						It appears you're not yet part of our registered user community. No need to fret! Joining is a breeze.
 						<br />
 						<br /> Continue sign up as :<br />

@@ -9,8 +9,6 @@ import CompanyInput from '@Components/Shared/CompanyInput';
 import { Upload } from 'lucide-react';
 import { AuthFormDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
-import { useNavigate } from 'react-router-dom';
-import styles from '../Auth.module.scss'
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
 /**
@@ -43,11 +41,10 @@ export function validateCV  (value: string) {
 const SignupForm: React.FC<{
 	activeFrame: SignupMode;
 	runCognitoBasicSignup: (data: AuthFormDto) => Promise<boolean>;
-	handleVerifyOtp: (email: string, otp: string) => Promise<any>;
+	handleVerifyOtp: (email: string, otp: string,password:string) => Promise<any>;
 	verifyOtp: (otp: string) => Promise<boolean>;
 	setCompanyName: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, verifyOtp, setCompanyName }) => {
-	const navigateTo = useNavigate();
+}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName }) => {
 	const signUpWithLinkedIn = useLinkedInSignup();
 	const [otpError, setOtpError] = useState(false); // Use lowercase for setter
 	const [ViewTerms, setViewTerms] = useState(false);
@@ -134,8 +131,7 @@ const SignupForm: React.FC<{
 		}
 
 		try {
-			await handleVerifyOtp(email, otpValue); // Assuming `handleVerifyOtp` only needs OTP
-			navigateTo('/login');
+			await handleVerifyOtp(email, otpValue,watch('password')); // Assuming `handleVerifyOtp` only needs OTP
 		} catch (error) {
 			console.error('OTP verification failed', error);
 		}

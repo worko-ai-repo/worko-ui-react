@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { XCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
-interface MessagePopupProps {
+export interface MessagePopupProps {
 	type: 'none' | 'error' | 'warning' | 'success' | 'info';
 	size?: 'sm' | '10' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 	heading?: { message: string; type: 'error' | 'warning' | 'success' | 'info' };
@@ -15,7 +15,7 @@ interface MessagePopupProps {
 // Icons based on type
 const icons = {
 	none: null,
-	error: <XCircle className="text-red-500 w-6 h-6" />,
+	error: <AlertTriangle className="text-red-500 w-6 h-6" />,
 	warning: <AlertTriangle className="text-yellow-500 w-6 h-6" />,
 	success: <CheckCircle className="text-green-500 w-6 h-6" />,
 	info: <Info className="text-blue-500 w-6 h-6" />,
@@ -35,14 +35,14 @@ const HeadingStyles = {
 	info: 'text-blue-500',
 };
 const sizeClasses = {
-	sm: 'max-w-sm min-w-sm w-sm',
-	'10': 'max-w-10 min-w-10 w-10',
-	md: 'max-w-md min-w-md w-md',
-	lg: 'max-w-lg min-w-lg w-lg',
-	xl: 'max-w-xl min-w-xl w-xl',
-	'2xl': 'max-w-2xl min-w-2xl w-2xl',
-	'3xl': 'max-w-3xl min-w-3xl w-3xl',
-	'4xl': 'max-w-4xl min-w-4xl w-4xl',
+	sm: 'w-full max-w-[90%] sm:max-w-sm',
+	'10': 'w-full max-w-[10rem] sm:max-w-[12rem]',
+	md: 'w-full max-w-[95%] sm:max-w-md',
+	lg: 'w-full max-w-[95%] sm:max-w-lg',
+	xl: 'w-full max-w-[98%] sm:max-w-xl',
+	'2xl': 'w-full max-w-full sm:max-w-2xl',
+	'3xl': 'w-full max-w-full sm:max-w-3xl',
+	'4xl': 'w-full max-w-full sm:max-w-4xl',
 };
 
 export default function MessageModal({ type, heading, size = '2xl', message, buttons = [], onClose, showCloseButton = true }: MessagePopupProps) {

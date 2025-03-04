@@ -13,6 +13,32 @@ import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
 import CustomModal from '@Components/Modals/FormModal';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+
+/**
+ * currentSession
+ *
+ * This function is called to get the current session of the user
+ *
+ * @returns void
+ */
+export const currentSession = async () => {
+	try {
+		const session = await fetchAuthSession({ forceRefresh: false }); // Use false to avoid unnecessary refresh
+		const authToken = session.tokens?.idToken?.toString();
+		const refreshToken = session.tokens?.accessToken?.toString();
+
+		if (authToken) {
+			secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, authToken);
+		}
+
+		if (refreshToken) {
+			secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, refreshToken);
+		}
+	} catch (err) {
+		console.error('Session retrieval error', err);
+	}
+};
 
 const LoginForm = () => {
 	// Use Navigate Hook
@@ -22,7 +48,7 @@ const LoginForm = () => {
 	const signUpWithLinkedIn = useLinkedInSignup();
 
 	// Update Check from App Context to broadcast the changes
-	const { setUpdateCheck } = useAppContext();
+	const {PendingApply, setUpdateCheck } = useAppContext();
 
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -59,31 +85,6 @@ const LoginForm = () => {
 	};
 
 	/**
-	 * currentSession
-	 *
-	 * This function is called to get the current session of the user
-	 *
-	 * @returns void
-	 */
-	const currentSession = async () => {
-		try {
-			const session = await fetchAuthSession({ forceRefresh: false }); // Use false to avoid unnecessary refresh
-			const authToken = session.tokens?.idToken?.toString();
-			const refreshToken = session.tokens?.accessToken?.toString();
-
-			if (authToken) {
-				secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, authToken);
-			}
-
-			if (refreshToken) {
-				secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, refreshToken);
-			}
-		} catch (err) {
-			console.error('Session retrieval error', err);
-		}
-	};
-
-	/**
 	 * onSubmit
 	 *
 	 * This function is called when the form is submitted and the data is validated
@@ -97,16 +98,16 @@ const LoginForm = () => {
 			password: data.password,
 		};
 
-		console.log('Login Data', loginData);
+		
 		try {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
-
+			// If error occurs, show the error message and reset the form
 			if (error) {
 				toast.error(error.message);
 				reset(undefined, { keepValues: false });
 				throw new Error(error.message);
 			} else {
-				// Fetch stored user data
+				// Fetch stored user data and check if the user is a corporate user
 				const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
 
 				/**
@@ -133,7 +134,9 @@ const LoginForm = () => {
 					setConfirmAccount(true);
 					return;
 				}
-
+				/**
+				 * If the account is confirmed, proceed with the sign-in process
+				 */
 				if (response?.isSignedIn) {
 					const email = data.email.toLowerCase();
 					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
@@ -172,7 +175,15 @@ const LoginForm = () => {
 						setUpdateCheck(true);
 						toast.success('Successfully signed in');
 						setTimeout(() => {
-							navigate('/'); // Redirect to home page
+							// Construct the referral object
+							const pendingReferral =
+							PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+
+							if (pendingReferral ) {
+								window.location.href =pendingReferral.url; // Redirect to the referral page
+							} else {
+								navigate('/'); // Redirect to home page
+							}
 						}, 3000);
 					}
 				}

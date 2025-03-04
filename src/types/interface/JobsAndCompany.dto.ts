@@ -40,6 +40,16 @@ export interface CompanyDto {
     GSI1PK: string;
     GSI1SK: string;
   }
+
+  /**
+   * @interface CompanyByIdDto
+   * 
+   * @description This interface is used to define the structure of the CompanyByIdDto object that fetches the company details by ID
+   */
+  export interface CompanyByIdDto extends CompanyDto {
+    website: string;
+    aboutCompany: string;
+  }
   
   /**
    * @interface JobDto

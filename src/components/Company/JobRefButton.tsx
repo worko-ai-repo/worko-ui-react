@@ -12,9 +12,9 @@ const JobRefButton = () => {
 
 	const toggleCompanyPageMode = (event: any) => {
 		if (event.target.name === 'job_toggle') {
-			Navigate(`/job`);
+			Navigate(`/jobs`);
 		} else {
-			Navigate(`/referral`);
+			Navigate(`/referrals`);
 		}
 	};
 	return (

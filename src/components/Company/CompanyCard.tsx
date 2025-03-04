@@ -6,6 +6,11 @@ import { useNavigate } from 'react-router-dom';
 const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 	const nav = useNavigate();
 
+	const handleReferralNav = () => {
+		// Replace any whitespace special characters with underscore in company name
+		const companyName = companyData.name.replace(/\s/g, '_');
+		nav(`/referrals/${companyName}/${companyData.SK}`);
+	};
 	return (
 		<>
 			<div className="h-fit  bg-white  p-4 w-full rounded-2xl border">
@@ -36,7 +41,7 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 								LinkedIn Page
 							</a>
 						</div>
-						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 ">Request Referral</button>
+						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>handleReferralNav()}>Request Referral</button>
 					</div>
 					<div className="flex justify-between gap-2  ">
 						<div className="linkedin_ref flex  justify-start  items-start gap-2  md:my-1  relative top-2 ">

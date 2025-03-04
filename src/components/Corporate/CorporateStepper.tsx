@@ -1,6 +1,7 @@
 import React from 'react';
 
 const CorporateStepper = () => {
+
   const steps = [
     {
       id: 1,
@@ -29,7 +30,7 @@ const CorporateStepper = () => {
   ];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center">
+    <section className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center">
       <h2 className="text-3xl md:text-4xl lg:text-5xl text-center font-bold text-blue-500 mb-8 md:mb-16 max-w-3xl">
         How We Ensure Faster Candidate Applications:
       </h2>
@@ -75,7 +76,7 @@ const CorporateStepper = () => {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

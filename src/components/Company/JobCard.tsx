@@ -72,8 +72,8 @@ const JobCard = ({ job }: any) => {
               
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
-                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate">{title}</h2>
-                <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1">{department}</p>
+                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize">{title}</h2>
+                <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
                 
                 {/* Salary */}
                 <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">
@@ -105,7 +105,7 @@ const JobCard = ({ job }: any) => {
               {/* Gauge on mobile only */}
               <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[65px]
                 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-                overflow-hidden text-white p-2 flex flex-col items-center justify-center">
+                overflow-hidden text-white p-2  flex-col items-center justify-center">
                 
                 {/* Gauge Component */}
                 <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
@@ -141,16 +141,16 @@ const JobCard = ({ job }: any) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span>{location}</span>
+              <span className='capitalize '>{location}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span>{employmentType.replace(/_/g, " ")}</span>
+              <span >{employmentType.replace(/_/g, " ")}</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 sm:justify-end">
+         {/*  <div className="flex gap-2 sm:justify-end">
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
@@ -159,7 +159,7 @@ const JobCard = ({ job }: any) => {
             <button className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -18,11 +18,12 @@ const navItems: NavItem[] = [
 		label: 'For Candidate',
 		href: '',
 		subItems: [
-			{ label: 'Job Portal', href: '/job' },
-			{ label: 'Request Referral', href: '/referral' },
+			{ label: 'Job Portal', href: '/jobs' },
+			{ label: 'Request Referral', href: '/referrals' },
 		],
 	},
 	{ label: 'For Employee', href: '/for-employee' },
+	{ label: 'For Corporate', href: '/for-corporate' },
 	{ label: 'Blog', href: '/blogs' },
 	{ label: 'About Us', href: '/about' },
 ];
@@ -86,7 +87,7 @@ const Header = () => {
 							</div>
 
 							{/* userNav */}
-							<div className="absolute top-14 right-0 min-w-[250px] bg-white rounded-md p-2 shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)] thin_border h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:opacity-100 group-hover:h-[620%] z-30 ">
+							<div className="absolute top-14 right-0 min-w-[250px] bg-white rounded-md p-2 shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)] thin_border h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:opacity-100 group-hover:h-[550%] z-30 ">
 								<ul className={`mt-2 text-left p-2 ${styles.loggedInDrop}`}>
 									<li className="flex items-center justify-between  rounded-lg bg-white ">
 										<div className="flex items-center justify-start w-full gap-2 ">
@@ -129,13 +130,13 @@ const Header = () => {
 									<hr className="mt-2" />
 									{/* Basic Edits */}
 									<li className="hover:!bg-transparent">
-										<span className="text-sm font-semibold text-gray-400 text-left cursor-default">Support</span>
+										<span className="text-sm font-semibold text-gray-400 text-left cursor-default">Actions</span>
 									</li>
-									<li>
+									{/* <li>
 										<a href="/faq" className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Help
 										</a>
-									</li>
+									</li> */}
 									<li>
 										<a
 											onClick={() => {

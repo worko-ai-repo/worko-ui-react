@@ -6,6 +6,10 @@ import CompanyInput from '@Components/Shared/CompanyInput';
 import { Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
+import secureStorage from '@Utils/SecureStorage.utils';
+import { useAppContext } from '@Context/App.context';
 
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
@@ -43,6 +47,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 	const [ViewTerms, setViewTerms] = useState(false);
 	const [isSigningUp, setIsSigningUp] = useState(false);
 	const navigate = useNavigate();
+	const { PendingApply, setPendingApply } =  useAppContext();
 	// An effect that will run on component mount it will check for the values like name email phone cognito ID that got stored while redirection of the linkedin.
 	useEffect(() => {
 		const fetchSessionData = async () => {
@@ -122,7 +127,21 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 			const success = await handleDataMutationtoDb(data);
 			if (success) {
 				toast.success('Account created successfully');
-				navigate('/');
+				// Redirect to referral page if pending referral found or pending Apply job found
+				let pendingReferral =
+						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+	
+					// Sync PendingApply and SecureStorage
+					if (PendingApply) {
+						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+						window.location.href = PendingApply.url; // Redirect to referral page
+					} else if (pendingReferral) {
+						setPendingApply(pendingReferral);
+						window.location.href = pendingReferral.url; // Redirect if referral found in storage
+					}
+					else{
+					navigate('/');
+				}
 			}
 		} catch (error) {
 			console.error('Cognito Basic Signup failed');

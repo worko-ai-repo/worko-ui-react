@@ -18,12 +18,12 @@ const Footer = () => {
 
 							<div className={styles.label_and_buttons}>
 								<p className="text-white-400 mb-1 w-56">Explore Endless Career Opportunities</p>
-								<button onClick={()=>{NavTo('/job')}} className="btn_find_job mb-4 w-3/4">Find Job</button>
+								<button onClick={()=>{NavTo('/jobs')}} className="btn_find_job mb-4 w-3/4">Find Job</button>
 							</div>
 
 							<div className={styles.label_and_buttons}>
 								<p className="mb-0">Discover Top Talent For Your Team</p>
-								<button onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}} className="btn_hire_talent mt-0">Hire Candidate</button>
+								<button onClick={()=>{NavTo('/for-corporate')}} className="btn_hire_talent mt-0">Hire Candidate</button>
 							</div>
 
 							<div className="flex space-x-8 mt-4">
@@ -44,16 +44,16 @@ const Footer = () => {
 							<div>
 								<h3 className="font-semibold mb-4">For Companies</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list}>
-									<li onClick={()=>{NavTo('/auth/signup' , {state:{activeFrame:'EMP'}})}}>Hire Talent</li>
-									<li>AI Resume Screening</li>						
-									<li onClick={()=>{NavTo('/pricing')}}>Pricing</li>
+									<li onClick={()=>{NavTo('/for-corporate')}}>Hire Talent</li>
+									{/* <li onClick={() => NavTo('/for-corporate#corporate-communication')} >AI Resume Screening</li>						 */}
+									<li onClick={()=>{NavTo('/for-corporate#corporatePlans')}}>Pricing</li>
 								</ul>
 							</div>
 							<div>
 								<h3 className="font-semibold mb-4">For Candidates</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list} >
-									<li onClick={()=>{NavTo('/job')}}>Browse jobs & Apply via AI</li>
-									<li onClick={()=>{NavTo('/referral')}}>Request a referral</li>
+									<li onClick={()=>{NavTo('/jobs')}}>Browse jobs & Apply via AI</li>
+									<li onClick={()=>{NavTo('/referrals')}}>Request a referral</li>
 									<li onClick={()=>{NavTo('/guidance')}}>Request interview guidance</li>
 								</ul>
 							</div>

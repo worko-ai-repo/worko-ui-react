@@ -73,7 +73,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className="w-full">
-			<p className="font-bold text-lg text-left">Corporate Signup</p>
+			<p className="font-bold text-lg text-left">Let's Connect</p>
 			<div className="mainForm min-w-full grid sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[150px]">
 				{/* Name */}
 				<div>
@@ -105,7 +105,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 				{/* Email */}
 				<div className="relative">
 					<label className="block font-medium">Email</label>
-					<input readOnly={isEmailVerified} placeholder="Corporate email id" type="email" className="input_primary auth_input" {...register('email', validationRules.email)} />
+					<input readOnly={isEmailVerified} placeholder="Corporate email id" type="email" className="input_primary auth_input" {...register('email', validationRules.corporateEmail)} />
 					{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 					{!errors.email && watch('email') && (
 						<button className="absolute btn_primary top-[33px] right-0 scale-75 active:scale-50" disabled={isOtpSent || isVerifying} onClick={e => handleEmailVerification(false, e)}>

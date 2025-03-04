@@ -7,7 +7,7 @@ const CorporateHero = () => {
     const navTo = useNavigate();
     const isMobile = useMediaQuery('(max-width: 640px)');
   return (
-    <div className="w-full bg-white font-poppins">
+    <section className="w-full bg-white font-poppins">
       <div className="relative h-[729px] w-full bg-[#4B7EFF] text-white flex flex-col items-center px-6 md:px-0 text-center">
     <div className="z-10 flex flex-col items-center py-16 md:py-18">
 
@@ -18,10 +18,10 @@ const CorporateHero = () => {
         {isMobile ? 
             <>
              <div className='flex mt-8 mx-auto flex-wrap gap-2 items-center justify-center'>
-             <button onClick={()=>{navTo('/auth/signup',  {state:{activeFrame:'EMP'}});}} className="bg-white text-black rounded-lg px-8 py-2 text-lg font-semibold shadow-md transition duration-200">
+             <button onClick={()=>{navTo('/for-corporate/connect-with-us')}} className="bg-white text-black rounded-lg px-8 py-2 text-lg font-semibold shadow-md transition duration-200">
                  Start Free Trial
              </button>
-             <button onClick={()=>{navTo('/auth/signup',  {state:{activeFrame:'EMP'}});}} className="text-white rounded-lg px-8 py-2 text-lg font-semibold border border-white transition duration-200">
+             <button onClick={()=>{navTo('/for-corporate/connect-with-us')}} className="text-white rounded-lg px-8 py-2 text-lg font-semibold border border-white transition duration-200">
                  Book a Demo
              </button>
              </div>
@@ -35,10 +35,10 @@ const CorporateHero = () => {
             Worko AI's algorithm filters out almost all junk applications, saving you 80% of your hiring time
             </p>
             <div className='flex mt-8 mx-auto flex-wrap gap-2 items-center justify-center'>
-                <button onClick={()=>{navTo('/auth/signup',  {state:{activeFrame:'EMP'}});}} className="bg-white text-black rounded-lg px-8 py-2 text-lg font-semibold shadow-md transition duration-200">
+                <button onClick={()=>{navTo('/for-corporate/connect-with-us')}} className="bg-white text-black rounded-lg px-8 py-2 text-lg font-semibold shadow-md transition duration-200">
                     Start Free Trial
                 </button>
-                <button onClick={()=>{navTo('/auth/signup',  {state:{activeFrame:'EMP'}});}} className="text-white rounded-lg px-8 py-2 text-lg font-semibold border border-white transition duration-200">
+                <button onClick={()=>{navTo('/for-corporate/connect-with-us')}} className="text-white rounded-lg px-8 py-2 text-lg font-semibold border border-white transition duration-200">
                     Book a Demo
                 </button>
                 </div>
@@ -56,7 +56,7 @@ const CorporateHero = () => {
     
     
 </div>
-    </div>
+    </section>
   );
 };
 

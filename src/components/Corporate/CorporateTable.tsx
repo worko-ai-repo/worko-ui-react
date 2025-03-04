@@ -280,7 +280,7 @@ function CorporateTable() {
   const [salary, setSalary] = useState(20);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4">
+    <section className="w-full max-w-6xl mx-auto px-4">
       {/* Heading */}
       <h2 className="text-center text-3xl md:text-4xl font-bold text-black my-6 md:my-8">
         Calculate the Impact we will create for you:
@@ -328,7 +328,7 @@ function CorporateTable() {
             </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

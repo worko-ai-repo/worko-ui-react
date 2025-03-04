@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import CustomButtonWithButton from '../../Shared/CustomButtonWithButton';
 import SignupForm from './SignupForm';
-import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload } from '@Interfaces/Auth.dto';
+import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload, AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
@@ -9,11 +9,17 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppContext } from '@Context/App.context';
+import secureStorage from '@Utils/SecureStorage.utils';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+import { currentSession } from '../Login/LoginForm';
 
 export type SignupMode = 'EMP' | 'CAND';
+
+
 const Signup = () => {
 	const navigateTo = useNavigate();
-	const { isLoggedIn } = useAppContext();
+	const { setPendingApply,PendingApply,isLoggedIn,setUpdateCheck } = useAppContext();
 	const location = useLocation(); // Get location object
 
 	const initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
@@ -78,22 +84,110 @@ const Signup = () => {
 			setCompanySk(data.company);
 		}
 	};
+	
+const handleAutoLogin = async (data: any): Promise<void> => {
+	
+	const loginData = {
+		email: data.email,
+		password: data.password,
+	};
+
+	try {
+		const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
+		// If error occurs, show the error message and reset the form
+		if (error) {
+			toast.error(error.message);
+			window.location.href = '/auth/login'; // Navigate to the login page if an error occurs
+		} else {
+			
+			/**
+			 * If the account is confirmed, proceed with the sign-in process
+			 */
+			if (response?.isSignedIn) {
+				const email = data.email.toLowerCase();
+				const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+
+				if (userError) {
+					toast.error('Error: ' + userError);
+					throw new Error();
+				} else {
+					// Extract the first element from the array response
+					let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+
+					if (!user) {
+						toast.error('Error: No user data found');
+						throw new Error();
+					}
+
+					// Create userDetails from the first element
+					const userDetails: Partial<AuthLoginForGeneralUserDto> = {
+						lastAccessedDash: user.lastAccessedDash,
+						name: user.name,
+						email: user.email,
+						id: user.id,
+						profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
+						referralCount: user.referralCount,
+					};
+					// Store user details
+					secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
+					secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
+					secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
+
+					
+					await currentSession();
+					setUpdateCheck(true);
+					toast.success('Successfully signed in');
+					setTimeout(() => {
+						
+						  // Retrieve pending referral data from context and secure storage
+							let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(
+								SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA
+							);
+
+							// Sync PendingApply and secureStorage
+							if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+								secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+							} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+								setPendingApply(pendingReferral);
+							}
+
+						if (PendingApply) {
+							secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+							window.location.href = PendingApply.url; // Redirect to the referral page
+						} else {
+							navigateTo('/'); // Redirect to the home page
+						}
+					}, 3000);
+				}
+			}
+		}
+	} catch (error: any) {
+		toast.error(error?.message || 'Something went wrong');
+		// CognitoServiceObj.handleSignOut();
+	}
+};
+
+
 	/**
 	 * handleVerifyOtp
 	 */
-	const handleVerifyOtp = async (email: string, otp: string) => {
+	const handleVerifyOtp = async (email: string, otp: string,password:string) => {
 		try {
 			let signupform = {
 				username: email,
 				confirmationCode: otp,
 			};
-
+			let autoLoginData = {
+				email: email,
+				password: password
+			}
 			// Call handleSignUpConfirmation and await the result
 			const { response, error } = await CognitoServiceObj.handleSignUpConfirmation(signupform);
 
 			// Check if the confirmation was successful
 			if (response) {
 				toast.success('User registered successfully');
+				await handleAutoLogin(autoLoginData);
 				// Handle the confirmed sign-up as needed
 				return { response: response };
 			} else if (error) {

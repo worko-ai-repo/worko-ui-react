@@ -34,10 +34,7 @@ const useLinkedInSignup = () => {
 				// Store user type
 				secureStorage.setItem(SecureStorageKeyEnum.LINKEDINUSERTYPE, userType);
 				secureStorage.setItem(SecureStorageKeyEnum.REDACTED_SECRET, 'true');
-
-				const Toast = await CognitoServiceObj.isLoggedIn();
-      			// toast.info(`Is user logged In : ${Toast}`);
-			
+				
 				// Initiate LinkedIn OAuth flow
 				await CognitoServiceObj.handleSocialSignIn();
 			

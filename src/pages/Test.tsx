@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import DropdownCalendar from '@Components/Shared/DropdownCalender';
-
+import './t.css';
+import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
 const Test = () => {
-  const [date, setDate] = useState<Date | null>(null);
+	const [date, setDate] = useState<Date | null>(null);
 
-  const handleDateSelect = (selectedDate:any) => {
-    setDate(selectedDate);
-    alert(`Selected date in parent component: ${selectedDate.toDateString()}`);
-  };
+	const handleDateSelect = (selectedDate: any) => {
+		setDate(selectedDate);
+		alert(`Selected date in parent component: ${selectedDate.toDateString()}`);
+	};
 
-  return (
-    <div>
-      <h1 className="text-2xl mb-4">Date Selector</h1>
-      <DropdownCalendar onSelectDate={handleDateSelect} />
-      {date && <p className="mt-4">Selected Date: {date.toDateString()}</p>}
-    </div>
-  );
+	return (
+<div >
+   <ReferralLoader />
+</div>
+
+	);
 };
 
 export default Test;

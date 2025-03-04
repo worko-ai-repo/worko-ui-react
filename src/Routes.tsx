@@ -2,14 +2,11 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '@Layouts/Main-Layout/MainLayout';
 import PageNotFound from '@Pages/errors/404/PageNotFound';
-import MainLoader from '@Components/Loader/Loader'; 
+import MainLoader from '@Components/Loader/Loader';
 import TestPage from '@Pages/Test';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
 import Corporate from '@Pages/corporate/Corporate';
-
-
-
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
@@ -18,32 +15,20 @@ const Company = lazy(() => import('@Pages/company/Company'));
 const Employee = lazy(() => import('@Pages/employee/Employee'));
 const Guidance = lazy(() => import('@Pages/guidance/Guidance'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
-const MockInterview = lazy(() => import('@Pages/mock-interview/MockInterview'));
-const CorporateConnect  = lazy(() => import('@Pages/corporate-v1/CorporateConnect'));
+const RequestReferral = lazy(() => import('@Pages/request-referral/RequestReferral'));
+const CorporateConnect = lazy(() => import('@Pages/corporate/corporateConnect/CorporateConnect'));
 const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
 
-const underConstructionPaths = [
-    'faqs',
-    'blogs',
-    'privacy',
-    'contact',
-    'pricing',
-    'terms',
-	'employee/*',
-	'candidate/*',
-	'dashboard/*',
-	'profile/*',
-	'support',
-];
+const underConstructionPaths = ['faqs', 'blogs', 'privacy', 'contact', 'pricing', 'terms', 'employee/*', 'candidate/*', 'dashboard/*', 'profile/*', 'support'];
 
 // Create routes for under construction pages
 const underConstructionRoutes = underConstructionPaths.map(path => ({
-    path,
-    element: (
-        <Suspense fallback={<MainLoader />}>
-            <UnderConstruction />
-        </Suspense>
-    )
+	path,
+	element: (
+		<Suspense fallback={<MainLoader />}>
+			<UnderConstruction />
+		</Suspense>
+	),
 }));
 
 // Route Configuration
@@ -51,9 +36,7 @@ const AppRoutes = createBrowserRouter([
 	{
 		path: '/',
 		errorElement: <ErrorFallback />,
-		element: (
-				<MainLayout />
-		),
+		element: <MainLayout />,
 		children: [
 			{
 				index: true,
@@ -72,20 +55,39 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'job*',
-				element: (
-					<Suspense fallback={<MainLoader />}>
-						<Company />
-					</Suspense>
-				),
+				path: 'jobs*',
+				children: [
+					{
+						index: true,
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<Company />
+							</Suspense>
+						),
+					},
+				],
 			},
 			{
-				path: 'referral*',
-				element: (
-					<Suspense fallback={<MainLoader />}>
-						<Company />
-					</Suspense>
-				),
+				path: 'referrals/',
+				children: [
+					{
+						index: true,
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<Company />
+							</Suspense>
+						),
+					},
+
+					{
+						path: ':compId/:id',
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<RequestReferral />
+							</Suspense>
+						),
+					}
+				],
 			},
 			{
 				path: 'for-employee',
@@ -102,11 +104,12 @@ const AppRoutes = createBrowserRouter([
 						<FAQ />
 					</Suspense>
 				),
-			},{
+			},
+			{
 				path: 'about',
 				element: (
 					<Suspense fallback={<MainLoader />}>
-						<About  />
+						<About />
 					</Suspense>
 				),
 			},
@@ -117,7 +120,7 @@ const AppRoutes = createBrowserRouter([
 						index: true,
 						element: (
 							<Suspense fallback={<MainLoader />}>
-								<Company />
+								<Corporate />
 							</Suspense>
 						),
 					},
@@ -128,8 +131,8 @@ const AppRoutes = createBrowserRouter([
 								<CorporateConnect />
 							</Suspense>
 						),
-					}
-				]
+					},
+				],
 			},
 
 			{
@@ -137,14 +140,6 @@ const AppRoutes = createBrowserRouter([
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Guidance />
-					</Suspense>
-				),
-			},
-			{
-				path: 'for-corporate',
-				element: (
-					<Suspense fallback={<MainLoader />}>
-						<Corporate />
 					</Suspense>
 				),
 			},

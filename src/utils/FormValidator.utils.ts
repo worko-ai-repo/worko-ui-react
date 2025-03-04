@@ -280,6 +280,30 @@ export const validationRules = {
 	},
 
 	/**
+	 * JobDescription
+	 * 
+	 * @description - Validation rules for form fields. That will throw error if it doesnt have experience skills jotTtitle no of Opening and many more fields
+	 * 
+	 */
+	jobDescription: {
+		required: 'Job Description is required',
+		minLength: { value: 50, message: 'Minimum 50 characters required' },
+		validate: (value: string) => {
+		  const keywords = [
+			'experience', 'education', 'skills', 'certifications', 
+			'Preferred Skills', 'job description', 'responsibilities', 
+			'role', 'Employment', 'Department'
+		  ];
+	  
+		  if (keywords.some((keyword) => !value.toLowerCase().includes(keyword.toLowerCase()))) {
+			return 'Please provide a detailed job description , that includes [Experience, Education, Skills, Certifications, Responsibilities, Role, Employment Type, Department].';
+		  }
+	  
+		  return true; // Validation passed
+		}
+	  },
+
+	/**
 	 * default
 	 * 
 	 * @description - Default validation rules for form fields.
@@ -289,4 +313,28 @@ export const validationRules = {
 	default: {
 		required: 'This field is required',
 	},
+
+	/**
+	 * defaultNumber
+	 * 
+	 * @description - Default validation rules for form fields. This is used for number fields.
+	 */
+	defaultNumber: {
+		required: 'This field is required',
+		pattern: {
+			value: /^[0-9]*$/,
+			message: 'Only numbers are allowed',
+		},
+	},
+
+	/**
+	 * defaultTextarea
+	 * 
+	 * @description - Default validation rules for form fields. This is used for textarea fields.
+	 */
+	defaultTextarea: {
+		required: 'This field is required',
+		minLength: { value: 50, message: 'Minimum 50 characters required' },
+	},
+
 };

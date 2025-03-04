@@ -3,7 +3,7 @@ import {email, whatsapp, call} from '@Assets'
 
 function App() {
   return (
-    <div className="min-h-screen rounded-3xl bg-[#316BFF] py-16 px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen rounded-3xl bg-[#316BFF] py-16 px-4 sm:px-6 lg:px-8" >
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-[70px]">
         {/* Header */}
         <div className="flex flex-col items-center gap-8">
@@ -60,7 +60,7 @@ function App() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

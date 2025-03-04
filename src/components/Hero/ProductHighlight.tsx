@@ -58,7 +58,7 @@ const ProductHighlight = () => {
 
 									{/* Clicked content (description) */}
 									{openDropdown.one === index && (
-										<div className="absolute top-full left-0 w-[290px] sm:w-[250px] md:w-[300px] text-wrap bg-white p-2 rounded-md shadow-lg z-10">
+										<div className="absolute top-full left-0 w-[290px] sm:w-[250px] md:w-[350px] text-wrap bg-white p-2 rounded-md shadow-lg z-10">
 											<p className="text-xs font-semibold">{item.description}</p>
 										</div>
 									)}
@@ -109,7 +109,7 @@ const ProductHighlight = () => {
 
 									{/* Clicked content (description) */}
 									{openDropdown.two === index && (
-										<div className="absolute top-full left-0 w-[290px] sm:w-[250px] md:w-[300px] text-wrap bg-white p-2 rounded-md shadow-lg z-10">
+										<div className="absolute top-full left-0 w-[290px] sm:w-[250px] md:w-[350px] text-wrap bg-white p-2 rounded-md shadow-lg z-10">
 											<p className="text-xs font-semibold">{item.description}</p>
 										</div>
 									)}

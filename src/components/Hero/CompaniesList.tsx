@@ -51,18 +51,18 @@ const CompaniesList = () => {
   };
 
   const CompanyCard = ({ company }: { company: typeof companies[0] }) => (
-    <div className="w-[250px] mx-4 relative group h-full border-1 border-white cursor-pointer ">
+    <div className="w-[250px] mx-4 relative group h-full border-1 border-white cursor-pointer" onClick={() => window.location.href = `/jobs`}>
       <div className="w-[200px] h-[100px] overflow-hidden flex items-center justify-center">
         <img src={company.logoUrl} alt={company.name} loading='lazy' className=" h-[85%] w-[85%] object-contain  " />
         
-		<div className="absolute opacity-0 inset-0 gap-2 flex flex-col items-center justify-center bg-black/75 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
+		{/* <div className="absolute opacity-0 inset-0 gap-2 flex flex-col items-center justify-center bg-black/75 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
           <button onClick={() => handleButtonClick(company.id, "referral")} className="btn_primary">
             Get Referral
           </button>
           <button onClick={() => handleButtonClick(company.id, "job")} className="btn_primary hover:bg-green-700 transition-colors">
             Apply Job
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
