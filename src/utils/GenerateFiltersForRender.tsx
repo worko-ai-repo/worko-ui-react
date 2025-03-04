@@ -65,17 +65,24 @@ export const generateFilterForRender = (
 
 		const dynamicFilters: FilterOptionForRender[] = filterParams.map((paramKey: string) => {
 			const meta = filterMetaData.find(m => m.paramKey === paramKey);
-
+		
 			if (meta?.options?.length) {
 				return meta as FilterOptionForRender;
 			}
-
+		
 			let newOptions: string[] = [];
-
+		
 			if (companyPageMode === CompanyPageModeEnum.JOB) {
 				// Handle JOB mode filtering logic
 				if (paramKey === 'coreSkills' || paramKey === 'softSkills' || paramKey === 'technicalSkills') {
-					const skillData = data.map((job: JobDto) => job[paramKey]);
+					// Check if jobs have externalJobId
+					const skillData = data.map((job: JobDto) => {
+						// If job has externalJobId, return empty array for skills
+						if ('externalJobId' in job) {
+							return [];
+						}
+						return job[paramKey];
+					});
 					newOptions = normalizeSkills(skillData);
 				} else {
 					newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
@@ -86,13 +93,13 @@ export const generateFilterForRender = (
 					newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company[paramKey]).filter(Boolean)));
 				}
 			}
-
+		
 			// Add new options to the cache
 			newOptions.forEach(option => filterOptionsCache[paramKey].add(option));
 			
 			// Get all accumulated options from cache
 			const allOptions = Array.from(filterOptionsCache[paramKey]);
-
+		
 			return {
 				options: allOptions,
 				value: allOptions,

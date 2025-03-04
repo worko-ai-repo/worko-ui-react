@@ -87,18 +87,23 @@ export class HttpService {
 	 * @example
 	 *         > HttpServiceObj.get('/path', true, { xTenantId: 'tenantId' });
 	 */
-	 async get<ResponseDataDto>(path: string, authorization: boolean = true, params = {}): Promise<HttpMethodResponseDto<ResponseDataDto>> {
+	 async get<ResponseDataDto>(path: string, authorization: boolean = true, params = {}, fullUri: boolean = false): Promise<HttpMethodResponseDto<ResponseDataDto>> {
 		try {
 			// Build query string and append it to the path
 			const queryString = new URLSearchParams(params as Record<string, string>).toString();
 			const fullPath = queryString ? `${path}?${queryString}` : path;
-
+			let response
 			const options = {
 				method: 'GET',
 				...getHttpOptions(authorization, params),
 			};
-			// Make the GET request to the API
-			const response = await fetch(`${this.API_URI}${fullPath}`, options);
+			if (fullUri) {
+				// Make the GET request to the API
+			 response = await fetch(fullPath, options);
+			} else {
+				response = await fetch(`${this.API_URI}${fullPath}`, options);
+			}
+			
 
 			// Check if the response is not OK
 			if (!response.ok) {
@@ -139,6 +144,7 @@ export class HttpService {
 				method: 'PUT',
 				...getHttpOptions(authorization, params),
 				body: JSON.stringify(data),
+				//mode: 'no-cors' as RequestMode //test
 			};
 
 			// Determine the final URL

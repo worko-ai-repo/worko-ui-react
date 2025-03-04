@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Menu, X, ChevronDown, LogOut, User } from 'lucide-react';
 import { coin, logo_text } from '@Assets';
 import styles from './header.module.scss';
@@ -31,22 +31,40 @@ const navItems: NavItem[] = [
 const Header = () => {
 	
 	const navigateTo = useNavigate();
-	// debugger;
-	// Context menu to manage the auth session
 	const { isLoggedIn, userDetails, setUpdateCheck } = useAppContext() as { isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto>; setUpdateCheck: React.Dispatch<React.SetStateAction<boolean>> };
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+	const headerRef = useRef<HTMLElement>(null);
 
 	const toggleDropdown = (label: string) => {
 		setActiveDropdown(activeDropdown === label ? null : label);
 	};
+
 	useEffect(() => {
-		//  debugger;
 		console.info('isLoginChanged');
 	}, [isLoggedIn]);
-	//  CognitoServiceObj.handleSignOut();
+
+	// Effect to handle click outside of header to close mobile menu
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (isOpen && headerRef.current && !headerRef.current.contains(event.target as Node)) {
+				setIsOpen(false);
+			}
+		};
+
+		// Add event listener when the mobile menu is open
+		if (isOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
+
+		// Clean up the event listener when component unmounts or menu closes
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen]);
+
 	return (
-		<header className={styles.header}>
+		<header className={styles.header} ref={headerRef}>
 			<div className={styles.container}>
 				{/* Logo */}
 				<div className={`cursor-pointer ${styles.logo}`} onClick={() =>{ navigateTo('/'); setUpdateCheck(true);}}>

@@ -57,7 +57,10 @@ export interface CompanyDto {
    * @description This interface is used to define the structure of the JobDto object
    */
   export interface JobDto extends CompanyDto {
+	companyName: any;
+	companyLogoUrl: any;
     id: string;
+    externalJobId? : string;
     jobTitle: string;
     jobDescription: string;
     workMode: string;
@@ -122,7 +125,28 @@ export interface CompanyDto {
    */
     export interface BaseApiFiltersDto {
         pageSize?: number | 50; // Default page size is 50
-        sortOrder?: 'ascending' | 'descending'
+        sortOrder?: 'ascending' | 'descending' | 'asc' | 'desc'
         lastKey?: string;
         searchText?: string;
+    }
+
+
+    export interface JobMatchingScoreDto {
+      // Ids
+      id: string;
+      // references
+      userId: string;
+      jobId: string;
+      
+      status?: "APPLIED";
+      matchingScore?: number;
+      matchingScoreForRecruiter?: number;
+      scoreFetchedDate?: string;
+      jdMatchErrorCode?: number;
+      jdMatchErrorDesc?: string;
+      
+      // Additional fields that might be used in the future
+      rejectionFeedbackBySystem?: string;
+      scoreDetails?: string;
+      cvExtract?: string;
     }

@@ -4,7 +4,7 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { CompanyContextType, CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect } from 'react';
-import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from '@Interfaces/JobsAndCompany.dto';
+import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { filterMetaData } from '@Components/Company/FilterData';
 import ErrorWarning from '@Components/Shared/ContextErrorHandler';
 import { generateFilterForRender, invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
@@ -43,6 +43,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
 
+	// New state for job matching scores
+	const [jobMatchingScores, setJobMatchingScores] = useState<Record<string, JobMatchingScoreDto>>({});
+
 	// useLayoutEffect to check if we are on job page or referral page
 	useLayoutEffect(() => {
 		const mode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
@@ -50,10 +53,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		//Reset data on mode change
 		setCompanyJobData([]);
 		setCompanyRefData([]);
+		setJobMatchingScores({}); // Reset matching scores
 		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
 		// Reset the filter options cache when mode changes
 		invalidateFilterCache();
-		queryClient.invalidateQueries({ queryKey: ['GET', mode] });
+		// queryClient.invalidateQueries({ queryKey: ['GET', mode] });
 	}, [location.pathname]);
 
 	// useEffect to reset the queryClient when the component unmounts
@@ -86,6 +90,47 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	};
 
 	/**
+	 * fetchJobMatchingScores
+	 * 
+	 * @description - Fetches matching scores for a list of job IDs
+	 */
+	const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
+		if (!jobIds.length) return;
+		
+		try {
+			const { response, error } = await httpServiceObj.put<JobMatchingScoreDto[]>(
+				'https://jcsi3qfp9g.execute-api.ap-south-1.amazonaws.com/dev/user-matching-score-job/',
+				{ jobIds },
+				true,
+				{}, //not sure about this param
+				true,
+				
+			);
+			
+			if (error) {
+				console.error('Error fetching job matching scores:', error);
+				return;
+			}
+			
+			if (response) {
+				// Convert the array to a map with jobId as the key for easy lookup
+				const scoreMap: Record<string, JobMatchingScoreDto> = {};
+				console.log(response);
+				response.forEach(score => {
+					scoreMap[score.jobId] = score;
+				});
+				
+				setJobMatchingScores(prev => ({
+					...prev,
+					...scoreMap
+				}));
+			}
+		} catch (err) {
+			console.error('Exception in fetchJobMatchingScores:', err);
+		}
+	}, []);
+
+	/**
 	 * Handle Query Function
 	 *
 	 * @description - This function is used to handle the query function for fetching data from the API
@@ -98,7 +143,30 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 				...((companyId && location.pathname.includes('job')) ? { companyId } : {}), // Only add companyId if it's defined
 			};
 			const company_path = companyId ? "company/"+companyId : 'company'; 
-			const { response, error } = await httpServiceObj.get<any>(`/${location.pathname.includes('job') ? 'job' : `${company_path}`}`, true, updatedFilters);
+			
+
+			let response, error;
+
+        if (location.pathname.includes('job')) {
+			if(updatedFilters.sortOrder) {
+				updatedFilters.sortOrder=='ascending' ? updatedFilters.sortOrder='asc' : updatedFilters.sortOrder='desc'
+			}
+            ({ response, error } = await httpServiceObj.get<any>(
+                'https://jcsi3qfp9g.execute-api.ap-south-1.amazonaws.com/dev/job',
+                true,
+                updatedFilters,
+                true // Use fullUri for 'job'
+            ))
+			//console.log(response);
+        } else {
+            ({ response, error } = await httpServiceObj.get<any>(
+                `/${company_path}`,
+                true,
+                updatedFilters,
+                false // Do not use fullUri
+            ));
+        }
+
 
 			if (error) throw error;
 			// Normalize response when `companyId` is provided
@@ -108,7 +176,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 				pagination: { count: 1, pageSize: 10, lastKey: null }, // Adjust pagination to match the expected format
 				}
 			: response; // Use API response directly if no companyId
-			
+			console.log(normalizedResponse.data)
 			// Determine if it's a new filter OR a paginated request
 			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
 			
@@ -120,6 +188,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 			if (location.pathname.includes('job')) {
 				setCompanyJobData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
+				// Fetch matching scores for job IDs if we have jobs
+				if (normalizedResponse.data.length > 0) {
+					const jobIds = normalizedResponse.data.map((job: { id: any; }) => job.id);
+					fetchJobMatchingScores(jobIds);
+				}
 			} else {
 				setCompanyRefData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
 			}
@@ -129,7 +202,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 				nextPage: normalizedResponse.pagination.lastKey ?? undefined, // Pass lastKey for pagination
 			};
 		},
-		[companyPageMode,companyId]
+		[companyPageMode,companyId, fetchJobMatchingScores]
 	);
 
 	/**
@@ -150,6 +223,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		getNextPageParam: lastPage => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
 		initialPageParam: null, // Set initial page param to null
 		enabled: !!companyPageMode && jobFilters.pageSize! > 0, //@Can Cause Error bc I made pageSize optional
+		retry: 0,
+
 	});
 
 	/**
@@ -176,8 +251,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 			hasNextPage,
 			isFetchingNextPage,
 			fetchNextPage,
+			jobMatchingScores
 		}),
-		[companyPageMode, jobFilterForRender, searchText, isLoading, handleSearch, fetchNextPage, isFetchingNextPage]
+		[companyPageMode, jobFilterForRender, searchText, isLoading, handleSearch, fetchNextPage, isFetchingNextPage, jobMatchingScores]
 	);
 
 	return (

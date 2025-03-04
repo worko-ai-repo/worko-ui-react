@@ -1,4 +1,4 @@
-import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from "./JobsAndCompany.dto";
+import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto } from "./JobsAndCompany.dto";
 
 /**
  * Company page mode
@@ -34,6 +34,8 @@ export type CompanyContextType = {
     hasNextPage: boolean;
 
     isFetchingNextPage: boolean;
+
+    jobMatchingScores: Record<string, JobMatchingScoreDto>;
 
 
     fetchNextPage: () => void;

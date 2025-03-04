@@ -16,7 +16,21 @@ const RequestCompany = lazy(() => import('./RequestCompany'));
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-	const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useCompanyContext();
+	const { 
+		companyJobData, 
+		setSearchText, 
+		handleSearch, 
+		searchText, 
+		resetSearch, 
+		companyPageMode, 
+		isLoading, 
+		companyRefData, 
+		isError, 
+		hasNextPage, 
+		isFetchingNextPage, 
+		fetchNextPage,
+		jobMatchingScores // Get matching scores from context
+	} = useCompanyContext();
 
 	const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
 
@@ -84,27 +98,38 @@ const CompanyJobContent = () => {
 				{/* Jobs/Referral Section sm:shadow-[inset_0px_0px_16px_22px_rgba(0,_0,_0,_0.1)]*/}
 				{companyPageMode === CompanyPageModeEnum.JOB ? (
 					<div className="w-full px-2 pt-4 sm:px-4 bg-[#F2F4F5] sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:pb-6 flex-wrap gap-2 mx-auto min-h-[350px]">
-						{/* Show loader only if there’s no initial data */}
+						{/* Show loader only if there's no initial data */}
 						{isLoading ? (
 							<MainLoader />
 						) : companyJobData && companyJobData.length > 0 ? (
-							companyJobData.map((job, index) => (
-								<JobCard
-									key={job.id || index}
-									job={{
-										companyLogo: job.companyDetails?.logoUrl,
-										title: job.jobTitle,
-										department: job.department,
-										salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
-										location: job.location,
-										employmentType: job.typeofEmployment,
-										workMode: job.workMode,
-										skills: [...(job.technicalSkills || []), ...(job.coreSkills || [])].slice(0, 4),
-										createdAt: job.createdAt,
-										matchPercentage: 75,
-									}}
-								/>
-							))
+							companyJobData.map((job, index) => {
+								// Get match score data for this job
+								const matchScoreData = job.id ? jobMatchingScores[job.id] : undefined;
+								
+								return (
+									<JobCard
+										key={job.id || index}
+										job={{
+											companyLogo: job.companyLogoUrl,
+											title: job.jobTitle,
+											department: job.department,
+											salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
+											location: job.location,
+											employmentType: job.typeofEmployment,
+											workMode: job.workMode,
+											skills: [...(job.technicalSkills || []), ...(job.coreSkills || [])].slice(0, 4),
+											createdAt: job.createdAt,
+											// Use actual match percentage if available, otherwise use default
+											matchPercentage: matchScoreData?.matchingScore || 0,
+											// Add application status if available
+											status: matchScoreData?.status,
+											jobId: job.id, // Pass jobId for reference
+											isExternalJob: job.externalJobId,
+											companyName:job.companyName
+										}}
+									/>
+								);
+							})
 						) : (
 							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">{isError ? 'Something went wrong.' : "Sorry, we couldn't find anything here."}</p>
 						)}

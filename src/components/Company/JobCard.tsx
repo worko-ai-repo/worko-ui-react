@@ -13,7 +13,9 @@ const JobCard = ({ job }: any) => {
       location, 
       employmentType, 
       createdAt,
-      matchPercentage 
+      matchPercentage ,
+      externalJobId,
+      companyName
     } = job;
 
     const [showModal, setShowModal] = useState(false);
@@ -63,11 +65,17 @@ const JobCard = ({ job }: any) => {
             <div className="flex w-full gap-4">
               {/* Image column */}
               <div className="relative flex-shrink-0">
-                <img 
-                  src={companyLogo || logo_text} 
-                  alt={title} 
-                  className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
-                />
+              {companyLogo ? (
+                    <img 
+                      src={companyLogo} 
+                      alt={title} 
+                      className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
+                    />
+                  ) : (
+                    <div className="w-[60px] object-contain border h-[60px] text-blue-500 font-semibold sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
+                      {companyName}
+                    </div>
+                  )}
               </div>
               
               {/* Content column */}
@@ -145,21 +153,23 @@ const JobCard = ({ job }: any) => {
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span >{employmentType.replace(/_/g, " ")}</span>
+              <span>{employmentType ? (employmentType.includes('_') ? employmentType.replace(/_/g, ' ') : employmentType) : ''}</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-         {/*  <div className="flex gap-2 sm:justify-end">
+          <div className="flex gap-2 sm:justify-end">
+            {externalJobId && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
             </button>
+            }
             <button className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
-          </div> */}
+          </div> 
         </div>
       </div>
 
