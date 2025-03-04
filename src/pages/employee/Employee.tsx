@@ -1,5 +1,4 @@
 import { employee_hero, employee_hero_mobile } from "@Assets";
-import { useMediaQuery } from "./use-media-query";
 import EmployeePageStepper2 from "./stepper-2";
 import Testimonials from "@Components/Hero/Testimonials";
 import { EmployeeTestimonials } from "@Components/Hero/data";
@@ -7,9 +6,10 @@ import { worko_new } from "@Assets";
 import EmployeePageStepper1 from "./stepper-1";
 import { useNavigate } from "react-router-dom";
 
+
+ 
 const Employee = () => {
-    const isMobile = useMediaQuery('(max-width: 640px)');
-    const navTo = useNavigate()
+    const navTo = useNavigate();
     
     return (
         <div className="w-full bg-white font-poppins">
@@ -31,9 +31,11 @@ const Employee = () => {
                 
                 <div className="w-full flex justify-center">
                     <img 
-                        className={`${isMobile ? 'w-full' : 'w-1/3'} absolute max-w-lg bottom-0 w-full object-cover`}
-                        src={isMobile ? employee_hero_mobile : employee_hero}
-                        alt="3D characters collaborating at a desk with laptop" 
+                        className="absolute max-w-lg bottom-0 w-full sm:w-1/3 object-cover"
+                        src={employee_hero}
+                        alt="3D characters collaborating at a desk with laptop"
+                        srcSet={`${employee_hero_mobile} 640w, ${employee_hero} 641w`}
+                        sizes="(max-width: 640px) 100vw, 33vw"
                     />
                 </div>
             </div>
