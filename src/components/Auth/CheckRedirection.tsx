@@ -158,7 +158,7 @@ export default function CheckRedirection() {
 				profileImageAwsS3SignedUrl: userDetail.profileImageAwsS3SignedUrl,
 				referralCount: userDetail.referralCount,
 			};
-			secureStorage.setItem(SecureStorageKeyEnum.IS_LINKEDIN_USER, 'true');
+			secureStorage.setItem(SecureStorageKeyEnum.REDACTED_SECRET, 'true');
 			secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSED_DASH, userDetail.lastAccessedDash);
 			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.name);
 			secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, email);

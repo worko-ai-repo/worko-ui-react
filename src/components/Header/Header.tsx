@@ -121,7 +121,7 @@ const Header = () => {
 														{userDetails?.referralCount || 0}
 													</span>
 													{/* Change Link */}
-													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/profile/edit/preferences">
+													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/angular/candidate/subscription">
 														+ Referrals
 													</a>
 												</div>
@@ -136,13 +136,13 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href="/profile/edit/personal" className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={userDetails.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile":"/angular/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</a>
 									</li>
 									<li>
-										<a href="/profile/edit/preferences" className="text-sm font-medium text-gray-800 hover:text-blue-600">
-											Referrals
+										<a href={`angular/${userDetails.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+											Dashboard
 										</a>
 									</li>
 									<hr className="mt-2" />
