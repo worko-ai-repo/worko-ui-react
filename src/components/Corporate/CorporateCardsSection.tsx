@@ -1,7 +1,7 @@
 import { document, lightening, shield, time } from '@Assets';
 import React from 'react';
 
-const Section1 = () => {
+const CorporateCardsSection = () => {
 	const features = [
 		{
 			title: 'Verified & Validated',
@@ -47,4 +47,4 @@ const Section1 = () => {
 	);
 };
 
-export default Section1;
+export default CorporateCardsSection;
