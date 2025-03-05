@@ -72,7 +72,7 @@ const JobCard = ({ job }: any) => {
                       className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
                     />
                   ) : (
-                    <div className="w-[60px] object-contain border h-[60px] text-blue-500 font-semibold sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
+                    <div className="w-[60px] object-contain border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
                       {companyName}
                     </div>
                   )}
@@ -80,7 +80,7 @@ const JobCard = ({ job }: any) => {
               
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
-                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize">{title}</h2>
+                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
                 
                 {/* Salary */}
