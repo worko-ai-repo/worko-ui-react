@@ -52,7 +52,6 @@ const JobCard = ({ job }: any) => {
         return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
       }
     }, [createdAt]);
-  
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
@@ -65,14 +64,14 @@ const JobCard = ({ job }: any) => {
             <div className="flex w-full gap-4">
               {/* Image column */}
               <div className="relative flex-shrink-0">
-              {companyLogo ? (
+                {companyLogo ? (
                     <img 
                       src={companyLogo} 
                       alt={title} 
                       className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
                     />
                   ) : (
-                    <div className="w-[60px] object-contain border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
+                    <div className="w-[60px] object-contain text-xs border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
                       {companyName}
                     </div>
                   )}
@@ -166,7 +165,7 @@ const JobCard = ({ job }: any) => {
               Refer A Friend
             </button>
             }
-            <button className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+            <button className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
           </div> 
