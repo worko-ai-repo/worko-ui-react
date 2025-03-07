@@ -3,9 +3,11 @@ import { useCompanyContext } from '../../context/Company.context';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
 import RequestCompany from './RequestCompany';
+import { useAppContext } from '@Context/App.context';
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void , companyPageMode:CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender } = useCompanyContext();
+	const {isLoggedIn, userDetails} = useAppContext();
 
 	// Reset all filters
 	const resetFilters = () => {
@@ -96,7 +98,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 					</div>
 				</div>
 			</div>
-			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany /> : null}
+			{ isLoggedIn && (companyPageMode === CompanyPageModeEnum.REFERRAL) ? <RequestCompany userType={userDetails.lastAccessedDash} /> : null}
 		</div>
 	);
 };

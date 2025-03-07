@@ -3,10 +3,11 @@ import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '@Layouts/Main-Layout/MainLayout';
 import PageNotFound from '@Pages/errors/404/PageNotFound';
 import MainLoader from '@Components/Loader/Loader';
-import TestPage from '@Pages/Test';
+import TestPage from '@Pages/JobDescriptionPage';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
 import Corporate from '@Pages/corporate/Corporate';
+import JobDescription from '@Pages/JobDescriptionPage';
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
@@ -55,13 +56,21 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'jobs*',
+				path: 'jobs/',
 				children: [
 					{
 						index: true,
 						element: (
 							<Suspense fallback={<MainLoader />}>
 								<Company />
+							</Suspense>
+						),
+					},
+					{
+						path: ':companyName/:jobid',
+						element: (
+							<Suspense fallback={<MainLoader />}>
+								<JobDescription />
 							</Suspense>
 						),
 					},

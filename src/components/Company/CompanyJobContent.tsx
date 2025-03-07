@@ -9,6 +9,7 @@ import { useInView } from 'react-intersection-observer';
 
 // Lazy load components
 import CompanyCard from './CompanyCard';
+import { isExternal } from 'util/types';
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
 const RequestCompany = lazy(() => import('./RequestCompany'));
@@ -106,6 +107,8 @@ const CompanyJobContent = () => {
 								// Get match score data for this job
 								const matchScoreData = job.id ? jobMatchingScores[job.id] : undefined;
 								
+								const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails.name
+								
 								return (
 									<JobCard
 										key={job.id || index}
@@ -115,9 +118,7 @@ const CompanyJobContent = () => {
 											department: job.department,
 											salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
 											location: job.location,
-											employmentType: job.typeofEmployment,
-											workMode: job.workMode,
-											skills: [...(job.technicalSkills || []), ...(job.coreSkills || [])].slice(0, 4),
+											employmentType: job.typeofEmployment,						
 											createdAt: job.createdAt,
 											// Use actual match percentage if available, otherwise use default
 											matchPercentage: matchScoreData?.matchingScore || 0,
@@ -125,7 +126,9 @@ const CompanyJobContent = () => {
 											status: matchScoreData?.status,
 											jobId: job.id, // Pass jobId for reference
 											isExternalJob: job.externalJobId,
-											companyName:job.companyName
+											companyName: finalCompanyName,
+											jobdescription:job.jobDescription,
+											aboutcompany:job.companyDetails
 										}}
 									/>
 								);

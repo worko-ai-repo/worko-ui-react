@@ -2,20 +2,21 @@ import { useState, useMemo } from 'react';
 import { Star, MapPin, Clock } from 'lucide-react';
 import GaugeComponent from './Gauge';
 import CustomModal from '@Components/Modals/FormModal';
-import { logo_text } from '@Assets';
+import { useNavigate } from 'react-router-dom';
 
-const JobCard = ({ job }: any) => {
-    const { 
-      title, 
+
+export const JobCard = ({ job }: any) => {
+     const { 
       companyLogo,
+      title, 
       department, 
       salary, 
       location, 
-      employmentType, 
+      employmentType,
       createdAt,
-      matchPercentage ,
-      externalJobId,
-      companyName
+      matchPercentage,
+      jobId,
+      companyName,
     } = job;
 
     const [showModal, setShowModal] = useState(false);
@@ -24,6 +25,8 @@ const JobCard = ({ job }: any) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    const nav = useNavigate()
       
     const handleSubmit = () => {
       alert(`Job shared with: ${formData.phone}, ${formData.email}`);
@@ -52,6 +55,13 @@ const JobCard = ({ job }: any) => {
         return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
       }
     }, [createdAt]);
+
+    const handleReferralNav = () => {
+      console.log(companyName);
+      // Replace any whitespace special characters with underscore in company name
+      const refinedCompanyName = companyName.replace(/\s/g, '_');
+      nav(`/jobs/${refinedCompanyName}/${jobId}`);
+    };
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
@@ -110,12 +120,12 @@ const JobCard = ({ job }: any) => {
               </div>
               
               {/* Gauge on mobile only */}
-              <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[65px]
+              <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[80px]
                 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-                overflow-hidden text-white p-2  flex-col items-center justify-center">
+                overflow-hidden text-white p-2 flex-col items-center justify-center">
                 
                 {/* Gauge Component */}
-                <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
+                <div className="sm:w-full  sm:h-full w-[70%] mx-auto rounded-full border-3 border-[#6DE5E5] 
                   bg-[#367BFB] flex items-center justify-center">
                   <GaugeComponent score={matchPercentage} />
                 </div>
@@ -158,14 +168,14 @@ const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {externalJobId && 
+            {/* {jobId && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
             </button>
-            }
-            <button className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+            } */}
+            <button onClick={()=>handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
           </div> 

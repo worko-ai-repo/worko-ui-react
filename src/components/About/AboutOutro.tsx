@@ -100,13 +100,13 @@ const AboutOutro = () => {
 						<div className=" grid gap-1 sm:gap-2 sm:grid-cols-2   ">
 							{/* Last Name */}
 							<div>
-								<input type="text" placeholder="Last Name" {...register('lastName', { required: 'Last name is required' })} className="p-3 border border-gray-300 rounded-md w-full" />
+								<input type="text" placeholder="Last Name" {...register('lastName', { required: 'Last name is required' })} className="p-3 border bg-white border-gray-300 rounded-md w-full" />
 								{errors.lastName && <p className="text-left text-red-500 text-sm">{errors.lastName.message}</p>}
 							</div>
 
 							{/* First Name */}
 							<div>
-								<input type="text" placeholder="First Name" {...register('firstName', { required: 'First name is required' })} className="p-3 border border-gray-300 rounded-md w-full" />
+								<input type="text" placeholder="First Name" {...register('firstName', { required: 'First name is required' })} className="p-3 border bg-white border-gray-300 rounded-md w-full" />
 								{errors.firstName && <p className="text-left text-red-500 text-sm">{errors.firstName.message}</p>}
 							</div>
 
@@ -116,7 +116,7 @@ const AboutOutro = () => {
 									type="email"
 									placeholder="Email"
 									{...register('email', validationRules.email)}
-									className="p-3 border border-gray-300 rounded-md w-full"
+									className="p-3 border border-gray-300 bg-white rounded-md w-full"
 								/>
 								{errors.email && <p className="text-left text-red-500 text-sm">{errors.email.message}</p>}
 							</div>
@@ -127,14 +127,14 @@ const AboutOutro = () => {
 									type="text"
 									placeholder="Phone Number"
 									{...register('phone', validationRules.phone)}
-									className="p-3 border border-gray-300 rounded-md w-full"
+									className="p-3 border border-gray-300 bg-white rounded-md w-full"
 								/>
 								{errors.phone && <p className="text-left text-red-500 text-sm">{errors.phone.message}</p>}
 							</div>
 
 							{/* Upload CV */}
 							<div>
-								<input type="file" {...register('cv', { validate: validateCV })} accept=".pdf" className="p-3 border border-gray-300 rounded-md bg-gray-100 w-full" />
+								<input type="file" {...register('cv', { validate: validateCV })} accept=".pdf" className="p-3 border bg-white border-gray-300 rounded-md w-full" />
 								{errors.cv && <p className="text-left text-red-500 text-sm">{errors.cv.message}</p>}
 							</div>
 

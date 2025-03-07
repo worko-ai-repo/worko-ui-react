@@ -103,6 +103,7 @@ export interface CompanyDto {
     softSkills?: string[];
     technicalSkills?: string[];
     companyId?: string;
+    jobTitle?: string;
   }
 
   /**
@@ -150,3 +151,44 @@ export interface CompanyDto {
       scoreDetails?: string;
       cvExtract?: string;
     }
+    export interface UserBasicDetailsDto {
+      CTC: number;
+      ECTC: number;
+      candidateExperience?: {
+        department: string;
+        companyName: string;
+        designation: string;
+      };
+      location: string;
+      userType: string[];
+      noticePeriod: number;
+      isCandidateFresher: boolean;
+      PK: string;
+      country: string;
+      YOE: number;
+      coreSkills: Array<{
+        skillName: string;
+        years: number;
+        timestamps: {
+          createdAt: string;
+          updatedAt: string;
+        }
+      }>;
+      softSkills: Array<{
+        skillName: string;
+        timestamps: {
+          createdAt: string;
+        }
+      }>;
+      certifications: Array<{
+        completionDate: string;
+        certName: string;
+        timestamps: {
+          createdAt: string;
+        }
+        issuedInstitution: string;
+      }>;
+    }
+
+
+    

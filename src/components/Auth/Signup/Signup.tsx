@@ -253,6 +253,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		// debugger;
 		if (activeFrame === 'CAND') {
 			// Add the data to the backend
+			//debugger
 			let candidateData: DevCandidateDto = {
 				name: formData.name,
 				email: formData.emailId,
@@ -303,7 +304,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		},
 		onError: error => {
 			console.error('Submission failed:', error);
-			toast.error('Error registering user');
+			//toast.error('Error registering user');
 		},
 	});
 
@@ -320,18 +321,16 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			// debugger;
 			const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
 
-			if (error) {
-				toast.error(error.message);
-				return false;
-			} else {
-				CognitoResponse = response;
+			 if (response?.userId) {
+            CognitoResponse = response;
+            mutate(CognitoResponse.userId);
+            toast.info('OTP sent to your email. Please verify it.');
+            return true;
+        }
 
-				// Use mutate instead of calling `useMutation` directly
-				mutate(CognitoResponse.userId);
-
-				toast.info('OTP sent to your email. Please verify it.');
-				return true;
-			}
+        // If no userId but we've reached this point
+        toast.info('OTP will be sent to your email. Please verify.');
+        return true;
 		} catch (error: any) {
 			toast.error(error.message);
 			return false;

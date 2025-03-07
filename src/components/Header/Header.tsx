@@ -9,14 +9,14 @@ import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
 interface NavItem {
 	label: string;
-	href: string;
+	href?: string;
 	subItems?: { label: string; href: string }[];
 }
 
 const navItems: NavItem[] = [
 	{
 		label: 'For Candidate',
-		href: '',
+		// href: '',
 		subItems: [
 			{ label: 'Job Portal', href: '/jobs' },
 			{ label: 'Request Referral', href: '/referrals' },
@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
 	},
 	{ label: 'For Employee', href: '/for-employee' },
 	{ label: 'For Corporate', href: '/for-corporate' },
-	{ label: 'Blog', href: '/blogs' },
+	//{ label: 'Blog', href: '/blogs' },
 	{ label: 'About Us', href: '/about' },
 ];
 
@@ -136,12 +136,12 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href={userDetails.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile":"/angular/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile":"/angular/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</a>
 									</li>
 									<li>
-										<a href={`angular/${userDetails.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={`angular/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</a>
 									</li>
@@ -192,7 +192,7 @@ const Header = () => {
 					{isLoggedIn && (
 						<div className="flex flex-col items-start justify-start gap-4 p-2">
 							<div className="flex justify-between items-center w-full">
-								<span className="flex-1 flex items-center">
+								<span className="flex-1 flex items-center" onClick={()=>{window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile" : "/angular/employee/Edit-profile"}}>
 									{userDetails?.profileImageAwsS3SignedUrl ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : <User className="w-8 h-8 object-cover rounded-lg border border-gray-400" />}
 									<h4 className="text-lg font-semibold capitalize px-2 ">{userDetails?.name || 'user'}</h4>
 								</span>
@@ -208,15 +208,15 @@ const Header = () => {
 								<img src={coin} className="inline mr-1 object-contain" />
 								{userDetails?.referralCount || 0} Referrals Left
 							</span>
-							<div className="dashboard" onClick={() => navigateTo('/profile')}>
+							<a className="dashboard" href={`angular/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
 								Dashboard
-							</div>
+							</a>
 						</div>
 					)}
 					<nav className="flex flex-col p-2 bg-white ">
 						{navItems.map(item => (
 							<div key={item.label} className={styles.mobileNavItem}>
-								<button onClick={() => toggleDropdown(item.label)} className={styles.mobileNavLink}>
+								<button onClick={() => {toggleDropdown(item.label); if (item.href) window.location.href = item.href}} className={styles.mobileNavLink}>
 									{item.label}
 									{item.subItems && <ChevronDown className={`${styles.chevron} ${activeDropdown === item.label ? styles.rotate : ''}`} />}
 								</button>
