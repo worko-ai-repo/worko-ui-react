@@ -121,7 +121,7 @@ const Header = () => {
 														{userDetails?.referralCount || 0}
 													</span>
 													{/* Change Link */}
-													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/angular/candidate/subscription">
+													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/v1/candidate/subscription">
 														+ Referrals
 													</a>
 												</div>
@@ -136,12 +136,12 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile":"/angular/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={userDetails.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</a>
 									</li>
 									<li>
-										<a href={`angular/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={`v1/${userDetails.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</a>
 									</li>

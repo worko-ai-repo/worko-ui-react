@@ -48,7 +48,7 @@ const LoginForm = () => {
 	const signUpWithLinkedIn = useLinkedInSignup();
 
 	// Update Check from App Context to broadcast the changes
-	const {PendingApply, setUpdateCheck } = useAppContext();
+	const { PendingApply, setUpdateCheck } = useAppContext();
 
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -98,7 +98,7 @@ const LoginForm = () => {
 			password: data.password,
 		};
 
-		
+
 		try {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 			// If error occurs, show the error message and reset the form
@@ -169,6 +169,8 @@ const LoginForm = () => {
 						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
+						console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
+
 						// Refresh session
 						await handleRememberDevice();
 						await currentSession();
@@ -177,10 +179,10 @@ const LoginForm = () => {
 						setTimeout(() => {
 							// Construct the referral object
 							const pendingReferral =
-							PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
 
-							if (pendingReferral ) {
-								window.location.href =pendingReferral.url; // Redirect to the referral page
+							if (pendingReferral) {
+								window.location.href = pendingReferral.url; // Redirect to the referral page
 							} else {
 								navigate('/'); // Redirect to home page
 							}
