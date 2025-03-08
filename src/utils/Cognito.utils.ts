@@ -48,7 +48,7 @@ interface IStorageService {
 class CognitoService {
 	private authenticationSubject: BehaviorSubject<boolean>;
 	private linkedinAccessToken: string = '';
-	private UserRegistered: string = '';
+	private UserRegistered: boolean = false;
 	private linkedinSignInDetails: any;
 
 	/**
@@ -74,7 +74,7 @@ class CognitoService {
 			switch (payload.event) {
 				case 'signInWithRedirect':
 					const user = await getCurrentUser();
-					secureStorage.setItem(SecureStorageKeyEnum.SIGNINDETAILS, JSON.stringify(user));
+					secureStorage.setItem(SecureStorageKeyEnum.SIGNINDETAILS, user);
 					break;
 				case 'signInWithRedirect_failure':
 					// Handle sign in failure
@@ -134,10 +134,10 @@ class CognitoService {
 	 * @returns Promise<boolean>
 	 */
 	public async isLoggedIn(): Promise<boolean> {
-		this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || 'false';
+		this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || false;
 		this.linkedinSignInDetails =secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || '{}';
-
-		if (this.UserRegistered === 'true') {
+		debugger;
+		if (this.UserRegistered === true) {
 			return this.handleLinkedInLogin();
 		}
 		return this.handleRegularLogin();
@@ -149,8 +149,8 @@ class CognitoService {
 	 * @returns Promise<boolean>
 	 */
 	private async handleLinkedInLogin(): Promise<boolean> {
-		if (this.linkedinSignInDetails.username && this.linkedinSignInDetails.userId) {
-			const { tokens } = await fetchAuthSession();
+		const { tokens } = await fetchAuthSession();
+		if (tokens) {
 			if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
 				secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload['email']?.toString().toLowerCase() || '');
 				secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS , tokens?.idToken?.payload || '');
