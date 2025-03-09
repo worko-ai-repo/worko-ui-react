@@ -193,31 +193,17 @@ export default function CheckRedirection() {
 				// Step 9: Set update check before navigation
 				setUpdateCheck(true);
 
-				// Step 10: Determine Navigation Path Based on Profile Percentage
-				// let dashboardPath =
-				// 	userDetail.lastAccessedDash === 'CAND'   commenting this code for now
-				// 		? totalPercentage >= 60
-				// 			? '/candidate/dashboard'
-				// 			: '/candidate/edit-profile'
-				// 		: totalPercentage >= 60
-				// 		? '/employee/Dashboard'
-				// 		: '/employee/Edit-profile';
-
+				// construct the dashboard path based on the last accessed dashboard
 				let dashboardPath = totalPercentage >= 60
 					? '/'
 					: userDetail.lastAccessedDash === 'CAND'
 						? `${window.location.origin}/v1/candidate/edit-profile`
 						: `${window.location.origin}/v1/employee/Edit-profile`;
 
-				// Perform navigation
+	
+				// Step 10: If Total Percentage >= 60, Check Pending Application
 				if (totalPercentage >= 60) {
-					navigate(dashboardPath); // Assuming you are using React Router's `navigate`
-				} else {
-					window.location.href = dashboardPath; // Redirect to Angular app
-				}
-
-				// Step 11: If Total Percentage >= 60, Check Pending Application
-				if (totalPercentage >= 60) {
+					// Step 11: Check Pending Application
 					let pendingReferral =
 						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
 
@@ -231,11 +217,15 @@ export default function CheckRedirection() {
 						window.location.href = pendingReferral.url; // Redirect if referral found in storage
 						return false; // Stop further execution
 					}
+					else {
+						navigate(dashboardPath);
+						return false; // Stop further execution
+					}
 				}
-
-				// Step 12: Navigate to Dashboard or Edit Profile if No Pending Application
-				// navigate(dashboardPath);
-				navigate('/');
+				else {
+					window.location.href = dashboardPath; // Redirect to Angular app
+					return false; // Stop further execution
+				}
 			}
 
 			return false;
@@ -253,6 +243,8 @@ export default function CheckRedirection() {
 			navigate('/auth/linkedinSignup', { state: { formType: 'EMP' } });
 		}
 	};
+
+	
 	/**registerOptionScreen */
 	if (registerOptionScreen) {
 		return (

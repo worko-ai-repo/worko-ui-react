@@ -1,9 +1,5 @@
-import * as CryptoJS from 'crypto-js';
 import { SecureStorageServiceDto } from '@Interfaces/SecureStorage.dto';
 import { SecureStorageKeyEnum } from 'src/types/enums/SecureStorage.enum';
-
-// Secret key (same as Angular)
-const SECRET_KEY = 'REDACTED_SECRET';
 
 /**
  * Storage Service for React
@@ -19,88 +15,90 @@ export default class SecureStorage {
 	// Properties
 	private storage: Storage;
 
-	// Hashing function for keys
-	private hash(key: string): string {
-		const hashedKey = CryptoJS.HmacSHA256(key, SECRET_KEY).toString();
-		console.log(`[SecureStorage] Hashed Key: ${key} -> ${hashedKey}`);
-		return hashedKey;
-	}
-
-	// Encrypt function for values
-	private encrypt(data: string): string {
-		const encryptedData = CryptoJS.AES.encrypt(data, SECRET_KEY).toString();
-		console.log(`[SecureStorage] Encrypted Data: ${data} -> ${encryptedData}`);
-		return encryptedData;
-	}
-
-	// Decrypt function for values
-	private decrypt(data: string): string {
-		const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
-		const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-		console.log(`[SecureStorage] Decrypted Data: ${data} -> ${decryptedData}`);
-		return decryptedData;
-	}
+	// Methods
+	private hash: (key: string) => string; // Here Key Represents the Key of the LocalStorage
+	private encrypt: (data: string) => string; // Here Data Represents the hashed Key
+	private decrypt: (data: string) => string;
 
 	getItem<T>(key: SecureStorageKeyEnum): T | null {
 		// Hash the key
 		const hashedKey = this.hash(key);
-	
+
 		// Get the encrypted data from storage
 		const encryptedData = this.storage.getItem(hashedKey);
-	
-		if (!encryptedData) return null;
-	
-		try {
-			// Decrypt the data
-			const decryptedData = this.decrypt(encryptedData);
-			console.log(`[SecureStorage] Decrypted Data: ${decryptedData}`);
-	
-			// If decrypted data starts with '{' or '[', attempt to parse JSON
-			if (decryptedData.startsWith('{') || decryptedData.startsWith('[')) {
-				return JSON.parse(decryptedData) as T;
-			}
-	
-			// If it's a plain string, return as-is
-			return decryptedData as T;
-		} catch (error) {
-			console.error(`[SecureStorage] Error decrypting key: ${key}`, error);
-			return null;
-		}
-	}
-	
 
-	// Set item in storage
+		if (encryptedData) {
+			try {
+				// Decrypt the data
+				const decryptedData = this.decrypt(encryptedData);
+
+				// Attempt to parse JSON (if applicable)
+				try {
+					return JSON.parse(decryptedData) as T;
+				} catch {
+					return decryptedData as T; // Return as-is if not JSON
+				}
+			} catch (error) {
+				console.error('Error decrypting item:', error);
+				return null;
+			}
+		}
+		return null;
+	}
+
 	setItem<T>(key: SecureStorageKeyEnum, value: T): void {
+		// Hash the key
 		const hashedKey = this.hash(key);
+
+		// Only stringify if the value is NOT already a string
 		const processedValue = typeof value === 'string' ? value : JSON.stringify(value);
+
+		// Encrypt the value (convert object to string first)
 		const encryptedValue = this.encrypt(processedValue);
 
+		// Set the encrypted value in the storage
 		try {
 			this.storage.setItem(hashedKey, encryptedValue);
-			console.log(`[SecureStorage] Stored - Key: ${key} | Hashed: ${hashedKey} | Encrypted: ${encryptedValue}`);
 		} catch (error) {
-			console.error(`[SecureStorage] Error setting key: ${key}`, error);
+			console.error('Error setting item:', error);
 		}
 	}
 
-	// Remove item from storage
+	/**
+	 * Remove an item from the local storage given its key.
+	 *
+	 * @param {string} key
+	 * @returns {void}
+	 */
 	remove(key: SecureStorageKeyEnum): void {
+		// Hash the key
 		const hashedKey = this.hash(key);
-		try {
-			this.storage.removeItem(hashedKey);
-			console.log(`[SecureStorage] Item removed - Key: ${key} | Hashed: ${hashedKey}`);
-		} catch (error) {
-			console.error(`[SecureStorage] Error removing key: ${key}`, error);
+
+		// Get the encrypted data from the storage
+		const encryptedData = this.storage.getItem(hashedKey);
+
+		// If there is encrypted data, then remove it
+		if (encryptedData) {
+			try {
+				this.storage.removeItem(key);
+				console.log('Item removed successfully');
+			} catch (error) {
+				console.error('Error removing item:', error);
+			}
 		}
 	}
 
-	// Clear storage
+	/**
+	 * Clear local storage.
+	 *
+	 * @returns {void}
+	 */
 	clear(): void {
 		try {
 			this.storage.clear();
-			console.log('[SecureStorage] Storage cleared');
+			console.log('Storage cleared successfully');
 		} catch (error) {
-			console.error('[SecureStorage] Error clearing storage', error);
+			console.error('Error clearing storage:', error);
 		}
 	}
 }
