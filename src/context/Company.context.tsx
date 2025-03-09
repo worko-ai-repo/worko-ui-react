@@ -9,6 +9,7 @@ import { filterMetaData } from '@Components/Company/FilterData';
 import ErrorWarning from '@Components/Shared/ContextErrorHandler';
 import { generateFilterForRender, invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { useAppContext } from './App.context';
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -17,6 +18,7 @@ const queryClient = new QueryClient();
 // Create the provider component
 export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	// Init useLocations to get the current path
+	const {isLoggedIn} = useAppContext();
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	const companyId = searchParams.get("compid") || undefined; // Extract `compid` from query
@@ -40,17 +42,20 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
 
-	// New state for job matching scores
-	const [jobMatchingScores, setJobMatchingScores] = useState<Record<string, JobMatchingScoreDto>>({});
 
 	// useLayoutEffect to check if we are on job page or referral page
 	useLayoutEffect(() => {
 		const mode = location.pathname.includes('job') ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
+
+		if (location.pathname.includes('job') && isLoggedIn) {
+			fetchUserBasicDetails();
+		}
+		
 		setCompanyPageMode(mode);
 		//Reset data on mode change
 		setCompanyJobData([]);
 		setCompanyRefData([]);
-		setJobMatchingScores({}); // Reset matching scores
+		// setJobMatchingScores({}); // Reset matching scores
 		setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' }); // Reset filters on mode change
 		// Reset the filter options cache when mode changes
 		invalidateFilterCache();
@@ -67,7 +72,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	// Fetch User Basic Details Function
 	const fetchUserBasicDetails = useCallback(async () => {
 		if (companyPageMode !== CompanyPageModeEnum.JOB) return;
-
+	
 		setIsUserDetailsLoading(true);
 		try {
 			const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
@@ -76,35 +81,20 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 				{},
 				true
 			);
-
-			if (error) {
-				console.error('Error fetching user basic details:', error);
-				throw error;
-			}
-
-			// Set user's designation as search text
-			if (response?.candidateExperience?.designation) {
+	
+			if (error) throw error;
+	
+			if (response?.candidateExperience?.designation && response.candidateExperience.designation !== userDesignation) {
 				setUserDesignation(response.candidateExperience.designation);
-				
-				// Automatically set search text to user's designation
-				setJobFilters(prev => ({
-					...prev,
-					searchText: response.candidateExperience?.designation || ''
-				}));
+				setJobFilters(prev => ({ ...prev, searchText: response?.candidateExperience?.designation }));
 			}
 		} catch (err) {
 			console.error('Exception in fetchUserBasicDetails:', err);
 		} finally {
 			setIsUserDetailsLoading(false);
 		}
-	}, [companyPageMode]);
-
-	// Trigger user details fetch when component mounts or mode changes
-	useEffect(() => {
-		if (companyPageMode === CompanyPageModeEnum.JOB) {
-			fetchUserBasicDetails();
-		}
-	}, [companyPageMode, fetchUserBasicDetails]);
+	}, [companyPageMode, userDesignation]);
+	
 
 	/**
 	 * handleSearch
@@ -130,98 +120,99 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
  * fetchJobMatchingScores
  * 
  * @description - Fetches matching scores for a list of job IDs
- * If scores don't exist for some jobs, it triggers score generation via PUT request
+ * If scores don't exist for some jobs, it triggers score generation via PUT 
+ * 
+ * Check if job IDs exist – If not, return early.
+ * Send an API request to fetch job scores for the given job IDs.
+ * Handle errors in the request – If there's an issue, log and stop.
+ * Verify if all requested job scores are returned:
+ * If some are missing, identify those job IDs.
+ * Trigger a PUT request to generate missing job scores.
+ * Once generated, make another GET request to fetch the missing scores.
+ * Update the state with the retrieved job scores.
+ * Handle unexpected errors gracefully with try-catch.
+
  */
 const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
+    // Step 1: Check if there are any job IDs to process; if not, exit early.
     if (!jobIds.length) return;
-    
+
     try {
-        // Format query parameters in the URL
+        // Step 2: Format the job IDs as a comma-separated string for the API request.
         const jobIdsParam = jobIds.join(',');
-        const pageSize = jobIds.length;
-        
-        const { response, error } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
-            `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=30`,
+        const pageSize = jobIds.length; // Ensure we get all requested jobs in one response.
+
+        // Step 3: Make an API call to fetch job matching scores.
+        const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(
+            `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`,
             true,
             {},
             true
         );
-        
+
+        // Step 4: If there's an error in the API call, log it and stop further execution.
         if (error) {
             console.error('Error fetching job matching scores:', error);
             return;
         }
-        
-        // Check if response is empty or missing some job IDs
-        if (!response || !response.data || response.data.length < jobIds.length) {
-            // Determine which job IDs are missing
-            const receivedJobIds = response?.data ? response.data.map((score: { jobId: any; }) => score.jobId) : [];
-            const missingJobIds = jobIds.filter(id => !receivedJobIds.includes(id));
-            
-            if (missingJobIds.length > 0) {
-                console.log('Missing matching scores for job IDs:', missingJobIds);
-                
-                // Call PUT API to generate matching scores for missing job IDs
-                const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(
-                    'https://jobs.dev.worko.work/user-matching-score-job/',
-                    { jobIds: missingJobIds },
-                    true,
-                    {},
-                    true
-                );
-                
-                if (putError) {
-                    console.error('Error generating job matching scores:', putError);
-                    return;
-                }
-                
-                if (putResponse?.matchingScoreCalculationStatus) {
-                    console.log('Successfully generated matching scores');
-                    
-                    // Call GET API again to fetch the newly generated scores
-                    const { response: updatedResponse, error: updatedError } = await httpServiceObj.get<{data:[JobMatchingScoreDto]}>(
-                        `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`,
-                        true,
-                        {},
-                        true
-                    );
-                    
-                    if (updatedError) {
-                        console.error('Error fetching updated job matching scores:', updatedError);
-                        return;
-                    }
-                    
-                    if (updatedResponse && updatedResponse.data) {
-                        const scoreMap: Record<string, JobMatchingScoreDto> = {};
-                        updatedResponse.data.forEach((score) => {
-                            scoreMap[score.jobId] = score;
-                        });
-                        
-                        setJobMatchingScores(prev => ({
-                            ...prev,
-                            ...scoreMap
-                        }));
-                    }
-                } else {
-                    console.warn('Failed to generate matching scores');
-                }
+
+        // Step 5: Store retrieved scores in a map and track received job IDs.
+        const scoresMap: Record<string, JobMatchingScoreDto> = {};
+        const receivedJobIds = new Set<string>();
+
+        response?.data?.forEach(score => {
+            scoresMap[score.jobId] = score;
+            receivedJobIds.add(score.jobId);
+        });
+
+        // Step 6: Identify which job IDs are missing from the response.
+        const missingJobIds = jobIds.filter(id => !receivedJobIds.has(id));
+
+        // Step 8: Update `companyJobData` to include matching scores and applyStatus.
+		setCompanyJobData(prev =>
+			prev?.map(job => ({
+				...job,
+				matchingScore: scoresMap[job.id]?.matchingScore ?? undefined,
+				applyStatus: scoresMap[job.id] ? 'APPLIED' : 'NOT_APPLIED'
+			}))
+		);
+		
+
+        // Step 9: If there are missing job scores, log them and trigger score generation.
+        if (missingJobIds.length > 0) {
+            console.log('Missing matching scores for job IDs:', missingJobIds);
+
+            // Step 10: Make a PUT request to trigger job matching score generation for the missing jobs.
+            const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(
+                'https://jobs.dev.worko.work/user-matching-score-job/',
+                { jobIds: missingJobIds },
+                true,
+                {},
+                true
+            );
+
+            // Step 11: If there's an error generating the missing scores, log and exit.
+            if (putError) {
+                console.error('Error generating job matching scores:', putError);
+                return;
             }
-        } else {
-            // If we have all scores, process them normally
-            const scoreMap: Record<string, JobMatchingScoreDto> = {};
-            response.data.forEach((score) => {
-                scoreMap[score.jobId] = score;
-            });
-            
-            setJobMatchingScores(prev => ({
-                ...prev,
-                ...scoreMap
-            }));
+
+            // Step 12: If the generation was successful, retry fetching the missing scores after 5 seconds.
+            if (putResponse?.matchingScoreCalculationStatus) {
+                console.log('Successfully triggered matching score generation, retrying in 5 seconds...');
+
+                // Step 13: Use a timeout to retry fetching scores once after 5 seconds.
+                setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
+            } else {
+                console.warn('Failed to generate matching scores');
+            }
         }
     } catch (err) {
+        // Step 14: Handle any unexpected errors that occur during the execution.
         console.error('Exception in fetchJobMatchingScores:', err);
     }
-}, []);
+}, [setCompanyJobData]);
+
 
 	/**
 	 * Handle Query Function
@@ -230,77 +221,66 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 	 */
 	const CompanyQueryHandler = useCallback(
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
+			const isJobPage = location.pathname.includes('job');
+			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
+	
+			// Update filters dynamically
 			const updatedFilters = {
 				...filters,
 				lastKey: pageParam,
-				...((companyId && location.pathname.includes('job')) ? { companyId } : {}), // Only add companyId if it's defined
+				...(companyId && isJobPage ? { companyId } : {}),
+				...(isJobPage && filters.sortOrder
+					? { sortOrder: filters.sortOrder === 'ascending' ? 'asc' : 'desc' }
+					: {}),
 			};
-			
-			let response, error;
-
-			if (location.pathname.includes('job')) {
-				if(updatedFilters.sortOrder) {
-					updatedFilters.sortOrder = updatedFilters.sortOrder === 'ascending' ? 'asc' : 'desc';
-				}
-				
-				// Use job title from userDesignation for jobs API
-				const jobTitleParam = userDesignation ? `?jobTitle=${userDesignation}` : '';
-				
-				({ response, error } = await httpServiceObj.get<any>(
-					`https://jobs.dev.worko.work/job/${jobTitleParam}`,
+	
+			const apiUrl = isJobPage
+				? `https://jobs.dev.worko.work/job/${userDesignation ? `?jobTitle=${userDesignation}` : ''}`
+				: `/company`;
+			// console.log('API URL:', apiUrl);
+			try {
+				const { response, error } = await httpServiceObj.get<any>(
+					apiUrl,
 					true,
 					updatedFilters,
-					true // Use fullUri for 'job'
-				));
-			} else {
-				const company_path = companyId ? "company/"+companyId : 'company'; 
-				
-				({ response, error } = await httpServiceObj.get<any>(
-					`/${company_path}`,
-					true,
-					updatedFilters,
-					false // Do not use fullUri
-				));
-			}
-
-			if (error) throw error;
-			
-			// Normalize response when `companyId` is provided
-			const normalizedResponse = (location.pathname.includes('referral') && companyId)
-				? {
-					data: [response[0]], // Wrap single object in an array
-					pagination: { count: 1, pageSize: 10, lastKey: null }, // Adjust pagination to match the expected format
+					isJobPage // Use full URI for 'job', false otherwise
+				);
+	
+				if (error) throw error;
+	
+				// Generate filters for rendering
+				generateFilterForRender(
+					response.data,
+					companyPageMode,
+					filterMetaData,
+					setJobFilterForRender,
+					isFiltering
+				);
+	
+				setApiHasData(response.data.length > 0);
+	
+				if (isJobPage) {
+					setCompanyJobData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
+	
+					if (response.data.length > 0 && isLoggedIn) {
+						fetchJobMatchingScores(response.data.map((job: { id: any }) => job.id));
+					}
+				} else {
+					setCompanyRefData(prev => (isFiltering ? response.data : [...(prev || []), ...response.data]));
 				}
-				: response; // Use API response directly if no companyId
-			
-			// Determine if it's a new filter OR a paginated request
-			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
-			
-			// Generate filters for rendering, indicating if this is a filter request or pagination
-			generateFilterForRender(normalizedResponse.data, companyPageMode, filterMetaData, setJobFilterForRender, isFiltering);
-
-			// Check if API returned data
-			setApiHasData(normalizedResponse.data.length > 0);
-
-			if (location.pathname.includes('job')) {
-				setCompanyJobData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
-				// Fetch matching scores for job IDs if we have jobs
-				if (normalizedResponse.data.length > 0) {
-					const jobIds = normalizedResponse.data.map((job: { id: any; }) => job.id);
-					fetchJobMatchingScores(jobIds);
-				}
-			} else {
-				setCompanyRefData(prev => (isFiltering ? normalizedResponse.data : [...(prev || []), ...normalizedResponse.data]));
+	
+				return {
+					data: response,
+					nextPage: response.pagination?.lastKey, // Pass lastKey for pagination if available
+				};
+			} catch (error) {
+				console.error('Error fetching company/job data:', error);
+				throw error;
 			}
-
-			return {
-				data: normalizedResponse,
-				nextPage: normalizedResponse.pagination.lastKey ?? undefined, // Pass lastKey for pagination
-			};
 		},
 		[companyPageMode, companyId, fetchJobMatchingScores, userDesignation]
 	);
-
+	
 	/**
 	 * useInfiniteQuery
 	 *
@@ -342,7 +322,6 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 			hasNextPage,
 			isFetchingNextPage,
 			fetchNextPage,
-			jobMatchingScores,
 			fetchUserBasicDetails
 		}),
 		[
@@ -358,7 +337,6 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 			hasNextPage,
 			fetchNextPage, 
 			isFetchingNextPage, 
-			jobMatchingScores
 		]
 	);
 

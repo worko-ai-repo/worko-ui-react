@@ -35,8 +35,6 @@ export type CompanyContextType = {
 
     isFetchingNextPage: boolean;
 
-    jobMatchingScores: Record<string, JobMatchingScoreDto>;
-
 
     fetchNextPage: () => void;
     handleSearch: () => void;

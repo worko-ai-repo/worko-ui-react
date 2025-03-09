@@ -86,6 +86,9 @@ export interface CompanyDto {
     GSI1PK: string;
     GSI1SK: string;
     companyDetails: CompanyDto;
+
+    applyStatus ? : 'APPLIED' | 'NOT_APPLIED';
+    matchingScore?: number;
   }
   
   /**

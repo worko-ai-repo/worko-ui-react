@@ -30,7 +30,6 @@ const CompanyJobContent = () => {
 		hasNextPage, 
 		isFetchingNextPage, 
 		fetchNextPage,
-		jobMatchingScores // Get matching scores from context
 	} = useCompanyContext();
 
 	const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
@@ -104,8 +103,7 @@ const CompanyJobContent = () => {
 							<MainLoader />
 						) : companyJobData && companyJobData.length > 0 ? (
 							companyJobData.map((job, index) => {
-								// Get match score data for this job
-								const matchScoreData = job.id ? jobMatchingScores[job.id] : undefined;
+								
 								
 								const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails.name
 								
@@ -121,9 +119,9 @@ const CompanyJobContent = () => {
 											employmentType: job.typeofEmployment,						
 											createdAt: job.createdAt,
 											// Use actual match percentage if available, otherwise use default
-											matchPercentage: matchScoreData?.matchingScore || 0,
+											matchPercentage: job.matchingScore || 0,
 											// Add application status if available
-											status: matchScoreData?.status,
+											status: job.applyStatus || 'NOT_APPLIED',
 											jobId: job.id, // Pass jobId for reference
 											isExternalJob: job.externalJobId,
 											companyName: finalCompanyName,
