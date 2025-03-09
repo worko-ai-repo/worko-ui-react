@@ -202,7 +202,7 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
                 console.log('Successfully triggered matching score generation, retrying in 5 seconds...');
 
                 // Step 13: Use a timeout to retry fetching scores once after 5 seconds.
-                setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
+             //   setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
             } else {
                 console.warn('Failed to generate matching scores');
             }

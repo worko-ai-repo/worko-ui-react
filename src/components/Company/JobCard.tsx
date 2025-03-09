@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Star, MapPin, Clock } from 'lucide-react';
 import GaugeComponent from './Gauge';
 import CustomModal from '@Components/Modals/FormModal';
@@ -17,10 +17,12 @@ export const JobCard = ({ job }: any) => {
       matchPercentage,
       jobId,
       companyName,
+      isExternalJob
     } = job;
 
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
+    const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
       
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,6 +64,19 @@ export const JobCard = ({ job }: any) => {
       const refinedCompanyName = companyName.replace(/\s/g, '_');
       nav(`/jobs/${refinedCompanyName}/${jobId}`);
     };
+
+    useEffect(() => {
+        // Update the strength label based on the match score
+        if (matchPercentage < 40) {
+          setStrengthLabel("Poor Match");
+        } else if (matchPercentage < 60) {
+          setStrengthLabel("Moderate Match");
+        } else if (matchPercentage < 80) {
+          setStrengthLabel("Good Match");
+        } else {
+          setStrengthLabel("Strong Match");
+        }
+      }, [matchPercentage]);
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
@@ -117,6 +132,9 @@ export const JobCard = ({ job }: any) => {
                     Be an early applicant
                   </span>
                 )}
+                { isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                  External Job
+                </span>}
               </div>
               
               {/* Gauge on mobile only */}
@@ -131,7 +149,7 @@ export const JobCard = ({ job }: any) => {
                 </div>
 
                 {/* Text Below Gauge */}
-                <p className="text-[9px] font-bold mt-1 whitespace-nowrap">Strong Match</p>
+                <p className="text-[9px] font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
               </div>
             </div>
           </div>
@@ -148,7 +166,7 @@ export const JobCard = ({ job }: any) => {
           </div>
 
           {/* Text Below Gauge */}
-          <p className="text-[10px] sm:text-sm font-bold  whitespace-nowrap">Strong Match</p>
+          <p className="text-[10px] sm:text-sm font-bold  whitespace-nowrap">{strengthLabel}</p>
           </div>
         </div>
 

@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 interface GaugeProps {
   score: number; // Score between 0 and 100
   strokeWidth?: number; // Stroke width of the gauge
+  color?: string
 }
 
-const GaugeComponent: React.FC<GaugeProps> = ({ score ,strokeWidth}) => {
+const GaugeComponent: React.FC<GaugeProps> = ({ score ,strokeWidth, color}) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const GaugeComponent: React.FC<GaugeProps> = ({ score ,strokeWidth}) => {
       </svg>
       {/* Score Text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs md:text-xl font-bold text-white">{progress}%</span>
+        <span className={`text-xs md:text-xl font-semibold ${color ? 'text-black' : 'text-white'}`}>{progress}%</span>
       </div>
     </div>
   );

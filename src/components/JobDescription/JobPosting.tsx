@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Briefcase, Clock, MapPin, Share2 } from 'lucide-react';
+import httpServiceObj from '@Services/ApiHandler.service';
 
-// Reusable components
-const JobResponsibilities: React.FC<any> = ({ responsibilities = [] }) => (
+// Reusable components (unchanged from your original code)
+const JobResponsibilities = ({ responsibilities = [] }) => (
   <div className="mb-6">
     <h3 className="font-medium mb-2">Job Responsibilities:</h3>
     <ul className="list-disc pl-5 space-y-2">
-      {responsibilities.map((responsibility: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
+      {responsibilities.map((responsibility, index) => (
         <li key={index}>{responsibility}</li>
       ))}
     </ul>
   </div>
 );
 
-const JobRequirements: React.FC<any> = ({ experience = 'Not specified', education = 'Not specified', skills = [] }) => {
+const JobRequirements = ({ experience = 'Not specified', education = 'Not specified', skills = [] }) => {
   const finaljobSummary = experience ? experience.replace(/\n/g, "<br><br>") : "";
   return(
     <div className="mb-6">
@@ -23,43 +24,37 @@ const JobRequirements: React.FC<any> = ({ experience = 'Not specified', educatio
       <p><span className="font-medium">Education:</span> {education}</p>
       <p className="mb-2"><span className="font-medium">Skills:</span></p>
       <ul className="list-disc pl-5 space-y-1">
-        {skills.map((skill: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
+        {skills.map((skill, index) => (
           <li key={index}>{skill}</li>
         ))}
       </ul>
     </div>
   </div>
-  )
-  
+  );
 };
 
-const AboutCompany: React.FC<any> = ({ paragraphs = [], aboutCompany = '', socialLinks = [], companyName = 'the company' }) => {
-  return(<div className="bg-gray-50 p-6 rounded-lg shadow">
-    <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
-    <p>{aboutCompany}</p>
-    
-    {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>}
-    
-    {/* {jobSummary && (
-      <div>
-        <h3 className="font-medium mb-2">Job Summary:</h3>
-        <p>{jobSummary}</p>
-      </div>
-    )} */}
-    
-    {socialLinks.length > 0 && (
-      <div className="flex space-x-4 mt-4">
-        {socialLinks.map((link: { name: any; url: any; }, index: any) => (
-          <SocialLink key={index} name={link.name} url={link.url} />
-        ))}
-      </div>
-    )}
-  </div>)
-  
-  };
+const AboutCompany = ({ paragraphs = [], aboutCompany = '', socialLinks = [], companyName = 'the company' }) => {
+  return(
+    <div className="bg-gray-50 p-6 rounded-lg shadow">
+      <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
+      <p>{aboutCompany}</p>
+      
+      {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>}
+      
+      {socialLinks && socialLinks.length > 0 && (
+        <div className="flex space-x-4 mt-4">
+          {socialLinks.map((link, index) => (
+            <SocialLink key={index} name={link.name} url={link.url} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
-const SocialLink: React.FC<any> = ({ name, url }) => {
-  const getIcon = (): JSX.Element | null => {
+const SocialLink = ({ name, url }) => {
+  // Social link component implementation (unchanged)
+  const getIcon = () => {
     switch (name) {
       case 'linkedin':
         return (
@@ -84,7 +79,7 @@ const SocialLink: React.FC<any> = ({ name, url }) => {
     }
   };
 
-  const getColorClass = (): string => {
+  const getColorClass = () => {
     switch (name) {
       case 'linkedin':
         return 'text-blue-600';
@@ -104,7 +99,7 @@ const SocialLink: React.FC<any> = ({ name, url }) => {
   );
 };
 
-const JobCard: React.FC<any> = ({ job }) => {
+const JobCard = ({ job, onApply }) => {
   const companyName = job.companyName || job.company || 'Company';
   const logo = job.companyLogo || job.img || '/api/placeholder/40/40';
   
@@ -141,7 +136,10 @@ const JobCard: React.FC<any> = ({ job }) => {
         </div>
         
         <div className="justify-self-end">
-          <button className="bg-blue-500 mb-2 font-bold text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+          <button 
+            className="bg-blue-500 mb-2 font-bold text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            onClick={() => onApply && onApply(job)}
+          >
             Apply Job
           </button>
         </div>
@@ -159,63 +157,127 @@ const JobCard: React.FC<any> = ({ job }) => {
   );
 };
 
-// Generate array of similar jobs based on main job data or use provided similar jobs
-const generateSimilarJobs = (job?: any): any[] => {
-  if (!job) return [];
-  
-  // If job has similarJobs property, use that
-  if (job.similarJobs && job.similarJobs.length > 0) {
-    return job.similarJobs;
-  }
-  
-  // Otherwise, create similar jobs based on main job
-  return [
-    {
-      id: 1,
-      title: job.title,
-      company: job.company || job.companyName,
-      companyName: job.companyName || job.company,
-      location: job.location,
-      department: job.department,
-      experience: job.experience,
-      isNew: true,
-      companyLogo: job.companyLogo,
-    },
-    {
-      id: 2,
-      title: job.title,
-      company: job.company || job.companyName,
-      companyName: job.companyName || job.company,
-      location: job.location,
-      department: job.department,
-      experience: job.experience,
-      isNew: false,
-      companyLogo: job.companyLogo,
-    },
-    {
-      id: 3,
-      title: job.title,
-      company: job.company || job.companyName,
-      companyName: job.companyName || job.company,
-      location: job.location,
-      department: job.department,
-      experience: job.experience,
-      isNew: true,
-      companyLogo: job.companyLogo,
-    }
-  ];
-};
-
-const JobPostingPage: React.FC<any> = ({ jobData }) => {
+const JobPostingPage = ({ jobData }) => {
   // Default to empty object if jobData is undefined
   const job = jobData || {};
-  console.log(job);
+  const [isApplying, setIsApplying] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [similarJobs, setSimilarJobs] = useState([]);
   
   // Get company name from either company or companyName property
   const companyName = job.companyName || job.company || 'the company';
   
-  // Generate similar jobs if needed
-  const similarJobs = generateSimilarJobs(job);
+  useEffect(() => {
+    // Fetch similar jobs when the component mounts
+    const fetchSimilarJobs = async () => {
+      if (job && job.id) {
+        try {
+          const { response, error } = await httpServiceObj.get(
+            `https://jobs.dev.worko.work/similar-jobs/${job.id}`,
+            true,
+            {},
+            true // Use fullUri
+          );
+          
+          if (error) {
+            console.error('Error fetching similar jobs:', error);
+            return;
+          }
+          
+          setSimilarJobs(response || []);
+        } catch (error) {
+          console.error('Error fetching similar jobs:', error);
+        }
+      }
+    };
+    
+    fetchSimilarJobs();
+  }, [job]);
+  
+  // Handle apply job click
+  const handleApplyJob = async (jobToApply = job) => {
+    try {
+      setIsApplying(true);
+      setApplicationStatus(null);
+      
+      const payload = {
+        jobId: jobToApply.id,
+        jobUrl: window.location.href,
+        jobPortal: jobToApply.jobPortal || undefined,
+        matchingScore: jobToApply.matchingScore || undefined
+      };
+      
+      // If it's not an external job, add the company name
+      if (!jobToApply.externalJobId) {
+        payload.companyName = jobToApply.companyName || jobToApply.company;
+      }
+      
+      const endpoint = jobToApply.externalJobId 
+        ? 'https://jobs.dev.worko.work/external-job-application/' 
+        : 'https://jobs.dev.worko.work/job-application/';
+      
+      const { response, error } = await httpServiceObj.post(
+        endpoint,
+        payload,
+        true,
+        {},
+        true // Use fullUri
+      );
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to submit application');
+      }
+      
+      setApplicationStatus({
+        success: true,
+        message: 'Application submitted successfully!',
+      });
+    } catch (error) {
+      console.error('Application error:', error);
+      setApplicationStatus({
+        success: false,
+        message: 'Failed to submit application. Please try again.',
+      });
+    } finally {
+      setIsApplying(false);
+    }
+  };
+  
+  // Fallback if no similar jobs from API
+  const getDefaultSimilarJobs = () => {
+    if (similarJobs.length > 0) {
+      return similarJobs;
+    }
+    
+    // Generate placeholder similar jobs
+    return [
+      {
+        id: 1,
+        title: job.title,
+        company: job.company || job.companyName,
+        companyName: job.companyName || job.company,
+        location: job.location,
+        department: job.department,
+        experience: job.experience,
+        isNew: true,
+        companyLogo: job.companyLogo,
+      },
+      {
+        id: 2,
+        title: job.title,
+        company: job.company || job.companyName,
+        companyName: job.companyName || job.company,
+        location: job.location,
+        department: job.department,
+        experience: job.experience,
+        isNew: false,
+        companyLogo: job.companyLogo,
+      }
+    ];
+  };
+  
+  // Use real similar jobs from API or fallback to generated ones
+  const displayedSimilarJobs = getDefaultSimilarJobs();
   
   return (
     <div className="flex flex-col text-left md:flex-row p-4 gap-2 bg-white min-h-screen">
@@ -225,16 +287,26 @@ const JobPostingPage: React.FC<any> = ({ jobData }) => {
         <div className="bg-gray-50 p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Job description</h2>
           
-          {/* <JobResponsibilities responsibilities={job.responsibilities} /> */}
           <JobRequirements 
             experience={job.jobDescription} 
             education={job.education} 
-            skills={job.skills} 
+            skills={job.skills || []} 
           />
           
+          {/* Application status notification */}
+          {applicationStatus && (
+            <div className={`p-3 rounded-md mb-4 ${applicationStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {applicationStatus.message}
+            </div>
+          )}
+          
           <div className="flex justify-center items-center gap-2 mt-6">
-            <button className="bg-blue-500 text-white font-bold px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-              Apply Job
+            <button 
+              className={`${isApplying ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold px-4 py-2 rounded-lg transition-colors`}
+              onClick={() => handleApplyJob()}
+              disabled={isApplying}
+            >
+              {isApplying ? 'Applying...' : 'Apply Job'}
             </button>
             <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
               Refer a Friend
@@ -247,9 +319,9 @@ const JobPostingPage: React.FC<any> = ({ jobData }) => {
         
         {/* About Company Section */}
         <AboutCompany 
-          paragraphs={job.aboutCompany} 
-          jobSummary={job.jobdescription} 
-          socialLinks={job.socialLinks}
+          paragraphs={job.aboutCompany || []} 
+          aboutCompany={job.companyDescription || job.jobDescription || ''}
+          socialLinks={job.socialLinks || []}
           companyName={companyName}
         />
       </div>
@@ -260,9 +332,13 @@ const JobPostingPage: React.FC<any> = ({ jobData }) => {
           <h2 className="text-xl font-semibold mb-6">Similar jobs</h2>
           
           {/* Map through similar jobs */}
-          {similarJobs.length > 0 ? (
-            similarJobs.map(job => (
-              <JobCard key={job.id} job={job} />
+          {displayedSimilarJobs.length > 0 ? (
+            displayedSimilarJobs.map((similarJob) => (
+              <JobCard 
+                key={similarJob.id} 
+                job={similarJob} 
+                onApply={handleApplyJob}
+              />
             ))
           ) : (
             <p className="text-gray-500">No similar jobs found.</p>

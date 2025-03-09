@@ -2,6 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import JobCard from './Jobcard';
 import GaugeComponent from '@Components/Company/Gauge';
+import { useEffect } from 'react';
+import httpServiceObj from '@Services/ApiHandler.service';
+import { JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
+import { useParams } from 'react-router-dom';
 
 // Import the JobData interface and helper function from the interfaces file
 // (We're including the interface definition inline for this example)
@@ -60,6 +64,31 @@ interface HeadBannerProps {
 }
 
 const HeadBanner: React.FC<HeadBannerProps> = ({ jobData }) => {
+  const { jobid } = useParams();
+  const [score, setScore] = useState<number | undefined>(undefined)
+  useEffect(() => {
+    const fetchMatchingScore = async () => {
+      if (!jobid) return;
+      try {
+        // Assuming httpServiceObj is available globally or passed as prop
+        const { response, error } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
+          `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}&pageSize=1`,
+          true,
+          {},
+          true
+        );
+        
+        if (response && response.data && response.data.length > 0) {
+          const matchingData = response.data[0].matchingScore;
+          setScore(matchingData);
+        }
+      } catch (err) {
+        console.error("Error fetching matching score:", err);
+      } 
+    };
+    
+    fetchMatchingScore();
+  }, [jobid]);
   return (
     <div className="p-6 bg-[#316BFF]">
       {/* Title and social media icons section */}
@@ -80,11 +109,10 @@ const HeadBanner: React.FC<HeadBannerProps> = ({ jobData }) => {
           {/* Pass the jobData to JobCard */}
           <JobCard jobData={jobData} />
           
-          {/* Pass the matchPercentage to MatchMetrics */}
-          {/* <MatchMetrics matchPercentage={jobData?.matchPercentage} /> */}
+          
         </div>
       
-        <div className="flex flex-col justify-end">
+        <div className="flex flex-col pt-20">
           {/* Pass relevant job data to SkillsCard */}
           <SkillsCard 
             department={isExternalJob(jobData) ? 
@@ -141,49 +169,7 @@ const SocialMediaIcons = () => {
 };
 
 // Update MatchMetrics to use the matchPercentage
-interface MatchMetricsProps {
-  matchPercentage?: number;
-}
 
-const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0 }) => {
-  // Calculate individual metrics based on the overall matching percentage
-  // This is a simple example - you might want to adjust the calculation logic
-  const getMetricValue = (baseValue: number, multiplier: number) => {
-    return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
-  };
-  
-  // Derive individual metrics from the overall match percentage
-  const experienceMatch = getMetricValue(matchPercentage, 0.9);
-  const skillsMatch = getMetricValue(matchPercentage, 1.1);
-  const responsibilityMatch = getMetricValue(matchPercentage, 0.8);
-  const industryMatch = getMetricValue(matchPercentage, 1.2);
-  const achievementMatch = getMetricValue(matchPercentage, 0.95);
-
-  return (
-    <div className="hidden lg:block w-full bg-[#3EA0F0] max-h-[150px] rounded-[20px] p-6 flex-grow">
-      <div className="flex justify-between flex-wrap gap-4">
-        <MetricGauge value={experienceMatch} label="Experience" />
-        <MetricGauge value={skillsMatch} label="Skills" />
-        <MetricGauge value={responsibilityMatch} label="Responsibility" />
-        <MetricGauge value={industryMatch} label="Industry" />
-        <MetricGauge value={achievementMatch} label="Achievement" />
-      </div>
-    </div>
-  );
-};
-
-const MetricGauge = ({ value, label }: { value: number, label: string }) => {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="w-16 h-16 relative mb-2">
-        <div className="w-full h-full rounded-full flex items-center justify-center">
-          <GaugeComponent score={value} />
-        </div>
-      </div>
-      <p className="text-sm font-medium text-white">{label}</p>
-    </div>
-  );
-};
 
 // Update SkillsCard to use dynamic data
 interface SkillsCardProps {

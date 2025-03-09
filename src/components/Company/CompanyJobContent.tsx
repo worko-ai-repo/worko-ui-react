@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import styles from './company.module.scss';
 import { useCompanyContext } from '../../context/Company.context';
 import { formatRange } from '@Utils/RangeFormater.utils';
@@ -10,12 +10,14 @@ import { useInView } from 'react-intersection-observer';
 // Lazy load components
 import CompanyCard from './CompanyCard';
 import { isExternal } from 'util/types';
+import { JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
 const RequestCompany = lazy(() => import('./RequestCompany'));
 
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+	const [matchScore, setMatchScore] = useState<Record<string, JobMatchingScoreDto>>({});
 
 	const { 
 		companyJobData, 

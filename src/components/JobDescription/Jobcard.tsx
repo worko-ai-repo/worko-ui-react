@@ -62,6 +62,50 @@ interface JobCardProps {
   jobData?: JobData;
 }
 
+interface MatchMetricsProps {
+  matchPercentage?: number;
+}
+
+const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0 }) => {
+  // Calculate individual metrics based on the overall matching percentage
+  // This is a simple example - you might want to adjust the calculation logic
+  const getMetricValue = (baseValue: number, multiplier: number) => {
+    return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
+  };
+  
+  // Derive individual metrics from the overall match percentage
+  const experienceMatch = getMetricValue(matchPercentage, 0.9);
+  const skillsMatch = getMetricValue(matchPercentage, 1.1);
+  const responsibilityMatch = getMetricValue(matchPercentage, 0.8);
+  const industryMatch = getMetricValue(matchPercentage, 1.2);
+  const achievementMatch = getMetricValue(matchPercentage, 0.95);
+
+  return (
+    <div className="hidden lg:block w-full max-h-[150px] rounded-[20px] p-2 flex-wrap">
+      <div className="flex justify-between text-blue-600 flex-wrap gap-4">
+        <MetricGauge value={experienceMatch} label="Experience" />
+        <MetricGauge value={skillsMatch} label="Skills" />
+        <MetricGauge value={responsibilityMatch} label="Responsibility" />
+        <MetricGauge value={industryMatch} label="Industry" />
+        <MetricGauge value={achievementMatch} label="Achievement" />
+      </div>
+    </div>
+  );
+};
+
+const MetricGauge = ({ value, label }: { value: number, label: string }) => {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-16 h-16 relative mb-2">
+        <div className="w-full h-full text-blue-600 rounded-full flex items-center justify-center">
+          <GaugeComponent score={value} color={'black'} />
+        </div>
+      </div>
+      <p className="text-sm font-medium text-black">{label}</p>
+    </div>
+  );
+};
+
 const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
   const { jobid } = useParams();
   const [showModal, setShowModal] = useState(false);
@@ -110,6 +154,19 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
     
     fetchMatchingScore();
   }, [jobid]);
+
+  useEffect(() => {
+    // Update the strength label based on the match score
+    if (matchScore !== undefined && matchScore < 40) {
+      setStrengthLabel("Poor Match");
+    } else if ((matchScore ?? 0) < 60) {
+      setStrengthLabel("Moderate Match");
+    } else if ((matchScore ?? 0) < 80) {
+      setStrengthLabel("Good Match");
+    } else {
+      setStrengthLabel("Strong Match");
+    }
+  }, [matchScore]);
 
   // Get company name based on job type
   const companyName = useMemo(() => {
@@ -233,6 +290,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
                     Be an early applicant
                   </span>
                 )}
+                
               </div>
               
               {/* Gauge on mobile only */}
@@ -275,7 +333,8 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
             <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{strengthLabel}</p>
           </div>
         </div>
-        
+        {/* Pass the matchPercentage to MatchMetrics */}
+        <MatchMetrics matchPercentage={matchScore} />
         <div style={{width: '100%', height: '100%', border: '0.50px #454545 solid'}}></div>
         
         {/* Location, Job Type, and Buttons */}
