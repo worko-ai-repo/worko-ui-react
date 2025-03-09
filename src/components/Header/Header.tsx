@@ -121,7 +121,7 @@ const Header = () => {
 														{userDetails?.referralCount || 0}
 													</span>
 													{/* Change Link */}
-													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/angular/candidate/subscription">
+													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/v1/candidate/subscription">
 														+ Referrals
 													</a>
 												</div>
@@ -136,12 +136,12 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile":"/angular/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</a>
 									</li>
 									<li>
-										<a href={`angular/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={`v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</a>
 									</li>
@@ -192,7 +192,7 @@ const Header = () => {
 					{isLoggedIn && (
 						<div className="flex flex-col items-start justify-start gap-4 p-2">
 							<div className="flex justify-between items-center w-full">
-								<span className="flex-1 flex items-center" onClick={()=>{window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/angular/candidate/edit-profile" : "/angular/employee/Edit-profile"}}>
+								<span className="flex-1 flex items-center" onClick={()=>{window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile"}}>
 									{userDetails?.profileImageAwsS3SignedUrl ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : <User className="w-8 h-8 object-cover rounded-lg border border-gray-400" />}
 									<h4 className="text-lg font-semibold capitalize px-2 ">{userDetails?.name || 'user'}</h4>
 								</span>
@@ -208,7 +208,7 @@ const Header = () => {
 								<img src={coin} className="inline mr-1 object-contain" />
 								{userDetails?.referralCount || 0} Referrals Left
 							</span>
-							<a className="dashboard" href={`angular/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
+							<a className="dashboard" href={`v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
 								Dashboard
 							</a>
 						</div>

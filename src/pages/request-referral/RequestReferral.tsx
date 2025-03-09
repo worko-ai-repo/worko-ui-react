@@ -98,6 +98,7 @@ const RequestReferral = () => {
 		  setIsModalOpen(true);
 		return () => {
 		  setIsModalOpen(false);
+		  setGaugeEnabled(false); // remove this if casuse error ;
 		};
 	  }, [isLoader, MessageEnabled, IsFeedbackOpen]);
 
@@ -178,7 +179,8 @@ const RequestReferral = () => {
 			setModalType('Max_tries');
 			setLoader(false);
 			return;
-		} else if (refCount?.referralCount && refCount?.referralCount <= 0) {
+		} else if (refCount?.referralCount && refCount?.referralCount <= 22222222222222222222230) {
+			setGaugeEnabled(false)
 			setMessageEnabled(true);
 			setModalType('zeroReferral');
 			setLoader(false);
@@ -230,7 +232,7 @@ const RequestReferral = () => {
 		switch (ModalType) {
 			case 'zeroReferral':
 				reset();
-				nav('/subscription');
+				window.location.href = '/v1/candidate/subscription';
 				break;
 			case 'AlreadyRequested':
 				reset();
@@ -238,7 +240,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				nav('/candidate/dashboard');
+				window.location.href = '/v1/dashboard/candidate';
 				break;
 			case 'RequestRejected':
 				reset();
@@ -262,20 +264,20 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'profileCompletion':
-				nav('/edit-profile');
+				window.location.href = '/v1/candidate/edit-profile';
 				break;
 		}
 	}
 
 	// Show for error Dialogs and all
 	{
-		modalData && <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />;
+		modalData && <MessageModal {...modalData} onClose={() => {setModalData(null) ; setGaugeEnabled(false)}} showCloseButton={false} />;
 	}
 
 	return (
 		<div className="w-full ">
 			<div className="section-wrapper !max-w-7xl  ">
-				<form onSubmit={handleSubmit(onSubmit)} className=" mx-auto bg-[#F2F4F5]  pt-10 pb-14 px-10   rounded-[50px] sm:rounded-3xl  relative sm:pb-40">
+				<form onSubmit={handleSubmit(onSubmit)} className=" mx-auto bg-[#F2F4F5]  pt-10 pb-14 px-5   rounded-[10px] sm:rounded-3xl  relative sm:pb-10">
 					<div className="absolute top-7 right-4 flex gap-2 justify-center items-center min-w-20 ">
 						<a className="fa-brands text-3xl bg-blue text-blue-700 fa-linkedin active:scale-75 " href={data?.linkedIn} target="_blank" rel="noopener noreferrer"></a>
 						<a className="fa-solid fa-magnifying-glass text-black" href={data?.carrierPage} target="_blank" rel="noopener noreferrer"></a>
@@ -290,7 +292,7 @@ const RequestReferral = () => {
 								{errors.url && <p className="text-red-500 text-xs">{errors.url.message}</p>}
 							</div>
 							<div className="sm:w-1/3 ">
-								<input {...register('experience', validationRules.defaultNumber)} placeholder="Add Experience" className="border-[#929292]  p-4 border rounded-2xl w-full  text-left bg-white " />
+								<input {...register('experience', validationRules.defaultNumber)} placeholder="Paste experience from job description" className="border-[#929292]  p-4 border rounded-2xl w-full  text-left bg-white " />
 								{errors.experience && <p className="text-red-500 text-xs">{errors.experience.message}</p>}
 							</div>
 						</div>
