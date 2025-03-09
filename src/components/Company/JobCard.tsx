@@ -1,82 +1,71 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Star, MapPin, Clock } from 'lucide-react';
-import GaugeComponent from './Gauge';
-import CustomModal from '@Components/Modals/FormModal';
-import { useNavigate } from 'react-router-dom';
-
+import { useState, useMemo, useEffect } from "react";
+import { Star, MapPin, Clock } from "lucide-react";
+import GaugeComponent from "./Gauge";
+import CustomModal from "@Components/Modals/FormModal";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "@Context/App.context";
 
 export const JobCard = ({ job }: any) => {
-     const { 
-      companyLogo,
-      title, 
-      department, 
-      salary, 
-      location, 
-      employmentType,
-      createdAt,
-      matchPercentage,
-      jobId,
-      companyName,
-      isExternalJob
-    } = job;
+  const { companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob } = job;
+  const { isLoggedIn } = useAppContext();
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
+  const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
 
-    const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
-    const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
-      
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    const nav = useNavigate()
-      
-    const handleSubmit = () => {
-      alert(`Job shared with: ${formData.phone}, ${formData.email}`);
-      setShowModal(false);
-    };
-  
-    const isEarlyApplicant = useMemo(() => {
-      const createdDate = new Date(createdAt);
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      return createdDate >= threeDaysAgo;
-    }, [createdAt]);
-  
-    const timeAgo = useMemo(() => {
-      const now = new Date();
-      const posted = new Date(createdAt);
-      const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
-      
-      if (diffMinutes < 60) {
-        return `${diffMinutes} mins ago`;
-      } else if (diffMinutes < 1440) { // Less than 24 hours
-        const diffHours = Math.floor(diffMinutes / 60);
-        return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-      } else {
-        const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
-        return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-      }
-    }, [createdAt]);
+  const nav = useNavigate();
 
-    const handleReferralNav = () => {
-      console.log(companyName);
-      // Replace any whitespace special characters with underscore in company name
-      const refinedCompanyName = companyName.replace(/\s/g, '_');
-      nav(`/jobs/${refinedCompanyName}/${jobId}`);
-    };
+  const handleSubmit = () => {
+    alert(`Job shared with: ${formData.phone}, ${formData.email}`);
+    setShowModal(false);
+  };
 
-    useEffect(() => {
-        // Update the strength label based on the match score
-        if (matchPercentage < 40) {
-          setStrengthLabel("Poor Match");
-        } else if (matchPercentage < 60) {
-          setStrengthLabel("Moderate Match");
-        } else if (matchPercentage < 80) {
-          setStrengthLabel("Good Match");
-        } else {
-          setStrengthLabel("Strong Match");
-        }
-      }, [matchPercentage]);
+  const isEarlyApplicant = useMemo(() => {
+    const createdDate = new Date(createdAt);
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    return createdDate >= threeDaysAgo;
+  }, [createdAt]);
+
+  const timeAgo = useMemo(() => {
+    const now = new Date();
+    const posted = new Date(createdAt);
+    const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
+
+    if (diffMinutes < 60) {
+      return `${diffMinutes} mins ago`;
+    } else if (diffMinutes < 1440) {
+      // Less than 24 hours
+      const diffHours = Math.floor(diffMinutes / 60);
+      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+    } else {
+      const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
+      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+    }
+  }, [createdAt]);
+
+  const handleReferralNav = () => {
+    console.log(companyName);
+    // Replace any whitespace special characters with underscore in company name
+    const refinedCompanyName = companyName.replace(/\s/g, "_");
+    nav(`/jobs/${refinedCompanyName}/${jobId}`);
+  };
+
+  useEffect(() => {
+    // Update the strength label based on the match score
+    if (matchPercentage < 40) {
+      setStrengthLabel("Poor Match");
+    } else if (matchPercentage < 60) {
+      setStrengthLabel("Moderate Match");
+    } else if (matchPercentage < 80) {
+      setStrengthLabel("Good Match");
+    } else {
+      setStrengthLabel("Strong Match");
+    }
+  }, [matchPercentage]);
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
@@ -88,32 +77,18 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div className="relative flex-shrink-0">
-                {companyLogo ? (
-                    <img 
-                      src={companyLogo} 
-                      alt={title} 
-                      className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
-                    />
-                  ) : (
-                    <div className="w-[60px] object-contain text-xs border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
-                      {companyName}
-                    </div>
-                  )}
-              </div>
-              
+              <div className="relative flex-shrink-0">{companyLogo ? <img src={companyLogo} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="w-[60px] object-contain text-xs border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">{companyName}</div>}</div>
+
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
                 <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
-                
+
                 {/* Salary */}
-                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">
-                  ₹ {salary}
-                </div>
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">₹ {salary}</div>
               </div>
             </div>
-            
+
             {/* Mobile layout: Arrange tags and gauge on same row */}
             <div className="flex flex-row justify-between mt-2 md:mt-1">
               {/* Tags - Flex-wrap on mobile */}
@@ -124,49 +99,58 @@ export const JobCard = ({ job }: any) => {
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   16 candidates
                 </span>  @TODO - Apply candidate count in new release. */}
-                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
-                  {timeAgo}
-                </span>
-                {isEarlyApplicant && (
-                  <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
-                    Be an early applicant
-                  </span>
-                )}
-                { isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
-                  External Job
-                </span>}
+                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{timeAgo}</span>
+                {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
+                {isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">External Job</span>}
               </div>
-              
+
               {/* Gauge on mobile only */}
-              <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[80px]
-                bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-                overflow-hidden text-white p-2 flex-col items-center justify-center">
-                
-                {/* Gauge Component */}
-                <div className="sm:w-full  sm:h-full w-[70%] mx-auto rounded-full border-3 border-[#6DE5E5] 
-                  bg-[#367BFB] flex items-center justify-center">
+              <div
+                className=" md:hidden flex flex-col items-center justify-center flex-shrink-0 
+    rounded-xl w-[90px] h-[90px] sm:w-[122px] sm:h-[120px] 
+    bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
+    overflow-hidden text-white p-3 sm:p-5">
+                {/* Gauge Wrapper */}
+                <div
+                  className="w-[75%] h-[75%] sm:w-[85%] sm:h-[85%] 
+      flex items-center justify-center  ">
                   <GaugeComponent score={matchPercentage} />
                 </div>
 
                 {/* Text Below Gauge */}
-                <p className="text-[9px] font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                {isLoggedIn ? (
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                ) : (
+                  <div className="flex  items-center  w-full gap-1 mt-1 text-center">
+                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>
+                    <small className="text-[8px] sm:text-xs">Account Required</small>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-         {/* Match Score - Moved inside the flex container */}
-          <div className="hidden md:flex py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
-          flex-shrink-0 bg-gradient-to-b from-blue-500 to-blue-600
-          overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-end scale-90">
-
-          {/* Gauge Component */}
-          <div className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
+          {/* Match Score - Moved inside the flex container */}
+          <div
+            className="hidden md:flex py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
+              flex-shrink-0 bg-gradient-to-b from-blue-500 to-blue-600
+              overflow-hidden text-white p-3 sm:p-5  flex-col items-center justify-center scale-90">
+            {/* Gauge Component */}
+            <div
+              className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
             flex items-center justify-center sm:scale-90">
-            <GaugeComponent score={matchPercentage} />
-          </div>
+              <GaugeComponent score={matchPercentage} />
+            </div>
 
-          {/* Text Below Gauge */}
-          <p className="text-[10px] sm:text-sm font-bold  whitespace-nowrap">{strengthLabel}</p>
+            {/* Text Below Gauge */}
+            {isLoggedIn ? (
+              <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{strengthLabel}</p>
+            ) : (
+              <>
+                <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>
+                <small>Account Required</small>
+              </>
+            )}
           </div>
         </div>
 
@@ -176,11 +160,11 @@ export const JobCard = ({ job }: any) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='capitalize '>{location}</span>
+              <span className="capitalize ">{location}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span>{employmentType ? (employmentType.includes('_') ? employmentType.replace(/_/g, ' ') : employmentType) : ''}</span>
+              <span>{employmentType ? (employmentType.includes("_") ? employmentType.replace(/_/g, " ") : employmentType) : ""}</span>
             </div>
           </div>
 
@@ -193,78 +177,40 @@ export const JobCard = ({ job }: any) => {
               Refer A Friend
             </button>
             } */}
-            <button onClick={()=>handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+            <button onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
-          </div> 
+          </div>
         </div>
       </div>
 
       {/* Modal */}
       {showModal && (
-        <CustomModal
-        type="share"
-        title="Refer a Friend and Earn Rewards!"
-        onSubmit={handleSubmit}
-        onClose={() => setShowModal(false)}
-      >
-        <div className="text-center px-4">
-          <p className="text-gray-600 text-sm mb-4">
-            Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
-          </p>
-        </div>
-        <form className="space-y-4 px-4">
-          <div>
-            <input
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="input_primary text-gray-500 w-full p-2 border rounded"
-              placeholder="Full Name"
-              required
-            />
+        <CustomModal type="share" title="Refer a Friend and Earn Rewards!" onSubmit={handleSubmit} onClose={() => setShowModal(false)}>
+          <div className="text-center px-4">
+            <p className="text-gray-600 text-sm mb-4">Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!</p>
           </div>
-          <div>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="input_primary text-gray-500 w-full p-2 border rounded"
-              placeholder="E-Mail ID"
-              required
-            />
-          </div>
-          <div>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="input_primary text-gray-500 w-full p-2 border rounded"
-              placeholder="Contact Number / WhatsApp Number"
-              required
-            />
-          </div>
-          <div className="text-center mt-4">
-            <button
-              type="submit"
-              className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full"
-            >
-              Submit Referral
-            </button>
-          </div>
-        </form>
-        <p className="text-gray-400 text-xs text-center mt-4 px-4">
-          Your information is secure and will only be used to process your referral and communicate about the program.
-        </p>
-      </CustomModal>
+          <form className="space-y-4 px-4">
+            <div>
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="Full Name" required />
+            </div>
+            <div>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="E-Mail ID" required />
+            </div>
+            <div>
+              <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="Contact Number / WhatsApp Number" required />
+            </div>
+            <div className="text-center mt-4">
+              <button type="submit" className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full">
+                Submit Referral
+              </button>
+            </div>
+          </form>
+          <p className="text-gray-400 text-xs text-center mt-4 px-4">Your information is secure and will only be used to process your referral and communicate about the program.</p>
+        </CustomModal>
       )}
     </div>
   );
-}
+};
 
 export default JobCard;
-
-
