@@ -48,7 +48,7 @@ const LoginForm = () => {
 	const signUpWithLinkedIn = useLinkedInSignup();
 
 	// Update Check from App Context to broadcast the changes
-	const {PendingApply, setUpdateCheck } = useAppContext();
+	const { PendingApply, setUpdateCheck } = useAppContext();
 
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -62,7 +62,7 @@ const LoginForm = () => {
 		handleSubmit,
 		reset,
 		getValues,
-		formState: { errors, isValid },
+		formState: { errors, isValid,isSubmitting },
 	} = useForm({
 		defaultValues: {
 			email: '',
@@ -93,12 +93,13 @@ const LoginForm = () => {
 	 * @returns void
 	 */
 	const onSubmit = async (data: any): Promise<void> => {
+		
 		const loginData = {
 			email: data.email,
 			password: data.password,
 		};
 
-		
+
 		try {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 			// If error occurs, show the error message and reset the form
@@ -169,6 +170,8 @@ const LoginForm = () => {
 						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
+						console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
+
 						// Refresh session
 						await handleRememberDevice();
 						await currentSession();
@@ -177,10 +180,10 @@ const LoginForm = () => {
 						setTimeout(() => {
 							// Construct the referral object
 							const pendingReferral =
-							PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
 
-							if (pendingReferral ) {
-								window.location.href =pendingReferral.url; // Redirect to the referral page
+							if (pendingReferral) {
+								window.location.href = pendingReferral.url; // Redirect to the referral page
 							} else {
 								navigate('/'); // Redirect to home page
 							}
@@ -268,14 +271,14 @@ const LoginForm = () => {
 
 					{/* Submit Button */}
 					<div className="w-full ">
-						<button type="submit" className="cursor-pointer btn_primary px-4 py-2 w-full max-w-[350px] sm:max-w-[350px] " disabled={!isValid}>
+						<button type="submit" className="cursor-pointer btn_primary px-4 py-2 w-full max-w-[350px] sm:max-w-[350px] " disabled={!isValid || isSubmitting}>
 							Sign in
 						</button>
 					</div>
 					<hr className="w-full my-5 max-w-[350px] " />
 					{/* LinkedIn  */}
 					<div className="w-full ">
-						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " type="button" onClick={() => signUpWithLinkedIn('SignIn')}>
+						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " disabled={isSubmitting} type="button" onClick={() => signUpWithLinkedIn('SignIn')}>
 							<i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
 						</button>
 					</div>

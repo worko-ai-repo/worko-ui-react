@@ -134,20 +134,20 @@ export default function CheckRedirection() {
 			const email = tokens?.idToken?.payload['email']?.toString().toLowerCase();
 			const name = tokens?.idToken?.payload['given_name']?.toString();
 			const groups = tokens?.idToken?.payload['cognito:groups'] as string[];
-	
+
 			// Step 2: Store User Data
 			if (email) setUserEmail(email);
 			if (name) setUserName(name);
-	
+
 			// Step 3: Store Admin Status in Secure Storage
 			if (Array.isArray(groups) && groups.includes('admin')) {
 				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Admin');
 			}
-	
+
 			// Step 4: Fetch User Details
 			const { response: userDetails } = await httpServiceObj.get<UserDetails>(`/user/${email}/details`, true);
 			if (!userDetails) return true;
-	
+
 			// Step 5: Store User Details in Secure Storage
 			const userDetail: Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
 			const FinaluserDetails: Partial<AuthLoginForGeneralUserDto> = {
@@ -163,7 +163,7 @@ export default function CheckRedirection() {
 			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.name);
 			secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, email);
 			secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, FinaluserDetails);
-	
+
 			// Step 6: Handle Dynamic Routes (If Coming From Company Listing)
 			const isCompanyListingRoute = secureStorage.getItem(SecureStorageKeyEnum.IS_COMPANY_LISTING_ROUTE);
 			if (isCompanyListingRoute) {
@@ -173,13 +173,13 @@ export default function CheckRedirection() {
 				}
 				return false;
 			}
-	
+
 			// Step 7: Redirect Admin Users to Switcher Page
-			if (Array.isArray(groups) && groups.includes('admin')) {
-				navigate('/switcher');
-				return false;
-			}
-	
+			// if (Array.isArray(groups) && groups.includes('admin')) { //commenting this for now
+			// 	navigate('/switcher');
+			// 	return false;
+			// }
+
 			// Step 8: Get Profile Completion Percentage
 			const { response: profileCompletion } = await httpServiceObj.get<ProfileCompletion>(
 				`/user/${email}/profilePercentage`,
@@ -189,25 +189,24 @@ export default function CheckRedirection() {
 				const profileType =
 					userDetail.lastAccessedDash === 'CAND' ? profileCompletion.candidate : profileCompletion.employee;
 				const totalPercentage = profileType.reduce((sum: number, element: { curPerc: number }) => sum + element.curPerc, 0);
-	
+
 				// Step 9: Set update check before navigation
 				setUpdateCheck(true);
+
+				// construct the dashboard path based on the last accessed dashboard
+				let dashboardPath = totalPercentage >= 60
+					? '/'
+					: userDetail.lastAccessedDash === 'CAND'
+						? `${window.location.origin}/v1/candidate/edit-profile`
+						: `${window.location.origin}/v1/employee/Edit-profile`;
+
 	
-				// Step 10: Determine Navigation Path Based on Profile Percentage
-				let dashboardPath =
-					userDetail.lastAccessedDash === 'CAND'
-						? totalPercentage >= 60
-							? '/candidate/dashboard'
-							: '/candidate/edit-profile'
-						: totalPercentage >= 60
-						? '/employee/Dashboard'
-						: '/employee/Edit-profile';
-	
-				// Step 11: If Total Percentage >= 60, Check Pending Application
+				// Step 10: If Total Percentage >= 60, Check Pending Application
 				if (totalPercentage >= 60) {
+					// Step 11: Check Pending Application
 					let pendingReferral =
 						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
-	
+
 					// Sync PendingApply and SecureStorage
 					if (PendingApply) {
 						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
@@ -218,19 +217,24 @@ export default function CheckRedirection() {
 						window.location.href = pendingReferral.url; // Redirect if referral found in storage
 						return false; // Stop further execution
 					}
+					else {
+						navigate(dashboardPath);
+						return false; // Stop further execution
+					}
 				}
-	
-				// Step 12: Navigate to Dashboard or Edit Profile if No Pending Application
-				navigate(dashboardPath);
+				else {
+					window.location.href = dashboardPath; // Redirect to Angular app
+					return false; // Stop further execution
+				}
 			}
-	
+
 			return false;
 		} catch (error) {
 			console.error('Error getting candidate details:', error);
 			return true;
 		}
 	};
-	
+
 
 	const handleRegister = () => {
 		if (registrationType === 'candidate') {
@@ -239,6 +243,8 @@ export default function CheckRedirection() {
 			navigate('/auth/linkedinSignup', { state: { formType: 'EMP' } });
 		}
 	};
+
+	
 	/**registerOptionScreen */
 	if (registerOptionScreen) {
 		return (
