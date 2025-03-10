@@ -81,7 +81,7 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0 }) => {
   const achievementMatch = getMetricValue(matchPercentage, 0.95);
 
   return (
-    <div className="hidden lg:block w-full max-h-[150px] rounded-[20px] p-2 flex-wrap">
+    <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 flex-wrap">
       <div className="flex justify-between text-blue-600 flex-wrap gap-4">
         <MetricGauge value={experienceMatch} label="Experience" />
         <MetricGauge value={skillsMatch} label="Skills" />
@@ -356,9 +356,9 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
             <button className="flex-1 flex-initial w-[140px] md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
-            <button className="flex-1 flex-initial w-[140px] md:w-[140px] px-2 py-2 text-red-500 border border-black rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+            {/* <button className="flex-1 flex-initial w-[140px] md:w-[140px] px-2 py-2 text-red-500 border border-black rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Feedback
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

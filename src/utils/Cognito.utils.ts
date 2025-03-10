@@ -136,7 +136,7 @@ class CognitoService {
 	public async isLoggedIn(): Promise<boolean> {
 		this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || false;
 		this.linkedinSignInDetails =secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || '{}';
-		debugger;
+		//debugger;
 		if (this.UserRegistered === true) {
 			return this.handleLinkedInLogin();
 		}

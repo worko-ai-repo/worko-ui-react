@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import HeadBanner from '@Components/JobDescription/HeadBanner';
-import JobPostingPage from '@Components/JobDescription/JobPosting';
+import HeadBanner from '@Components/JobDescription/HeadBanner/index';
+import JobJD from '@Components/JobDescription/JobJD';
 import httpServiceObj from '@Services/ApiHandler.service';
 import MainLoader from '@Components/Loader/Loader';
 
@@ -45,7 +45,7 @@ const JobDescription = () => {
   return (
     <div className='w-full'>
       <HeadBanner jobData={displayData} />
-      <JobPostingPage jobData={displayData} />
+      <JobJD jobData={displayData} />
     </div>
   );
 };
