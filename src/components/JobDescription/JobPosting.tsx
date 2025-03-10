@@ -33,7 +33,12 @@ const JobRequirements = ({ experience = 'Not specified', education = 'Not specif
   );
 };
 
-const AboutCompany = ({ paragraphs = [], aboutCompany = '', socialLinks = [], companyName = 'the company' }) => {
+interface SocialLink {
+  name: string;
+  url: string;
+}
+
+const AboutCompany = ({ paragraphs = [], aboutCompany = '', socialLinks = [] as SocialLink[], companyName = 'the company' }) => {
   return(
     <div className="bg-gray-50 p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
@@ -44,7 +49,7 @@ const AboutCompany = ({ paragraphs = [], aboutCompany = '', socialLinks = [], co
       {socialLinks && socialLinks.length > 0 && (
         <div className="flex space-x-4 mt-4">
           {socialLinks.map((link, index) => (
-            <SocialLink key={index} name={link.name} url={link.url} />
+            <SocialLink key={index} name={link?.name} url={link.url} />
           ))}
         </div>
       )}
@@ -52,7 +57,7 @@ const AboutCompany = ({ paragraphs = [], aboutCompany = '', socialLinks = [], co
   );
 };
 
-const SocialLink = ({ name, url }) => {
+const SocialLink = ({ name, url }: { name: string; url: string }) => {
   // Social link component implementation (unchanged)
   const getIcon = () => {
     switch (name) {
@@ -99,7 +104,26 @@ const SocialLink = ({ name, url }) => {
   );
 };
 
-const JobCard = ({ job, onApply }) => {
+interface Job {
+  id: number;
+  title: string;
+  company?: string;
+  companyName?: string;
+  location?: string;
+  department?: string;
+  experience?: string;
+  isNew?: boolean;
+  companyLogo?: string;
+  img?: string;
+  [key: string]: any;
+}
+
+interface JobCardProps {
+  job: Job;
+  onApply?: (job: Job) => void;
+}
+
+const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const companyName = job.companyName || job.company || 'Company';
   const logo = job.companyLogo || job.img || '/api/placeholder/40/40';
   
@@ -157,12 +181,12 @@ const JobCard = ({ job, onApply }) => {
   );
 };
 
-const JobPostingPage = ({ jobData }) => {
+const JobPostingPage = (jobData:any ) => {
   // Default to empty object if jobData is undefined
   const job = jobData || {};
   const [isApplying, setIsApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<{ success: boolean; message: string } | null>(null);
-  const [similarJobs, setSimilarJobs] = useState([]);
+  const [similarJobs, setSimilarJobs] = useState<Job[]>([]);
   
   // Get company name from either company or companyName property
   const companyName = job.companyName || job.company || 'the company';
@@ -184,7 +208,7 @@ const JobPostingPage = ({ jobData }) => {
             return;
           }
           
-          setSimilarJobs(response || []);
+          setSimilarJobs(Array.isArray(response) ? response : []);
         } catch (error) {
           console.error('Error fetching similar jobs:', error);
         }
@@ -200,7 +224,7 @@ const JobPostingPage = ({ jobData }) => {
       setIsApplying(true);
       setApplicationStatus(null);
       
-      const payload = {
+      const payload: { jobId: any; jobUrl: string; jobPortal: any; matchingScore: any; companyName?: string } = {
         jobId: jobToApply.id,
         jobUrl: window.location.href,
         jobPortal: jobToApply.jobPortal || undefined,
