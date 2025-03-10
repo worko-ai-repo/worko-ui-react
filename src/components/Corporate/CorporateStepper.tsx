@@ -2,37 +2,38 @@ import React from 'react';
 
 const CorporateStepper = () => {
 
-  const steps = [
+  const steps =[
     {
-      id: 1,
-      title: "Intelligent Filtering",
-      description: "Our advanced AI matching algorithm eliminates irrelevant profiles, saving you the effort of manual screening.",
-      active: true
+      "id": 1,
+      "title": "Smart Candidate Filtering",
+      "description": "No more manual screening. Our AI models analyze your needs and filter through dozens of data points to bring out the best fits.",
+      "active": true
     },
     {
-      id: 2,
-      title: "Job Promotion Made Easy",
-      description: "We promote your job postings across multiple platforms on your behalf, so you don't need to worry about being a marketing expert.",
-      active: false
+      "id": 2,
+      "title": "Maximized Job Visibility",
+      "description": "Your job posting isn’t limited to Worko. We promote it across multiple platforms, helping you find top talent faster.",
+      "active": false
     },
     {
-      id: 3,
-      title: "High-Intent Jobseeker Database",
-      description: "Tap into our exclusive database of highly motivated jobseekers, ready to apply for the right opportunities.",
-      active: false
+      "id": 3,
+      "title": "Pre-Vetted Talent Pool",
+      "description": "Gain access to a gold mine of pre-screened, high-intent candidates who are ready to contribute to your goals.",
+      "active": false
     },
     {
-      id: 4,
-      title: "Access to Top Data Sources",
-      description: "Tap into our exclusive database of highly motivated jobseekers, ready to apply for the right opportunities.",
-      active: false
+      "id": 4,
+      "title": "Seamless External Resume Processing",
+      "description": "Upload thousands of CVs from external job boards and instantly receive a shortlist of top candidates.",
+      "active": false
     }
-  ];
+  ]
+  
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center">
       <h2 className="text-3xl md:text-4xl lg:text-5xl text-center font-bold text-blue-500 mb-8 md:mb-16 max-w-3xl">
-        How We Ensure Faster Candidate Applications:
+      Features That Make A Real Difference
       </h2>
       
       <div className="relative w-full">

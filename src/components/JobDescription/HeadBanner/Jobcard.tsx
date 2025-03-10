@@ -4,6 +4,7 @@ import GaugeComponent from '@Components/Company/Gauge';
 import { useParams } from 'react-router-dom';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
+import { useAppContext } from '@Context/App.context';
 
 // Include the interface definitions
 interface BaseJobData {
@@ -107,6 +108,7 @@ const MetricGauge = ({ value, label }: { value: number, label: string }) => {
 };
 
 const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
+  const {isLoggedIn} = useAppContext();
   const { jobid } = useParams();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ phone: "", email: "" });
@@ -294,9 +296,9 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
               </div>
               
               {/* Gauge on mobile only */}
-              <div className="block md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[65px]
+              <div className=" md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[70px] 
                 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-                overflow-hidden text-white p-2 flex flex-col items-center justify-center">
+                overflow-hidden text-white p-5 flex flex-col items-center justify-center">
                 
                 {/* Gauge Component */}
                 <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
@@ -308,8 +310,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
                   )}
                 </div>
 
-                {/* Text Below Gauge */}
-                <p className="text-[9px] font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                {isLoggedIn ? (
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                ) : (
+                  <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
+                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm"></i>
+                    <small className="text-[8px] sm:text-xs">Account Required</small>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -330,7 +338,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
             </div>
                     
             {/* Text Below Gauge */}
-            <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{strengthLabel}</p>
+            {isLoggedIn ? (
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                ) : (
+                  <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
+                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm"></i>
+                    <small className="text-[8px] sm:text-xs">Account Required</small>
+                  </div>
+                )}
           </div>
         </div>
         {/* Pass the matchPercentage to MatchMetrics */}

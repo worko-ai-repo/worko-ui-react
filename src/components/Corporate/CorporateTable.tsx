@@ -283,7 +283,7 @@ function CorporateTable() {
     <section className="w-full max-w-6xl mx-auto px-4">
       {/* Heading */}
       <h2 className="text-center text-3xl md:text-4xl font-bold text-black my-6 md:my-8">
-        Calculate the Impact we will create for you:
+        Calculate the Impact we will create for you
       </h2>
       
       <div className="bg-[#CFEFFF] mb-12 md:mb-24 flex flex-col items-center justify-center p-4 md:p-8 rounded-3xl">
@@ -319,12 +319,12 @@ function CorporateTable() {
           />
            {/* Call to action buttons */}
             <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
-                <button className="bg-blue-500 text-white rounded-md px-6 py-2 font-medium">
+                <button className="bg-blue-500 text-white rounded-md px-6 py-2 font-medium" onClick={() => window.location.href = '/for-corporate/connect-with-us'}>
                 Start Efficient Hiring Now
                 </button>
-                <button className="bg-transparent text-black border border-black rounded-md px-6 py-2 font-medium">
+                {/* <button className="bg-transparent text-black border border-black rounded-md px-6 py-2 font-medium">
                 Book a Demo
-                </button>
+                </button> */}
             </div>
         </div>
       </div>

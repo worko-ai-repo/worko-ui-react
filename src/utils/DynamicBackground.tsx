@@ -18,7 +18,7 @@ interface pageBackgroundsDto {
  * It supports solid colors, gradients, and background images.
  */
 const pageBackgrounds: Record<string, string> = {
-  "/": "#4B7EFF", 
+  "/": "#3c92eb", 
   '/for-employee': '#316bff',
   "/for-corporate/connect-with-us": "#2053db", // Gradient
   "/contact": "url('/assets/bg-contact.jpg') center/cover no-repeat", // Background image

@@ -4,23 +4,23 @@ import React from 'react';
 const CorporateCardsSection = () => {
 	const features = [
 		{
-			title: 'Verified & Validated',
-			description: 'Every candidate is verified and validated before reaching you',
+			title: 'Get verified results ',
+			description: 'With 98% accuracy, every match you get will be backed by hard data.',
 			svg: <img src={shield} />,
 		},
 		{
-			title: 'Refinement',
-			description: 'We continuously learn from feedback to refine matches and simplify hiring.',
+			title: 'Refine your matches',
+			description: 'Worko learns from your feedback and gets smarter with every hire.',
 			svg: <img src={document} />,
 		},
 		{
-			title: 'Boost Referral Hiring',
-			description: 'Empower employees to find top talent through core skill assessments.',
+			title: 'Hire through referrals',
+			description: 'Tap into your employees’ referrals to find culturally-fit people.',
 			svg: <img src={lightening} />,
 		},
 		{
-			title: 'Save time',
-			description: 'Save time, streamline hiring, and achieve faster conversions with precision-matched talent',
+			title: 'Save time and effort',
+			description: 'Cut hiring time from 23 hours to just 6 hours without affecting quality.',
 			svg: <img src={time} />,
 		},
 	];
@@ -28,8 +28,8 @@ const CorporateCardsSection = () => {
 	return (
 		<section className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
 			<div className="flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-12 mb-8 sm:mb-10 md:mb-16">
-				<h2 className="text-center text-[#316BFF] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-wide">Perfect Matches, Every Time!</h2>
-				<p className="w-full max-w-xl px-4 text-center text-[#0D0D0D] text-base sm:text-lg md:text-xl font-medium leading-snug">Our 5-Level AI Matching ensures you receive only the top-matched, best-fit candidates.</p>
+				<h2 className="text-center text-[#316BFF] text-3xl sm:text-4xl md:text-5xl max-w-4xl font-bold leading-tight tracking-wide">Tired of sifting through endless applications? </h2>
+				<p className="w-full max-w-3xl px-4 text-center text-[#0D0D0D] text-base sm:text-lg md:text-xl font-medium leading-snug">Worko uses advanced-level matching algorithms to instantly shortlist pre-qualified, perfect-fit candidates from thousands of applications. 				</p>
 			</div>
 
 			<div className="w-full flex justify-center items-center">

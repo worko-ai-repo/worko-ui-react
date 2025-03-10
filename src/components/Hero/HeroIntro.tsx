@@ -33,7 +33,7 @@ const HeroIntro = () => {
 			<Reveal IsDual={false} CName="slide_up" threshold={0.5} PCName="mx-auto w-fit">
 				<p className="font-bold text-4xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-6 py-1 sm:px-4 sm:py-2 tracking-wide rounded-lg bg-[#6DE5E5] w-min mx-auto">10X</p>
 			</Reveal>
-				<p className="text-gray-600 mt-5">Preparing Yourself For Success In The Interview</p>
+				<p className="text-gray-600 max-w-[300px] sm:max-w-[500px] mx-auto  mt-5">Worko is an AI powered job search tool helping you cut through the application noise and get your dream job faster than ever. </p>
 
 				<div className={'flex justify-center flex-wrap align-center gap-2 w-full mt-4 hover:shadow-blue-700 cursor-pointer ' + styles.hero_head_container}>
 					{items.map((item, index) => (

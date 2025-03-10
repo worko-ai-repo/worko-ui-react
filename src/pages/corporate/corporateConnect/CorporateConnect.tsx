@@ -1,14 +1,14 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import httpServiceObj from '@Services/ApiHandler.service';
 import CorporateConnectForm from './CorporateConnectForm';
 import MessageModal from '@Components/Modals/MessageModal';
 import { toast } from 'react-toastify';
-import MainLoader from '@Components/Loader/Loader'; // Assuming you have a loader component
-import CognitoServiceObj from '@Utils/Cognito.utils';
+
 
 const CorporateConnect = () => {
+	const nav = useNavigate();
 	const [modalData, setModalData] = useState<{
 		type: 'none' | 'error' | 'warning' | 'success' | 'info';
 		heading?: { message: string; type: 'error' | 'warning' | 'success' | 'info' };
@@ -45,7 +45,7 @@ const CorporateConnect = () => {
 				type: 'success',
 				heading: { message: 'Form Submitted', type: 'success' },
 				message: 'Our team will reach out to you shortly to discuss how we can help streamline your hiring process and promote P2P hiring within your organization.',
-				buttons: [{ label: 'Back to Home', action: () => '' }],
+				buttons: [{ label: 'Back to Home', action: () => nav('/') }],
 			});
 		}
 	}

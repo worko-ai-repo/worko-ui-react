@@ -34,8 +34,8 @@ const HeadBanner: React.FC<HeadBannerProps> = ({ jobData }) => {
   }, [jobid]);
 
   return (
-    <div className="p-6 bg-[#316BFF]">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full">
+    <div className="p-6 bg-[#316BFF] ">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full  max-w-[1480px] mx-auto ">
         <div className="lg:col-span-2 max-w-[830px] lg:ml-0 xl:ml-16 flex flex-col gap-6">
           <div className="grid grid-cols-1 mb-0 mt-6">
             <h1 className="text-white text-2xl text-left font-bold md:mb-0">

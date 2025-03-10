@@ -19,8 +19,8 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
 
   return (
     <div className="flex justify-center items-center sm:scale-y-85">
-      <div className={`rounded-3xl p-5 h-full ${styles.frame_inner_container}`}>
-        <div className={"bg-white rounded-3xl h-auto relative md:mx-5 " + styles.frame_main_content}>
+      <div className={`rounded-3xl p-5 h-full  ${frameId === 'outro' ? 'lg:translate-y-20': ''} ${styles.frame_inner_container}`}>
+        <div className={"bg-white rounded-3xl h-auto relative md:mx-0 lg:mx-5 " + styles.frame_main_content}>
           {/* Blue Header */}
           <div className="rounded-t-3xl w-full bg-blue-600 h-[60px]" />
 
@@ -80,11 +80,11 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
 
           {/* Content Area */}
           <div className="h-auto">
-            <div className="bg-gray-50 rounded-2xl max-h-[600px] sm:min-w-[500px] lg:min-w-[800px] p-4">
+            <div className=" rounded-2xl  lg:h-[600px] max-h-[600px] sm:min-w-[500px] lg:min-w-[900px] p-4 md:p-10 ">
               <img
                 src={activeFrame === 'jobs' ? job_frame : ref_frame}
                 alt="job_frame"
-                className="mx-auto max-h-[600px] md:min-w-[500px] object-contain"
+                className="mx-auto max-h-[600px] md:min-w-[500px] sm:h-[100%] object-contain "
               />
             </div>
           </div>

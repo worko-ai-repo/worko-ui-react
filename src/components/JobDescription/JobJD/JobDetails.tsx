@@ -11,7 +11,7 @@ interface JobRequirementsProps {
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = 'Not specified', education = 'Not specified', skills = [] }) => {
   const finaljobSummary = experience ? experience.replace(/\n/g, "<br><br>") : "";
   return (
-    <div className="mb-6">
+    <div className="mb-6 min-h-[250px]">
       <h3 className="font-medium mb-2">Job Requirements:</h3>
       <div>
         <div className="space-y-4 mb-4" dangerouslySetInnerHTML={{ __html: finaljobSummary }}></div>
@@ -46,7 +46,7 @@ export const AboutCompany: React.FC<AboutCompanyProps> = ({
   companyName = 'the company' 
 }) => {
   return (
-    <div className="bg-gray-50 p-6 rounded-lg shadow">
+    <div className="bg-gray-50 p-6 rounded-lg shadow min-h-[250px] ">
       <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
       <p>{aboutCompany}</p>
       
@@ -140,8 +140,24 @@ const JobDetails: React.FC<JobDetailsProps> = ({
     setShowApplyModal(true);
   };
 
+    const handleShare = async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: document.title,
+            text: "Check this out!",
+            url: window.location.href,
+          });
+        } catch (error) {
+          console.error("Error sharing:", error);
+        }
+      } else {
+        alert("Sharing not supported, try another method.");
+      }
+    };
+
   return (
-    <div className="w-full md:w-[63%] sm:ml-4 xl:ml-16 space-y-6">
+    <div className="w-full md:w-[63%]  min-h-full space-y-6">
       <div className="bg-gray-50 p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Job description</h2>
         
@@ -168,7 +184,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
           {/* <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
             Refer a Friend
           </button> */}
-          <button className="p-2 border border-gray-300 rounded-full">
+          <button onClick={handleShare}  className="p-2 border border-gray-300 rounded-full">
             <Share2 className="w-5 h-5" />
           </button>
         </div>

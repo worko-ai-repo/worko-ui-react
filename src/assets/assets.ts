@@ -18,8 +18,8 @@ import call from './worko-assets/call.png';
 import favicon from './worko-assets/favicon.png';
 import logo_text from './worko-assets/logo-text.png';
 import logo_text_bright from './worko-assets/logo-text-bright.png';
-import job_frame from './worko-assets/Job_Frame.png'
-import ref_frame from './worko-assets/Referral_Frame.png'
+import job_frame from './worko-assets/Job_Frame.webp'
+import ref_frame from './worko-assets/Referral_Frame.webp'
 import student_male from './backgrounds/student_male.png'
 import student from './backgrounds/student.png'
 import student1 from './backgrounds/student1.png'

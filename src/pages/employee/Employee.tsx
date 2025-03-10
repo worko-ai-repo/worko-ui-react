@@ -15,9 +15,9 @@ const Employee = () => {
         <div className="w-full bg-white font-poppins">
             {/* Hero Section */}
             <div className="relative h-[729px] w-full bg-[#4B7EFF] text-white flex flex-col items-center px-6 md:px-0 text-center">
-                <div className="z-10 flex flex-col items-center py-14 md:py-24">
+                <div className="z-10 flex flex-col items-center text-wrap py-14 md:py-24">
                     <h1 className="max-w-4xl text-3xl md:text-5xl font-bold leading-tight">
-                        Your Expertise, Their Opportunity <br /> - Referred by You
+                    Help Job Seekers, Get Rewarded, and Build a Legacy Beyond Your 9-5
                     </h1>
                     
                     <p className="mt-6 max-w-2xl text-md md:text-xl font-medium leading-relaxed px-4">

@@ -43,7 +43,7 @@ const JobDescription = () => {
   if (!displayData) return <div>Loading job data...</div>;
 
   return (
-    <div className='w-full'>
+    <div className='w-full '>
       <HeadBanner jobData={displayData} />
       <JobJD jobData={displayData} />
     </div>

@@ -70,6 +70,7 @@ const CompaniesList = () => {
   return (
     <section className="lg:max-w-[1500px] mx-auto w-full overflow-hidden py-8 bg-transparent flex items-center my-5">
       <div className="marquee-container w-full flex flex-col gap-4">
+        <p className='text-full text-white text-3xl font-bold md:text-4xl mb-10 '  >Companies you can work with </p>
         <div className="flex marquee-content">
           {companies.map((company, index) => (
             <CompanyCard key={`first-${index}`} company={company} />

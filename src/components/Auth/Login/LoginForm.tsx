@@ -239,7 +239,7 @@ const LoginForm = () => {
 						error: 'Error: An error occurred while signing in',
 					})
 				)}
-				className=" min-w-full ">
+				className=" min-w-full h-full ">
 				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-2 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
 					<p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
 					{/* Name */}

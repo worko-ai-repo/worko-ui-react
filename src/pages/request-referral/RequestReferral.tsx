@@ -179,7 +179,7 @@ const RequestReferral = () => {
 			setModalType('Max_tries');
 			setLoader(false);
 			return;
-		} else if (refCount?.referralCount && refCount?.referralCount <= 22222222222222222222230) {
+		} else if (refCount?.referralCount && refCount?.referralCount <= 0) {
 			setGaugeEnabled(false)
 			setMessageEnabled(true);
 			setModalType('zeroReferral');
@@ -299,7 +299,7 @@ const RequestReferral = () => {
 					</div>
 
 					<div className="mt-4">
-						<textarea {...register('description', validationRules.defaultTextarea)} placeholder="Paste job description for above url here" className="border-[#929292] w-full p-4 border rounded-2xl bg-white " rows={18}></textarea>
+						<textarea {...register('description', validationRules.jobDescription)} placeholder="Paste job description for above url here" className="border-[#929292] w-full p-4 border rounded-2xl bg-white " rows={18}></textarea>
 						{errors.description && <p className="text-red-500 text-xs text-left">{errors.description.message}</p>}
 					</div>
 					<div className="w-full text-left ml-2">

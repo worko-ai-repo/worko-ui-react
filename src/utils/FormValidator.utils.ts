@@ -199,8 +199,13 @@ export const validationRules = {
 	 */
 	password: {
 		required: 'Password is required',
-		minLength: { value: 6, message: 'Minimum 6 characters required' },
+		minLength: { value: 8, message: 'Password must be at least 8 characters long' },
+		pattern: {
+			value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+			message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+		},
 	},
+	
 
 	/**
 	 * @type  {Function} confirmPassword

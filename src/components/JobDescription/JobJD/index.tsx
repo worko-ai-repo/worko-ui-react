@@ -106,7 +106,7 @@ const JobJD = (jobData: any) => {
   );
 
   return (
-    <div className="flex flex-col text-left md:flex-row p-4 gap-2 bg-white min-h-screen">
+    <div className="flex flex-col text-left md:flex-row   py-5  gap-2 bg-white min-h-screen max-w-[1280px] mx-auto">
       <JobDetails 
         job={job}
         isApplying={isApplying}

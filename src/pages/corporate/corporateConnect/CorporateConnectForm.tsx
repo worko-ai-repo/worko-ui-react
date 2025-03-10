@@ -57,7 +57,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 				setEmailVerified(true);
 				toast.success('Email Verified Successfully');
 			} else if (dbResponse?.verificationStatus === false) {
-				toast.error('OTP Verification Failed');
+				toast.error('Please enter correct OTP');
 			} else {
 				setIsOtpSent(true);
 				toast.success('OTP Sent to your Email');
@@ -102,17 +102,49 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 					{errors.designation && <p className="text-sm text-left text-red-500">{errors.designation.message?.toString()}</p>}
 				</div>
 
-				{/* Email */}
-				<div className="relative">
-					<label className="block font-medium">Email</label>
-					<input readOnly={isEmailVerified} placeholder="Corporate email id" type="email" className="input_primary auth_input" {...register('email', validationRules.corporateEmail)} />
-					{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
-					{!errors.email && watch('email') && (
-						<button className="absolute btn_primary top-[33px] right-0 scale-75 active:scale-50" disabled={isOtpSent || isVerifying} onClick={e => handleEmailVerification(false, e)}>
-							{isVerifying ? 'Sending...' : isEmailVerified ? '✅ Verified' : 'Send OTP'}
-						</button>
-					)}
-				</div>
+{/* Email */}
+<div className="relative ">
+	<label className="block font-medium">Email</label>
+	<div className="flex gap-2 ">
+		<input
+			readOnly={isEmailVerified || isOtpSent} // Make editable if OTP is not sent
+			placeholder="Corporate email id"
+			type="email"
+			className="input_primary auth_input"
+			{...register('email', validationRules.corporateEmail)}
+		/>
+		
+		{/* Show Send OTP / Change Email buttons */}
+		{!errors.email && watch('email') && (
+			<div className=" flex ">
+				{isOtpSent ? (
+					<button
+						className="btn_secondary text-xs px-0 text-center"
+						onClick={() => {
+							// Reset all OTP-related states
+							setIsOtpSent(false);
+							setEmailVerified(false);
+							setResendOtpVisible(false);
+							setValue('otp', ''); // Clear OTP field
+						}}
+					>
+						Change Email
+					</button>
+				) : (
+					<button
+						className="btn_primary py-1 px-3 text-xs active:scale-50"
+						disabled={isOtpSent || isVerifying}
+						onClick={e => handleEmailVerification(false, e)}
+					>
+						{isVerifying ? 'Sending...' : isEmailVerified ? '✅ Verified' : 'Verify'}
+					</button>
+				)}
+			</div>
+		)}
+	</div>
+	{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
+</div>
+
 
 				{/* OTP Input */}
 				{isOtpSent && (
@@ -146,7 +178,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 				className="btn_primary w-[250px]"
 				onClick={async () => {
 					const isFormValid = await trigger();
-					debugger;
+					// debugger;
 					if (isFormValid && isEmailVerified) {
 						handleSubmit(onSubmit)();
 					} else {

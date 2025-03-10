@@ -59,7 +59,7 @@ function CorporatePlans() {
     <section className=" py-16 px-4 sm:px-6 lg:px-8" id='corporatePlans'>
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
-          Pick the Plan that right fits your needs :
+        Flexible Plans For All Your Needs and Budgets
         </h1>
 
         
@@ -72,7 +72,7 @@ function CorporatePlans() {
                   RECOMMENDED
                 </div>
               )}
-              <div className="p-6 pt-8 border border-2 border-gray-200 rounded-sm bg-white">
+              <div className="p-6 pt-8  border-2 border-gray-200 rounded-sm bg-white">
                 
                 <h2 className="text-xl font-medium text-gray-900 mt-2 text-left">{plan.name}</h2>
                 <div className="mb-8 text-left">
@@ -86,6 +86,7 @@ function CorporatePlans() {
                       ? 'bg-[#4B7EFF] text-white w-full rounded-lg py-1 hover:bg-[#3A6AE8]'
                       : 'bg-black text-gray-200 w-full rounded-lg py-1 hover:bg-gray-800'
                   }`}
+                  onClick={() => window.location.href = '/for-corporate/connect-with-us '}
                 >
                   Try now
                 </button>

@@ -20,7 +20,7 @@ const CompanyLogos = () => {
     <section className="flex flex-col w-full bg-[#316BFF] overflow-x-auto py-16 items-center justify-center rounded-3xl">
       {/* Added Trusted Partners heading */}
       <h2 className="text-white text-3xl font-semibold mb-12 text-center">
-        Trusted Partners
+      We Partner With
       </h2>
       
       <div className="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-12 min-w-max px-4 pb-16">

@@ -1,13 +1,24 @@
 import { about_bg, gb_form, worko_new } from '@Assets';
 import { validateCV } from '@Components/Auth/Signup/SignupForm';
+import MessageModal from '@Components/Modals/MessageModal';
 import { AwsS3FileUploadResponse } from '@Interfaces/Auth.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { validationRules } from '@Utils/FormValidator.utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const AboutOutro = () => {
+	const nav = useNavigate();
+	const [modalData, setModalData] = useState<{
+			type: 'none' | 'error' | 'warning' | 'success' | 'info';
+			heading?: { message: string; type: 'error' | 'warning' | 'success' | 'info' };
+			message: string;
+			buttons?: { label: string; action: () => void; type?: 'primary' | 'danger' | 'warning' | 'success' }[];
+		} | null>(null);
+	
+
 	const {
 		register,
 		handleSubmit,
@@ -67,11 +78,21 @@ const AboutOutro = () => {
       };
   
       const { response : userFormSubmission,status} = await httpServiceObj.post<any>("/career", formData  );
-  debugger;
+//   debugger;
 	  if(status === 409 ) {
-      toast.warning("form already submitted");
+		setModalData({
+			type: 'error',
+			heading: { message: 'Form Already Submitted', type: 'error' },
+			message: 'It seems you have already submitted the form. Our team will reach out to you shortly.',
+			buttons: [{ label: 'Back to Home', action: () => nav('/') }],
+		});
 	  } else {
-		toast.success("CV and details submitted successfully");
+		setModalData({
+			type: 'success',
+			heading: { message: 'Form Submitted', type: 'success' },
+			message: 'Thank you for showing interest in our platform. Your form has been submitted successfully and we will reach out to you shortly.',
+			buttons: [{ label: 'Back to Home', action: () => nav('/') }],
+		});
 	  }
       
   };
@@ -156,6 +177,8 @@ const AboutOutro = () => {
 					</div>
 				</div>
 			</div>
+			{/* Modal */}
+						{modalData && <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />}
 		</section>
 	);
 };

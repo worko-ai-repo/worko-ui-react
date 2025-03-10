@@ -62,19 +62,18 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   return (
     <div className="border rounded-lg p-4 mb-4">
       <div className="flex justify-between items-start mb-2">
-        <div className="flex gap-3">
-          <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
+        <div className="flex  w-full  gap-3">
+          <div className=" w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
             {typeof logo === 'string' ? (
               <img src={logo} alt={`${companyName} logo`} className="w-full h-full object-contain" />
             ) : (
               <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
             )}
           </div>
-          <div>
-            {/* @TODO: ASHUTOSH */}
-            <div className="flex items-center gap-2 truncate max-w-[70%] ">
+          <div className='w-full'>
+            <div className="flex  items-center  justify-between  ">
               <h3 
-                    data-tooltip-id="my-tooltip" data-tooltip-content={companyName} className="font-medium text-xs md:text-base text-nowrap truncate max-w-[70%] ">{companyName} - {jobTitle}</h3>
+                    data-tooltip-id="my-tooltip" data-tooltip-content={companyName} className="font-medium text-xs md:text-base text-nowrap truncate max-w-[170px] ">{companyName} - {jobTitle}</h3>
               {isNew && (
                 <span className="bg-[#6DE5E55C] text-center text-[#316BFF] text-nowrap text-xs px-2 py-0.5 rounded">New post</span>
               )}
