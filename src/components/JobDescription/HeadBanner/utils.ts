@@ -1,4 +1,4 @@
-import { JobData, isExternalJob } from './types';
+/* import { JobData, isExternalJob } from './types';
 
 export const getFormattedSalary = (jobData?: JobData): string => {
   if (!jobData) return "Not Disclosed";
@@ -24,4 +24,4 @@ export const getFormattedExperience = (jobData?: JobData): string => {
     }
     return "Not Specified";
   }
-};
+}; */

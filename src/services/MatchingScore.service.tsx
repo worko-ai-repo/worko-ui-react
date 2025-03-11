@@ -30,6 +30,7 @@ export const MatchingScore = async (
   
     const fetchScore = async () => {
       if (attempts >= maxRetries) {
+        setGaugeEnabled(false)
         setLoader(false);
         setMessageEnabled(true);
         setModalType("Max_tries");
@@ -43,6 +44,7 @@ export const MatchingScore = async (
         );
   
         if (error) {
+          setGaugeEnabled(false)
           setLoader(false);
           setMessageEnabled(true);
           setModalType("Max_tries");
@@ -76,12 +78,14 @@ export const MatchingScore = async (
             return;
 
           case 250:
+            setGaugeEnabled(false)
             setLoader(false);
             setMessageEnabled(true);
             setModalType("Error_250");
             return;
   
           case 251:
+            setGaugeEnabled(false)
             setLoader(false);
             setMessageEnabled(true);
             setModalType("Error_251");

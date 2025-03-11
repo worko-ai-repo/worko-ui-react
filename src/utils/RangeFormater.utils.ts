@@ -3,9 +3,9 @@
    *
    * Formats the range values based on the type.
    */
-  export function formatRange(min: number | null, max: number | null, type: string): string {
+  export function formatRange(min: number | undefined, max: number | undefined, type: string): string {
     if (type === "salary" && (!min || !max)) return "Not Disclosed"; // Ensure salary is disclosed properly
-    if (min === null || max === null) return "-"; // Handle null values during API loading
+    if (min === undefined || max === undefined) return "-"; // Handle undefined values during API loading
     
     if (min === max) {
       return `${min} ${type === "experience" ? (max === 1 ? "Year" : "Years") : "LPA"}`;

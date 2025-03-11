@@ -9,6 +9,7 @@ export interface CompanyDto {
     industry: string;
     linkedIn: string;
     carrierPage: string;
+    aboutCompany: string;
     logoUrl: string;
     logo: string;
     isVerified: boolean;
@@ -57,38 +58,50 @@ export interface CompanyDto {
    * @description This interface is used to define the structure of the JobDto object
    */
   export interface JobDto extends CompanyDto {
-	companyName: any;
-	companyLogoUrl: any;
-    id: string;
-    externalJobId? : string;
-    jobTitle: string;
-    jobDescription: string;
-    workMode: string;
-    location: string;
-    salaryRange: { min: number; max: number };
-    experienceRange: { min: number; max: number };
-    noticePeriod: number;
-    numOfOpenings: number;
-    department: string;
-    typeofEmployment: string;
-    technicalSkills: string[];
-    coreSkills: string[];
-    softSkills: string[];
-    mislaneiousSkills: string[];
-    otherRequirements: string;
-    status: string;
-    isDeleted: boolean;
-    createdByUserId: string;
-    createdAt: string;
-    updatedAt: string;
-    PK: string;
-    SK: string;
-    GSI1PK: string;
-    GSI1SK: string;
-    companyDetails: CompanyDto;
+	  id: string;
+  companyId?: string;
+  externalJobId?: string;
+  jobTitle: string;
+  jobDescription: string;
+  otherRequirements?: string;
+  experienceRange?: {
+    min: number;
+    max: number;
+  };
+  noticePeriod?: number;
+  numOfOpenings?: number;
+  salaryRange?: {
+    min: number;
+    max: number;
+  };
+  department?: string;
+  location: {
+    city: string[];
+    state: string[];
+    country: string[];
+    fullLocation: string[];
+  };
+  workMode: string;
+  typeofEmployment?: string;
+  coreSkills?: string[];
+  softSkills?: string[];
+  technicalSkills?: string[];
+  miscellaneousSkills?: string[];
+  status: string;
+  createdByUserId?: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  updatedByUserId?: string;
+  companyDetails?: CompanyDto;
+  jobPostedDate?: string;
+  jobCreatedDate?: string;
+  jobUrl?: string;
+  companyName?: string;
 
     applyStatus ? : 'APPLIED' | 'NOT_APPLIED';
     matchingScore?: number;
+    isNew?: boolean;
   }
   
   /**

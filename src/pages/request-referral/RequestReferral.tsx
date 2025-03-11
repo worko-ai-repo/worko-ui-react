@@ -98,7 +98,6 @@ const RequestReferral = () => {
 		  setIsModalOpen(true);
 		return () => {
 		  setIsModalOpen(false);
-		  setGaugeEnabled(false); // remove this if casuse error ;
 		};
 	  }, [isLoader, MessageEnabled, IsFeedbackOpen]);
 
@@ -195,6 +194,7 @@ const RequestReferral = () => {
 			const cvCurPerc = profilePer?.candidate[2]?.curPerc;
 
 			if (cvCurPerc === 0) {
+				setGaugeEnabled(false)
 				setMessageEnabled(true);
 				setModalType('profileCompletion');
 				setLoader(false);
@@ -217,6 +217,7 @@ const RequestReferral = () => {
 		const { response: refCreated, status: refApiStatus } = await httpServiceObj.post<{ referralRequestId: string }>(`/user/${userDetails.email}/referral/request`, CreateReferrakPayload, true);
 
 		if (refApiStatus === 403) {
+			setGaugeEnabled(false)
 			setMessageEnabled(true);
 			setModalType('AlreadyRequested');
 			setLoader(false);
@@ -240,7 +241,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				window.location.href = '/v1/dashboard/candidate';
+				window.location.href = '/v1/candidate/referral/awaiting';
 				break;
 			case 'RequestRejected':
 				reset();

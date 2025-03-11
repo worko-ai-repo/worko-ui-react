@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import httpServiceObj from '@Services/ApiHandler.service';
-import { JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
+import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import JobCard from './Jobcard';
 import SkillsCard from './SkillsCard';
-import { HeadBannerProps, isExternalJob } from './types';
-import { getFormattedSalary, getFormattedExperience } from './utils';
+// import { HeadBannerProps } from './types'; @TODO: vaibhav check this.
+// import { getFormattedSalary, getFormattedExperience } from './utils';
+import { formatRange } from '@Utils/RangeFormater.utils';
 
-const HeadBanner: React.FC<HeadBannerProps> = ({ jobData }) => {
+const HeadBanner: React.FC<JobDto> = ( jobData ) => {
   const { jobid } = useParams();
   const [score, setScore] = useState<number | undefined>(undefined);
 
@@ -40,27 +41,27 @@ const HeadBanner: React.FC<HeadBannerProps> = ({ jobData }) => {
           <div className="grid grid-cols-1 mb-0 mt-6">
             <h1 className="text-white text-2xl text-left font-bold md:mb-0">
               {jobData ? 
-                `Apply for jobs at ${isExternalJob(jobData) ? 
+                `Apply for jobs at ${jobData.externalJobId ? 
                   jobData.companyName : 
                   jobData.department}` : 
                 'Apply for this position'}
             </h1>
           </div>
           
-          <JobCard jobData={jobData} />
+          <JobCard {...jobData} />
         </div>
       
         <div className="flex flex-col pt-20">
           <SkillsCard 
-            department={jobData && isExternalJob(jobData) ? 
+            department={jobData &&  jobData.externalJobId ? 
               jobData.companyName : 
               jobData?.department}
             employmentType={jobData?.typeofEmployment}
-            salary={getFormattedSalary(jobData)}
-            coreSkills={jobData && isExternalJob(jobData) ? 
-              [jobData?.companyName || '', jobData?.location || ''] : 
-              jobData?.coreSkills}
-            experience={getFormattedExperience(jobData)}
+            salary={formatRange(jobData.salaryRange?.min, jobData.salaryRange?.max, "salary")}
+            coreSkills={jobData &&  jobData.externalJobId ? 
+              [jobData?.companyName || '', jobData?.location?.fullLocation.join(', ') || ''] : 
+              jobData?.coreSkills?.map(skill => typeof skill === 'string' ? skill : (skill as any).fullLocation.join(', '))}
+            experience={formatRange(jobData.experienceRange?.min, jobData.experienceRange?.max, "experience")}
           />
         </div>
       </div>

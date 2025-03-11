@@ -3,7 +3,7 @@ import { Star, MapPin, Clock } from 'lucide-react';
 import GaugeComponent from '@Components/Company/Gauge';
 import { useParams } from 'react-router-dom';
 import httpServiceObj from '@Services/ApiHandler.service';
-import { JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
+import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { useAppContext } from '@Context/App.context';
 
 // Include the interface definitions
@@ -107,7 +107,7 @@ const MetricGauge = ({ value, label }: { value: number, label: string }) => {
   );
 };
 
-const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
+const JobCard: React.FC<JobDto> = ( jobData) => {
   const {isLoggedIn} = useAppContext();
   const { jobid } = useParams();
   const [showModal, setShowModal] = useState(false);
@@ -173,13 +173,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
   // Get company name based on job type
   const companyName = useMemo(() => {
     if (!jobData) return 'Company';
-    return isExternalJob(jobData) ? jobData.companyName : 'Company';
+    return jobData.externalJobId ? jobData.companyName : 'Company';
   }, [jobData]);
 
   // Get company logo URL
   const companyLogoUrl = useMemo(() => {
     if (!jobData) return 'placeholder-logo.png';
-    return isExternalJob(jobData) ? 
+    return jobData.externalJobId ? 
       `/logos/${jobData.companyName?.toLowerCase().replace(/\s+/g, '-')}.png` : 
       'placeholder-logo.png';
   }, [jobData]);
@@ -189,7 +189,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
     if (!jobData) return false;
     
     const createdDate = new Date(
-      isExternalJob(jobData) ? 
+      jobData.externalJobId ? 
         jobData.jobCreatedDate || jobData.createdAt || '' : 
         jobData.createdAt || ''
     );
@@ -226,7 +226,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
   const departmentOrType = useMemo(() => {
     if (!jobData) return 'Department';
     
-    return isExternalJob(jobData) ? 
+    return jobData.externalJobId ? 
       jobData.typeofEmployment || 'Full Time' : 
       jobData.department || 'Department';
   }, [jobData]);
@@ -254,9 +254,9 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
             <div className="flex w-full gap-4">
               {/* Image column */}
               <div className="relative flex-shrink-0">
-              {jobData?.companyLogoUrl ? (
+              {jobData?.logoUrl ? (
                     <img 
-                      src={jobData.companyLogoUrl}  
+                      src={jobData.logoUrl}  
                       className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
                     />
                   ) : (
@@ -358,7 +358,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData }) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{jobLocation}</span>
+              <span className='text-[12px] font-semibold'>dcs</span>{/* @todo */}
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />

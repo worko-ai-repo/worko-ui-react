@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Share2 } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
+import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 
 interface JobRequirementsProps {
   experience?: string;
@@ -15,7 +16,7 @@ export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = '
       <h3 className="font-medium mb-2">Job Requirements:</h3>
       <div>
         <div className="space-y-4 mb-4" dangerouslySetInnerHTML={{ __html: finaljobSummary }}></div>
-        <p><span className="font-medium">Education:</span> {education}</p>
+        {/* <p><span className="font-medium">Education:</span> {education}</p> */}
         <p className="mb-2"><span className="font-medium">Skills:</span></p>
         <ul className="list-disc pl-5 space-y-1">
           {skills.map((skill, index) => (
@@ -27,22 +28,18 @@ export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = '
   );
 };
 
-interface SocialLink {
-  name: string;
-  url: string;
-}
 
 interface AboutCompanyProps {
-  paragraphs?: string[];
+  paragraphs?: string[] | undefined;
   aboutCompany?: string;
-  socialLinks?: SocialLink[];
+  socialLinks?: string;
   companyName?: string;
 }
 
 export const AboutCompany: React.FC<AboutCompanyProps> = ({ 
   paragraphs = [], 
   aboutCompany = '', 
-  socialLinks = [], 
+  socialLinks = '', 
   companyName = 'the company' 
 }) => {
   return (
@@ -50,13 +47,11 @@ export const AboutCompany: React.FC<AboutCompanyProps> = ({
       <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
       <p>{aboutCompany}</p>
       
-      {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>}
+      {/* {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>} @Todo Vaibhav why this is added? */}
       
       {socialLinks && socialLinks.length > 0 && (
         <div className="flex space-x-4 mt-4">
-          {socialLinks.map((link, index) => (
-            <SocialLink key={index} name={link?.name} url={link.url} />
-          ))}
+            <SocialLink name="Socicals" url={socialLinks} />
         </div>
       )}
     </div>
@@ -115,7 +110,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url }) => {
 };
 
 interface JobDetailsProps {
-  job: any;
+  job: JobDto;
   isApplying: boolean;
   applicationStatus: { success: boolean; message: string } | null;
   onApply: () => void;
@@ -128,13 +123,16 @@ const JobDetails: React.FC<JobDetailsProps> = ({
   onApply 
 }) => {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
-  const companyName = job.jobData.companyName || job.jobData.company || 'the company';
+  const companyName = job.companyName || 'the company';
   console.log(job);
 
   const handleApplyClick = () => {
     // Open the job URL in a new tab if available
-    if (job.jobData.jobUrl) {
-      window.open(job.jobData.jobUrl, '_blank');
+    if (job.externalJobId && job.jobUrl) {
+      window.open(job.jobUrl, '_blank');
+    }
+    else{
+      window.alert("Job URL not available"); //@Implement Ashutosh ApplyJob
     }
     // Show the confirmation modal
     setShowApplyModal(true);
@@ -162,9 +160,9 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         <h2 className="text-xl font-semibold mb-4">Job description</h2>
         
         <JobRequirements 
-          experience={job.jobData.jobDescription} 
-          education={job.jobData.education} 
-          skills={job.jobData.skills || []} 
+          experience={job.jobDescription} 
+        //  education={job.}  
+          skills={job.coreSkills || []} 
         />
         
         {applicationStatus && (
@@ -191,10 +189,10 @@ const JobDetails: React.FC<JobDetailsProps> = ({
       </div>
       
       <AboutCompany 
-        paragraphs={job.jobData.aboutCompany || []} 
-        aboutCompany={job.jobData.companyDescription || ''}
-        socialLinks={job.jobData.socialLinks || []}
-        companyName={companyName}
+        // paragraphs={job?.companyDetails?.aboutCompany || []} 
+        aboutCompany={job?.companyDetails?.aboutCompany || ''}
+        socialLinks={job.linkedIn || ''}
+        companyName={job.companyName || 'the company'}
       />
 
       {showApplyModal && 

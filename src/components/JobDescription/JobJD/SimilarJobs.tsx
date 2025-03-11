@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Share2, Briefcase, Clock, MapPin } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
+import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 
 // Updated interface to handle both internal and external job types
 interface Job {
@@ -25,14 +26,14 @@ interface Job {
 }
 
 interface JobCardProps {
-  job: Job;
-  onApply?: (job: Job) => void;
+  job: JobDto;
+  onApply?: (job: JobDto) => void;
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
-  const companyName = job.companyName || job.company || 'Company';
-  const logo = job.companyLogo || job.companyLogoUrl || '/api/placeholder/40/40';
+  const companyName = job.companyName || 'Company';
+  const logo = job.logoUrl ||  '/api/placeholder/40/40';
   const jobTitle = job.jobTitle || 'Position';
   const location = job.location || 'Remote';
   console.log(job);
@@ -47,7 +48,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     if (job.experienceRange) {
       return `${job.experienceRange.min}-${job.experienceRange.max} years`;
     }
-    return job.experience || 'Not specified';
+    return job.experienceRange || 'Not specified';
   };
 
   const handleApplyClick = () => {
@@ -80,7 +81,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
             </div>
             <div className="flex gap-1">
               <MapPin className="w-4 h-4" />
-              <p className="text-sm text-gray-600">{location}</p>
+              <p className="text-sm text-gray-600">{location.fullLocation}</p>
             </div>
           </div>
         </div>
@@ -143,8 +144,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
 };
 
 interface SimilarJobsProps {
-  similarJobs: Job[];
-  onApply: (job: Job) => void;
+  similarJobs: JobDto[];
+  onApply: (job: JobDto) => void;
 }
 
 const SimilarJobs: React.FC<SimilarJobsProps> = ({ similarJobs, onApply }) => {

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import httpServiceObj from '@Services/ApiHandler.service';
 import JobDetails from './JobDetails';
 import SimilarJobs from './SimilarJobs';
+import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 
-const JobJD = (jobData: any) => {
-  const job = jobData || {};
-  const similarJob = job.jobData
+const JobJD = (jobData: JobDto ) => {
+
   const [isApplying, setIsApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
@@ -13,12 +13,12 @@ const JobJD = (jobData: any) => {
 
   useEffect(() => {
     const fetchSimilarJobs = async () => {
-      if (similarJob && similarJob.id) {
+      if (jobData && jobData.id) {
         setIsLoading(true);
         try {
           // First try to fetch similar jobs from the similar-jobs endpoint
           const { response, error: similarJobsError } = await httpServiceObj.get(
-            `https://jobs.dev.worko.work/job/?jobTitle=${similarJob.jobTitle}&pageSize=10`,
+            `https://jobs.dev.worko.work/job/?jobTitle=${jobData.jobTitle}&pageSize=10`,
             true,
             {},
             true
@@ -44,18 +44,17 @@ const JobJD = (jobData: any) => {
     fetchSimilarJobs();
   }, []);
 
-  const handleApplyJob = async (jobToApply = job.jobData) => {
+  const handleApplyJob = async (jobToApply = jobData) => {
     try {
       setIsApplying(true);
       setApplicationStatus(null);
-      console.log(jobToApply);
       
       const payload = {
         jobId: jobToApply.id,
         jobUrl: window.location.href,
-        jobPortal: jobToApply.jobPortal || undefined,
+        jobPortal: jobToApply.jobUrl || undefined,
         matchingScore: jobToApply.matchingScore || undefined,
-        ...((!jobToApply.externalJobId && { companyName: jobToApply.companyName || jobToApply.company }))
+        ...((!jobToApply.externalJobId && { companyName: jobToApply.companyName || jobToApply.companyName })) //@vaibhav check this previously it was company why?
       };
       
       const endpoint = jobToApply.externalJobId 
@@ -93,14 +92,14 @@ const JobJD = (jobData: any) => {
   const displayedSimilarJobs = isLoading ? [] : (
     similarJobs.length > 0 ? similarJobs : [
       {
-        id: job.id || "fallback1",
-        jobTitle: job.title || job.jobTitle,
-        companyName: job.companyName || job.company,
-        location: job.location,
-        department: job.department,
-        experienceRange: job.experienceRange,
+        id: jobData.id || "fallback1",
+        jobTitle: jobData.jobTitle || jobData.jobTitle,
+        companyName: jobData.companyName ,
+        location: jobData.location,
+        department: jobData.department,
+        experienceRange: jobData.experienceRange,
         isNew: true,
-        companyLogoUrl: job.companyLogo || job.companyLogoUrl,
+        companyLogoUrl: jobData.logoUrl ,
       }
     ]
   );
@@ -108,7 +107,7 @@ const JobJD = (jobData: any) => {
   return (
     <div className="flex flex-col text-left md:flex-row   py-5  gap-2 bg-white min-h-screen max-w-[1280px] mx-auto">
       <JobDetails 
-        job={job}
+        job={jobData}
         isApplying={isApplying}
         applicationStatus={applicationStatus}
         onApply={() => handleApplyJob()}

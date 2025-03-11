@@ -46,9 +46,6 @@ export interface BaseJobData {
   
   export type JobData = InternalJobData | ExternalJobData;
   
-  export function isExternalJob(job: JobData): job is ExternalJobData {
-    return 'externalJobId' in job;
-  }
   
   export interface HeadBannerProps {
     jobData?: JobData;

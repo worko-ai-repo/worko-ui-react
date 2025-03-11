@@ -92,7 +92,7 @@ export class HttpService {
 			// Build query string and append it to the path
 			const queryString = new URLSearchParams(params as Record<string, string>).toString();
 			const fullPath = queryString ? `${path}?${queryString}` : path;
-			let response
+			let response;
 			const options = {
 				method: 'GET',
 				...getHttpOptions(authorization, params),

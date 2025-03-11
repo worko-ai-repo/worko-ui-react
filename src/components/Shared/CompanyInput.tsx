@@ -107,7 +107,7 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 						) : searhText.length >= 2 ? (
 							<div className="p-4">
 								<div className="text-sm text-gray-500 mb-3">No companies found</div>
-								{isLoggedIn && (
+								{/* {isLoggedIn && ( */}
 									<button
 										onClick={() => {
 											setShowModal(true);
@@ -116,7 +116,7 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 										className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
 										Request to add company
 									</button>
-								)}
+							
 							</div>
 						) : (
 							<div className="px-4 py-3 text-sm text-gray-500">Type at least 2 characters to searhText</div>

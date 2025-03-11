@@ -103,18 +103,18 @@ const CompanyJobContent = () => {
               <MainLoader />
             ) : companyJobData && companyJobData.length > 0 ? (
               companyJobData.map((job, index) => {
-                const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails.name;
-
+                const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
+                const Finallocations = !job?.location?.fullLocation?.length ? 'Not Disclosed' : job?.location?.fullLocation.join(', ');
                 return (
                   <JobCard
                     key={job.id || index}
                     job={{
-                      companyLogo: job.companyLogoUrl,
+                      companyLogo: job.logoUrl,
                       title: job.jobTitle,
                       department: job.department,
                       salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, "salary"),
-                      location: job.location,
-                      employmentType: job.typeofEmployment,
+                      location: Finallocations || 'Not Disclosed',
+                      employmentType: job.typeofEmployment || 'Not Disclosed',
                       createdAt: job.createdAt,
                       // Use actual match percentage if available, otherwise use default
                       matchPercentage: job.matchingScore || 0,

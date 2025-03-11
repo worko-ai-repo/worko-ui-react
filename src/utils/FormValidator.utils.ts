@@ -294,18 +294,22 @@ export const validationRules = {
 		required: 'Job Description is required',
 		minLength: { value: 50, message: 'Minimum 50 characters required' },
 		validate: (value: string) => {
-		  const keywords = [
-			'experience', 'education', 'skills', 'certifications', 
-			'Preferred Skills', 'job description', 'responsibilities', 
-			'role', 'Employment', 'Department'
-		  ];
-	  
-		  if (keywords.some((keyword) => !value.toLowerCase().includes(keyword.toLowerCase()))) {
-			return 'Please provide a detailed job description , that includes [Experience, Education, Skills, Certifications, Responsibilities, Role, Employment Type, Department].';
+			const requiredKeywords = [
+			  'experience', 'education', 'skills', 'certifications', 
+			  'responsibilities', 'role', 'employment type', 'department'
+			];
+		  
+			const missingKeywords = requiredKeywords.filter(
+			  (keyword) => !value.toLowerCase().includes(keyword.toLowerCase())
+			);
+		  
+			if (missingKeywords.length > 0) {
+			  return `Please include the following sections: ${missingKeywords.join(', ')}`;
+			}
+		  
+			return true; // Validation passed
 		  }
-	  
-		  return true; // Validation passed
-		}
+		  
 	  },
 
 	/**

@@ -24,8 +24,8 @@ const messages = {
     },
     RequestAccepted: {
         titleColor: 'text-green-500',
-        message: `<p>You are a good match for the job. We are sending your CV to the best suitable Referee who can refer you.To see the status of your referral please visit your dashboard</p>`,
-        buttonText: "Go to Dashboard!"
+        message: `<p>You are a good match for the job. We are sending your CV to the best suitable Referee who can refer you. To see the status of your referral please visit your referral dashboard</p>`,
+        buttonText: "View Status"
     },
     RequestRejected: {
         titleColor: 'text-red-500',

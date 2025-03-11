@@ -6,7 +6,7 @@ import RequestCompany from './RequestCompany';
 import { useAppContext } from '@Context/App.context';
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void , companyPageMode:CompanyPageModeEnum }) => {
-	const { setJobFilters, jobFilterForRender } = useCompanyContext();
+	const { setJobFilters, jobFilterForRender = [] } = useCompanyContext(); // Ensure jobFilterForRender defaults to an empty array
 	const {isLoggedIn, userDetails} = useAppContext();
 
 	// Reset all filters
@@ -42,13 +42,11 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 				} catch (error) {
 					console.error('Invalid range value:', value);
 				}
-				
 			} 
 			else if (key === 'industry') {
-                // Map 'industry' to 'industryName' for API compatibility
-                newFilters['industryName'] = value;
-            }
-			else {
+				// Map 'industry' to 'industryName' for API compatibility
+				newFilters['industryName'] = value;
+			} else {
 				newFilters[key] = value;
 			}
 			return newFilters;
@@ -64,10 +62,8 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 	};
 
 	return (
-
 		<div className="sticky top-[100px] ">
-			
-			<div className="  border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
+			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold">Filters</h3>
 					<button onClick={toggleFilters} className="text-xl font-bold text-red-500 sm:hidden">
@@ -75,22 +71,26 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 					</button>
 				</div>
 				<div className="space-y-5">
-					{jobFilterForRender?.map((filter, index) => (
-						<div key={filter.paramKey} className="flex flex-col mx-auto gap-3 ">
-							<select
-								ref={el => (selectRefs.current[index] = el)} // Store refs dynamically
-								className="text-xs sm:text-s select_primary  cursor-pointer outline-none text-gray-500 bg-transparent w-full max-w-[300px] p-3 border border-gray-200 rounded-xl "
-								onChange={e => handleFilterChange(filter.paramKey, e.target.value)}
-							>
-								<option value="">{filter.placeholder}</option>
-								{filter.options.map((option, idx) => (
-									<option key={option} value={typeof filter.value[idx] === 'object' ? JSON.stringify(filter.value[idx]) : filter.value[idx]}>
-										{option}
-									</option>
-								))}
-							</select>
-						</div>
-					))}
+					{jobFilterForRender.length > 0 ? (
+						jobFilterForRender.map((filter, index) => (
+							<div key={filter.paramKey} className="flex flex-col mx-auto gap-3">
+								<select
+									ref={el => (selectRefs.current[index] = el)} // Store refs dynamically
+									className="text-xs sm:text-s select_primary cursor-pointer outline-none text-gray-500 bg-transparent w-full max-w-[300px] p-3 border border-gray-200 rounded-xl"
+									onChange={e => handleFilterChange(filter.paramKey, e.target.value)}
+								>
+									<option value="">{filter.placeholder}</option>
+									{filter.options.map((option, idx) => (
+										<option key={option} value={typeof filter.value[idx] === 'object' ? JSON.stringify(filter.value[idx]) : filter.value[idx]}>
+											{option}
+										</option>
+									))}
+								</select>
+							</div>
+						))
+					) : (
+						<p className="text-gray-500 text-sm">Loading filters...</p>
+					)}
 					<div className="resetFilters flex justify-end md:max-w-[90%] mx-auto">
 						<button onClick={handleResetFilters} className="btn_t1 logout text-xs text-red-500 font-semibold">
 							Reset Filters
@@ -98,7 +98,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 					</div>
 				</div>
 			</div>
-			{ isLoggedIn && (companyPageMode === CompanyPageModeEnum.REFERRAL) ? <RequestCompany userType={userDetails.lastAccessedDash} /> : null}
+			{isLoggedIn && (companyPageMode === CompanyPageModeEnum.REFERRAL) ? <RequestCompany userType={userDetails.lastAccessedDash} /> : null}
 		</div>
 	);
 };
