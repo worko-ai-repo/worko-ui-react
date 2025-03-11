@@ -116,7 +116,7 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(jobData)
+  // console.log(jobData)
     
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -234,7 +234,7 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
   // Get location based on job type
   const jobLocation = useMemo(() => {
     if (!jobData) return 'Location';
-    return jobData.location || 'Location';
+    return jobData.location.fullLocation || 'Location';
   }, [jobData]);
 
   // Get employment type based on job type
@@ -358,7 +358,7 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>dcs</span>{/* @todo */}
+              <span className='text-[12px] font-semibold'>{jobLocation}</span>{/* @todo */}
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />

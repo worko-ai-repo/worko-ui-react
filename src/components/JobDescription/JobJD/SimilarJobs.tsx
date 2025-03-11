@@ -36,7 +36,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const logo = job.logoUrl ||  '/api/placeholder/40/40';
   const jobTitle = job.jobTitle || 'Position';
   const location = job.location || 'Remote';
-  console.log(job);
+  // console.log(job);
   
   // Calculate if job is new (posted within last 7 days)
   const isNew = job.createdAt ? 

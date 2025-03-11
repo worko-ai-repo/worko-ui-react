@@ -41,7 +41,7 @@ interface ReferralRequestFormDto {
 export interface continueReferralRequestDataDto {
 	type: string;
 	url: string;
-	data: ReferralRequestFormDto;
+	data: ReferralRequestFormDto | null;
 }
 
 /**
@@ -270,7 +270,7 @@ const RequestReferral = () => {
 		}
 	}
 
-	// Show for error Dialogs and all
+	// Show reusable 1st made modal for error Dialogs and all
 	{
 		modalData && <MessageModal {...modalData} onClose={() => {setModalData(null) ; setGaugeEnabled(false)}} showCloseButton={false} />;
 	}
@@ -314,25 +314,6 @@ const RequestReferral = () => {
 			{isLoader && <ReferralLoader step={currStep} />}
 			{MessageEnabled && <RequestReferralMessage Type={ModalType} gaugeScore={gaugeScore} gaugeEnabled={gaugeEnabled} onClose={() => ModalAction()} />}
 			{IsFeedbackOpen && <FeedbackModal title={FeedbackInfo?.title || ""} details={FeedbackInfo?.details || ""} onClose={()=>{setIsFeedbackOpen(false) ; setLoader(false) ; setMessageEnabled(false); reset()}} />}
-	{/* 		{IsFeedbackOpen && <MessageModal
-						type="none"
-						size="2xl"
-						heading={{ type: 'error', message: 'Rejection Feedback' }}
-						message={FeedbackInfo?.details || ''}
-						onClose={() => {
-							setIsFeedbackOpen(false);
-						}}
-						showCloseButton={false}
-						buttons={[
-							{
-								label: 'Close',
-								action: () => {
-									setIsFeedbackOpen(false);
-								},
-								type: 'primary',
-							}
-						]}
-					/>} */}
 		</div>
 	);
 };

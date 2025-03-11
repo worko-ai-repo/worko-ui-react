@@ -123,7 +123,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
   onApply 
 }) => {
   const companyName = job.companyName || 'the company';
-  console.log(job);
+  // console.log(job);
 
   
 

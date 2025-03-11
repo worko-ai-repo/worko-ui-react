@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import HeadBanner from "@Components/JobDescription/HeadBanner/index";
 import JobJD from "@Components/JobDescription/JobJD";
@@ -8,15 +8,99 @@ import MainLoader from "@Components/Loader/Loader";
 import { CompanyDto, JobDto } from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
 import { MessagePopupProps } from "@Components/Modals/MessageModal";
+import RequestReferralMessage from "@Components/ReferralRequest/RequestReferralMessage";
+import FeedbackModal, { FeedbackModalProps } from "@Components/Shared/Feedback";
+import { useAppContext } from "@Context/App.context";
+import { continueReferralRequestDataDto } from "./request-referral/RequestReferral";
+import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import secureStorage from "@Utils/SecureStorage.utils";
+import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
+import { MatchingScore } from "@Services/MatchingScore.service";
+
+const stripHtmlTags = (html: string) => {
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = html;
+  return tempElement.innerText || tempElement.textContent || '';
+}
+
+  // Function to concatenate job description and skills
+  const  getFormattedJobDescription = (jobDetails: any) => {
+
+    //convert job Description from HTML to Plain Text
+    const jobDescriptionPlainText =  stripHtmlTags(jobDetails.jobDescription || '');
+
+    // Extract the job title, with a fallback in case it's not provided
+    const jobTitle = jobDetails.jobTitle || 'Job Title not specified';
+
+    // Combining all the skills arrays into a single array
+    let allSkills = [
+      ...(jobDetails.technicalSkills || []),
+      ...(jobDetails.coreSkills || []),
+      ...(jobDetails.softSkills || []),
+      ...(jobDetails.mislaneiousSkills || [])
+    ].join(', ');  // Joining all skills with a comma and space
+
+    // Extracting experience range
+    let experience = `${jobDetails.experienceRange?.min} - ${jobDetails.experienceRange?.max} years of experience`;
+    // console.log(experience)
+
+    // Construct the jdExtracted field with job description and skills
+    let jdExtracted = `
+    ${jobDescriptionPlainText}
+    \n Job Title: ${jobTitle}
+     \n\nExperience Required: ${experience}
+    \n\nSkills Required: ${allSkills}
+  `;
+
+    return jdExtracted.trim();  // Return the concatenated job description and skills
+  }
+
 
 const JobDescription = () => {
+	// check if the use is logged in
+	const { PendingApply, setPendingApply, isLoggedIn, userDetails ,setIsModalOpen } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto> ,setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>};
+
+	// navigate to a different page
+	const nav = useNavigate();
+
+	// get the current location
+	const location = useLocation();
+
+  // States For Internal Apply
+  const [isLoader, setLoader] = useState(false); // Show loader when the form is submitted
+  const [MessageEnabled, setMessageEnabled] = useState(false); // Show message when the form is submitted
+  const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
+  const [ModalType, setModalType] = useState<'zeroReferral' | 'profileCompletion' | 'AlreadyRequested' | 'RequestAccepted' | 'RequestRejected' | 'Error_250' | 'Error_251' | 'Max_tries'>('zeroReferral'); // Current step of the loader
+  const [gaugeEnabled, setGaugeEnabled] = useState(false); // Show gauge when the form is submitted
+  const [gaugeScore, setGaugeScore] = useState(0); // Show gauge when the form is submitted
+  const [IsFeedbackOpen, setIsFeedbackOpen] = useState(false); // Show feedback modal when the form is submitted
+  const [FeedbackInfo, setFeedbackInfo] = useState<FeedbackModalProps>();
+
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const { jobid } = useParams();
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(undefined);
   const [isApplying, setIsApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
-
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
+
+
+  useEffect(() => {
+
+      // Else , Check if the use has come from the page of auth or not by checking the secure storage for stale request data.
+      // If the user is not logged in and the referral request is not present in the secure storage, redirect to login page
+      // Retrieve any pending referral data from context or secure storage
+      const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+  
+      if (pendingReferral && isLoggedIn) {
+  
+        // Remove from storage *after* submitting
+          setPendingApply(null);
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null); 
+  
+          handleApplyClick(); // Call submit function
+      }
+    }, [location.hash, nav, isLoggedIn, PendingApply]);
 
   // Function to show error modals
   const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in') => {
@@ -78,7 +162,7 @@ const JobDescription = () => {
     if (jobData && !jobData.externalJobId) {
       const fetchCompanyDetails = async () => {
         try {
-          const { response, error } = await httpServiceObj.get<CompanyDto>(
+          const { response, error } = await httpServiceObj.get<[CompanyDto]>(
             `/company/${jobData.companyId}`,
             true
           );
@@ -87,8 +171,9 @@ const JobDescription = () => {
           if (response)
             setJobDataState({
               ...jobData,
-              companyDetails: response,
+              companyDetails: response[0],
             });
+
         } catch (fetchError) {
           console.error("Error fetching company details:", fetchError);
         }
@@ -108,10 +193,8 @@ const JobDescription = () => {
       </div>
     );
 
-  // Use jobDataState which will be updated from the useEffect
-  const displayData = jobDataState || jobData;
 
-  if (!displayData) return <div>Loading job data...</div>;
+  if (isLoading) return <div>Loading job data...</div>;
 
   /**
    * updateExternalJobApplication
@@ -159,40 +242,139 @@ const JobDescription = () => {
   /*
    *Handle Apply Click function
    */
-  const handleApplyClick = () => {
+  const handleApplyClick = async() => {
+    
+		if (!isLoggedIn) {
+			const continueReferralRequestData = {
+				type: 'referral',
+				url: window.location.href,
+				data:null,
+			};
+			setPendingApply(continueReferralRequestData);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, continueReferralRequestData);
+			localStorage.setItem('continueReferralRequestData', JSON.stringify(continueReferralRequestData));
+			nav('/auth/login');
+			return;
+		}
+    else{
     // Open the job URL in a new tab if available
     if (jobData?.externalJobId && jobData?.jobUrl) {
       window.open(jobData.jobUrl, "_blank");
+      // Show the confirmation modal
+      setShowApplyModal(true);
+      showModalsError('isExternalJobApplied')
     } else {
-      window.alert("Job URL not available"); //@Implement Ashutosh ApplyJob
-    }
-    // Show the confirmation modal
-    setShowApplyModal(true);
-    showModalsError('isExternalJobApplied')
-  };
+      setLoader(true); // Show loader
+
+      //construct the data
+      let data = {
+        "companyId": jobDataState?.companyDetails?.SK,
+        "companyName": jobDataState?.companyName,
+        // "jobTitle": jobDataState?.jobTitle,
+        "jobUrl": window.location.href,
+        //"jdExtracted": jobDataState.jobDescription 
+        "jdExtracted": getFormattedJobDescription(jobDataState),
+        "jobId": jobDataState?.id,
+        "jobPortal": 'worko',
+      }
+
+		//  Step 1: Check Profile Completion
+		setCurrStep(0);
+		const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
+		if (profilePer) {
+			const cvCurPerc = profilePer?.candidate[2]?.curPerc;
+      setCurrStep(1);
+			if (cvCurPerc === 0) {
+				setGaugeEnabled(false)
+				setMessageEnabled(true);
+				setModalType('profileCompletion');
+				setLoader(false);
+				return;
+			}
+		}
+
+		//  Step 3: Create Referral Request
+		setCurrStep(2);
+		
+		const CreateReferrakPayload = data
+
+		setCurrStep(3);
+		const { response: refCreated, status: refApiStatus } = await httpServiceObj.post<{ referralRequestId: string }>(`/user/${userDetails.email}/referral/request`, CreateReferrakPayload, true);
+
+		if (refApiStatus === 403) {
+			setGaugeEnabled(false)
+			setMessageEnabled(true);
+			setModalType('AlreadyRequested');
+			setLoader(false);
+			return;
+		}
+
+		if (refCreated?.referralRequestId) {
+			MatchingScore(refCreated.referralRequestId, userDetails.email!, setLoader, setMessageEnabled, setModalType, setGaugeEnabled, setGaugeScore,setFeedbackInfo,setIsFeedbackOpen);
+		}
+  }
+}
+  }
+  function ModalAction() {
+		switch (ModalType) {
+			case 'zeroReferral':
+				window.location.href = '/v1/candidate/subscription';
+				break;
+			case 'AlreadyRequested':
+				setLoader(false);
+				setMessageEnabled(false);
+				break;
+			case 'RequestAccepted':
+				window.location.href = '/v1/candidate/referral/awaiting';
+				break;
+			case 'RequestRejected':
+				setLoader(false);
+				setMessageEnabled(false);
+				setIsFeedbackOpen(true);
+				break;
+			case 'Error_250':
+				setLoader(false);
+				setMessageEnabled(false);
+				break;
+			case 'Error_251':
+				setLoader(false);
+				setMessageEnabled(false);
+				break;
+			case 'Max_tries':
+				setLoader(false);
+				setMessageEnabled(false);
+				break;
+			case 'profileCompletion':
+				window.location.href = '/v1/candidate/edit-profile';
+				break;
+		}
+	}
 
   return (
     <div className="w-full ">
-      <HeadBanner
-        jobData={displayData}
-        applicationStatus={applicationStatus}
-        handleApplyClick={handleApplyClick}
-      />
+      {jobDataState && (
+        <>
+          <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} />
+          <JobJD jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} />
+        </>
+      )}
 
-      <JobJD
-        jobData={displayData}
-        applicationStatus={applicationStatus}
-        handleApplyClick={handleApplyClick}
-      />
+      {isLoader && <ReferralLoader step={currStep} />}
+      {MessageEnabled && <RequestReferralMessage Type={ModalType} gaugeScore={gaugeScore} gaugeEnabled={gaugeEnabled} onClose={() => ModalAction()} />}
+      {IsFeedbackOpen && (
+        <FeedbackModal
+          title={FeedbackInfo?.title || ""}
+          details={FeedbackInfo?.details || ""}
+          onClose={() => {
+            setIsFeedbackOpen(false);
+            setLoader(false);
+            setMessageEnabled(false);
+          }}
+        />
+      )}
 
       {/* Will show modal after clicking apply on external job. */}
-      {showApplyModal && modalData && (
-               <MessageModal
-                        {...modalData}
-                        onClose={() => setModalData(null)}
-                        showCloseButton={false}
-                      />
-      )}
+      {showApplyModal && modalData && <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />}
     </div>
   );
 };
