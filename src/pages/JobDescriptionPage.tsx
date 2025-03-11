@@ -98,12 +98,12 @@ const JobDescription = () => {
           setPendingApply(null);
           secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null); 
   
-          handleApplyClick(); // Call submit function
+          // handleApplyClick(); // Call submit function
       }
     }, [location.hash, nav, isLoggedIn, PendingApply]);
 
   // Function to show error modals
-  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure') => {
+  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant') => {
     switch (caseType) {
       case "isExternalJobApplied":
         setModalData({
@@ -153,6 +153,20 @@ const JobDescription = () => {
           }],
         });
         break;
+        case "redundant":
+          setModalData({
+            type: "error",
+            heading: { message: "Already submitted", type: "error" },
+            message: "You have already applied for this job. Check your dashboard for reference.",
+            buttons: [{ 
+              label: "OK", 
+              type: "primary", 
+              action: () => {
+                setModalData(null);
+              } 
+            }],
+          });
+          break;
       case "application_failure":
         setModalData({
           type: "error",
@@ -258,25 +272,32 @@ const JobDescription = () => {
         jobPortal: jobData?.jobUrl || undefined,
         matchingScore: jobData?.matchingScore || undefined,
         ...(!jobData?.externalJobId && {
-          companyName: jobData?.companyName || jobData?.companyName,
+          companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
         }),
       };
       const constructUrl = jobData?.externalJobId
         ? `https://jobs.dev.worko.work/external-job-application/`
         : `https://jobs.dev.worko.work/job-application/`;
 
-      const { response, error } = await httpServiceObj.post(
+      const { response, error, status } = await httpServiceObj.post(
         constructUrl,
         payload,
         true,
         {},
         true
       );
-
+        if(status===403) {
+          setApplicationStatus(true);
+          setShowApplyModal(true);
+          // Show success modal after redundant application
+          showModalsError('redundant');
+          return;
+        }
       if (error) {
         throw new Error(error.message || "Failed to submit application");
       } else {
         setApplicationStatus(true);
+        setShowApplyModal(true);
         // Show success modal after successful application
         showModalsError('application_success');
       }
@@ -293,7 +314,7 @@ const JobDescription = () => {
   /*
    * Handle Apply Click function
    */
-  const handleApplyClick = async() => {
+  async function handleApplyClick() {
     
 		if (!isLoggedIn) {
 			const continueReferralRequestData = {
@@ -376,7 +397,7 @@ const JobDescription = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				window.location.href = '/v1/candidate/referral/awaiting';
+				window.location.href = '/v1/candidate/jobs/applied';
 				break;
 			case 'RequestRejected':
 				setLoader(false);
