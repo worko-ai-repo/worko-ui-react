@@ -2,28 +2,10 @@ import React, { useState } from 'react';
 import { Share2, Briefcase, Clock, MapPin } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
+import { useNavigate } from 'react-router-dom'; // Add this import for navigation
 
 // Updated interface to handle both internal and external job types
-interface Job {
-  id: string;
-  jobTitle: string;
-  company?: string;
-  companyName?: string;
-  location?: string;
-  department?: string;
-  experienceRange?: { min: number; max: number };
-  experience?: string;
-  isNew?: boolean;
-  companyLogo?: string;
-  companyLogoUrl?: string;
-  workMode?: string;
-  externalJobId?: string;
-  typeofEmployment?: string;
-  isDeleted?: boolean;
-  createdAt?: string;
-  status?: string;
-  jobUrl?: string;
-}
+
 
 interface JobCardProps {
   job: JobDto;
@@ -31,11 +13,13 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
+  const nav = useNavigate(); // Add the useNavigate hook
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const companyName = job.companyName || 'Company';
   const logo = job.logoUrl ||  '/api/placeholder/40/40';
   const jobTitle = job.jobTitle || 'Position';
   const location = job.location || 'Remote';
+  const jobId = job.id; // Get the job ID for the referral navigation
   console.log(job);
   
   // Calculate if job is new (posted within last 7 days)
@@ -58,6 +42,14 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     }
     // Show the confirmation modal
     setShowApplyModal(true);
+  };
+  
+  // Add the handleReferralNav function from your code
+  const handleReferralNav = () => {
+    console.log(companyName);
+    // Replace any whitespace special characters with underscore in company name
+    const refinedCompanyName = companyName.replace(/\s/g, "_");
+    nav(`/jobs/${refinedCompanyName}/${jobId}`);
   };
   
   return (
@@ -96,7 +88,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
         <div className="justify-self-end">
           <button 
             className="bg-blue-500 mb-2 font-bold text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-            onClick={handleApplyClick}
+            onClick={handleReferralNav} 
           >
             Apply Job
           </button>
@@ -107,9 +99,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
           <span>Experience: {getExperienceText()}</span>
         </div>
         
-        <div className="justify-self-end">
-          <a href="#" className="text-blue-500 underline text-sm">Refer A Friend</a>
-        </div>
       </div>
 
       {showApplyModal && 
