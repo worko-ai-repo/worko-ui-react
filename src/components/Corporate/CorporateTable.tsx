@@ -276,8 +276,8 @@ function RecruitmentComparisonTable({ hires, salary }: {hires:number, salary:num
 
 
 function CorporateTable() {
-  const [hires, setHires] = useState(101);
-  const [salary, setSalary] = useState(20);
+  const [hires, setHires] = useState(0);
+  const [salary, setSalary] = useState(0);
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4">
@@ -291,14 +291,14 @@ function CorporateTable() {
           <div className="flex flex-col md:flex-row gap-8 md:gap-12 mb-8 md:mb-16">
             <div className="w-full md:w-3/5 space-y-8 md:space-y-16">
               <Slider
-                min={1}
+                min={0}
                 max={500}
                 value={hires}
                 onChange={setHires}
                 label="No of Hires per Quarter:"
               />
               <Slider
-                min={8}
+                min={0}
                 max={100}
                 value={salary}
                 onChange={setSalary}

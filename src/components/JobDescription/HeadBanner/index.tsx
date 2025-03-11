@@ -8,8 +8,14 @@ import SkillsCard from './SkillsCard';
 // import { getFormattedSalary, getFormattedExperience } from './utils';
 import { formatRange } from '@Utils/RangeFormater.utils';
 
-const HeadBanner: React.FC<JobDto> = ( jobData ) => {
-  const { jobid } = useParams();
+export interface JobDescriptionSubComponentDTO {
+  jobData: JobDto;
+  applicationStatus: boolean;
+  handleApplyClick: ()=>void;
+}
+
+const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationStatus, handleApplyClick }) => {
+const { jobid } = useParams();
   const [score, setScore] = useState<number | undefined>(undefined);
 
   useEffect(() => {

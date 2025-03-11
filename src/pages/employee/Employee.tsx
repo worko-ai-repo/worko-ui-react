@@ -68,13 +68,13 @@ const Employee = () => {
                 {/* Call-to-action section with reduced height */}
                 <div className="w-full text-white flex flex-col items-center px-6 md:px-0 text-center pb-16">
                     <div className="z-10 flex flex-col items-center py-14">
-                        <h1 className="max-w-3xl text-3xl md:text-5xl font-bold leading-tight">
+                        <h1 className="max-w-4xl text-3xl md:text-5xl font-bold text-center leading-tight">
                             Starting referring. Start building. Start earning.
                         </h1>
                         
-                        <p className="mt-6 max-w-2xl text-lg md:text-xl font-medium leading-relaxed px-4">
-                            Candidates are tired of sending applications into the void. Companies are struggling to fill open roles.
-                            Bridge this gap and get paid in doing so.
+                        <p className="mt-6 max-w-2xl text-lg text-center md:text-xl font-medium leading-relaxed px-4">
+                            Candidates are tired of sending applications into the void. <br /> Companies are struggling to fill open roles.
+                            <br /> Bridge this gap and get paid in doing so.
                         </p>
                         
                         <button 

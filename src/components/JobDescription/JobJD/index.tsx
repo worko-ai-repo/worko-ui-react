@@ -3,11 +3,11 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import JobDetails from './JobDetails';
 import SimilarJobs from './SimilarJobs';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
+import { JobDescriptionSubComponentDTO } from '../HeadBanner';
 
-const JobJD = (jobData: JobDto ) => {
+const JobJD: React.FC<JobDescriptionSubComponentDTO>  = ({ jobData, applicationStatus, handleApplyClick }) => {
 
   const [isApplying, setIsApplying] = useState(false);
-  const [applicationStatus, setApplicationStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,49 +44,9 @@ const JobJD = (jobData: JobDto ) => {
     fetchSimilarJobs();
   }, []);
 
-  const handleApplyJob = async (jobToApply = jobData) => {
-    try {
-      setIsApplying(true);
-      setApplicationStatus(null);
-      
-      const payload = {
-        jobId: jobToApply.id,
-        jobUrl: window.location.href,
-        jobPortal: jobToApply.jobUrl || undefined,
-        matchingScore: jobToApply.matchingScore || undefined,
-        ...((!jobToApply.externalJobId && { companyName: jobToApply.companyName || jobToApply.companyName })) //@vaibhav check this previously it was company why?
-      };
-      
-      const endpoint = jobToApply.externalJobId 
-        ? 'https://jobs.dev.worko.work/external-job-application/' 
-        : 'https://jobs.dev.worko.work/job-application/';
-      
-      const { response, error } = await httpServiceObj.post(
-        endpoint,
-        payload,
-        true,
-        {},
-        true
-      );
-      
-      if (error) {
-        throw new Error(error.message || 'Failed to submit application');
-      }
-      
-      setApplicationStatus({
-        success: true,
-        message: 'Application submitted successfully!',
-      });
-    } catch (error) {
-      console.error('Application error:', error);
-      setApplicationStatus({
-        success: false,
-        message: 'Failed to submit application. Please try again.',
-      });
-    } finally {
-      setIsApplying(false);
-    }
-  };
+  
+
+
 
   // Only use fallback jobs if no similar jobs were found and we're not loading
   const displayedSimilarJobs = isLoading ? [] : (
@@ -104,13 +64,15 @@ const JobJD = (jobData: JobDto ) => {
     ]
   );
 
+  
+
   return (
     <div className="flex flex-col text-left md:flex-row   py-5  gap-2 bg-white min-h-screen max-w-[1280px] mx-auto">
       <JobDetails 
         job={jobData}
         isApplying={isApplying}
         applicationStatus={applicationStatus}
-        onApply={() => handleApplyJob()}
+        onApply={() => handleApplyClick()}
       />
       {isLoading ? (
         <div className="w-full md:w-[37%] flex justify-center items-center">
@@ -119,7 +81,7 @@ const JobJD = (jobData: JobDto ) => {
       ) : (
         <SimilarJobs 
           similarJobs={displayedSimilarJobs}
-          onApply={handleApplyJob}
+          onApply={handleApplyClick}
         />
       )}
     </div>

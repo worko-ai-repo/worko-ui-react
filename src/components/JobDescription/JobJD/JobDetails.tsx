@@ -112,7 +112,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url }) => {
 interface JobDetailsProps {
   job: JobDto;
   isApplying: boolean;
-  applicationStatus: { success: boolean; message: string } | null;
+  applicationStatus:boolean;
   onApply: () => void;
 }
 
@@ -122,21 +122,10 @@ const JobDetails: React.FC<JobDetailsProps> = ({
   applicationStatus, 
   onApply 
 }) => {
-  const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const companyName = job.companyName || 'the company';
   console.log(job);
 
-  const handleApplyClick = () => {
-    // Open the job URL in a new tab if available
-    if (job.externalJobId && job.jobUrl) {
-      window.open(job.jobUrl, '_blank');
-    }
-    else{
-      window.alert("Job URL not available"); //@Implement Ashutosh ApplyJob
-    }
-    // Show the confirmation modal
-    setShowApplyModal(true);
-  };
+  
 
     const handleShare = async () => {
       if (navigator.share) {
@@ -165,16 +154,11 @@ const JobDetails: React.FC<JobDetailsProps> = ({
           skills={job.coreSkills || []} 
         />
         
-        {applicationStatus && (
-          <div className={`p-3 rounded-md mb-4 ${applicationStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-            {applicationStatus.message}
-          </div>
-        )}
         
         <div className="flex justify-center items-center gap-2 mt-6">
           <button 
             className={`${isApplying ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold px-4 py-2 rounded-lg transition-colors`}
-            onClick={handleApplyClick}
+            onClick={onApply}
             disabled={isApplying}
           >
             {isApplying ? 'Applying...' : 'Apply Job'}
@@ -195,33 +179,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         companyName={job.companyName || 'the company'}
       />
 
-      {showApplyModal && 
-        <MessageModal 
-          type="info"
-          size="lg"
-          heading={{ type: 'info', message: 'Application Confirmation' }}
-          message="Did you complete the application process?"
-          onClose={() => setShowApplyModal(false)}
-          showCloseButton={true}
-          buttons={[
-            { 
-              label: 'Yes', 
-              action: () => {
-                onApply();
-                setShowApplyModal(false);
-              }, 
-              type: 'success'
-            },
-            { 
-              label: 'No', 
-              action: () => {
-                setShowApplyModal(false);
-              }, 
-              type: 'danger'
-            }
-          ]}
-        />
-      }
+     
     </div>
   );
 };
