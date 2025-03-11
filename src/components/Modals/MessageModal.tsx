@@ -6,7 +6,7 @@ export interface MessagePopupProps {
 	type: 'none' | 'error' | 'warning' | 'success' | 'info';
 	size?: 'sm' | '10' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 	heading?: { message: string; type: 'error' | 'warning' | 'success' | 'info' };
-	message: string;
+	message?: string;
 	buttons?: { label: string; action: () => void; type?: 'primary' | 'danger' | 'warning' | 'success' }[];
 	onClose?: () => void;
 	showCloseButton?: boolean;
@@ -45,7 +45,7 @@ const sizeClasses = {
 	'4xl': 'w-full max-w-full sm:max-w-4xl',
 };
 
-export default function MessageModal({ type, heading, size = '2xl', message, buttons = [], onClose, showCloseButton = true }: MessagePopupProps) {
+export default function MessageModal({ type, heading, size = '2xl', message = '', buttons = [], onClose, showCloseButton = true }: MessagePopupProps) {
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Enter') {

@@ -7,16 +7,52 @@ import httpServiceObj from "@Services/ApiHandler.service";
 import MainLoader from "@Components/Loader/Loader";
 import { CompanyDto, JobDto } from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
+import { MessagePopupProps } from "@Components/Modals/MessageModal";
 
 const JobDescription = () => {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const { jobid } = useParams();
-  const [jobDataState, setJobDataState] = useState<JobDto | undefined>(
-    undefined
-  );
+  const [jobDataState, setJobDataState] = useState<JobDto | undefined>(undefined);
   const [isApplying, setIsApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
 
+  const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
+
+  // Function to show error modals
+  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in') => {
+    switch (caseType) {
+
+      case "isExternalJobApplied":
+        setModalData({
+          type: "info",
+          heading: {message: "Have you applied for this job?", type:'info'},
+          size: 'md',
+          buttons: [{ label: "No", type:"danger", action: () => null}, {label: "Yes", action: ()=>null, type:"primary"}],
+        });
+        // setTimeout(() => navigateTo("/"), 10000);
+        break;
+      case "expired_in":
+        setModalData({
+          type: "error",
+          heading: { message: "Invite Expired", type: "error" },
+          message: "The invite you are trying to access has expired. Please contact the company for a new invite.",
+          buttons: [{ label: "Back to Home", action: () => null}],
+        });
+        // setTimeout(() => navigateTo("/"), 10000);
+        break;
+      default:
+        setModalData({
+          type: "error",
+          heading: { message: "Something Went Wrong!", type: "error" },
+          message: "Looks like something went wrong. Please try again later.",
+          buttons: [{ label: "Back to Home", action: () => null }],
+        });
+    }
+  };
+
+  /**
+   * Use Query
+   */
   const {
     data: jobData,
     isLoading,
@@ -132,6 +168,7 @@ const JobDescription = () => {
     }
     // Show the confirmation modal
     setShowApplyModal(true);
+    showModalsError('isExternalJobApplied')
   };
 
   return (
@@ -149,32 +186,12 @@ const JobDescription = () => {
       />
 
       {/* Will show modal after clicking apply on external job. */}
-      {showApplyModal && (
-        <MessageModal
-          type="info"
-          size="lg"
-          heading={{ type: "info", message: "Application Confirmation" }}
-          message="Did you complete the application process?"
-          onClose={() => setShowApplyModal(false)}
-          showCloseButton={false}
-          buttons={[
-            {
-              label: "Yes",
-              action: () => {
-                updateExternalJobApplication();
-                setShowApplyModal(false);
-              },
-              type: "success",
-            },
-            {
-              label: "No",
-              action: () => {
-                setShowApplyModal(false);
-              },
-              type: "danger",
-            },
-          ]}
-        />
+      {showApplyModal && modalData && (
+               <MessageModal
+                        {...modalData}
+                        onClose={() => setModalData(null)}
+                        showCloseButton={false}
+                      />
       )}
     </div>
   );
