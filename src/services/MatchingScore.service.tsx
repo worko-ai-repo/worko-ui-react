@@ -23,6 +23,7 @@ export const MatchingScore = async (
     setGaugeScore: (value: number) => void,
     setFeedbackInfo: (value: FeedbackModalProps) => void,
     setIsFeedbackOpen: (value: boolean) => void,
+    updateExternalJobApplication?: () => void
   ) => {
     let attempts = 0;
     const maxRetries = 5;
@@ -73,6 +74,7 @@ export const MatchingScore = async (
             setLoader(false);
             setMessageEnabled(true);
             setModalType("RequestAccepted");
+            if(updateExternalJobApplication)updateExternalJobApplication();
             setGaugeEnabled(true);
             setGaugeScore(response.matchingScore);
             return;

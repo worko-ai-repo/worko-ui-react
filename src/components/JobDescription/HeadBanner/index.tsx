@@ -4,19 +4,22 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import JobCard from './Jobcard';
 import SkillsCard from './SkillsCard';
-// import { HeadBannerProps } from './types'; @TODO: vaibhav check this.
-// import { getFormattedSalary, getFormattedExperience } from './utils';
 import { formatRange } from '@Utils/RangeFormater.utils';
 
 export interface JobDescriptionSubComponentDTO {
   jobData: JobDto;
   applicationStatus: boolean;
-  handleApplyClick: ()=>void;
+  handleApplyClick: () => void;
 }
 
-const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationStatus, handleApplyClick }) => {
-const { jobid } = useParams();
+const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({ 
+  jobData, 
+  applicationStatus, 
+  handleApplyClick 
+}) => {
+  const { jobid } = useParams();
   const [score, setScore] = useState<number | undefined>(undefined);
+  const [isApplying, setIsApplying] = useState(false);
 
   useEffect(() => {
     const fetchMatchingScore = async () => {
@@ -42,7 +45,7 @@ const { jobid } = useParams();
 
   return (
     <div className="p-6 bg-[#316BFF] ">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full  max-w-[1480px] mx-auto ">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full max-w-[1480px] mx-auto ">
         <div className="lg:col-span-2 max-w-[830px] lg:ml-0 xl:ml-16 flex flex-col gap-6">
           <div className="grid grid-cols-1 mb-0 mt-6">
             <h1 className="text-white text-2xl text-left font-bold md:mb-0">
@@ -54,18 +57,23 @@ const { jobid } = useParams();
             </h1>
           </div>
           
-          <JobCard {...jobData} />
+          {/* Fixed JobCard props here */}
+          <JobCard 
+            jobData={jobData} 
+            onApply={handleApplyClick} 
+            isApplying={isApplying} 
+          />
         </div>
       
         <div className="flex flex-col pt-20">
           <SkillsCard 
-            department={jobData &&  jobData.externalJobId ? 
+            department={jobData && jobData.externalJobId ? 
               jobData.companyName : 
               jobData?.department}
             employmentType={jobData?.typeofEmployment}
             salary={formatRange(jobData.salaryRange?.min, jobData.salaryRange?.max, "salary")}
-            coreSkills={jobData &&  jobData.externalJobId ? 
-              [jobData?.companyName || '', jobData?.location?.fullLocation.join(', ') || ''] : 
+            coreSkills={jobData && jobData.externalJobId ? 
+              [jobData?.companyName || '', jobData?.location?.fullLocation?.join(', ') || ''] : 
               jobData?.coreSkills?.map(skill => typeof skill === 'string' ? skill : (skill as any).fullLocation.join(', '))}
             experience={formatRange(jobData.experienceRange?.min, jobData.experienceRange?.max, "experience")}
           />

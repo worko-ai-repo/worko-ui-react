@@ -6,61 +6,11 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { useAppContext } from '@Context/App.context';
 
-// Include the interface definitions
-interface BaseJobData {
-  id: string;
-  jobTitle?: string;
-  jobDescription?: string;
-  location?: string;
-  status?: string;
-  workMode?: string;
-  typeofEmployment?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  isDeleted?: boolean;
-  matchPercentage?: number;
-  companyLogoUrl?: string;
-  companyName?: string;
-}
-
-interface InternalJobData extends BaseJobData {
-  companyId?: string;
-  otherRequirements?: string;
-  experienceRange?: {
-    min?: number;
-    max?: number;
-  };
-  noticePeriod?: number;
-  numOfOpenings?: number;
-  salaryRange?: {
-    min?: number;
-    max?: number;
-  };
-  department?: string;
-  coreSkills?: string[];
-  softSkills?: string[];
-  technicalSkills?: string[];
-  miscellaneousSkills?: string[];
-  createdByUserId?: string;
-}
-
-interface ExternalJobData extends BaseJobData {
-  externalJobId: string;
-  jobPostedDate?: string;
-  jobCreatedDate?: string;
-  jobUrl?: string;
-  companyName?: string;
-  companyUrl?: string;
-}
-
-type JobData = InternalJobData | ExternalJobData;
-
-function isExternalJob(job: JobData): job is ExternalJobData {
-  return 'externalJobId' in job;
-}
-
+// Correct props interface
 interface JobCardProps {
-  jobData?: JobData;
+  jobData: JobDto;
+  isApplying?: boolean;
+  onApply: () => void;
 }
 
 interface MatchMetricsProps {
@@ -69,7 +19,6 @@ interface MatchMetricsProps {
 
 const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0 }) => {
   // Calculate individual metrics based on the overall matching percentage
-  // This is a simple example - you might want to adjust the calculation logic
   const getMetricValue = (baseValue: number, multiplier: number) => {
     return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
   };
@@ -107,34 +56,20 @@ const MetricGauge = ({ value, label }: { value: number, label: string }) => {
   );
 };
 
-const JobCard: React.FC<JobDto> = ( jobData) => {
+const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply }) => {
   const {isLoggedIn} = useAppContext();
   const { jobid } = useParams();
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ phone: "", email: "" });
   const [matchScore, setMatchScore] = useState<number | undefined>(0);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [isLoading, setIsLoading] = useState(false);
 
-  // console.log(jobData)
-    
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-    
-  const handleSubmit = () => {
-    alert(`Job shared with: ${formData.phone}, ${formData.email}`);
-    setShowModal(false);
-  };
-
-  // Fetch real-time matching score data - properly at top level
+  // Fetch real-time matching score data
   useEffect(() => {
     const fetchMatchingScore = async () => {
       if (!jobid) return;
       
       setIsLoading(true);
       try {
-        // Assuming httpServiceObj is available globally or passed as prop
         const { response, error } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
           `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}&pageSize=1`,
           true,
@@ -144,7 +79,6 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
         
         if (response && response.data && response.data.length > 0) {
           const matchingData = response.data[0].matchingScore;
-          console.log(matchingData);
           setMatchScore(matchingData);
         }
       } catch (err) {
@@ -174,14 +108,6 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
   const companyName = useMemo(() => {
     if (!jobData) return 'Company';
     return jobData.externalJobId ? jobData.companyName : 'Company';
-  }, [jobData]);
-
-  // Get company logo URL
-  const companyLogoUrl = useMemo(() => {
-    if (!jobData) return 'placeholder-logo.png';
-    return jobData.externalJobId ? 
-      `/logos/${jobData.companyName?.toLowerCase().replace(/\s+/g, '-')}.png` : 
-      'placeholder-logo.png';
   }, [jobData]);
 
   // Determine if the job posting is recent
@@ -358,7 +284,7 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{jobLocation}</span>{/* @todo */}
+              <span className='text-[12px] font-semibold'>{jobData?.location?.fullLocation?.join(', ') || 'Location'}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
@@ -368,12 +294,13 @@ const JobCard: React.FC<JobDto> = ( jobData) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 justify-start md:justify-end">
-            <button className="flex-1 flex-initial w-[140px] md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
-              View Details
+            <button 
+              onClick={onApply}
+              disabled={isApplying} 
+              className="flex-1 flex-initial w-[140px] md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9"
+            >
+              {isApplying ? 'Applying...' : 'Apply Job'}
             </button>
-            {/* <button className="flex-1 flex-initial w-[140px] md:w-[140px] px-2 py-2 text-red-500 border border-black rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
-              View Feedback
-            </button> */}
           </div>
         </div>
       </div>
