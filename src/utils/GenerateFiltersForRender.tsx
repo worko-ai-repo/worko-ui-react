@@ -49,7 +49,7 @@ export const generateFilterForRender = (
 
         // Step 2: Define filter parameters based on mode
 		const filterParams = companyPageMode === CompanyPageModeEnum.JOB
-		? ['location', 'department', 'coreSkills', 'softSkills', 'technicalSkills'] 
+		? ['location', 'coreSkills', 'softSkills', 'technicalSkills'] 
 		: ['teamSize', 'industry'];
 
         // Step 3: Initialize cache entries for each filter parameter if they don't exist
@@ -75,7 +75,7 @@ export const generateFilterForRender = (
 					newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
 				} else if (paramKey === 'location') {
 					// Extract location directly instead of city
-                    newOptions = Array.from(new Set(data.flatMap((job: JobDto) => job.location?.fullLocation || [])));
+                    newOptions = Array.from(new Set(data.flatMap((job: JobDto) => job.location?.city || [])));
 				} else {
 					newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
 				}
@@ -88,12 +88,13 @@ export const generateFilterForRender = (
 			newOptions.forEach(option => filterOptionsCache[paramKey].add(option));
 			const allOptions = Array.from(filterOptionsCache[paramKey]);
 			
-			return {
-				options: allOptions,
-				value: allOptions,
-				paramKey,
-				placeholder: meta?.placeholder || paramKey.charAt(0).toUpperCase() + paramKey.slice(1),
-			};
+            return {
+                options: allOptions,
+                value: allOptions,
+                paramKey,
+                placeholder: meta?.placeholder || paramKey.charAt(0).toUpperCase() + paramKey.slice(1),
+                selectType: meta?.selectType || 'normal', // Ensure selectType is included
+            };
 		});
 
         // Step 7: Only include static filters if in JOB mode

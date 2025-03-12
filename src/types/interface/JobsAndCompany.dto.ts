@@ -1,3 +1,5 @@
+import { SelectType } from "@Components/Company/FilterData";
+
 /**
  * @interface CompanyDto
  * 
@@ -133,6 +135,7 @@ export interface CompanyDto {
     value: string[] | { minSalary?: number; maxSalary?: number; minExperience?: number; maxExperience?: number }[];
     paramKey: string;
     placeholder: string;
+     selectType: SelectType;
 }
 
   /**
