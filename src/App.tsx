@@ -17,6 +17,8 @@ export default function App() {
 		  console.log(`Key: ${SecureStorageKeyEnum[key as keyof typeof SecureStorageKeyEnum]} | Value: ${formattedValue}`);
 		});
 	  }, []); */
-	  
+	 /*  useEffect(() => {
+		console.log(import.meta.env.APP_NAME);
+	}, []); */
 	return (<RouterProvider router={AppRoutes} />);
 }

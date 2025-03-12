@@ -5,9 +5,11 @@
   "type": "module",
   "proxy": "https://cognito-idp.ap-south-1.amazonaws.com",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "buildL:dev": "tsc -b && vite build --mode development",
+    "dev": "vite --mode development",
+    "stage": "vite --mode staging",
+    "build": "tsc -b && vite build --mode staging",
+    "build:stage": "tsc -b && vite build --mode staging",
+    "build:prod": "tsc -b && vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview"
   },
