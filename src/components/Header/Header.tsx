@@ -67,8 +67,8 @@ const Header = () => {
 		<header className={styles.header} ref={headerRef}>
 			<div className={styles.container}>
 				{/* Logo */}
-				<div className={`cursor-pointer ${styles.logo}`} onClick={() =>{ navigateTo('/'); setUpdateCheck(true);}}>
-					<img src={logo_text} alt="Logo" />
+				<div className={`cursor-pointer w-32 `} onClick={() =>{ navigateTo('/'); setUpdateCheck(true);}}>
+					<img src={logo_text} alt="Logo"  />
 				</div>
 
 				{/* Desktop Navigation */}

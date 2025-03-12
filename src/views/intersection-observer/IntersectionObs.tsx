@@ -28,7 +28,7 @@ const Reveal: React.FC<RevealProps> = ({ children, needLazyLoad = false, needAni
 			// The callback function takes an array of entries that intersect with the root element (in this case, the viewport).
 			([entry]) => {
 				// Loop through the entries and check if the target element is visible.
-				console.log('Observed:', entry.isIntersecting); // Debug log
+				// console.log('Observed:', entry.isIntersecting); // Debug log
 				if (entry.isIntersecting) {
 					setIsVisible(true); // Update the state to true when visible
 					observer.unobserve(entry.target); // Stop observing once visible
