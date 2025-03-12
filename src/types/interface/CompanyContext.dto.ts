@@ -6,6 +6,7 @@ import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatch
 export enum CompanyPageModeEnum {
     JOB = 'JOB',
     REFERRAL = 'REFERRAL',
+    GUIDANCE = "GUIDANCE", //For Guidance page Banner.
 }
 /**
  * Type of the company context
