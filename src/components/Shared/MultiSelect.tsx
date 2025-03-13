@@ -51,6 +51,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if(e.key === 'Escape') {
+      setIsOpen(false);
+    }
     if (e.key === 'Enter' && inputValue.trim()) {
       const newValue = inputValue.trim();
       
