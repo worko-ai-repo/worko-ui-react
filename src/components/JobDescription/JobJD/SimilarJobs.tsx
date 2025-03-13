@@ -67,7 +67,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
                 data-tooltip-content={jobTitle} 
                 className="font-medium text-xs md:text-sm lg:text-base truncate max-w-full sm:max-w-[170px] md:max-w-[220px] lg:max-w-[280px]"
               >
-                {companyName} - {jobTitle}
+                {(companyName ?? 'Company').charAt(0).toUpperCase() + (companyName ?? 'Company').slice(1).toLocaleLowerCase()} - {jobTitle}
               </h3>
             </div>
             <div className="flex gap-1 items-center mt-1">

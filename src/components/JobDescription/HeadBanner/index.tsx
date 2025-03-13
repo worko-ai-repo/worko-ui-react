@@ -59,8 +59,8 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
               {jobData
                 ? `Apply for jobs at ${
                     jobData.externalJobId
-                      ? companyName
-                      : jobData.companyName || ""
+                      ? (companyName ?? 'Company').charAt(0).toUpperCase() + (companyName ?? 'Company').slice(1).toLocaleLowerCase()
+                      : (jobData.companyName ?? 'Company').charAt(0).toUpperCase() + (jobData.companyName ?? 'Company').slice(1).toLocaleLowerCase() || ""
                   }`
                 : "Apply for this position"}
             </h1>

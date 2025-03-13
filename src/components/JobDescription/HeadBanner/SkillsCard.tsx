@@ -15,7 +15,7 @@ const SkillTag = ({ label }: { label: string }) => {
       <span data-tooltip-id="my-tooltip" 
             data-tooltip-content={label}  
             className="truncate block max-w-[82%]">
-        {label}
+        {(label ?? 'Label').charAt(0).toUpperCase() + (label ?? 'Label').slice(1).toLocaleLowerCase()}
       </span>
     </span>
   );
