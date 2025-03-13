@@ -5,7 +5,7 @@ import HeadBanner from "@Components/JobDescription/HeadBanner/index";
 import JobJD from "@Components/JobDescription/JobJD";
 import httpServiceObj from "@Services/ApiHandler.service";
 import MainLoader from "@Components/Loader/Loader";
-import { CompanyDto, JobDto } from "@Interfaces/JobsAndCompany.dto";
+import { CompanyDto, JobDto, JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
 import { MessagePopupProps } from "@Components/Modals/MessageModal";
 import RequestReferralMessage from "@Components/ReferralRequest/RequestReferralMessage";
@@ -83,6 +83,42 @@ const JobDescription = () => {
   const [isApplying, setIsApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
+  // Add a new state to track if user has already applied
+const [hasAlreadyApplied, setHasAlreadyApplied] = useState<boolean>(false);
+
+// Add this new function to check application status
+const checkApplicationStatus = async () => {
+  if (!isLoggedIn || !jobDataState) return;
+  
+  try {
+    const { response, error, status } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
+      `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}`,
+      true,
+      {},
+      true
+    );
+    
+    // Check each item in the array for status property
+    if (response?.data) {
+      for (let i = 0; i < response.data.length; i++) {
+        if (response.data[i].status) {
+          setHasAlreadyApplied(true);
+          setApplicationStatus(true);
+          break;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error checking application status:", error);
+  }
+};
+
+// Add useEffect to call the check function when job data is loaded
+useEffect(() => {
+  if (jobDataState) {
+    checkApplicationStatus();
+  }
+}, [jobDataState, isLoggedIn]);
 
 
   useEffect(() => {
@@ -432,12 +468,12 @@ const JobDescription = () => {
 
   return (
     <div className="w-full ">
-      {jobDataState && (
-        <>
-          <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} />
-          <JobJD jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} />
-        </>
-      )}
+     {jobDataState && (
+  <>
+    <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus || hasAlreadyApplied} handleApplyClick={handleApplyClick} />
+    <JobJD jobData={jobDataState} applicationStatus={applicationStatus || hasAlreadyApplied} handleApplyClick={handleApplyClick} />
+  </>
+)}
 
       {isLoader && <ReferralLoader step={currStep} />}
       {MessageEnabled && <RequestReferralMessage Type={ModalType} gaugeScore={gaugeScore} gaugeEnabled={gaugeEnabled} onClose={() => ModalAction()} />}

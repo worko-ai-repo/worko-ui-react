@@ -168,14 +168,30 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
         // Step 6: Identify which job IDs are missing from the response.
         const missingJobIds = jobIds.filter(id => !receivedJobIds.has(id));
 
-        // Step 8: Update `companyJobData` to include matching scores and applyStatus.
-		setCompanyJobData(prev =>
-			prev?.map(job => ({
-				...job,
-				matchingScore: scoresMap[job.id]?.matchingScore ?? undefined,
-				applyStatus: scoresMap[job.id] ? 'APPLIED' : 'NOT_APPLIED'
-			}))
-		);
+         // Step 8: Update job data with scores, but MAINTAIN SCORES FOR PREVIOUS JOBS
+		 setCompanyJobData(prev => {
+            if (!prev) return undefined;
+            
+            // Create a map of existing jobs with their scores
+            const existingJobsMap = prev.reduce((acc, job) => {
+                acc[job.id] = job;
+                return acc;
+            }, {} as Record<string, JobDto>);
+            
+            // Update with new scores
+            jobIds.forEach(jobId => {
+                if (existingJobsMap[jobId]) {
+                    existingJobsMap[jobId] = {
+                        ...existingJobsMap[jobId],
+                        matchingScore: scoresMap[jobId]?.matchingScore ?? existingJobsMap[jobId].matchingScore,
+                        applyStatus: scoresMap[jobId] ? 'APPLIED' : (existingJobsMap[jobId].applyStatus || 'NOT_APPLIED')
+                    };
+                }
+            });
+            
+            // Convert map back to array while preserving order
+            return prev.map(job => existingJobsMap[job.id] || job);
+        });
 		
 
         // Step 9: If there are missing job scores, log them and trigger score generation.

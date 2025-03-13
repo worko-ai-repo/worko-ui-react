@@ -6,20 +6,23 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { useAppContext } from '@Context/App.context';
 
-// Correct props interface
 interface JobCardProps {
   jobData: JobDto;
   isApplying?: boolean;
   onApply: () => void;
+  applicationStatus: boolean;
 }
 
 interface MatchMetricsProps {
   matchPercentage?: number;
+  isLoggedIn: boolean;
 }
 
-const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0 }) => {
+const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0, isLoggedIn }) => {
   // Calculate individual metrics based on the overall matching percentage
   const getMetricValue = (baseValue: number, multiplier: number) => {
+    // Return 0 if not logged in, otherwise calculate the metric
+    if (!isLoggedIn) return 0;
     return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
   };
   
@@ -47,16 +50,16 @@ const MetricGauge = ({ value, label }: { value: number, label: string }) => {
   return (
     <div className="flex flex-col items-center">
       <div className="w-16 h-16 relative mb-2">
-        <div className="w-full h-full text-blue-600 rounded-full flex items-center justify-center">
-          <GaugeComponent score={value} color={'black'} />
-        </div>
+      <div className="w-full h-full text-blue-600 rounded-full flex items-center justify-center text-sm">
+      <GaugeComponent score={value} color={'black'} />
+    </div>
       </div>
       <p className="text-sm font-medium text-black">{label}</p>
     </div>
   );
 };
 
-const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply }) => {
+const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply, applicationStatus }) => {
   const {isLoggedIn} = useAppContext();
   const { jobid } = useParams();
   const [matchScore, setMatchScore] = useState<number | undefined>(0);
@@ -66,7 +69,11 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
   // Fetch real-time matching score data
   useEffect(() => {
     const fetchMatchingScore = async () => {
-      if (!jobid) return;
+      if (!jobid || !isLoggedIn) {
+        // Reset match score if not logged in
+        setMatchScore(0);
+        return;
+      }
       
       setIsLoading(true);
       try {
@@ -89,11 +96,20 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
     };
     
     fetchMatchingScore();
-  }, [jobid]);
+  }, [jobid, isLoggedIn]); // Added isLoggedIn as a dependency
+
+  // Reset match score when login status changes
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setMatchScore(0);
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     // Update the strength label based on the match score
-    if (matchScore !== undefined && matchScore < 40) {
+    if (!isLoggedIn) {
+      setStrengthLabel("Account Required");
+    } else if (matchScore !== undefined && matchScore < 40) {
       setStrengthLabel("Poor Match");
     } else if ((matchScore ?? 0) < 60) {
       setStrengthLabel("Moderate Match");
@@ -102,13 +118,18 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
     } else {
       setStrengthLabel("Strong Match");
     }
-  }, [matchScore]);
+  }, [matchScore, isLoggedIn]);
 
   // Get company name based on job type
-  const companyName = useMemo(() => {
-    if (!jobData) return 'Company';
-    return jobData.externalJobId ? jobData.companyName : 'Company';
-  }, [jobData]);
+  
+
+  const companyName = jobData.companyName
+  const jobTitle = jobData?.jobTitle
+  ?.toLowerCase()
+  .split(' ')
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ');
+
 
   // Determine if the job posting is recent
   const isEarlyApplicant = useMemo(() => {
@@ -148,29 +169,19 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
     }
   }, [jobData]);
 
-  // Get department or employment type based on job type
-  const departmentOrType = useMemo(() => {
-    if (!jobData) return 'Department';
-    
-    return jobData.externalJobId ? 
-      jobData.typeofEmployment || 'Full Time' : 
-      jobData.department || 'Department';
-  }, [jobData]);
-
-  // Get location based on job type
-  const jobLocation = useMemo(() => {
-    if (!jobData) return 'Location';
-    return jobData.location.fullLocation || 'Location';
-  }, [jobData]);
-
+  
   // Get employment type based on job type
-  const employmentType = useMemo(() => {
-    if (!jobData) return 'Employment Type';
-    return jobData.typeofEmployment || 'Full Time';
-  }, [jobData]);
+  const employmentType = jobData.typeofEmployment
+
+  function handleApplyClick(event: React.MouseEvent<HTMLButtonElement>): void {
+    throw new Error('Function not implemented.');
+  }
+
+  // Calculate the effective match score to display (0 if not logged in)
+  const displayMatchScore = isLoggedIn ? (matchScore || 0) : 0;
 
   return (
-    <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
+    <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] pl-6 pb-6 md:p-4">
       <div className="flex flex-col mt-6 md:mx-4 gap-4">
         {/* Header Section - Changed to flex-col on mobile */}
         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
@@ -195,10 +206,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
                 <h2 className="text-md text-left sm:text-lg md:text-[24px] font-poppins font-semibold text-[#0D0D0D] mb-1">
-                  {companyName} - {jobData?.jobTitle || 'Job Title'}
+                 
+                     {(companyName ?? 'Company').charAt(0).toUpperCase() + (companyName ?? 'Company').slice(1).toLocaleLowerCase()}  - {jobTitle || 'Job Title'}
+                  
+               
                 </h2>
                 <p className="text-xs text-left md:text-[12px] text-[#313131] mb-1">
-                  {departmentOrType}
+                  {jobData.department}
                 </p>
               </div>
             </div>
@@ -207,9 +221,9 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
             <div className="flex flex-row justify-between mt-2 md:mt-1">
               {/* Tags - Flex-wrap on mobile */}
               <div className="flex flex-wrap gap-1 overflow-hidden">
-                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                {/* <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   16 candidates
-                </span>
+                </span> */}
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
                   {timeAgo}
                 </span>
@@ -224,7 +238,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
               {/* Gauge on mobile only */}
               <div className=" md:hidden flex-shrink-0 box-content rounded-xl w-[80px] h-[70px] 
                 bg-gradient-to-b from-[#316BFF] to-[#316BFF] 
-                overflow-hidden text-white p-5 flex flex-col items-center justify-center">
+                overflow-hidden text-white p-5 flex flex-col items-center scale-75 sm-scale-100 justify-center">
                 
                 {/* Gauge Component */}
                 <div className="w-full h-full rounded-full border-3 border-[#6DE5E5] 
@@ -232,7 +246,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
                   {isLoading ? (
                     <div className="animate-pulse w-8 h-8 bg-blue-300 rounded-full"></div>
                   ) : (
-                    <GaugeComponent score={matchScore || 0} />
+                    <GaugeComponent score={displayMatchScore} />
                   )}
                 </div>
 
@@ -259,7 +273,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
               {isLoading ? (
                 <div className="animate-pulse w-12 h-12 bg-blue-300 rounded-full"></div>
               ) : (
-                <GaugeComponent score={matchScore || 0} />
+                <GaugeComponent score={displayMatchScore} />
               )}
             </div>
                     
@@ -275,7 +289,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
           </div>
         </div>
         {/* Pass the matchPercentage to MatchMetrics */}
-        <MatchMetrics matchPercentage={matchScore} />
+        <MatchMetrics matchPercentage={matchScore} isLoggedIn={isLoggedIn} />
         <div style={{width: '100%', height: '100%', border: '0.50px #454545 solid'}}></div>
         
         {/* Location, Job Type, and Buttons */}
@@ -284,28 +298,29 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply 
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{jobData?.location?.fullLocation?.join(', ') || 'Location'}</span>
+              <span className='text-[12px] font-semibold'>{!jobData?.location?.fullLocation?.length ? 'Not Disclosed' : jobData?.location?.fullLocation.join(', ')}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{employmentType}</span>
+              <span className='text-[12px] font-semibold'>{employmentType ? (employmentType.includes("_") ? employmentType.replace(/_/g, " ") : employmentType) : ""}</span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 justify-start md:justify-end">
-            <button 
-              onClick={onApply}
-              disabled={isApplying} 
-              className="flex-1 flex-initial w-[140px] md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9"
-            >
-              {isApplying ? 'Applying...' : 'Apply Job'}
-            </button>
+          <button 
+            className= {`${applicationStatus ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600' } text-white font-bold px-4 py-2 rounded-lg transition-colors`}
+            onClick={onApply}
+            disabled={applicationStatus}
+          >
+            {applicationStatus ? 'Already Applied' : 'Apply Now'}
+          </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default JobCard;

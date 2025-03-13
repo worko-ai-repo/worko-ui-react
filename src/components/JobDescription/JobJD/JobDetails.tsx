@@ -17,12 +17,12 @@ export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = '
       <div>
         <div className="space-y-4 mb-4" dangerouslySetInnerHTML={{ __html: finaljobSummary }}></div>
         {/* <p><span className="font-medium">Education:</span> {education}</p> */}
-        <p className="mb-2"><span className="font-medium">Skills:</span></p>
+        {/* <p className="mb-2"><span className="font-medium">Skills:</span></p>
         <ul className="list-disc pl-5 space-y-1">
           {skills.map((skill, index) => (
             <li key={index}>{skill}</li>
           ))}
-        </ul>
+        </ul> */}
       </div>
     </div>
   );
@@ -144,25 +144,25 @@ const JobDetails: React.FC<JobDetailsProps> = ({
     };
 
   return (
-    <div className="w-full md:w-[63%]  min-h-full space-y-6">
+    <div className="w-full min-h-full space-y-6">
       <div className="bg-gray-50 p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Job description</h2>
         
         <JobRequirements 
           experience={job.jobDescription} 
         //  education={job.}  
-          skills={job.coreSkills || []} 
+         // skills={job.coreSkills || []} 
         />
         
         
         <div className="flex justify-center items-center gap-2 mt-6">
-          <button 
-            className={`${isApplying ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold px-4 py-2 rounded-lg transition-colors`}
-            onClick={onApply}
-            disabled={isApplying}
-          >
-            {isApplying ? 'Applying...' : 'Apply Job'}
-          </button>
+            <button 
+              className={`${isApplying ? 'bg-blue-300' : applicationStatus ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold px-4 py-2 rounded-lg transition-colors`}
+              onClick={onApply}
+              disabled={isApplying || applicationStatus}
+            >
+              {isApplying ? 'Applying...' : applicationStatus ? 'Already Applied' : 'Apply Job'}
+            </button>
           {/* <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
             Refer a Friend
           </button> */}
@@ -172,12 +172,15 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         </div>
       </div>
       
-      <AboutCompany 
-        // paragraphs={job?.companyDetails?.aboutCompany || []} 
-        aboutCompany={job?.companyDetails?.aboutCompany || ''}
-        socialLinks={job.linkedIn || ''}
-        companyName={job.companyName || 'the company'}
-      />
+      {job.companyDetails?.aboutCompany && 
+         <AboutCompany 
+         // paragraphs={job?.companyDetails?.aboutCompany || []} 
+         aboutCompany={job?.companyDetails?.aboutCompany || ''}
+         socialLinks={job.linkedIn || ''}
+         companyName={job.companyName || 'the company'}
+       />
+      }
+     
 
      
     </div>

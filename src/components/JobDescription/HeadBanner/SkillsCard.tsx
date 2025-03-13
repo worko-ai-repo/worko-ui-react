@@ -11,8 +11,10 @@ interface SkillsCardProps {
 
 const SkillTag = ({ label }: { label: string }) => {
   return (
-    <span className="px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-800 inline-block relative w-32">
-      <span className="truncate block max-w-[85%]">
+    <span className="px-2 py-2 bg-gray-100 w-[33%] rounded-full text-sm text-gray-800 inline-block relative w-32">
+      <span data-tooltip-id="my-tooltip" 
+            data-tooltip-content={label}  
+            className="truncate block max-w-[82%]">
         {label}
       </span>
     </span>
@@ -55,7 +57,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
   }, [salary]);
 
   return (
-    <div className="bg-transparent lg:bg-white rounded-[20px] lg:p-6">
+    <div className="bg-transparent lg:bg-white rounded-[20px] lg:p-6 h-full w-full">
       {/* Desktop version */}
       <div className="hidden lg:flex text-left lg:flex-col lg:justify-between lg:h-full">
         <div>

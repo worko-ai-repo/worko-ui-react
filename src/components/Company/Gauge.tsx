@@ -53,7 +53,7 @@ const GaugeComponent: React.FC<GaugeProps> = ({ score ,strokeWidth, color}) => {
       </svg>
       {/* Score Text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`text-xs md:text-xl font-semibold ${color ? 'text-black' : 'text-white'}`}>{progress}%</span>
+        <span className={`text-xs scale-95 md:text-xl font-semibold ${color ? 'text-black' : 'text-white'}`}>{progress}%</span>
       </div>
     </div>
   );
