@@ -83,8 +83,10 @@ export interface JobDto extends CompanyDto {
     country: string[];
     fullLocation: string[];
   };
+  // @ Typo bug
   workMode: string;
   typeofEmployment?: string;
+  typeOfEmployment:string; 
   coreSkills?: string[];
   softSkills?: string[];
   technicalSkills?: string[];
@@ -100,7 +102,6 @@ export interface JobDto extends CompanyDto {
   jobCreatedDate?: string;
   jobUrl?: string;
   companyName?: string;
-
   applyStatus?: "APPLIED" | "NOT_APPLIED";
   matchingScore?: number;
   isNew?: boolean;

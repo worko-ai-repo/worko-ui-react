@@ -86,6 +86,11 @@ const JobDescription = () => {
   // Add a new state to track if user has already applied
 const [hasAlreadyApplied, setHasAlreadyApplied] = useState<boolean>(false);
 
+// Reset application status when jobid changes
+useEffect(() => {
+  setApplicationStatus(false);
+  setHasAlreadyApplied(false);
+}, [jobid]);
 // Add this new function to check application status
 const checkApplicationStatus = async () => {
   if (!isLoggedIn || !jobDataState) return;

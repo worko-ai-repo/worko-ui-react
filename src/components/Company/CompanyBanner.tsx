@@ -4,6 +4,7 @@ import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
 import { useCompanyContext } from "../../context/Company.context";
 import { useForm } from "react-hook-form";
 import { validationRules } from "@Utils/FormValidator.utils";
+import httpServiceObj from "@Services/ApiHandler.service";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
@@ -139,15 +140,22 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     },
   };
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Email submitted:", data.email);
-    // Store the submitted email
-    setSubmittedEmail(data.email);
-    // Set subscription status to true
+  const onSubmit = async(data: FormValues) => {
+    
+    const {response, error} = await httpServiceObj.post('/user/settings', {
+      subscribedEmailId:data.email
+    } , true)
+
+    if(response) {
+      // Set subscription status to true
     setIsSubscribed(true);
     // No need to pause rotation anymore as we're showing success card
     setIsPaused(false);
-    // No need for rotation as we'll just show the success card
+
+    } else {
+      setIsSubscribed(false)
+    }
+
   };
 
   let currentData: CompanyData = { title: "", description: "" };

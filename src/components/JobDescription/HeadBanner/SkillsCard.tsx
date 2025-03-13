@@ -11,7 +11,7 @@ interface SkillsCardProps {
 
 const SkillTag = ({ label }: { label: string }) => {
   return (
-    <span className="px-2 py-2 bg-gray-100 w-[33%] rounded-full text-sm text-gray-800 inline-block relative w-32">
+    <span className="px-2 py-2 bg-gray-100 w-[33%] cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32">
       <span data-tooltip-id="my-tooltip" 
             data-tooltip-content={label}  
             className="truncate block max-w-[82%]">
@@ -100,7 +100,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             </div>
             
             {openSection === 'coreSkills' && (
-              <div className="flex flex-wrap gap-2 mt-4">
+              <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
                 {displaySkills.map((skill, index) => (
                   <SkillTag key={index} label={skill} />
                 ))}
@@ -124,7 +124,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             </div>
             
             {openSection === 'experience' && (
-              <div className="mt-4">
+              <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
                 <SkillTag label={displayExperience} />
               </div>
             )}
@@ -146,7 +146,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             </div>
             
             {openSection === 'ctc' && (
-              <div className="mt-4">
+              <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
                 <SkillTag label={formattedSalary} />
               </div>
             )}
