@@ -49,8 +49,8 @@ export const generateFilterForRender = (
 
         // Step 2: Define relevant filter parameters
         const filterParams = companyPageMode === CompanyPageModeEnum.JOB
-            ? ['location', 'coreSkills', 'softSkills', 'technicalSkills'] 
-            : ['teamSize', 'industry'];
+            ? ['location', 'coreSkills', 'softSkills', 'technicalSkills','company'] 
+            : ['teamSize', 'industry','company'];
 
         // Step 3: Ensure cache exists for each parameter
         filterParams.forEach(param => {
@@ -64,10 +64,15 @@ export const generateFilterForRender = (
             let newOptions: string[] = [];
 
             if (companyPageMode === CompanyPageModeEnum.JOB) {
+                // Extract options based on the parameter key
                 if (['coreSkills', 'softSkills', 'technicalSkills'].includes(paramKey)) {
                     const skillData = data.map((job: JobDto) => 'externalJobId' in job ? [] : job[paramKey as keyof JobDto]);
                     newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
-                } else if (paramKey === 'location') {
+                }
+                else if (paramKey === 'company') {
+                    newOptions = Array.from(new Set(data.map((job: JobDto) => job.companyDetails?.name || '').filter(name => name)));
+                }
+                else if (paramKey === 'location') {
                     newOptions = Array.from(new Set(data.flatMap((job: JobDto) => job.location?.city || [])));
                 } else {
                     newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
@@ -79,6 +84,9 @@ export const generateFilterForRender = (
                             paramKey === 'teamSize' ? String(company[paramKey]) : company[paramKey]
                         ).filter(Boolean)
                     ));
+                }
+                else if (paramKey === 'company') {
+                    newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company.name).filter(Boolean)));
                 }
             }
 

@@ -89,6 +89,13 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       paramKey: 'experienceRange',
       placeholder: 'Experience Range',
       selectType: 'normal'
+    },
+    {
+      placeholder: 'Company',
+      paramKey: 'company',
+      selectType: 'multiselect',
+      options: [], // This can be populated with suggested industries
+      value: []
     }
   ],    
   referralFilter: [
@@ -102,6 +109,13 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
     {
       placeholder: 'Industry',
       paramKey: 'industry',
+      selectType: 'multiselect',
+      options: [], // This can be populated with suggested industries
+      value: []
+    },
+    {
+      placeholder: 'Company',
+      paramKey: 'company',
       selectType: 'multiselect',
       options: [], // This can be populated with suggested industries
       value: []
