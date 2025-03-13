@@ -37,7 +37,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
 		pageSize: 10,
 		sortOrder: 'descending',
-		searchText: searchText,
+		searchText: searchText || userDesignation || '',
 	});
 
 	const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
@@ -223,7 +223,6 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 		async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
 			const isJobPage = location.pathname.includes('job');
 			const isFiltering = !pageParam; // If `pageParam` is null, it's a new filter request
-	
 			// Update filters dynamically
 			const updatedFilters = {
 				...filters,
@@ -235,7 +234,7 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 			};
 	
 			const apiUrl = isJobPage
-				? `https://jobs.dev.worko.work/job/${userDesignation ? `?jobTitle=${userDesignation}` : ''}`
+				? `https://jobs.dev.worko.work/job/`
 				: `/company`;
 			// console.log('API URL:', apiUrl);
 			try {
@@ -247,12 +246,14 @@ const fetchJobMatchingScores = useCallback(async (jobIds: string[]) => {
 				);
 	
 				if (error) throw error;
-	
+				
+				// Decide the filterMetaData based on the page mode
+				const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
 				// Generate filters for rendering
 				generateFilterForRender(
 					response.data,
 					companyPageMode,
-					filterMetaData,
+					finalFilterMetaData,
 					setJobFilterForRender,
 					isFiltering
 				);

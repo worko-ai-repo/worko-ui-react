@@ -32,7 +32,7 @@ export const generateFilterForRender = (
     companyPageMode: CompanyPageModeEnum,
     filterMetaData: any[],
     setJobFilterForRender: React.Dispatch<React.SetStateAction<FilterOptionForRender[]>>,
-    isFiltering: boolean = false // Reset cache if it's a new filter request
+    isFiltering: boolean = false // Only resets cache if explicitly required
 ) => {
     try {
         if (!data || data.length === 0) {
@@ -42,73 +42,78 @@ export const generateFilterForRender = (
             throw new Error('filterMetaData is empty or undefined');
         }
 
-        // Step 1: Reset cache if this is a new filter request (not pagination)
+        // Step 1: Reset cache only when explicitly requested
         if (isFiltering) {
             invalidateFilterCache();
         }
 
-        // Step 2: Define filter parameters based on mode
-		const filterParams = companyPageMode === CompanyPageModeEnum.JOB
-		? ['location', 'coreSkills', 'softSkills', 'technicalSkills'] 
-		: ['teamSize', 'industry'];
+        // Step 2: Define relevant filter parameters
+        const filterParams = companyPageMode === CompanyPageModeEnum.JOB
+            ? ['location', 'coreSkills', 'softSkills', 'technicalSkills'] 
+            : ['teamSize', 'industry'];
 
-        // Step 3: Initialize cache entries for each filter parameter if they don't exist
+        // Step 3: Ensure cache exists for each parameter
         filterParams.forEach(param => {
             if (!filterOptionsCache[param]) {
                 filterOptionsCache[param] = new Set();
             }
         });
 
-        // Step 4: Process data and extract filter options dynamically
-		const dynamicFilters: FilterOptionForRender[] = filterParams.map((paramKey: string) => {
-			const meta = filterMetaData.find(m => m.paramKey === paramKey);
-			
-			if (meta?.options?.length) {
-				return meta as FilterOptionForRender;
-			}
-			
-			let newOptions: string[] = [];
-			
-			if (companyPageMode === CompanyPageModeEnum.JOB) {
-				if (paramKey === 'coreSkills' || paramKey === 'softSkills' || paramKey === 'technicalSkills') {
-					const skillData = data.map((job: JobDto) => 'externalJobId' in job ? [] : job[paramKey]);
-					newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
-				} else if (paramKey === 'location') {
-					// Extract location directly instead of city
+        // Step 4: Extract filter options dynamically & update cache
+        filterParams.forEach(paramKey => {
+            let newOptions: string[] = [];
+
+            if (companyPageMode === CompanyPageModeEnum.JOB) {
+                if (['coreSkills', 'softSkills', 'technicalSkills'].includes(paramKey)) {
+                    const skillData = data.map((job: JobDto) => 'externalJobId' in job ? [] : job[paramKey as keyof JobDto]);
+                    newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
+                } else if (paramKey === 'location') {
                     newOptions = Array.from(new Set(data.flatMap((job: JobDto) => job.location?.city || [])));
-				} else {
-					newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
-				}
-			} else if (companyPageMode === CompanyPageModeEnum.REFERRAL) {
-				if (paramKey === 'teamSize' || paramKey === 'industry') {
-					newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company[paramKey]).filter((value): value is string => typeof value === 'string')));
-				}
-			}
-			
-			newOptions.forEach(option => filterOptionsCache[paramKey].add(option));
-			const allOptions = Array.from(filterOptionsCache[paramKey]);
-			
+                } else {
+                    newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
+                }
+            } else if (companyPageMode === CompanyPageModeEnum.REFERRAL) {
+                if (paramKey === 'teamSize' || paramKey === 'industry') {
+                    newOptions = Array.from(new Set(
+                        data.map((company: CompanyShortDto) => 
+                            paramKey === 'teamSize' ? String(company[paramKey]) : company[paramKey]
+                        ).filter(Boolean)
+                    ));
+                }
+            }
+
+            // Merge with existing cache
+            newOptions.forEach(option => filterOptionsCache[paramKey].add(option));
+        });
+
+        // Step 5: Create dynamic filters from cache
+        const dynamicFilters: FilterOptionForRender[] = filterParams.map(paramKey => {
+            const meta = filterMetaData.find(m => m.paramKey === paramKey);
+
             return {
-                options: allOptions,
-                value: allOptions,
+                options: Array.from(filterOptionsCache[paramKey]), // Persisted + New
+                value: Array.from(filterOptionsCache[paramKey]),  // Persisted + New
                 paramKey,
                 placeholder: meta?.placeholder || paramKey.charAt(0).toUpperCase() + paramKey.slice(1),
-                selectType: meta?.selectType || 'normal', // Ensure selectType is included
+                selectType: meta?.selectType || 'normal',
             };
-		});
+        });
 
-        // Step 7: Only include static filters if in JOB mode
+        // Step 6: Preserve static filters (only for JOB mode)
         let staticFilters: FilterOptionForRender[] = [];
         if (companyPageMode === CompanyPageModeEnum.JOB) {
-            staticFilters = filterMetaData.filter(meta => !dynamicFilters.some(filter => filter.paramKey === meta.paramKey)) as FilterOptionForRender[];
+            staticFilters = filterMetaData.filter(meta => 
+                !dynamicFilters.some(filter => filter.paramKey === meta.paramKey)
+            ) as FilterOptionForRender[];
         }
 
-        // Step 8: Merge dynamic and static filters
+        // Step 7: Merge and update UI
         const finalFilters = [...dynamicFilters, ...staticFilters];
+        console.log('Updated Filter Options:', finalFilters);
+        setJobFilterForRender([...finalFilters]); // Ensure UI gets updated
 
-        console.log('Final Filter Options:', finalFilters);
-        setJobFilterForRender(finalFilters);
     } catch (error) {
         console.error('Error in generating filter options:', error);
-    }
+    }  
 };
+

@@ -17,9 +17,8 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 				{/* first col with images title and starts */}
 				<div className=" flex items-start justify-start gap-2 md:gap-5 mb-2 ">
 					{/* Left Section: Company Logo */}
-					<div className="border flex items-center justify-center min-w-[60px] w-[60px] h-[60px] overflow-hidden  bg-gray-100 rounded-xl ">
-						<img src={companyData.logoUrl || logo_text} alt="Logo" className="w-full h-full object-contain " />
-					</div>
+					<div className="relative flex-shrink-0 min-w-[60px] w-[60px] h-[60px] rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{companyData.logoUrl ? <img src={companyData.logoUrl} alt={companyData.name} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="text-wrap text-[10px] font-bold text-blue-500 h-full w-full flex items-center justify-center text-center p-1">{companyData.name}</div>}</div>
+
 					{/* Right Section */}
 					<div className=" flex flex-col items-start justify-between w-[70%]   ">
 						<h3 className="text-sm font-medium  mb-0 leading-6  sm:text-lg truncate w-[100%] text-left  !capitalize ">{companyData.name.charAt(0).toUpperCase() + companyData.name.slice(1).toLocaleLowerCase() }</h3>

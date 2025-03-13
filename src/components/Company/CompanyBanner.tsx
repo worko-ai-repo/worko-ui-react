@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef, FunctionComponent } from 'react';
-import styles from './company.module.scss';
-import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
-import { useCompanyContext } from '../../context/Company.context';
-import { useForm } from 'react-hook-form';
-import { validationRules } from '@Utils/FormValidator.utils';
+import { useState, useEffect, useRef, FunctionComponent } from "react";
+import styles from "./company.module.scss";
+import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
+import { useCompanyContext } from "../../context/Company.context";
+import { useForm } from "react-hook-form";
+import { validationRules } from "@Utils/FormValidator.utils";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
-    title: 'Create a profile and get hired instantly!',
+    title: "Create a profile and get hired instantly!",
     description: `
       <ul class="list-disc pl-5 space-y-2">
         <li>Job hunting could be nerve-wracking, but not anymore with Worko.</li>
@@ -29,7 +29,7 @@ const companyStaticData = {
     `,
   },
   [CompanyPageModeEnum.GUIDANCE]: {
-    title: 'Your Shortcut to Career Success – Guidance That Gets Results',
+    title: "Your Shortcut to Career Success – Guidance That Gets Results",
     description: `
       <ul class="list-disc pl-5 space-y-2">
         <li>From resume tweaks to mock drills, we prep you to land interview calls and crack them effortlessly. Get role-specific strategies, proven answer frameworks to transform nerve-wracking interviews into smooth, confident conversations.</li>
@@ -38,6 +38,11 @@ const companyStaticData = {
     `,
   },
 };
+const referDetails = [
+  { icon: "🎯", title: "Your Reward", description: "Receive a monetary reward for every successful hire." },
+  { icon: "🌟", title: "Help Friends", description: "Connect talented candidates with their dream roles." },
+  { icon: "🔄", title: "No Limits", description: "Refer as many people as you like – rewards stack up!" },
+];
 
 interface CompanyData {
   title: string;
@@ -49,18 +54,23 @@ type FormValues = {
 };
 
 const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => {
-  const [activeCard, setActiveCard] = useState<'email' | 'refer'>('email');
+  const [activeCard, setActiveCard] = useState<"email" | "refer">("email");
   const [isPaused, setIsPaused] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState('');
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormValues>();
-  const emailValue = watch('email');
-  
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<FormValues>();
+  const emailValue = watch("email");
+
   useEffect(() => {
     // Set isPaused based on email value
-    if (emailValue && emailValue.trim() !== '') {
+    if (emailValue && emailValue.trim() !== "") {
       setIsPaused(true);
     } else {
       // Only unpause if no value and not focused
@@ -70,7 +80,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
       }
     }
   }, [emailValue]);
-  
+
   useEffect(() => {
     // Only set up rotation if not subscribed
     if (!isSubscribed) {
@@ -79,14 +89,14 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
-        
+
         intervalRef.current = setInterval(() => {
           if (!isPaused) {
             setActiveCard(prev => prev === 'email' ? 'refer' : 'email');
           }
         }, 5000);
       };
-      
+
       // Start the rotation initially
       startRotation();
     } else {
@@ -95,7 +105,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
         clearInterval(intervalRef.current);
       }
     }
-    
+
     // Clean up the interval when component unmounts
     return () => {
       if (intervalRef.current) {
@@ -103,34 +113,34 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
       }
     };
   }, [isPaused, isSubscribed]);
-  
+
   const handleInputFocus = () => {
     setIsPaused(true);
     // Force the email card to be active when input is focused
-    setActiveCard('email');
+    setActiveCard("email");
   };
-  
+
   const handleInputBlur = () => {
     // Only unpause if there's no text in the input
     if (!emailValue || !emailValue.trim()) {
       setIsPaused(false);
     }
   };
-  
+
   // Register email input with custom event handlers
   const emailRegister = {
-    ...register('email', validationRules.email),
+    ...register("email", validationRules.email),
     onFocus: handleInputFocus,
     onBlur: (e: any) => {
       // Call React Hook Form's blur handler
       emailRegister.onBlur(e);
       // Call our custom blur handler
       handleInputBlur();
-    }
+    },
   };
-  
+
   const onSubmit = (data: FormValues) => {
-    console.log('Email submitted:', data.email);
+    console.log("Email submitted:", data.email);
     // Store the submitted email
     setSubmittedEmail(data.email);
     // Set subscription status to true
@@ -139,8 +149,8 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     setIsPaused(false);
     // No need for rotation as we'll just show the success card
   };
-  
-  let currentData: CompanyData = { title: '', description: '' };
+
+  let currentData: CompanyData = { title: "", description: "" };
 
   if (!BannerMode) {
     const { companyPageMode } = useCompanyContext();
@@ -157,14 +167,14 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
           <small className="text-[10px] sm:text-xs" dangerouslySetInnerHTML={{ __html: currentData.description }}></small>
         </div>
 
-        <div className="hidden md:block w-full md:max-w-[400px]">
+        <div className="hidden md:block w-full h-[155px] md:max-w-[460px]">
           {/* Show success popup if subscribed */}
           {isSubscribed ? (
             <EmailSuccessPopup email={submittedEmail} />
           ) : (
             <>
               {/* EmailCard - shown when activeCard is 'email' */}
-              <div className={`transition-opacity duration-500 ${activeCard === 'email' ? 'opacity-100' : 'opacity-0 hidden'}`}>
+              <div className={`transition-opacity duration-500 ${activeCard === "email" ? "opacity-100" : "opacity-0 hidden"}`}>
                 <div className="px-4 py-4 mx-auto min-h-36 max-w-80 subCard rounded-2xl bg-white text-black p-2 flex flex-col items-start justify-center gap-3">
                   <div className="text-xs text-left">
                     <p className="font-bold">📨 Email me for jobs</p>
@@ -172,20 +182,10 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
                   </div>
                   <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-2">
                     <div className="w-full">
-                      <input 
-                        type="text" 
-                        className={`w-full bg-transparent px-4 py-2.5 rounded-md border outline-none text-xs ${errors.email ? 'border-red-500' : ''}`} 
-                        placeholder="name@gmail.com"
-                        {...emailRegister}
-                      />
-                      {errors.email && (
-                        <p className="text-xs text-left text-red-500 mt-1">{errors.email.message?.toString()}</p>
-                      )}
+                      <input type="text" className={`w-full bg-transparent px-4 py-2.5 rounded-md border outline-none text-xs ${errors.email ? "border-red-500" : ""}`} placeholder="name@gmail.com" {...emailRegister} />
+                      {errors.email && <p className="text-xs text-left text-red-500 mt-1">{errors.email.message?.toString()}</p>}
                     </div>
-                    <button 
-                      type="submit" 
-                      className="btn_secondary mx-auto font-normal py-1 px-10 bg-blue-500 text-[0.8rem] text-white"
-                    >
+                    <button type="submit" className="btn_secondary mx-auto font-normal py-1 px-10 bg-blue-500 text-[0.8rem] text-white">
                       Subscribe
                     </button>
                   </form>
@@ -193,37 +193,23 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
               </div>
 
               {/* ReferCard - shown when activeCard is 'refer' */}
-              <div className={`transition-opacity duration-500 ${activeCard === 'refer' ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                <div className="px-6 min-h-36 subCard rounded-2xl bg-white text-black p-2 flex flex-col items-start justify-start">
-                  <div className="text-md text-center justify-center font-bold flex items-center gap-3 w-full">
-                    <span>🤝</span>
-                    <span className="font-poppins">Refer a Friend, Earn Rewards!</span>
+              <div className={`transition-opacity duration-500  ${activeCard === "refer" ? "opacity-100" : "opacity-0 hidden"}`}>
+                <div className="bg-white text-gray-800 shadow-lg rounded-2xl p-4 min-h-36 flex flex-col">
+                  <div className="flex items-center justify-center mb-3">
+                    <span className="text-lg">🤝</span>
+                    <h3 className="text-xs font-bold ml-2">Refer a Friend, Earn Rewards!</h3>
                   </div>
-                  
-                  <ul className="w-full list-disc">
-                    <li className="flex items-start">
-                      <span className="text-lg">🎯</span>
-                      <div className='text-left ml-2'>
-                        <span className="font-gilroy-semibold text-xs">Your Reward:</span>
-                        <span className="font-gilroy-medium text-left text-xs"> Receive a monetary reward for every successful hire.</span>
-                      </div>
-                    </li>
-                    
-                    <li className="flex items-start ">
-                      <span className="text-lg">🌟</span>
-                      <div className='text-left ml-2'>
-                        <span className="font-gilroy-semibold text-xs">Help Friends:</span>
-                        <span className="font-gilroy-medium text-xs"> Connect talented candidates with their dream roles.</span>
-                      </div>
-                    </li>
-                    
-                    <li className="flex items-start">
-                      <span className="text-lg">🔄</span>
-                      <div className='text-left ml-2'>
-                        <span className="font-gilroy-semibold text-xs">No Limits:</span>
-                        <span className="font-gilroy-medium text-xs"> Refer as many people as you like – rewards stack up!</span>
-                      </div>
-                    </li>
+
+                  <ul className="space-y-0">
+                    {referDetails.map((item, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <span className="text-xs align-bottom ">{item.icon}</span>
+                        <div className="text-left  "> 
+                          <small className=" text-xs font-semibold ">{item.title}: </small>
+                          <small className=" text-xs " >{item.description}</small>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -235,30 +221,26 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   );
 };
 
-
 interface EmailSuccessPopupProps {
   email: string;
 }
 
 const EmailSuccessPopup: FunctionComponent<EmailSuccessPopupProps> = ({ email }) => {
   return (
-     
-      <div className="px-4 py-4 mx-auto min-h-36 subCard rounded-2xl bg-white text-black p-2 flex flex-col items-center justify-center gap-3">
-        <div className="text-center w-full mb-2">
-          <p className="font-bold text-blue-600 text-lg">🎉 You're All Set!</p>
-          <p className="text-blue-600 font-medium text-sm">{email}</p>
-        </div>
-        
-        <div className="text-center text-xs text-gray-500 flex items-top justify-top gap-1">
-          <span className="text-lg">🤖</span>
-          <div>
-            <p>Our AI will review your CV and send you curated job</p>
-            <p>matches tailored to your profile to boost your success.</p>
-          </div>
+    <div className="px-4 py-4 mx-auto min-h-36 subCard rounded-2xl bg-white text-black p-2 flex flex-col items-center justify-center gap-3">
+      <div className="text-center w-full mb-2">
+        <p className="font-bold text-blue-600 text-lg">🎉 You're All Set!</p>
+        <p className="text-blue-600 font-medium text-sm">{email}</p>
+      </div>
+
+      <div className="text-center text-xs text-gray-500 flex items-top justify-top gap-1">
+        <span className="text-lg">🤖</span>
+        <div>
+          <p>Our AI will review your CV and send you curated job</p>
+          <p>matches tailored to your profile to boost your success.</p>
         </div>
       </div>
-    
-    
+    </div>
   );
 };
 

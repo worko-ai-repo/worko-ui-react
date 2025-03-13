@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface MultiSelectProps {
   placeholder: string;
@@ -7,25 +7,20 @@ interface MultiSelectProps {
   onChange: (values: string[]) => void;
   type: 'normal' | 'freetext' | 'multiselect';
   options?: string[];
+  apiValue?: string[];
 }
 
-/**
- * MultiSelect component - A custom multi-select component
- *
- * @description - A custom multi-select component that can be used to select multiple values from a list of options
- *
- * @param MultiSelectProps - Placeholder, value, onChange, type, options
- * @returns - A custom multi-select component
- */
 export const MultiSelect: React.FC<MultiSelectProps> = ({
   placeholder,
   value,
   onChange,
   type,
   options = [],
+  apiValue = [],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [filteredOptions, setFilteredOptions] = useState(options);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -35,35 +30,35 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (inputValue.trim()) {
+      const filtered = options.filter(option =>
+        option.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredOptions(filtered);
+    } else {
+      setFilteredOptions(options);
+    }
+  }, [inputValue, options]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
+    setIsOpen(true);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && inputValue.trim()) {
-      if (type === 'freetext') {
-        onChange([inputValue.trim()]);
-        setInputValue('');
-      } else if (type === 'multiselect' && !value.includes(inputValue.trim())) {
-        onChange([...value, inputValue.trim()]);
-        setInputValue('');
-      }
-    }
-  };
-
-  const handleOptionClick = (option: string) => {
+  const handleOptionClick = (selectedIndex: number) => {
+    const selectedApiValue = apiValue[selectedIndex] || filteredOptions[selectedIndex];
     if (type === 'multiselect') {
-      const newValue = value.includes(option)
-        ? value.filter((v) => v !== option)
-        : [...value, option];
+      const newValue = value.includes(selectedApiValue)
+        ? value.filter((v) => v !== selectedApiValue)
+        : [...value, selectedApiValue];
       onChange(newValue);
     } else {
-      onChange([option]);
+      onChange([selectedApiValue]);
       setIsOpen(false);
     }
   };
@@ -75,63 +70,61 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <div
-        className="text-xs sm:text-s text-left cursor-pointer outline-none text-gray-500 bg-transparent w-full max-w-[300px] p-3 border border-gray-200 rounded-xl"
+        className={`select_primary text-xs sm:text-s text-left cursor-pointer outline-none text-gray-500 bg-white w-full max-w-[300px] p-3 border border-gray-200 ${isOpen ? 'rounded-t-xl border-b-0':'rounded-xl'} `}
         onClick={() => {
           setIsOpen(true);
           inputRef.current?.focus();
         }}
       >
-        {value.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {value.map((v, index) => (
-              <span
-                key={index}
-                className="bg-gray-100 px-2 py-1 rounded-md flex items-center gap-1"
-              >
-                {v}
-                <X
-                  size={14}
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeValue(v);
-                  }}
-                />
-              </span>
-            ))}
-          </div>
-        ) : (
-          <div className="w-full">
-            {type === 'normal' ? (
-              <span className="text-gray-400  text-left ">{placeholder}</span>
-            ) : (
-              <input
-                ref={inputRef}
-                type="text"
-                className="opacity-100 w-full bg-transparent outline-none" // Changed: removed conditional opacity check for "normal"
-                placeholder={placeholder}
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onClick={(e) => e.stopPropagation()}
+        <div className="flex flex-wrap gap-2 w-5/6 ">
+          {value.map((v, index) => (
+            <span
+              key={index}
+              className="bg-blue border text-blue-600 px-2 py-1 rounded-md flex items-center gap-1"
+            >
+              {v}
+              <X
+                size={14}
+                className="cursor-pointer hover:text-red-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeValue(v);
+                }}
               />
-            )}
-          </div>
-        )}
+            </span>
+          ))}
+          {(value.length === 0 || type !== 'normal') && (
+            <input
+              ref={inputRef}
+              type="text"
+              className="flex-1 min-w-[120px] bg-transparent outline-none"
+              placeholder={value.length === 0 ? placeholder : ''}
+              value={inputValue}
+              onChange={handleInputChange}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
       </div>
 
       {isOpen && (type === 'multiselect' || type === 'normal') && (
-        <div className="absolute z-10 w-full max-w-[300px] mt-1 bg-white border border-gray-200 rounded-xl shadow-lg">
-          {placeholder && <div className="px-4 py-2 text-gray-500">{placeholder}</div>}
-          {options.map((option) => (
-            <div
-              key={option} // Ensure option is unique
-              className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${value.includes(option) ? 'bg-gray-50' : ''}`}
-              onClick={() => handleOptionClick(option)}
-            >
-              {option}
-            </div>
-          ))}
+        <div className="absolute z-10 w-full max-w-[300px] bg-white border border-gray-200 rounded-b-xl shadow-lg max-h-[240px] overflow-y-auto">
+          {filteredOptions.length === 0 ? (
+            <div className="px-4 py-2 text-xs text-gray-600">No options found</div>
+          ) : (
+            filteredOptions.map((option, index) => (
+              <div
+                key={option}
+                className={`px-4 py-2 cursor-pointer hover:bg-gray-50 text-xs font-medium text-gray-600 flex items-center text-left justify-between ${
+                  value.includes(apiValue[index]) ? 'text-blue-600 bg-blue-50' : ''
+                }`}
+                onClick={() => handleOptionClick(index)}
+              >
+                <span>{option}</span>
+                {value.includes(apiValue[index]) && <Check size={16} className="text-blue-600" />}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

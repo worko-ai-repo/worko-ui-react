@@ -1,54 +1,55 @@
-import { useRef, useState } from 'react';
-import { useCompanyContext } from '../../context/Company.context';
-import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
-import { invalidateFilterCache } from '@Utils/GenerateFiltersForRender';
-import RequestCompany from './RequestCompany';
-import { useAppContext } from '@Context/App.context';
-import { MultiSelect } from '@Components/Shared/MultiSelect';
+import { useRef, useState } from "react";
+import { useCompanyContext } from "../../context/Company.context";
+import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
+import { invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
+import RequestCompany from "./RequestCompany";
+import { useAppContext } from "@Context/App.context";
+import { MultiSelect } from "@Components/Shared/MultiSelect";
 
-const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void, companyPageMode: CompanyPageModeEnum }) => {
+const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
   const { setJobFilters, jobFilterForRender = [] } = useCompanyContext();
   const { isLoggedIn, userDetails } = useAppContext();
   const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
 
   const resetFilters = () => {
-    setJobFilters({ pageSize: 10, sortOrder: 'descending', searchText: '' });
+    setJobFilters({ pageSize: 10, sortOrder: "descending", searchText: "" });
     setSelectedValues({});
     invalidateFilterCache();
   };
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {
-    setSelectedValues(prev => ({ ...prev, [key]: values }));
+    setSelectedValues((prev) => ({ ...prev, [key]: values }));
 
-    setJobFilters(prev => {
+    setJobFilters((prev) => {
       const newFilters: any = { ...prev };
-      
+
       if (values.length === 0) {
         delete newFilters[key];
-      } else if (key.includes('Skills')) {
-        newFilters[key] = values.map(v => v.toLowerCase()).join(',');
-      } else if (key.includes('Range') && values[0]) {
-        try {
-          // Find the matching value object from filter options
-          const selectedOption = filter.options.findIndex((opt: string) => opt === values[0]);
-          const rangeValues = filter.value[selectedOption];
+      } else if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize") {
+        newFilters[key] = values.map((v) => v.toLowerCase()).join(",");
+      } else if (key.includes("Range") && values[0]) {
+        console.log("values[0]", values[0]); // Debugging
 
-          const baseKey = key.replace('Range', '');
-          const formattedKey = baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
-          newFilters[`min${formattedKey}`] = rangeValues.minSalary ?? rangeValues.minExperience;
-          newFilters[`max${formattedKey}`] = rangeValues.maxSalary ?? rangeValues.maxExperience;
-          delete newFilters[key];
-        } catch (error) {
-          console.error('Invalid range value:', values[0]);
-        }
-      } else if (key === 'industry') {
-        newFilters['industryName'] = values[0];
+        // Split the string into min and max values
+        const [min, max] = values[0].split("-").map(Number);
+
+        const baseKey = key.replace("Range", "");
+        const formattedKey = baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
+
+        newFilters[`min${formattedKey}`] = min;
+        newFilters[`max${formattedKey}`] = max;
+
+        delete newFilters[key]; // Cleanup old key
+      } else if (key === "industry") {
+        newFilters["industryName"] = values[0];
+      } else if (key === "workMode") {
+        newFilters[key] = values.map((v) => v.toUpperCase()).join(",");
       } else {
         // Find the matching value from filter options
-        const selectedOption = filter.options.findIndex((opt:any) => opt === values[0]);
+        const selectedOption = filter.options.findIndex((opt: any) => opt === values[0]);
         newFilters[key] = filter.value ? filter.value[selectedOption] : values[0];
       }
-      
+
       return newFilters;
     });
   };
@@ -65,13 +66,14 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
         <div className="space-y-2">
           {jobFilterForRender.length > 0 ? (
             jobFilterForRender.map((filter) => (
-              <div key={filter.paramKey} className="flex flex-col mx-auto gap-3">
+              <div key={filter.paramKey} /* className="flex flex-col mx-auto gap-3" */>
                 <MultiSelect
                   placeholder={filter.placeholder}
                   value={selectedValues[filter.paramKey] || []}
                   onChange={(values) => handleFilterChange(filter.paramKey, values, filter)}
                   type={filter.selectType}
                   options={filter.options}
+                  apiValue={filter.value} // Actual API values
                 />
               </div>
             ))
@@ -79,18 +81,13 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
             <p className="text-gray-500 text-sm">Loading filters...</p>
           )}
           <div className="resetFilters flex justify-end md:max-w-[90%] mx-auto">
-            <button
-              onClick={resetFilters}
-              className="btn_t1 logout text-xs text-red-500 font-semibold"
-            >
+            <button onClick={resetFilters} className="btn_t1 logout text-xs text-red-500 font-semibold">
               Reset Filters
             </button>
           </div>
         </div>
       </div>
-      {isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL ? (
-        <RequestCompany userType={userDetails.lastAccessedDash} />
-      ) : null}
+      {isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={userDetails.lastAccessedDash} /> : null}
     </div>
   );
 };
