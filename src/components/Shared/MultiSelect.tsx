@@ -50,6 +50,19 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     setIsOpen(true);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && inputValue.trim()) {
+      const newValue = inputValue.trim();
+      
+      if (!value.includes(newValue)) {
+        onChange([...value, newValue]); // Add new value if not already present
+      }
+  
+      setInputValue('');
+      setIsOpen(false);
+    }
+  };
+
   const handleOptionClick = (selectedIndex: number) => {
     const selectedApiValue = apiValue[selectedIndex] || filteredOptions[selectedIndex];
     if (type === 'multiselect') {
@@ -97,10 +110,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             <input
               ref={inputRef}
               type="text"
-              className="flex-1 min-w-[120px] bg-transparent outline-none"
+              className="flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent"
               placeholder={value.length === 0 ? placeholder : ''}
               value={inputValue}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown} // Handle Enter key event
               onClick={(e) => e.stopPropagation()}
             />
           )}
