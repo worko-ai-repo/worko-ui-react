@@ -49,8 +49,8 @@ export const generateFilterForRender = (
 
         // Step 2: Define relevant filter parameters
         const filterParams = companyPageMode === CompanyPageModeEnum.JOB
-            ? ['location', 'coreSkills', 'softSkills', 'technicalSkills','company'] 
-            : ['teamSize', 'industry','company'];
+            ? ['location', 'coreSkills', 'softSkills', 'technicalSkills','companyName'] 
+            : ['teamSize', 'industry','companyName'];
 
         // Step 3: Ensure cache exists for each parameter
         filterParams.forEach(param => {
@@ -69,7 +69,7 @@ export const generateFilterForRender = (
                     const skillData = data.map((job: JobDto) => 'externalJobId' in job ? [] : job[paramKey as keyof JobDto]);
                     newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
                 }
-                else if (paramKey === 'company') {
+                else if (paramKey === 'companyName') {
                     newOptions = Array.from(new Set(data.map((job: JobDto) => job.companyDetails?.name || '').filter(name => name)));
                 }
                 else if (paramKey === 'location') {
@@ -85,7 +85,7 @@ export const generateFilterForRender = (
                         ).filter(Boolean)
                     ));
                 }
-                else if (paramKey === 'company') {
+                else if (paramKey === 'companyName') {
                     newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company.name).filter(Boolean)));
                 }
             }
