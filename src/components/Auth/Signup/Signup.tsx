@@ -13,19 +13,27 @@ import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 import { currentSession } from '../Login/LoginForm';
+import { useAuthContext } from '@Context/Auth.context';
+import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
 
 export type SignupMode = 'EMP' | 'CAND';
-
+interface ToggleOptionsDto {
+	label: string;
+	value: SignupMode;
+}
 
 const Signup = () => {
 	const navigateTo = useNavigate();
 	const { setPendingApply,PendingApply,isLoggedIn,setUpdateCheck } = useAppContext();
+	const {authContextActiveFrame} = useAuthContext();
 	const location = useLocation(); // Get location object
-
-	const initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
+	let initialFrame : SignupMode = 'CAND'; // Default to 'CAND'
+	
+	useEffect(() => {
+	initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
+	}, []);
 
 	const [cv, setCv] = useState<any>();
-	const [companySk, setCompanySk] = useState<string>('');
 	const [CompanyName, setCompanyName] = useState<string>('');
 	const [activeFrame, setActiveFrame] = useState<SignupMode>(initialFrame);
 
@@ -41,8 +49,11 @@ const Signup = () => {
 		confirmPassword: '',
 		checkboxChecked: false,
 		acceptedTermsAndConditions: false,
+		companySk: '',
 	};
-	const options = [
+
+
+	const options:ToggleOptionsDto[] = [
 		{ label: 'Candidate/Job Seeker', value: 'CAND' },
 		{ label: 'Employee/Referee', value: 'EMP' },
 	];
@@ -65,9 +76,7 @@ const Signup = () => {
 	 * @param data
 	 */
 	const metaDataFilter = (data: AuthFormDto) => {
-		/**
-		 * Set static data for the form data
-		 */
+		// Update the form data
 		formData.name = data.name;
 		formData.emailId = data.email;
 		formData.password = data.password;
@@ -81,7 +90,7 @@ const Signup = () => {
 			resumeUserFileMimeType = resumeFile.type;
 			setCv(data.cv);
 		} else {
-			setCompanySk(data.company);
+			formData.companySk = data.company;
 		}
 	};
 	
@@ -251,7 +260,22 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 	const mutateDatatoBackend = useCallback(async (ClientId: string) => {
 		// Check the mode and add the data accordingly
 		// debugger;
-		if (activeFrame === 'CAND') {
+		const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
+		console.log(`Difference between active frame and contextActiveFrame is ${activeFrame} and ${AuthActiveFrame}`);
+		// prefer local over state
+		const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
+		// patch the formData from the secure storage
+		const localFormData = secureStorage.getItem<AuthFormDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA);
+		// debugger;
+		if (localFormData) {
+			formData.name = localFormData.name;
+			formData.emailId = localFormData.email;
+			formData.password = localFormData.password;
+			formData.phoneNumber = localFormData.phone;
+			formData.confirmPassword = localFormData.confirmPassword;
+			formData.acceptedTermsAndConditions = localFormData.termsAndConditions;
+		}
+		if (finalActiveFrame === 'CAND') {
 			// Add the data to the backend
 			//debugger
 			let candidateData: DevCandidateDto = {
@@ -269,15 +293,15 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 				await CvS3MemAllocation();
 			}
 		} else {
-			// debugger;
-			// Add the data to the backend
+			const companyDetails = secureStorage.getItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY);
+
 			let employeeData: DevEmployeeDto = {
 				name: formData.name,
 				email: formData.emailId,
 				number: '+91' + formData.phoneNumber,
 				YOE: 0,
-				companyName: CompanyName,
-				companySK: companySk,
+				companyName: companyDetails?.name || '',
+				companySK: companyDetails?.id || '',
 				userId: ClientId,
 				acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
 			};
@@ -287,55 +311,56 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		}
 	}, []);
 
-	/**
-	 * runCognitoBasicSignup
-	 *
-	 * @description This function is used to run the cognito basic signup to register user at Cognito and pass the data to the next step
-	 * @param data
-	 */
-	const { mutate, isPending } = useMutation({
-		mutationFn: async (clientId: string) => {
-			return toast.promise(mutateDatatoBackend(clientId), {
-				pending: 'Registering user...',
-			});
-		},
-		onSuccess: () => {
-			toast.success('User registered successfully');
-		},
-		onError: error => {
-			console.error('Submission failed:', error);
-			//toast.error('Error registering user');
-		},
-	});
 
-	const runCognitoBasicSignup = async (data: AuthFormDto) => {
+	const runCognitoBasicSignup = async (data: AuthFormDto): Promise<boolean> => {
 		try {
 			metaDataFilter(data);
-			// debugger;
+	
 			let signupform = {
 				password: formData.password,
 				username: formData.emailId.toLowerCase(),
 				name: formData.name,
 				phone_number: '+91' + formData.phoneNumber,
 			};
-			// debugger;
+	
 			const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
-
-			 if (response?.userId) {
-            CognitoResponse = response;
-            mutate(CognitoResponse.userId);
-            toast.info('OTP sent to your email. Please verify it.');
-            return true;
-        }
-
-        // If no userId but we've reached this point
-        toast.info('OTP will be sent to your email. Please verify.');
-        return true;
-		} catch (error: any) {
-			toast.error(error.message);
-			return false;
+	
+			if (error) {
+				if (error.name === 'UsernameExistsException') {
+					toast.error('User already exists');
+				} else {
+					toast.error(error.message);
+				}
+				return false; // Explicitly return false
+			}
+	
+			if (response?.userId) {
+				CognitoResponse = response;
+	
+				// Safely handle the mutation process
+				try {
+					await toast.promise(mutateDatatoBackend(CognitoResponse.userId), {
+						pending: 'Registering user...',
+						success: 'User registered successfully',
+						error: 'Error registering user',
+					});
+					toast.info('OTP sent to your email. Please verify it.');
+					return true; // Explicitly return true on success
+				} catch (mutationError) {
+					console.error('Error during backend mutation:', mutationError);
+					return false; // Explicitly return false on mutation error
+				}
+			}
+	
+			return false; // If `response?.userId` is not present, return false
+		} catch (err) {
+			console.error('An error occurred:', err);
+			toast.error('Something went wrong');
+			return false; // Explicitly return false on general error
 		}
 	};
+	
+	
 	/**
 	 * verifyOtp
 	 *
@@ -360,10 +385,9 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 				(formData as any)[key] = '';
 			});
 			setCv(undefined);
-			setCompanySk('');
+			formData.companySk = '';
 		};
 	}, [activeFrame]);
-
 
 	return (
 		<>

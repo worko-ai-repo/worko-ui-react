@@ -21,7 +21,7 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
     });
 
     const postCompReq = useCallback(async (data: any) => {
-        const { response, error, status } = await httpServiceObj.post('/company/request', data, false);
+        const { response, error, status } = await httpServiceObj.post('/company/request', data, true);
         
         if (status === 409) {
             toast.error('Request already submitted');

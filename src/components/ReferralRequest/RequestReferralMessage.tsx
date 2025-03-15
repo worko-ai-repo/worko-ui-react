@@ -13,23 +13,23 @@ const messages = {
     },
     profileCompletion: {
         titleColor: 'text-yellow-400',
-        message: `<p>To proceed with your referral request, please complete your candidate profile and upload your CV.</p>
+        message: `<p>To proceed with your request, please complete your candidate profile and upload your CV.</p>
                   <p>A complete profile increases your chances of getting referred.</p>`,
         buttonText: "Complete Now"
     },
     AlreadyRequested: {
         titleColor: 'text-blue-500',
-        message: `<p>You have already requested a referral for this job.</p>`,
+        message: `<p>Sorry we cannot proceed as you have already raised a request for this application.</p>`,
         buttonText: "Okay"
     },
     RequestAccepted: {
         titleColor: 'text-green-500',
-        message: `<p>You are a good match for the job. We are sending your CV to the best suitable Referee who can refer you. To see the status of your referral please visit your referral dashboard</p>`,
+        message: `<p>You are a good match for the job. We are sending your CV to the best suitable Referee who can refer you. To see the status of your application please visit your dashboard</p>`,
         buttonText: "View Status"
     },
     RequestRejected: {
         titleColor: 'text-red-500',
-        message: `<p>We regret to inform you that we are unable to proceed with this referral request.</p>
+        message: `<p>We regret to inform you that we are unable to proceed with this request.</p>
                   <p>Your profile and experience may not align well with the job requirement.</p>
                   <p>If you need expert advice, like a CV review or career guidance, feel free to reach out to us at <a href="mailto:Guidance@worko.ai" class="underline text-blue-400">Guidance@worko.ai</a>.</p>
                   <p>We're here to assist you in any way we can.</p>`,

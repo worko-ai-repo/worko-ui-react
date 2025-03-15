@@ -8,6 +8,8 @@ import { FieldErrors, useForm } from 'react-hook-form';
 import { validationRules } from '@Utils/FormValidator.utils';
 import RequestCompany from './RequestCompany';
 import { useAppContext } from '@Context/App.context';
+import secureStorage from '@Utils/SecureStorage.utils';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 
 export default function CompanyInput({ errors, setValue, clearErrors, setCompanyName, isOtpSent }: { errors: FieldErrors<any>; setValue: any; clearErrors: any; setCompanyName: any; isOtpSent?: boolean }) {
 	const [searhText, setSearchText] = useState('');
@@ -58,6 +60,7 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 			setSearchText(company.name);
 			setCompanyName(company.name);
 			setValue('company', company.SK);
+			secureStorage.setItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY, company);
 
 			clearErrors('company');
 		} else {
@@ -65,6 +68,8 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 			setSearchText('');
 			setCompanyName('');
 			setValue('company', '');
+			secureStorage.setItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY, null);
+
 		}
 		setIsOpen(false);
 	};

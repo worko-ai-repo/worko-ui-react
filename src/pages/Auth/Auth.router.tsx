@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import CorporateLogin from '@Components/Auth/Corporate/Login/CorporateLogin';
 import CheckRedirection from '@Components/Auth/CheckRedirection';
 import MainLoader from '@Components/Loader/Loader';
+import { AuthProvider } from '@Context/Auth.context';
 
 const Login = lazy(() => import('@Components/Auth/Login/Login'));
 const AuthLayout = lazy(() => import('@Layouts/Auth/AuthLayout'));
@@ -13,7 +14,7 @@ const ForgotPassword = lazy(() => import('@Components/Auth/Reset-Password/Forgot
 const CorporateSignup = lazy(() => import('@Components/Auth/Corporate/Signup/CorporateSignup'));
 
 const Auth = () => {
-	return (
+	return (<AuthProvider>
 		<Suspense fallback={<MainLoader />}>
 			<Routes>
 				<Route element={<AuthLayout />}>
@@ -28,6 +29,7 @@ const Auth = () => {
 				<Route path="/*" element={<PageNotFound />} />
 			</Routes>
 		</Suspense>
+	</AuthProvider>
 	);
 };
 

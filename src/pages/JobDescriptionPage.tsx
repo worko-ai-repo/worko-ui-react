@@ -306,16 +306,25 @@ useEffect(() => {
     try {
       setIsApplying(true);
       setApplicationStatus(false);
-
-      const payload = {
-        jobId: jobData?.id,
-        jobUrl: window.location.href,
-        jobPortal: jobData?.jobUrl || undefined,
-        matchingScore: jobData?.matchingScore || undefined,
-        ...(!jobData?.externalJobId && {
+      let payload;
+      if(jobDataState?.externalJobId) {
+        payload = {
+          jobId: jobDataState?.id,
           companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
-        }),
-      };
+          jobPortal: jobDataState?.jobUrl || undefined,
+          matchingScore: jobDataState?.matchingScore || undefined,
+        };
+      }
+      else{
+        payload = {
+          jobId: jobDataState?.id,
+          jobUrl: window.location.href,
+          jobPortal: jobDataState?.jobUrl || undefined,
+          matchingScore: jobDataState?.matchingScore || undefined,
+          externalJobId: jobDataState?.externalJobId,
+        };
+      }
+
       const constructUrl = jobData?.externalJobId
         ? `https://jobs.dev.worko.work/external-job-application/`
         : `https://jobs.dev.worko.work/job-application/`;
@@ -382,7 +391,7 @@ useEffect(() => {
       //construct the data
       let data = {
         "companyId": jobDataState?.companyDetails?.SK,
-        "companyName": jobDataState?.companyName,
+        // "companyName": jobDataState?.companyName,
         // "jobTitle": jobDataState?.jobTitle,
         "jobUrl": window.location.href,
         //"jdExtracted": jobDataState.jobDescription 

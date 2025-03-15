@@ -7,8 +7,10 @@ import TermsAndConditions from './TermsAndConditions';
 import { SignupMode } from './Signup';
 import CompanyInput from '@Components/Shared/CompanyInput';
 import { Upload } from 'lucide-react';
-import { AuthFormDto } from '@Interfaces/Auth.dto';
+import { AuthFormDto, AuthSignupBaseDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
+import secureStorage from '@Utils/SecureStorage.utils';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
 /**
@@ -85,6 +87,7 @@ const SignupForm: React.FC<{
 	}, [activeFrame, setValue, unregister]);
 
 	const onSubmit = async (data: any) => {
+		secureStorage.setItem<AuthSignupBaseDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA, data);
 		if (isSigningUp) return; // Prevent multiple submissions
 		setIsSigningUp(true);
 
@@ -109,8 +112,12 @@ const SignupForm: React.FC<{
 			if (success) {
 				setIsOtpSent(true);
 			}
+			else{
+				reset();
+			}
 		} catch (error) {
 			console.error('Cognito Basic Signup failed');
+			reset();
 		} finally {
 			setIsSigningUp(false);
 		}

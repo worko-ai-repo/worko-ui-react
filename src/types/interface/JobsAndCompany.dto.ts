@@ -42,6 +42,7 @@ export interface CompanyShortDto {
   SK: string;
   GSI1PK: string;
   GSI1SK: string;
+  id?: string;
 }
 
 /**

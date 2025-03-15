@@ -12,6 +12,7 @@ export interface AuthSignupBaseDto {
 	confirmPassword: string;
 	checkboxChecked: boolean;
 	acceptedTermsAndConditions: boolean;
+    companySk: string;
 }
 
 export interface AuthSignupCandDto extends AuthSignupBaseDto {

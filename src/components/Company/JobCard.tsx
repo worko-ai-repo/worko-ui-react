@@ -77,7 +77,7 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div className="relative flex-shrink-0 sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{companyLogo ? <img src={companyLogo} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="text-wrap text-[10px] font-bold text-blue-500 h-full w-full flex items-center justify-center text-center p-1">{companyName}</div>}</div>
+              <div className=" relative flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{companyLogo ? <img src={companyLogo} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="text-wrap text-[10px] font-bold text-blue-500 h-full w-full flex items-center justify-center text-center p-1">{companyName}</div>}</div>
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">

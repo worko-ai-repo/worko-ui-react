@@ -1,8 +1,10 @@
+import { SignupMode } from '@Components/Auth/Signup/Signup';
+import { useAuthContext } from '@Context/Auth.context';
 import React from 'react';
 
 interface ToggleOption {
 	label: string;
-	value: string;
+	value: SignupMode;
 }
 
 interface ToggleProps {
@@ -44,6 +46,14 @@ interface ToggleProps {
  * export default App;
  */
 const CustomButtonWithButton: React.FC<ToggleProps> = ({ options, activeFrame, setActiveFrame }) => {
+	
+	const {setAuthContextActiveFrame} = useAuthContext();
+	
+	const handleActiveFrame = (frame: SignupMode) => {
+		console.log(`Chnage to ${frame}`);
+		setActiveFrame(frame);
+		localStorage.setItem('AuthActiveFrame', frame);
+	}
 	return (
 		<div className="group relative flex w-full rounded-lg border-4 border-white bg-[#F6F6F6]  shadow-[rgba(50,50,93,0.25)_0px_6px_12px_-2px,_rgba(0,0,0,0.3)_0px_3px_7px_-3px] p-1 ">
 			{/* Sliding background */}
@@ -61,7 +71,7 @@ const CustomButtonWithButton: React.FC<ToggleProps> = ({ options, activeFrame, s
 						name="toggle"
 						value={option.value}
 						checked={activeFrame === option.value}
-						onChange={() => setActiveFrame(option.value)}
+						onChange={() => handleActiveFrame(option.value)}
 						className="peer absolute opacity-0 w-full h-auto cursor-pointer font-bold "
 					/>
 					<label
