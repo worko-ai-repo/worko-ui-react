@@ -119,7 +119,9 @@ export const JobCard = ({ job }: any) => {
 
                 {/* Text Below Gauge */}
                 {isLoggedIn ? (
-                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">
+  {matchPercentage !== -1 ? strengthLabel : "Processing"}
+</p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
                     <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>
@@ -144,7 +146,7 @@ export const JobCard = ({ job }: any) => {
 
             {/* Text Below Gauge */}
             {isLoggedIn ? (
-              <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{strengthLabel}</p>
+              <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <>
                 <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>

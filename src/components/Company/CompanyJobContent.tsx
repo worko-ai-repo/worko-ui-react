@@ -117,7 +117,7 @@ const CompanyJobContent = () => {
                       employmentType: job.typeofEmployment || 'Not Disclosed',
                       createdAt: job.createdAt,
                       // Use actual match percentage if available, otherwise use default
-                      matchPercentage: job.matchingScore || 0,
+                      matchPercentage: job.matchingScore || -1,
                       // Add application status if available
                       status: job.applyStatus || "NOT_APPLIED",
                       jobId: job.id, // Pass jobId for reference

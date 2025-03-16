@@ -201,7 +201,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             acc[job.id] = job;
             return acc;
           }, {} as Record<string, JobDto>);
-
           // Update with new scores
           jobIds.forEach((jobId) => {
             if (existingJobsMap[jobId]) {
@@ -235,7 +234,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             console.log("Successfully triggered matching score generation, retrying in 5 seconds...");
 
             // Step 13: Use a timeout to retry fetching scores once after 5 seconds.
-            //   setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
+               setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
           } else {
             console.warn("Failed to generate matching scores");
           }
@@ -371,8 +370,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       companyJobData,
       setSearchText,
       searchText,
-      handleSearch,
       resetSearch,
+      handleSearch,
       isLoading: isLoading || isUserDetailsLoading,
       companyRefData,
       apiHasData,
