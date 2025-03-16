@@ -81,7 +81,7 @@ export default class SecureStorage {
 		if (encryptedData) {
 			try {
 				this.storage.removeItem(key);
-				console.log('Item removed successfully');
+				// console.log('Item removed successfully');
 			} catch (error) {
 				console.error('Error removing item:', error);
 			}
@@ -96,7 +96,7 @@ export default class SecureStorage {
 	clear(): void {
 		try {
 			this.storage.clear();
-			console.log('Storage cleared successfully');
+			// console.log('Storage cleared successfully');
 		} catch (error) {
 			console.error('Error clearing storage:', error);
 		}

@@ -26,7 +26,7 @@ const ProtectedRoute = ({ component: Component, requiredRoles, ...rest }: Protec
 	const token:any = secureStorage.getItem(SecureStorageKeyEnum.USERTOKEN);
 
 	if (!token) {
-		console.log('Token not found. Redirecting to login.');
+		// console.log('Token not found. Redirecting to login.');
 		return <Navigate to="/login" />;
 	}
 
@@ -37,13 +37,13 @@ const ProtectedRoute = ({ component: Component, requiredRoles, ...rest }: Protec
 
 		// Check if the token is expired
 		if (decodedToken.exp && decodedToken.exp < currentTime) {
-			console.log('Token has expired. Redirecting to login.');
+			// console.log('Token has expired. Redirecting to login.');
 			return <Navigate to="/login" />;
 		}
 
 		// Check for required roles if specified
 		if (requiredRoles && (!decodedToken.role || !requiredRoles.includes(decodedToken.role))) {
-			console.log('User does not have the required role. Redirecting to unauthorized page.');
+			// console.log('User does not have the required role. Redirecting to unauthorized page.');
 			return <Navigate to="/unauthorized" />;
 		}
 

@@ -29,7 +29,7 @@ const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
       {},
       true
     );
-    console.log(response?.technicalSkills)
+    // console.log(response?.technicalSkills)
     if (response) {
       let minExperience = Number(response.experienceRange?.min) || 0;
     let maxExperience = Number(response.experienceRange?.max) || 0;
@@ -59,7 +59,7 @@ const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
       technicalSkills: response.technicalSkills || [],
     };
 
-    console.log('Formatted Payload:', requestPayload);
+    // console.log('Formatted Payload:', requestPayload);
 
     const { response: putResponse, error } = await httpServiceObj.put<JobDto>(
       `${APP_JOBS_API_URI}/job/${jobData.id}`,
@@ -96,7 +96,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
     // if (!jobData?.technicalSkills?.length) missingFields.push('technicalSkills');
   
     if (missingFields.length) {
-      console.log('Missing fields:', missingFields.join(', '));
+      // console.log('Missing fields:', missingFields.join(', '));
   
       const newJobData = await CheckCSpresence(jobData);
       if (newJobData) {

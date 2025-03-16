@@ -50,7 +50,7 @@ const CustomButtonWithButton: React.FC<ToggleProps> = ({ options, activeFrame, s
 	const {setAuthContextActiveFrame} = useAuthContext();
 	
 	const handleActiveFrame = (frame: SignupMode) => {
-		console.log(`Chnage to ${frame}`);
+		// console.log(`Chnage to ${frame}`);
 		setActiveFrame(frame);
 		localStorage.setItem('AuthActiveFrame', frame);
 	}

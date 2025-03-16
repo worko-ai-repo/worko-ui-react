@@ -146,8 +146,8 @@ const EmployeePageStepper2 = () => {
   ];
 
   useEffect(() => {
-    console.log('Card rendered');
-    console.log(isDesktop)  
+    // console.log('Card rendered');
+    // console.log(isDesktop)  
   })
 
   if (isDesktop) {

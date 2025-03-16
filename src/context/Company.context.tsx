@@ -228,7 +228,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
         // Step 9: If there are missing job scores, log them and trigger score generation.
         if (missingJobIds.length > 0) {
-          console.log("Missing matching scores for job IDs:", missingJobIds);
+          // console.log("Missing matching scores for job IDs:", missingJobIds);
 
           // Step 10: Make a PUT request to trigger job matching score generation for the missing jobs.
           const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(`${APP_JOBS_API_URI}/user-matching-score-job/`, { jobIds: missingJobIds }, true, {}, true);
@@ -241,7 +241,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
           // Step 12: If the generation was successful, retry fetching the missing scores after 5 seconds.
           if (putResponse?.matchingScoreCalculationStatus) {
-            console.log("Successfully triggered matching score generation, retrying in 5 seconds...");
+            // console.log("Successfully triggered matching score generation, retrying in 5 seconds...");
 
             // Step 13: Use a timeout to retry fetching scores once after 5 seconds.
                setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);

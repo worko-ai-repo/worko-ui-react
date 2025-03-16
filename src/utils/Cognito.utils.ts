@@ -57,7 +57,7 @@ class CognitoService {
 	 */
 	constructor() {
 		this.authenticationSubject = new BehaviorSubject<boolean>(false);
-		console.log('Amplify Configuration:', Awsconfig);
+		// console.log('Amplify Configuration:', Awsconfig);
 		// Configure Amplify
 		Amplify.configure(Awsconfig as AwsconfigDto);
 

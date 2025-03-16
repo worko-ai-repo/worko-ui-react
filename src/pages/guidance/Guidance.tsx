@@ -15,7 +15,7 @@ const Guidance = () => {
 	} = useForm({ mode: 'onChange' });
 
 	const onSubmit = (data: any) => {
-		console.log(data);
+		// console.log(data);
 	};
 
 	return (

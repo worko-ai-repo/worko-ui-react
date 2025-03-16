@@ -9,7 +9,7 @@ export const getHttpOptions = (authorization = true, params: HttpParamsOptions =
 			// Fetch the token from the local storage	
 			const token =CognitoServiceObj.getAccessToken();
 			if (!token) {
-				console.log('Token not present ,Using Empty Token');
+				// console.log('Token not present ,Using Empty Token');
 				headers['Authorization'] = `Bearer `;
 			}
 			headers['Authorization'] = `Bearer ${token}`;

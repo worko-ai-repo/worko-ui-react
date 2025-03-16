@@ -82,7 +82,7 @@ const LinkedInSignup = () => {
 	 */
 	useLayoutEffect(() => {
 		// debugger;
-		console.log('Linkedin location State is >>', location.state);
+		// console.log('Linkedin location State is >>', location.state);
 		if (!location.state) {
 			navigateTo('/');
 		}
@@ -176,7 +176,7 @@ const LinkedInSignup = () => {
 		async (ClientId: string) => {
 			// Check the mode and add the data accordingly
 			// debugger;
-			console.log('mutateDatatoBackend', activeFrame);
+			// console.log('mutateDatatoBackend', activeFrame);
 			if (activeFrame === 'CAND') {
 				// Add the data to the backend
 				let candidateData: DevCandidateDto = {
@@ -282,7 +282,7 @@ const LinkedInSignup = () => {
 	};
 
 	useEffect(() => {
-		console.log('active frame changed', activeFrame);
+		// console.log('active frame changed', activeFrame);
 	}, [activeFrame]);
 
 	return (

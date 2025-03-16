@@ -28,7 +28,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
       } else if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize") {
         newFilters[key] = values.map((v) => v.toLowerCase()).join(",");
       } else if (key.includes("Range") && values[0]) {
-        console.log("values[0]", values[0]); // Debugging
+        // console.log("values[0]", values[0]); // Debugging
 
         // Split the string into min and max values
         const [min, max] = values[0].split("-").map(Number);

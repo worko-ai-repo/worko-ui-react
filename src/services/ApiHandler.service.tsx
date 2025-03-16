@@ -203,7 +203,7 @@ export class HttpService {
 			body: JSON.stringify(data),
 		  };
 	  
-		  console.log('PATCH request:', FetchApiPath, options); // Debugging
+		//   console.log('PATCH request:', FetchApiPath, options); // Debugging
 	  
 		  const response = await fetch(FetchApiPath, options);
 	  

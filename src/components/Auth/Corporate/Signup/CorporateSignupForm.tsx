@@ -39,7 +39,7 @@ const CorporateSignupForm = ({ inviteData,handleFormSubmit}: { inviteData: any ,
 
 	// Form submission handler
 	const onSubmit = (data: any) => {
-		console.log('Form submitted with:', data);
+		// console.log('Form submitted with:', data);
 		handleFormSubmit(data);
 	};
 

@@ -42,7 +42,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   
   // Add the handleReferralNav function from your code
   const handleReferralNav = () => {
-    console.log(companyName);
+    // console.log(companyName);
     // Replace any whitespace special characters with underscore in company name
     const refinedCompanyName = companyName.replace(/\s/g, "_");
     nav(`/jobs/${refinedCompanyName}/${jobId}`);

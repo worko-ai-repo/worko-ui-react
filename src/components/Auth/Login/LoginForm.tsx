@@ -74,7 +74,7 @@ const LoginForm = () => {
 	// Functions
 	const handleRememberDevice = async () => {
 		try {
-			console.log('Is Remembered me enabled :', isToggleEnabled);
+			// console.log('Is Remembered me enabled :', isToggleEnabled);
 			// Remember the device
 			await rememberDevice();
 			// If the device is successfully remembered, refresh the session
@@ -170,7 +170,7 @@ const LoginForm = () => {
 						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
-						console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
+						// console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
 
 						// Refresh session
 						await handleRememberDevice();
