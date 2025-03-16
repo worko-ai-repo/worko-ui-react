@@ -151,7 +151,7 @@ interface SimilarJobsProps {
 const SimilarJobs: React.FC<SimilarJobsProps> = ({ similarJobs, onApply }) => {
   return (
     <div className="w-full">
-      <div className="p-3 sm:p-4 lg:p-6 rounded-lg">
+      <div className="p-3 sm:p-4 lg:p-6 lg:!pr-0 rounded-lg">
         <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-6">Similar jobs</h2>
         
         <div className="space-y-3 sm:space-y-4">

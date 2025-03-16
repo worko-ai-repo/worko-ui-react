@@ -164,7 +164,10 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 							secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
 							window.location.href = PendingApply.url; // Redirect to the referral page
 						} else {
-							navigateTo('/'); // Redirect to the home page
+							// prefer local over state
+							const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
+							const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
+							finalActiveFrame === 'CAND' ? navigateTo('/jobs') : window.location.href='/v1/employee/Dashboard'  // Redirect to the home page
 						}
 					}, 3000);
 				}
@@ -261,7 +264,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		// Check the mode and add the data accordingly
 		// debugger;
 		const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
-		console.log(`Difference between active frame and contextActiveFrame is ${activeFrame} and ${AuthActiveFrame}`);
+		// console.log(`Difference between active frame and contextActiveFrame is ${activeFrame} and ${AuthActiveFrame}`);
 		// prefer local over state
 		const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
 		// patch the formData from the secure storage

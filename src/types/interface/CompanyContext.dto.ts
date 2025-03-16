@@ -40,4 +40,5 @@ export type CompanyContextType = {
     fetchNextPage: () => void;
     handleSearch: () => void;
     resetSearch: () => void;
+    resetFiltersValues : () => void;
 }

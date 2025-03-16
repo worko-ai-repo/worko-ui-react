@@ -7,12 +7,12 @@ import { useAppContext } from "@Context/App.context";
 import { MultiSelect } from "@Components/Shared/MultiSelect";
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
-  const { setJobFilters, jobFilterForRender = [] } = useCompanyContext();
+  const { setJobFilters, jobFilterForRender = [] ,resetFiltersValues} = useCompanyContext();
   const { isLoggedIn, userDetails } = useAppContext();
   const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
 
   const resetFilters = () => {
-    setJobFilters({ pageSize: 10, sortOrder: "descending", searchText: "" });
+    resetFiltersValues();
     setSelectedValues({});
     invalidateFilterCache();
   };

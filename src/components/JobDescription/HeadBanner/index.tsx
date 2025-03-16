@@ -14,6 +14,7 @@ export interface JobDescriptionSubComponentDTO {
   jobData: JobDto;
   applicationStatus: boolean;
   handleApplyClick: () => void;
+  jobMatchDetails?:JobMatchingScoreDto;
 }
 
 const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
@@ -77,22 +78,11 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   jobData,
   applicationStatus,
   handleApplyClick,
+  jobMatchDetails,
 }) => {
-  const { jobid } = useParams();
-  const [score, setScore] = useState<number | undefined>(undefined);
+
   const [isApplying, setIsApplying] = useState(false);
   
-    /**
-     * Check coreSkills, softSkills present or not
-     * 
-     * experienceRange?: MinMaxRange;
-  salaryRange?: MinMaxRange;
-  numOfOpenings?: number;
-  department?: string;
-  coreSkills?: string[];
-  softSkills?: string[];
-  technicalSkills?: string[];
-     */
   const checkSkillsPresence = async () => {
     const missingFields = [];
   
@@ -119,34 +109,6 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
     checkSkillsPresence();
   }, []);
   
-
-  useEffect(() => {
-    console.log(jobData);
-    const fetchMatchingScore = async () => {
-      if (!jobid) return;
-      try {
-        const { response, error } = await httpServiceObj.get<{
-          data: [JobMatchingScoreDto];
-          pagination: Object;
-        }>(
-          `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}&pageSize=1`,
-          true,
-          {},
-          true
-        );
-        console.log(response);
-        if (response?.data?.[0]) {
-          setScore(response.data[0].matchingScore);
-        }
-      } catch (err) {
-        console.error("Error fetching matching score:", err);
-      }
-    };
-
-    fetchMatchingScore();
-  }, [jobid]);
-
-
   // Process company name with proper capitalization
   const companyName = jobData?.companyName 
     ? jobData.companyName.charAt(0).toUpperCase() + jobData.companyName.slice(1).toLowerCase()
@@ -154,7 +116,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
 
   return (
     <div className="p-6 bg-[#316BFF]">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1350px] mx-auto">
         <div className="mb-4 mt-6">
           <h1 className="text-white text-left text-2xl font-bold">
             {jobData
@@ -174,6 +136,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
               onApply={handleApplyClick}
               isApplying={isApplying}
               applicationStatus={applicationStatus}
+              jobMatchDetails={jobMatchDetails}
             />
           </div>
   

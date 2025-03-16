@@ -17,44 +17,7 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import { MatchingScore } from "@Services/MatchingScore.service";
-
-const stripHtmlTags = (html: string) => {
-  const tempElement = document.createElement('div');
-  tempElement.innerHTML = html;
-  return tempElement.innerText || tempElement.textContent || '';
-}
-
-  // Function to concatenate job description and skills
-  const  getFormattedJobDescription = (jobDetails: any) => {
-
-    //convert job Description from HTML to Plain Text
-    const jobDescriptionPlainText =  stripHtmlTags(jobDetails.jobDescription || '');
-
-    // Extract the job title, with a fallback in case it's not provided
-    const jobTitle = jobDetails.jobTitle || 'Job Title not specified';
-
-    // Combining all the skills arrays into a single array
-    let allSkills = [
-      ...(jobDetails.technicalSkills || []),
-      ...(jobDetails.coreSkills || []),
-      ...(jobDetails.softSkills || []),
-      ...(jobDetails.mislaneiousSkills || [])
-    ].join(', ');  // Joining all skills with a comma and space
-
-    // Extracting experience range
-    let experience = `${jobDetails.experienceRange?.min} - ${jobDetails.experienceRange?.max} years of experience`;
-    // console.log(experience)
-
-    // Construct the jdExtracted field with job description and skills
-    let jdExtracted = `
-    ${jobDescriptionPlainText}
-    \n Job Title: ${jobTitle}
-     \n\nExperience Required: ${experience}
-    \n\nSkills Required: ${allSkills}
-  `;
-
-    return jdExtracted.trim();  // Return the concatenated job description and skills
-  }
+import { set } from "react-hook-form";
 
 
 const JobDescription = () => {
@@ -81,16 +44,12 @@ const JobDescription = () => {
   const { jobid } = useParams();
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(undefined);
   const [isApplying, setIsApplying] = useState(false);
-  const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
-  // Add a new state to track if user has already applied
-const [hasAlreadyApplied, setHasAlreadyApplied] = useState<boolean>(false);
+  const [globalMatchingScore, setGlobalMatchingScore] = useState<number | 0>(0)
+  const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
+  const [jobMatchDetails , setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
 
-// Reset application status when jobid changes
-useEffect(() => {
-  setApplicationStatus(false);
-  setHasAlreadyApplied(false);
-}, [jobid]);
+
 // Add this new function to check application status
 const checkApplicationStatus = async () => {
   if (!isLoggedIn || !jobDataState) return;
@@ -104,14 +63,24 @@ const checkApplicationStatus = async () => {
     );
     
     // Check each item in the array for status property
-    if (response?.data) {
-      for (let i = 0; i < response.data.length; i++) {
-        if (response.data[i].status) {
-          setHasAlreadyApplied(true);
-          setApplicationStatus(true);
-          break;
-        }
+    if (response?.data[0]) {
+      const fullData = response.data[0];
+      if (fullData.status) {
+        // set the status correctly
+        setApplicationStatus(true);
+      } else {
+        setApplicationStatus(false);
       }
+      if(fullData.scoreDetails)
+      {
+        // set the score details correctly
+        fullData.scoreDetails = JSON.parse(fullData.scoreDetails);
+        // console.log(JSON.parse(fullData.scoreDetails))
+      }
+      // set the job match details
+         setJobMatchDetails(fullData);
+      // Check if matching score is present and set it
+        setGlobalMatchingScore(fullData.matchingScore || 0);
     }
   } catch (error) {
     console.error("Error checking application status:", error);
@@ -308,20 +277,20 @@ useEffect(() => {
       setApplicationStatus(false);
       let payload;
       if(jobDataState?.externalJobId) {
+        // debugger;
         payload = {
           jobId: jobDataState?.id,
-          companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
           jobPortal: jobDataState?.jobUrl || undefined,
-          matchingScore: jobDataState?.matchingScore || undefined,
+          jobUrl: window.location.href,
+          matchingScore:globalMatchingScore || 0,
         };
       }
       else{
         payload = {
           jobId: jobDataState?.id,
-          jobUrl: window.location.href,
-          jobPortal: jobDataState?.jobUrl || undefined,
+          companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
+          jobPortal: 'worko',
           matchingScore: jobDataState?.matchingScore || undefined,
-          externalJobId: jobDataState?.externalJobId,
         };
       }
 
@@ -346,10 +315,12 @@ useEffect(() => {
       if (error) {
         throw new Error(error.message || "Failed to submit application");
       } else {
+        if(jobDataState?.externalJobId){
         setApplicationStatus(true);
         setShowApplyModal(true);
         // Show success modal after successful application
         showModalsError('application_success');
+      }
       }
     } catch (error) {
       console.error("Application error:", error);
@@ -386,20 +357,6 @@ useEffect(() => {
       setShowApplyModal(true);
       showModalsError('isExternalJobApplied')
     } else {
-      setLoader(true); // Show loader
-
-      //construct the data
-      let data = {
-        "companyId": jobDataState?.companyDetails?.SK,
-        // "companyName": jobDataState?.companyName,
-        // "jobTitle": jobDataState?.jobTitle,
-        "jobUrl": window.location.href,
-        //"jdExtracted": jobDataState.jobDescription 
-        "jdExtracted": getFormattedJobDescription(jobDataState),
-        "jobId": jobDataState?.id,
-        "jobPortal": 'worko',
-      }
-
 		//  Step 1: Check Profile Completion
 		setCurrStep(0);
 		const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
@@ -414,58 +371,13 @@ useEffect(() => {
 				return;
 			}
 		}
-
-		//  Step 3: Create Referral Request
-		setCurrStep(2);
-		
-		const CreateReferrakPayload = data
-
-		setCurrStep(3);
-		const { response: refCreated, status: refApiStatus } = await httpServiceObj.post<{ referralRequestId: string }>(`/user/${userDetails.email}/referral/request`, CreateReferrakPayload, true);
-
-		if (refApiStatus === 403) {
-			setGaugeEnabled(false)
-			setMessageEnabled(true);
-			setModalType('AlreadyRequested');
-			setLoader(false);
-			return;
-		}
-
-		if (refCreated?.referralRequestId) {
-			MatchingScore(refCreated.referralRequestId, userDetails.email!, setLoader, setMessageEnabled, setModalType, setGaugeEnabled, setGaugeScore,setFeedbackInfo,setIsFeedbackOpen,updateExternalJobApplication);
-		}
+    // Step 2: Apply for the job
+    updateExternalJobApplication();
   }
 }
   }
   function ModalAction() {
 		switch (ModalType) {
-			case 'zeroReferral':
-				window.location.href = '/v1/candidate/subscription';
-				break;
-			case 'AlreadyRequested':
-				setLoader(false);
-				setMessageEnabled(false);
-				break;
-			case 'RequestAccepted':
-				window.location.href = '/v1/candidate/jobs/applied';
-				break;
-			case 'RequestRejected':
-				setLoader(false);
-				setMessageEnabled(false);
-				setIsFeedbackOpen(true);
-				break;
-			case 'Error_250':
-				setLoader(false);
-				setMessageEnabled(false);
-				break;
-			case 'Error_251':
-				setLoader(false);
-				setMessageEnabled(false);
-				break;
-			case 'Max_tries':
-				setLoader(false);
-				setMessageEnabled(false);
-				break;
 			case 'profileCompletion':
 				window.location.href = '/v1/candidate/edit-profile';
 				break;
@@ -484,8 +396,8 @@ useEffect(() => {
     <div className="w-full ">
      {jobDataState && (
   <>
-    <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus || hasAlreadyApplied} handleApplyClick={handleApplyClick} />
-    <JobJD jobData={jobDataState} applicationStatus={applicationStatus || hasAlreadyApplied} handleApplyClick={handleApplyClick} />
+    <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails}/>
+    <JobJD jobData={jobDataState} applicationStatus={applicationStatus } handleApplyClick={handleApplyClick} />
   </>
 )}
 

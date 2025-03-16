@@ -17,9 +17,12 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
         try {
           // First try to fetch similar jobs from the similar-jobs endpoint
           const { response, error: similarJobsError } = await httpServiceObj.get(
-            `https://jobs.dev.worko.work/job/?jobTitle=${jobData.jobTitle}&pageSize=10`,
+            `https://jobs.dev.worko.work/job/`,
             true,
-            {},
+            {
+              jobTitle: jobData.jobTitle,
+              pageSize:10
+            },
             true
           );
           
@@ -57,7 +60,7 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
   );
 
   return (
-    <div className="flex flex-col text-left md:flex-row py-5 bg-white min-h-screen max-w-[1400px] mx-auto px-4">
+    <div className="flex flex-col text-left md:flex-row md:justify-between py-5 bg-white min-h-screen max-w-[1350px] mx-auto ">
       <div className="w-full md:w-[67%]">
         <JobDetails 
           job={jobData}

@@ -11,6 +11,7 @@ interface JobCardProps {
   isApplying?: boolean;
   onApply: () => void;
   applicationStatus: boolean;
+  jobMatchDetails:any;
 }
 
 interface MatchMetricsProps {
@@ -59,44 +60,12 @@ const MetricGauge = ({ value, label }: { value: number, label: string }) => {
   );
 };
 
-const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply, applicationStatus }) => {
+const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply, applicationStatus,jobMatchDetails }) => {
   const {isLoggedIn} = useAppContext();
   const { jobid } = useParams();
   const [matchScore, setMatchScore] = useState<number | undefined>(0);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch real-time matching score data
-  useEffect(() => {
-    const fetchMatchingScore = async () => {
-      if (!jobid || !isLoggedIn) {
-        // Reset match score if not logged in
-        setMatchScore(0);
-        return;
-      }
-      
-      setIsLoading(true);
-      try {
-        const { response, error } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
-          `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}&pageSize=1`,
-          true,
-          {},
-          true
-        );
-        
-        if (response && response.data && response.data.length > 0) {
-          const matchingData = response.data[0].matchingScore;
-          setMatchScore(matchingData);
-        }
-      } catch (err) {
-        console.error("Error fetching matching score:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchMatchingScore();
-  }, [jobid, isLoggedIn]); // Added isLoggedIn as a dependency
 
   // Reset match score when login status changes
   useEffect(() => {
@@ -105,7 +74,12 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
     }
   }, [isLoggedIn]);
 
+ useEffect(() => {
+  setMatchScore(jobMatchDetails?.matchingScore);
+ }, [jobMatchDetails]);
+
   useEffect(() => {
+   
     // Update the strength label based on the match score
     if (!isLoggedIn) {
       setStrengthLabel("Account Required");
@@ -169,9 +143,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
     }
   }, [jobData]);
 
-  
-  // Get employment type based on job type
-  const employmentType = jobData.typeofEmployment
+
 
   function handleApplyClick(event: React.MouseEvent<HTMLButtonElement>): void {
     throw new Error('Function not implemented.');
@@ -302,7 +274,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{employmentType ? (employmentType.includes("_") ? employmentType.replace(/_/g, " ") : employmentType) : ""}</span>
+              <span className='text-[12px] font-semibold'>{jobData.typeofEmployment ? (jobData.typeofEmployment.includes("_") ? jobData.typeofEmployment.replace(/_/g, " ") : jobData.typeofEmployment) : "Not Disclosed"}</span>
             </div>
           </div>
 
