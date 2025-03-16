@@ -245,7 +245,9 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		} else {
 			// Patch the data to the backend
 			// debugger;
-			const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${formData.emailId}/cv`, { resume: response?.cloudFileName }, true);
+			const finalEmail = formData.emailId.toLocaleLowerCase()
+			console.log("FINAL EMAILLLLL->>>>" + finalEmail);
+			const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${finalEmail}/cv`, { resume: response?.cloudFileName }, true);
 
 			if (CvNamePatchRequest.status !== 200) {
 				throw CvNamePatchRequest.error;
