@@ -30,7 +30,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [searchText, setSearchText] = useState<string>("");
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
-
+  const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any}>();
 
   const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
@@ -103,18 +103,26 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>("https://api.dev.worko.work/user/basic-details", true, {}, true);
 
       if (error) throw error;
-
-      if (response?.candidateExperience?.designation && response.candidateExperience.designation !== defaultFiltersState?.userDesignation) {
-		const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
-
-        setDefaultFiltersState({userDesignation:response.candidateExperience.designation,coreSkills:coreSkills});
-        // Extract coreSkills as a comma-separated string
-		setJobFilters((prev) => ({ 
-			...prev, 
-			jobTitle: response?.candidateExperience?.designation, 
-			coreSkills: coreSkills  
-		  }));
+      
+      const designation = response?.candidateExperience?.designation;
+      const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
+      
+      // If either designation or coreSkills exist, update filters
+      if (designation || coreSkills?.length) {
+        setDefaultFiltersState({
+          userDesignation: designation || "", // Ensure userDesignation is always a string
+          ...(coreSkills?.length && { coreSkills }),
+        });
+      
+        setJobFilters((prev) => ({
+          ...prev,
+          ...(designation && { jobTitle: designation }),
+          ...(coreSkills?.length && { coreSkills }),
+        }));
+      } else {
+        setIsProfileInclomplete(true);
       }
+
     } catch (err) {
       console.error("Exception in fetchUserBasicDetails:", err);
     } finally {
@@ -380,8 +388,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       fetchNextPage,
       fetchUserBasicDetails,
 	  resetFiltersValues,
+    isProfileInclomplete,
     }),
-    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues]
+    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete]
   );
 
   return (

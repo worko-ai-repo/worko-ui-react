@@ -11,6 +11,9 @@ import { useInView } from "react-intersection-observer";
 import CompanyCard from "./CompanyCard";
 import { isExternal } from "util/types";
 import { JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
+import MessageModal from "@Components/Modals/MessageModal";
+import { useAppContext } from "@Context/App.context";
+import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 const JobCard = lazy(() => import("@Components/Company/JobCard"));
 const JobFilterPanel = lazy(() => import("./JobFilterPanel"));
 const RequestCompany = lazy(() => import("./RequestCompany"));
@@ -18,12 +21,13 @@ const RequestCompany = lazy(() => import("./RequestCompany"));
 const CompanyJobContent = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [matchScore, setMatchScore] = useState<Record<string, JobMatchingScoreDto>>({});
-
-  const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useCompanyContext();
+const {userDetails}:{userDetails:Partial<AuthLoginForGeneralUserDto>} = useAppContext();
+  const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage,isProfileInclomplete } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
 
   // Intersection Observer for Infinite Scroll
   const { ref: inViewRef } = useInView({
@@ -163,7 +167,29 @@ const CompanyJobContent = () => {
           </div>
         )}
       </div>
+      {isProfileInclomplete && (
+            <MessageModal
+						type="warning"
+						size="lg"
+						heading={{ type: 'warning', message: 'Complete Your Profile' }}
+						message="Please complete your profile before searching for jobs or companies."
+						onClose={() => {
+							// setViewTerms(false);
+						}}
+						showCloseButton={false}
+						buttons={[
+							{
+								label: 'Complete Profile',
+								action: () => {
+                 window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile";
+                },
+								type: 'primary',
+							}
+						]}
+					/>
+          )}
     </div>
+    
   );
 };
 

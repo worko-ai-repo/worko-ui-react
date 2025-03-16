@@ -36,6 +36,7 @@ export type CompanyContextType = {
 
     isFetchingNextPage: boolean;
 
+    isProfileInclomplete: boolean;
 
     fetchNextPage: () => void;
     handleSearch: () => void;

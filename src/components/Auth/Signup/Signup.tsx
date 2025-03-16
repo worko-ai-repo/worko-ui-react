@@ -223,8 +223,8 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			resumeUserFileName: resumeUserFileName,
 			resumeFileMimeType: resumeUserFileMimeType,
 		};
-
-		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true, false);
+		// debugger;	
+		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
 
 		if (error) {
 			throw error;
