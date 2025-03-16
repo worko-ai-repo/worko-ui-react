@@ -129,6 +129,8 @@ const {userDetails}:{userDetails:Partial<AuthLoginForGeneralUserDto>} = useAppCo
                       companyName: finalCompanyName,
                       jobdescription: job.jobDescription,
                       aboutcompany: job.companyDetails,
+                      jobStatus: job.status
+                      
                     }}
                   />
                 );

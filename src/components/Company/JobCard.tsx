@@ -4,9 +4,10 @@ import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
+import { toast } from 'react-toastify';
 
 export const JobCard = ({ job }: any) => {
-  const { companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob } = job;
+  const { companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
@@ -19,7 +20,7 @@ export const JobCard = ({ job }: any) => {
   const nav = useNavigate();
 
   const handleSubmit = () => {
-    alert(`Job shared with: ${formData.phone}, ${formData.email}`);
+    toast.success(`Job shared with: ${formData.phone}, ${formData.email}`);
     setShowModal(false);
   };
 
@@ -102,6 +103,8 @@ export const JobCard = ({ job }: any) => {
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{timeAgo}</span>
                 {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
                 {!isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Posted Job by Worko</span>}
+                {<span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{jobStatus}</span>}
+                
               </div>
 
               {/* Gauge on mobile only */}

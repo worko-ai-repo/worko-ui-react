@@ -281,12 +281,20 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
           {/* Action Buttons */}
           <div className="flex gap-2 justify-start md:justify-end">
           <button 
-            className= {`${applicationStatus ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600' } text-white font-bold px-4 py-2 rounded-lg transition-colors`}
-            onClick={onApply}
-            disabled={applicationStatus}
-          >
-            {applicationStatus ? 'Already Applied' : 'Apply Now'}
-          </button>
+              className={`${applicationStatus || jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600'} 
+                text-white font-bold px-4 py-2 rounded-lg transition-colors mr-2`}
+              onClick={onApply}
+              disabled={applicationStatus || jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'}
+            >
+              {isLoggedIn 
+                ? applicationStatus || jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'
+                  ? 'Closed' 
+                  : 'Apply Now' 
+                : 'Login to Apply'}
+            </button>
+
           </div>
         </div>
       </div>

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Share2 } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
+import { toast } from 'react-toastify';
+import { useAppContext } from '@Context/App.context';
 
 interface JobRequirementsProps {
   experience?: string;
@@ -126,7 +128,8 @@ const JobDetails: React.FC<JobDetailsProps> = ({
   // console.log(job);
 
   
-
+    const {isLoggedIn} = useAppContext();
+    
     const handleShare = async () => {
       if (navigator.share) {
         try {
@@ -139,7 +142,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
           console.error("Error sharing:", error);
         }
       } else {
-        alert("Sharing not supported, try another method.");
+        toast.error("Sharing not supported, try another method.");
       }
     };
 
@@ -156,13 +159,21 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         
         
         <div className="flex justify-center items-center gap-2 mt-6">
-            <button 
-              className={`${isApplying ? 'bg-blue-300' : applicationStatus ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold px-4 py-2 rounded-lg transition-colors`}
-              onClick={onApply}
-              disabled={isApplying || applicationStatus}
-            >
-              {isApplying ? 'Applying...' : applicationStatus ? 'Already Applied' : 'Apply Job'}
-            </button>
+        <button 
+            className={`${applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-500 hover:bg-blue-600'} 
+              text-white font-bold px-4 py-2 rounded-lg transition-colors`}
+            onClick={onApply}
+            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'}
+          >
+            {isLoggedIn 
+              ? applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'
+                ? 'Closed' 
+                : 'Apply Now' 
+              : 'Login to Apply'}
+          </button>
+
           {/* <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
             Refer a Friend
           </button> */}
