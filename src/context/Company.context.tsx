@@ -33,6 +33,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any}>();
 
+  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
+  const APP_API_URI = import.meta.env.APP_API_URI
+
   const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
     pageSize: 10,
     sortOrder: "descending",
@@ -100,7 +103,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
     setIsUserDetailsLoading(true);
     try {
-      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>("https://api.dev.worko.work/user/basic-details", true, {}, true);
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
 
       if (error) throw error;
       
@@ -179,7 +182,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         const pageSize = jobIds.length; // Ensure we get all requested jobs in one response.
 
         // Step 3: Make an API call to fetch job matching scores.
-        const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(`https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`, true, {}, true);
+        const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(`${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`, true, {}, true);
 
         // Step 4: If there's an error in the API call, log it and stop further execution.
         if (error) {
@@ -228,7 +231,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           console.log("Missing matching scores for job IDs:", missingJobIds);
 
           // Step 10: Make a PUT request to trigger job matching score generation for the missing jobs.
-          const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>("https://jobs.dev.worko.work/user-matching-score-job/", { jobIds: missingJobIds }, true, {}, true);
+          const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(`${APP_JOBS_API_URI}/user-matching-score-job/`, { jobIds: missingJobIds }, true, {}, true);
 
           // Step 11: If there's an error generating the missing scores, log and exit.
           if (putError) {
@@ -300,7 +303,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		}
 
  
-      const apiUrl = isJobPage ? `https://jobs.dev.worko.work/job/` : `/company`;
+      const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : `/company`;
       // console.log('API URL:', apiUrl);
       try {
         const { response, error } = await httpServiceObj.get<any>(

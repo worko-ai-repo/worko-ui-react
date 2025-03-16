@@ -10,6 +10,8 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
+
   useEffect(() => {
     const fetchSimilarJobs = async () => {
       if (jobData && jobData.id) {
@@ -17,7 +19,7 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
         try {
           // First try to fetch similar jobs from the similar-jobs endpoint
           const { response, error: similarJobsError } = await httpServiceObj.get(
-            `https://jobs.dev.worko.work/job/`,
+            `${APP_JOBS_API_URI}/job/`,
             true,
             {
               jobTitle: jobData.jobTitle,

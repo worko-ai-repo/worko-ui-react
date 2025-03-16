@@ -142,9 +142,13 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
 
   const onSubmit = async(data: FormValues) => {
     
-    const {response, error} = await httpServiceObj.post('/user/settings', {
+    const {response, error, status} = await httpServiceObj.post('/user/settings', {
       subscribedEmailId:data.email
     } , true)
+
+    if(status===409) {
+      alert('Already registered!')
+    }
 
     if(response) {
       // Set subscription status to true

@@ -8,6 +8,7 @@ interface PlanFeature {
 interface Plan {
   name: string;
   price: string;
+  additional?: string;
   isRecommended?: boolean;
   buttonVariant: 'primary' | 'secondary';
   features: PlanFeature[];
@@ -28,6 +29,7 @@ const plans: Plan[] = [
   {
     name: 'Hiring Partner',
     price: '3%',
+    additional: ' + Retainership',
     isRecommended: true,
     buttonVariant: 'primary',
     features: [
@@ -42,7 +44,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Co-Pilot',
-    price: '6%',
+    price: '7%',
     buttonVariant: 'secondary',
     features: [
       { text: 'Pay-As-You-Go: Pay only when candidates join.' },
@@ -78,7 +80,7 @@ function CorporatePlans() {
                 <div className="mb-8 text-left">
                   <span className="text-sm font-medium">Pricing: </span>
                   <span className="text-xl font-bold text-[#316BFF]">{plan.price}</span>
-                  <span className="text-sm font-medium"> of CTC</span>
+                  <span className="text-sm font-medium"> of CTC {plan.additional}</span>
                 </div>
                 <button
                   className={`w-full py-2 rounded text-center text-sm font-semibold tracking-wider transition-colors duration-300 ${

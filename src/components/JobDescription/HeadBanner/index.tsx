@@ -18,9 +18,10 @@ export interface JobDescriptionSubComponentDTO {
 }
 
 const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
+  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
   try {
     const { response, error } = await httpServiceObj.post<JobDto>(
-      `https://jobs.dev.worko.work/job/parsejd`,
+      `${APP_JOBS_API_URI}/job/parsejd`,
       {
         jobDescription: jobData.jobDescription
       },
@@ -61,7 +62,7 @@ const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
     console.log('Formatted Payload:', requestPayload);
 
     const { response: putResponse, error } = await httpServiceObj.put<JobDto>(
-      `https://jobs.dev.worko.work/job/${jobData.id}`,
+      `${APP_JOBS_API_URI}/job/${jobData.id}`,
       requestPayload,
       true,
       {},

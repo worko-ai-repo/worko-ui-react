@@ -49,6 +49,9 @@ const JobDescription = () => {
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
   const [jobMatchDetails , setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
 
+  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
+  const APP_API_URI = import.meta.env.APP_API_URI
+
 
 // Add this new function to check application status
 const checkApplicationStatus = async () => {
@@ -56,7 +59,7 @@ const checkApplicationStatus = async () => {
   
   try {
     const { response, error, status } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
-      `https://jobs.dev.worko.work/user-matching-score-job/?jobIds=${jobid}`,
+      `${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobid}`,
       true,
       {},
       true
@@ -212,7 +215,7 @@ useEffect(() => {
     queryKey: ["jobData", jobid],
     queryFn: async () => {
       const { response, error } = await httpServiceObj.get<JobDto>(
-        `https://jobs.dev.worko.work/job/${jobid}`,
+        `${APP_JOBS_API_URI}/job/${jobid}`,
         true,
         {},
         true
@@ -295,8 +298,8 @@ useEffect(() => {
       }
 
       const constructUrl = jobData?.externalJobId
-        ? `https://jobs.dev.worko.work/external-job-application/`
-        : `https://jobs.dev.worko.work/job-application/`;
+        ? `${APP_JOBS_API_URI}/external-job-application/`
+        : `${APP_JOBS_API_URI}/job-application/`;
 
       const { response, error, status } = await httpServiceObj.post(
         constructUrl,
