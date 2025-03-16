@@ -124,6 +124,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         }));
       } else {
         setIsProfileInclomplete(true);
+        setDefaultFiltersState({
+          userDesignation: "", // Ensure userDesignation is always a string
+          ...({ coreSkills }),
+        });
       }
 
     } catch (err) {
@@ -347,7 +351,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const shouldEnableQuery = () => {
 	if (!companyPageMode || jobFilters.pageSize! <= 0) return false; // If page mode is not set or pageSize is 0, return false
 	if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
-	if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
+  // @Todo- fix this
+  // if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
+	// if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
 	return true;
   };
 
