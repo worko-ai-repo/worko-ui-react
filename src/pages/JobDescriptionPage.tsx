@@ -318,12 +318,11 @@ useEffect(() => {
       if (error) {
         throw new Error(error.message || "Failed to submit application");
       } else {
-        if(jobDataState?.externalJobId){
         setApplicationStatus(true);
         setShowApplyModal(true);
         // Show success modal after successful application
         showModalsError('application_success');
-      }
+      
       }
     } catch (error) {
       console.error("Application error:", error);

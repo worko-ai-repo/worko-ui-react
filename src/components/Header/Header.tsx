@@ -141,7 +141,7 @@ const Header = () => {
 										</a>
 									</li>
 									<li>
-										<a href={`v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</a>
 									</li>
@@ -208,7 +208,7 @@ const Header = () => {
 								<img src={coin} className="inline mr-1 object-contain" />
 								{userDetails?.referralCount || 0} Referrals Left
 							</span>
-							<a className="dashboard" href={`v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
+							<a className="dashboard" href ={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
 								Dashboard
 							</a>
 						</div>
