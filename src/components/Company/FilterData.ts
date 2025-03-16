@@ -22,14 +22,14 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       value: ['INTERNSHIP', 'FULL_TIME', 'PART_TIME'],
       paramKey: 'typeofEmployment',
       placeholder: 'Employment Type',
-      selectType: 'multiselect'
+      selectType: 'normal'
     },
     {
       options: ['Remote', 'Hybrid', 'Onsite'],
       value: ['WFH', 'HYBRID', 'WFO'],
       paramKey: 'workMode',
       placeholder: 'Work Mode',
-      selectType: 'multiselect'
+      selectType: 'normal'
     },
     { 
       paramKey: 'coreSkills',
