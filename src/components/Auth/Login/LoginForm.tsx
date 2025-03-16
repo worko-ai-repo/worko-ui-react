@@ -275,13 +275,13 @@ const LoginForm = () => {
 							Sign in
 						</button>
 					</div>
-					{/* <hr className="w-full my-5 max-w-[350px] " /> @TODO fix linkedin*/} 
+					<hr className="w-full my-5 max-w-[350px] " /> 
 					{/* LinkedIn  */}
-					{/* <div className="w-full ">
+					<div className="w-full ">
 						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " disabled={isSubmitting} type="button" onClick={() => signUpWithLinkedIn('SignIn')}>
 							<i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
 						</button>
-					</div> */}
+					</div>
 
 					{/* Register */}
 					<div className="w-full ">
