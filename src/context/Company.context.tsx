@@ -36,7 +36,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
     pageSize: 10,
     sortOrder: "descending",
-    searchText: searchText,
+    
   });
 
   // Memoized default filters
@@ -44,11 +44,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	return {
 	  pageSize: 10,
 	  sortOrder: "descending",
-	  searchText,
+	  
 	  jobTitle: defaultFiltersState?.userDesignation, // Ensure jobTitle is included
 	  coreSkills: defaultFiltersState?.coreSkills, // Ensure coreSkills persist
 	};
-  }, [defaultFiltersState, searchText]);
+  }, [defaultFiltersState]);
 
   const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
 
@@ -75,7 +75,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    * @description - This function is used to reset the filter values
    */
 	const resetFiltersValues = () => {
-		if (isLoggedIn && defaultFiltersState) {
+		if (isLoggedIn && defaultFiltersState && location.pathname.includes("job")	) {
 		  setJobFilters({
 			...defaultFilters, // Ensures default user filters persist
 		  });
@@ -83,7 +83,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 		  setJobFilters({
 			pageSize: 10,
 			sortOrder: "descending",
-			searchText: searchText,
 		  });
 		}
 	  };
@@ -284,14 +283,14 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	 const hasRelevantFilters = filteringKeys.some((key) => filters[key] !== undefined);
 
 	 // Destructure and remove jobTitle if relevant filters are used
-	 const updatedFilters = hasRelevantFilters
+	 let updatedFilters = hasRelevantFilters
 	   ? (({ jobTitle, ...rest }) => rest)(filters)
 	   : filters;
- 
-   updatedFilters.lastKey = pageParam ?? undefined;
-	 if (isJobPage && filters.sortOrder) {
-	   updatedFilters.sortOrder = filters.sortOrder === "asc" ? "asc" : "desc";
-	 }
+	   updatedFilters.lastKey = pageParam ?? undefined;
+	   if (isJobPage && filters.sortOrder) {
+		   updatedFilters.sortOrder = filters.sortOrder === "asc" ? "asc" : "desc";
+		}
+
  
       const apiUrl = isJobPage ? `https://jobs.dev.worko.work/job/` : `/company`;
       // console.log('API URL:', apiUrl);
