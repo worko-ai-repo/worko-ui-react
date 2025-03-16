@@ -44,17 +44,20 @@ import { emailDomainDenyListValidator } from './CorporateMailValidator.utils';
 export const validationRules = {
 
 	/**
-	 * @type  {Object} name
-	 * 
-	 * @description - Validation rules for form fields for name entered.
-	 * 
-	 * @property {string} name.required - Error message when the name is not provided.
-	 * @property {Object} name.minLength - Minimum length validation for the name.
-	 */
-	name: {
-		required: 'Name is required',
-		minLength: { value: 3, message: 'Minimum 3 characters required' },
-	},
+ * @type  {Object} name
+ * 
+ * @description - Validation rules for form fields for name entered.
+ * 
+ * @property {string} name.required - Error message when the name is not provided.
+ * @property {Object} name.minLength - Minimum length validation for the name.
+ * @property {Object} name.pattern - Regex validation to prevent special characters.
+ */
+name: {
+	required: 'Name is required',
+	minLength: { value: 3, message: 'Minimum 3 characters required' },
+	pattern: { value: /^[A-Za-z\s]+$/, message: 'Special characters are not allowed' }, // Only allows letters and spaces
+},
+
 
 	/**
 	 * @type  {Object} phone
