@@ -64,26 +64,33 @@ const checkApplicationStatus = async () => {
       {},
       true
     );
-    
-    // Check each item in the array for status property
-    if (response?.data[0]) {
+      
+
+  
+    // Check all items in the array for status property using a for loop
+    if (response?.data && response.data.length > 0) {
+      for (let i = 0; i < response.data.length; i++) {
+        if (response.data[i].status) {
+          console.log(response.data[i].status);
+          setApplicationStatus(true);
+          break; // Exit the loop once we find a truthy status
+        }
+      }
+          
+      // Process the first item for job match details (keeping existing behavior)
       const fullData = response.data[0];
-      if (fullData.status) {
-        // set the status correctly
-        setApplicationStatus(true);
-      } else {
-        setApplicationStatus(false);
-      }
-      if(fullData.scoreDetails)
-      {
-        // set the score details correctly
+      if (fullData.scoreDetails) {
         fullData.scoreDetails = JSON.parse(fullData.scoreDetails);
-        // console.log(JSON.parse(fullData.scoreDetails))
       }
-      // set the job match details
-         setJobMatchDetails(fullData);
+      
+      // Set the job match details
+      setJobMatchDetails(fullData);
+      
       // Check if matching score is present and set it
-        setGlobalMatchingScore(fullData.matchingScore || 0);
+      setGlobalMatchingScore(fullData.matchingScore || 0);
+    } else {
+      // No data case
+      setApplicationStatus(false);
     }
   } catch (error) {
     console.error("Error checking application status:", error);

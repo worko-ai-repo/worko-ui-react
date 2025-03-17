@@ -288,11 +288,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
               onClick={onApply}
               disabled={applicationStatus || jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'}
             >
-              {isLoggedIn 
-                ? applicationStatus || jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'
-                  ? 'Closed' 
+             {isLoggedIn 
+              ? applicationStatus 
+                ? 'Already Applied'
+                : jobData.status === 'ARCHIVED' || jobData.status === 'CLOSED'
+                  ? `${jobData.status}` 
                   : 'Apply Now' 
-                : 'Login to Apply'}
+              : 'Login to Apply'}
             </button>
 
           </div>

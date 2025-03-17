@@ -153,6 +153,7 @@ export interface BaseApiFiltersDto {
 }
 
 export interface JobMatchingScoreDto {
+  isTriggered?: boolean;
   // Ids
   id: string;
   // references

@@ -2,7 +2,6 @@ import { HttpHeaderOptionDto, HttpParamsOptions } from '@Interfaces/HttpOption.d
 import CognitoServiceObj from './Cognito.utils';
 
 export const getHttpOptions = (authorization = true, params: HttpParamsOptions = {}) => {
-	debugger;
 	let headers: HttpHeaderOptionDto 
 	if(params.fileType){
 		headers={'Content-Type': params.fileType}

@@ -167,12 +167,14 @@ const JobDetails: React.FC<JobDetailsProps> = ({
             onClick={onApply}
             disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'}
           >
-            {isLoggedIn 
-              ? applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'
-                ? 'Closed' 
-                : 'Apply Now' 
+             {isLoggedIn 
+              ? applicationStatus 
+                ? 'Already Applied'
+                : job.status === 'ARCHIVED' || job.status === 'CLOSED'
+                  ? `${job.status}` 
+                  : 'Apply Now' 
               : 'Login to Apply'}
-          </button>
+            </button>
 
           {/* <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
             Refer a Friend

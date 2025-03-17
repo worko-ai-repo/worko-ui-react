@@ -32,8 +32,13 @@ const Guidance = () => {
                                         <label className=" my-3 block text-sm font-semibold !ml-0 text-black ">Guidance Type</label>
                                         <select {...register('serviceCategory', validationRules.name)} className="select_primary max-sm:min-w-[70vw] sm:max-w-[300px] w-full p-3 bg-[#FAFAFA]  rounded-xl text-gray-500 text-sm ">
                                             <option value="">What you need guidance for</option>
-                                            <option value="category1">Category 1</option>
-                                            <option value="category2">Category 2</option>
+                                            <option value="category1">Interview hand holding</option>
+                                            <option value="category2">Mock Interview / Preparation</option>
+                                            <option value="category2">Help with assignment</option>
+                                            <option value="category2">Career Guidance</option>
+                                            <option value="category2">Resume Review</option>
+                                            <option value="category2">Other</option>
+
                                         </select>
                                         {errors.serviceCategory && <p className="text-red-500 text-xs">{/* {errors.serviceCategory.message} */}</p>}
                                     </div>

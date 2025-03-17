@@ -47,7 +47,6 @@ const CompaniesList = () => {
     const companies = Array.isArray(data) 
       ? data.map(({ id, logoUrl, name }) => ({ id, logoUrl, name })) 
       : fallbackCompanies;
-    
     // Create chunks of 10 companies each
     const firstSet = companies.slice(0, 10);
     const secondSet = companies.slice(10, 20);

@@ -10,16 +10,16 @@ const HeroIntro = () => {
 
 	const items = [
 		{
-			tag: "Request Referral",
-			href: "/referrals",
-		},
-		{
 			tag: "Apply Jobs",
 			href: "/jobs",
 		},
 		{
 			tag: "GET GUIDANCE & INTERVIEW HANDHOLDING",
 			href: "/guidance",	
+		},
+		{
+			tag: "Request Referral",
+			href: "/referrals",
 		}
 	]
 	
