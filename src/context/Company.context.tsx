@@ -265,97 +265,118 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    * Handle Query Function
    *
    * @description - This function is used to handle the query function for fetching data from the API
-   */
+   */  
+  
   const CompanyQueryHandler = useCallback(
     async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
-	 
-	// Check if we are on the job page
-    const isJobPage = location.pathname.includes("job");
-    // If `pageParam` is null, it's a new filter request
-	const isFiltering = !pageParam; 
-     
-	// Check extract all keys except jobTitle from dto
-	// Destructuring an object to extract all keys except jobTitle
-	// const { jobTitle, ...otherFilters } = filters;
-	// Now, 'otherFilters' contains all properties of filters except 'jobTitle'
-
-	// Alternatively, create a type that omits jobTitle from JobFiltersDto
-	// List of filters that should trigger jobTitle removal
-    const filteringKeys: (keyof JobFiltersDto)[] = [
-		"experienceRange",
-		"location",
-		"salaryRange",
-		"workMode",
-		"department",
-		'searchText',
-		// "coreSkills",
-		"softSkills",
-		"technicalSkills",
-		"companyId",
-	  ];
-	
-	 // Check if any of the filtering keys exist in filters
-	 const hasRelevantFilters = filteringKeys.some((key) => filters[key] !== undefined);
-
-	 // Destructure and remove jobTitle if relevant filters are used
-	 let updatedFilters = hasRelevantFilters
-	   ? (({ jobTitle, ...rest }) => rest)(filters)
-	   : filters;
-	   updatedFilters.lastKey = pageParam ?? undefined;
-	   if (isJobPage && filters.sortOrder) {
-		   updatedFilters.sortOrder = filters.sortOrder === "asc" ? "asc" : "desc";
-		}
-
- 
-      const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : `/company`;
-      // console.log('API URL:', apiUrl);
+      // Check if we are on the job page
+      const isJobPage = location.pathname.includes("job");
+      // If pageParam is null, it's a new filter request
+      const isFiltering = pageParam === null;
+  
+      // List of filters that should be considered for filtering
+      const filteringKeys: (keyof JobFiltersDto)[] = [
+        "experienceRange",
+        "location",
+        "salaryRange",
+        "workMode",
+        "department",
+        'searchText',
+        "softSkills",
+        "technicalSkills",
+        "companyId",
+      ];
+  
+      // Check if any of the filtering keys have values
+      const hasRelevantFilters = filteringKeys.some(
+        (key) => filters[key] !== undefined && filters[key] !== null && filters[key] !== ''
+      );
+  
+      // Create updated filters object
+      const updatedFilters = {
+        ...filters,
+        lastKey: pageParam ?? undefined,
+        ...(isJobPage && filters.sortOrder
+          ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
+          : {})
+      };
+  
+      // Remove jobTitle if other relevant filters are present
+      if (hasRelevantFilters && 'jobTitle' in updatedFilters) {
+        delete updatedFilters.jobTitle;
+      }
+  
+      const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
+  
       try {
         const { response, error } = await httpServiceObj.get<any>(
           apiUrl,
           true,
           updatedFilters,
-          isJobPage // Use full URI for 'job', false otherwise
+          isJobPage
         );
-
+  
         if (error) throw error;
-
+  
         // Decide the filterMetaData based on the page mode
-        const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
+        const finalFilterMetaData = isJobPage 
+          ? filterMetaData.jobFilter 
+          : filterMetaData.referralFilter;
+  
         // Generate filters for rendering
-        generateFilterForRender(response.data, companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
-
+        generateFilterForRender(
+          response.data,
+          companyPageMode,
+          finalFilterMetaData,
+          setJobFilterForRender,
+          isFiltering
+        );
+  
+        // Update API data status
         setApiHasData(response.data.length > 0);
-
+  
         if (isJobPage) {
-          setCompanyJobData((prev) => (isFiltering ? response.data : [...(prev || []), ...response.data]));
-
+          setCompanyJobData((prevData) => {
+            // If filtering, return new data
+            if (isFiltering) return response.data;
+            // If appending, combine previous and new data
+            const existingData = prevData || [];
+            return [...existingData, ...response.data];
+          });
+  
+          // Fetch matching scores for new jobs if user is logged in
           if (response.data.length > 0 && isLoggedIn) {
             fetchJobMatchingScores(response.data.map((job: { id: any }) => job.id));
           }
         } else {
-          setCompanyRefData((prev) => (isFiltering ? response.data : [...(prev || []), ...response.data]));
+          setCompanyRefData((prevData) => {
+            if (isFiltering) return response.data;
+            const existingData = prevData || [];
+            return [...existingData, ...response.data];
+          });
         }
-
+  
         return {
           data: response,
-          nextPage: response.pagination?.lastKey, // Pass lastKey for pagination if available
+          nextPage: response.pagination?.lastKey,
         };
       } catch (error) {
         console.error("Error fetching company/job data:", error);
         throw error;
       }
     },
-    [companyPageMode, fetchJobMatchingScores, defaultFilters]
+    [companyPageMode, fetchJobMatchingScores, isLoggedIn]
   );
-
   const shouldEnableQuery = () => {
 	if (!companyPageMode || jobFilters.pageSize! <= 0) return false; // If page mode is not set or pageSize is 0, return false
 	if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
+  if(!hasNextPage) return false;
   // @Todo- fix this
   // if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
 	// if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
 	return true;
   };
+  
 
   /**
    * useInfiniteQuery
@@ -367,7 +388,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
     getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
     initialPageParam: null,
-    enabled: shouldEnableQuery(),
+     enabled:  !!companyPageMode && jobFilters.pageSize! > 0 &&
+     (companyPageMode === CompanyPageModeEnum.REFERRAL || companyPageMode === CompanyPageModeEnum.JOB),
     retry: 0,
   });
 

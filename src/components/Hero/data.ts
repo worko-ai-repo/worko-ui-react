@@ -1,16 +1,16 @@
-import { ph1, ph2, ph3, ph4, student, student1 } from '@Assets';
+import { job_frame, mini_frame1, mini_frame2, mini_Frame_3, mini_Frame_4, mini_Frame_5, mini_Frame_6, ph1, ph2, ph3, ph4, ref_frame, ss_guidance, ss_job, ss_ref, student, student1 } from '@Assets';
 export const dorpDown = {
 	one: [
-		{ title:"No more spray-and-pray job hunting ", description: 'See and apply for genuinely-fit roles with our matchmaking engine that only shows opportunities you’re truly interested in.', image: ph1 },
-		{ title: 'Tap into company referrals', description: "Get direct referrals from verified employees who work at your dream companies and will boost you to the top of the pile.", image: ph2 },
-		{ title: "Get personalized career guidance", description: "Get battle-tested tips every step of the way from people who have already won those challenges. You’ll get the edge you need.", image: ph3 },
-		{ title: "Refer others and earn", description: "Know talented people companies can benefit from? Refer them to our platform and earn exclusive bonuses, rewards, and perks.", image: ph4 },
+		{ title:"No more spray-and-pray job hunting ", description: 'See and apply for genuinely-fit roles with our matchmaking engine that only shows opportunities you’re truly interested in.', image: ph1,bigimg:ss_job },
+		{ title: 'Tap into company referrals', description: "Get direct referrals from verified employees who work at your dream companies and will boost you to the top of the pile.", image: ph2 ,bigimg:ss_ref},
+		{ title: "Get personalized career guidance", description: "Get battle-tested tips every step of the way from people who have already won those challenges. You’ll get the edge you need.", image: ph3,bigimg:ss_guidance },
+		{ title: "Refer others and earn", description: "Know talented people companies can benefit from? Refer them to our platform and earn exclusive bonuses, rewards, and perks.", image: ph4,bigimg:mini_Frame_5 },
 	],
 	two: [
-		{ title: "Access top talent fast", description: 'With Worko, you can connect with vetted, top-notch candidates that match your company’s needs. It will make your next hire easier than ever. ', image: ph1 },
-		{ title: "Guide job seekers ", description: "Help other job seekers grow and become part of their success. Whether it’s through personalized mentorship or interview prep, you can create an impact where it matters.", image: ph2 },
-		{ title: "Get actionable job search support", description: "Looking to change your job? Want guidance on getting a promotion? Confidently take your next steps with our actionable support personalized only for you. ", image: ph3 },
-		{ title: "Refer candidates and earn", description: "Your referrals have real value. As an employee, recommend top talent for open roles within your company and earn rewards for all your efforts. ", image: ph4 },
+		{ title: "Access top talent fast", description: 'With Worko, you can connect with vetted, top-notch candidates that match your company’s needs. It will make your next hire easier than ever. ', image: ph1,bigimg:mini_Frame_6 },
+		{ title: "Guide job seekers ", description: "Help other job seekers grow and become part of their success. Whether it’s through personalized mentorship or interview prep, you can create an impact where it matters.", image: ph2,bigimg:mini_Frame_3 },
+		{ title: "Get actionable job search support", description: "Looking to change your job? Want guidance on getting a promotion? Confidently take your next steps with our actionable support personalized only for you. ", image: ph3,bigimg:mini_Frame_4 },
+		{ title: "Refer candidates and earn", description: "Your referrals have real value. As an employee, recommend top talent for open roles within your company and earn rewards for all your efforts. ", image: ph4 ,bigimg:mini_Frame_5},
 	],
 };
 

@@ -50,8 +50,13 @@ const ProductHighlight = () => {
             </div>
 
             <div className="w-[0px] product_highlight_img sm:w-[400px] h-full">
-              <img src={mini_frame1} alt="mini_frame1" className="invisible sm:visible" />
-            </div>
+  <img 
+    src={dorpDown.one[openDropdown.one ?? 0]?.bigimg} // Default to index 0
+    alt="mini_frame1" 
+    className="invisible sm:visible" 
+  />
+</div>
+
           </div>
         </div>
 
@@ -61,9 +66,14 @@ const ProductHighlight = () => {
             For <b className="text-white px-2 py-1 tracking-wide bg-blue-500 font-semibold rounded-md">Employees</b>
           </p>
           <div className="gap-0 sm:gap-10 mt-10 flex w-full items-center justify-center">
-            <div className="w-[0px] product_highlight_img sm:w-[400px] h-full">
-              <img src={mini_frame2} alt="mini_frame2" />
-            </div>
+          <div className="w-[0px] product_highlight_img sm:w-[400px] h-full">
+  <img 
+    src={dorpDown.two[openDropdown.two ?? 0]?.bigimg} // Default to index 0
+    alt="mini_frame1" 
+    className="invisible sm:visible" 
+  />
+</div>
+            
             <div className="dropdown_and_frame flex flex-col gap-3 relative">
 			{dorpDown.two.map((item, index) => (
   <div key={index} className="relative cursor-pointer rounded-md bg-[#CFEFFF]">

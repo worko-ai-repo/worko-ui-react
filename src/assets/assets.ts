@@ -39,7 +39,13 @@ import ph1 from './backgrounds/ph1.png'
 import ph2 from './backgrounds/ph2.png'
 import ph3 from './backgrounds/ph3.png'
 import ph4 from './backgrounds/ph4.png'
-
+import mini_Frame_3 from './backgrounds/Mini_Frame_3.jpg'
+import mini_Frame_4 from './backgrounds/Mini_Frame_4.jpg'
+import mini_Frame_5 from './backgrounds/Mini_Frame_5.png'
+import mini_Frame_6 from './backgrounds/Mini_Frame_6.jpg'
+import ss_job from './backgrounds/ss_job.webp'
+import ss_ref from './backgrounds/ss_ref.webp'
+import ss_guidance from './backgrounds/ss_guid.webp'
 import c11 from './backgrounds/c11.png';
 import c12 from './backgrounds/c12.png';
 import c13 from './backgrounds/c13.png';
@@ -75,6 +81,13 @@ export {
     employee_hero,
     employee_hero_mobile,
     employee_stepper_1_cursor,
+    mini_Frame_3
+    ,mini_Frame_4
+    ,mini_Frame_5
+    ,mini_Frame_6,
+    ss_job,
+    ss_ref,
+    ss_guidance,
      
     auth_bg,
     auth_bg2,
