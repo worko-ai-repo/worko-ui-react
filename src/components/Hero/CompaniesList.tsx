@@ -2,20 +2,18 @@ import { logo_text } from '@Assets';
 import { CompanyDto } from '@Interfaces/JobsAndCompany.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CompaniesList = () => {
-   const navigateTo = useNavigate();
+  const navigateTo = useNavigate();
+
   // Fetch data function
   const fetchData = async () => {
     const { response, error, status } = await httpServiceObj.get<{ data: CompanyDto[] }>(
       `/company`, 
-      true,
-	  {
-		pageSize:25,
-		sortOrder:'ascending'
-	  }
+      true, 
+      { pageSize: 25, sortOrder: 'ascending' }
     );
 
     if (status === 404) return { errorType: "invalid" };
@@ -24,12 +22,14 @@ const CompaniesList = () => {
     return response?.data || [];
   };
 
-  // Fetch data using react-query
+  // Fetch data using react-query with improved caching
   const { isLoading, error, data } = useQuery({
     queryKey: ["companiesList"],
     queryFn: fetchData,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    retry: 2, // Retry twice before failing
+    retry: 0,
+    refetchOnWindowFocus: false, // Prevent refetching when window regains focus
+    refetchOnMount: false, // Prevent refetching on component remount
   });
 
   // Fallback companies
@@ -42,20 +42,51 @@ const CompaniesList = () => {
     { logoUrl: logo_text, id: "fallback-6", name: "worko" },
   ];
 
-  // Use fetched data or fallback
-  const companies = Array.isArray(data) ? data.map(({ id, logoUrl , name }: { id: string; logoUrl: string , name:string }) => ({ id, logoUrl , name })) : fallbackCompanies;
+  // Use fetched data or fallback and divide into chunks
+  const companyData = useMemo(() => {
+    const companies = Array.isArray(data) 
+      ? data.map(({ id, logoUrl, name }) => ({ id, logoUrl, name })) 
+      : fallbackCompanies;
+    
+    // Create chunks of 10 companies each
+    const firstSet = companies.slice(0, 10);
+    const secondSet = companies.slice(10, 20);
+    
+    // If secondSet is empty or incomplete, use firstSet as fallback
+    const completeSecondSet = secondSet.length < 10 ? firstSet : secondSet;
+    
+    return {
+      firstSet,
+      secondSet: completeSecondSet
+    };
+  }, [data]);
 
   // Handle button click
-  const handleButtonClick = (id: string, type: "referral" | "job") => {
+  const handleButtonClick = (id:any, type:any) => {
     navigateTo(`/${type}?compid=${id}`, { replace: true });
   };
 
-  const CompanyCard = ({ company }: { company: typeof companies[0] }) => (
-    <div className="w-[250px] mx-4 relative group h-full border-1 border-white cursor-pointer" onClick={() => window.location.href = `/jobs`}>
+  const CompanyCard = ({ company }: {company:any}) => (
+    
+    <div 
+      className="w-[250px] mx-4 relative group h-full border-1 border-white cursor-pointer" 
+      onClick={() => window.location.href = `/jobs`}
+    >
       <div className="w-[200px] h-[100px] overflow-hidden flex items-center justify-center">
-        <img src={company.logoUrl} alt={company.name} loading='lazy' className=" h-[85%] w-[85%] object-contain  " />
-        
-		{/* <div className="absolute opacity-0 inset-0 gap-2 flex flex-col items-center justify-center bg-black/75 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
+      {company.logoUrl ? (
+            <img 
+              src={company.logoUrl} 
+              alt={company.name} 
+              loading="lazy" 
+              className="h-[85%] w-[85%] object-contain"
+            />
+          ) : (
+            <div className="h-[85%] w-[85%] flex items-center justify-center text-white text-lg font-medium">
+              {company.name}
+            </div>
+          )}
+      
+        {/* <div className="absolute opacity-0 inset-0 gap-2 flex flex-col items-center justify-center bg-black/75 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
           <button onClick={() => handleButtonClick(company.id, "referral")} className="btn_primary">
             Get Referral
           </button>
@@ -70,21 +101,24 @@ const CompaniesList = () => {
   return (
     <section className="lg:max-w-[1500px] mx-auto w-full overflow-hidden py-8 bg-transparent flex items-center my-5">
       <div className="marquee-container w-full flex flex-col gap-4">
-        <p className='text-full text-white text-3xl font-bold md:text-4xl mb-10 '  >Companies you can work with </p>
+        <p className='text-full text-white text-3xl font-bold md:text-4xl mb-10'>
+          Companies you can work with
+        </p>
+        
         <div className="flex marquee-content">
-          {companies.map((company, index) => (
+          {companyData.firstSet.map((company, index) => (
             <CompanyCard key={`first-${index}`} company={company} />
           ))}
-          {companies.map((company, index) => (
+          {companyData.firstSet.map((company, index) => (
             <CompanyCard key={`second-${index}`} company={company} />
           ))}
         </div>
 
         <div className="h-0 marquee-content reverse sm:flex sm:h-auto">
-          {companies.map((company, index) => (
+          {companyData.secondSet.map((company, index) => (
             <CompanyCard key={`first-sm-${index}`} company={company} />
           ))}
-          {companies.map((company, index) => (
+          {companyData.secondSet.map((company, index) => (
             <CompanyCard key={`second-sm-${index}`} company={company} />
           ))}
         </div>

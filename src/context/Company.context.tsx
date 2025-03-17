@@ -175,26 +175,34 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
  * Handle unexpected errors gracefully with try-catch.
 
  */
+
+  const [pendingScoreGenerations, setPendingScoreGenerations] = useState<Set<string>>(new Set());
+
   const fetchJobMatchingScores = useCallback(
     async (jobIds: string[]) => {
-      // Step 1: Check if there are any job IDs to process; if not, exit early.
+      // Step 1: Check if there are any job IDs to process; if not, exit early
       if (!jobIds.length) return;
 
       try {
-        // Step 2: Format the job IDs as a comma-separated string for the API request.
+        // Step 2: Format the job IDs as a comma-separated string and set page size for API request
         const jobIdsParam = jobIds.join(",");
-        const pageSize = jobIds.length; // Ensure we get all requested jobs in one response.
+        const pageSize = jobIds.length;
 
-        // Step 3: Make an API call to fetch job matching scores.
-        const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(`${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`, true, {}, true);
+        // Step 3: Make an API call to fetch existing job matching scores
+        const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(
+          `${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`, 
+          true, 
+          {}, 
+          true
+        );
 
-        // Step 4: If there's an error in the API call, log it and stop further execution.
+        // Step 4: If there's an error in the API call, log it and stop further execution
         if (error) {
           console.error("Error fetching job matching scores:", error);
           return;
         }
 
-        // Step 5: Store retrieved scores in a map and track received job IDs.
+        // Step 5: Store retrieved scores in a map and track received job IDs
         const scoresMap: Record<string, JobMatchingScoreDto> = {};
         const receivedJobIds = new Set<string>();
 
@@ -203,19 +211,22 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           receivedJobIds.add(score.jobId);
         });
 
-        // Step 6: Identify which job IDs are missing from the response.
-        const missingJobIds = jobIds.filter((id) => !receivedJobIds.has(id));
+        // Step 6: Filter out job IDs that already have scores or are pending generation
+        const missingJobIds = jobIds.filter(
+          (id) => !receivedJobIds.has(id) && !pendingScoreGenerations.has(id)
+        );
 
-        // Step 8: Update job data with scores, but MAINTAIN SCORES FOR PREVIOUS JOBS
+        // Step 7: Update job data with scores while maintaining existing data
         setCompanyJobData((prev) => {
           if (!prev) return undefined;
 
-          // Create a map of existing jobs with their scores
+          // Step 7a: Create a map of existing jobs with their scores
           const existingJobsMap = prev.reduce((acc, job) => {
             acc[job.id] = job;
             return acc;
           }, {} as Record<string, JobDto>);
-          // Update with new scores
+
+          // Step 7b: Update jobs with new scores while preserving existing data
           jobIds.forEach((jobId) => {
             if (existingJobsMap[jobId]) {
               existingJobsMap[jobId] = {
@@ -226,39 +237,72 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             }
           });
 
-          // Convert map back to array while preserving order
+          // Step 7c: Convert map back to array while preserving order
           return prev.map((job) => existingJobsMap[job.id] || job);
         });
 
-        // Step 9: If there are missing job scores, log them and trigger score generation.
+        // Step 8: Handle missing job scores generation
         if (missingJobIds.length > 0) {
-          // console.log("Missing matching scores for job IDs:", missingJobIds);
+          // Step 8a: Add missing job IDs to pending set before making the PUT request
+          setPendingScoreGenerations((prev) => {
+            const newSet = new Set(prev);
+            missingJobIds.forEach(id => newSet.add(id));
+            return newSet;
+          });
 
-          // Step 10: Make a PUT request to trigger job matching score generation for the missing jobs.
-          const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(`${APP_JOBS_API_URI}/user-matching-score-job/`, { jobIds: missingJobIds }, true, {}, true);
-
-          // Step 11: If there's an error generating the missing scores, log and exit.
+          // Step 8b: Make PUT request to trigger score generation for missing jobs
+          const { response: putResponse, error: putError } = await httpServiceObj.put<{ matchingScoreCalculationStatus: boolean }>(
+            `${APP_JOBS_API_URI}/user-matching-score-job/`, 
+            { jobIds: missingJobIds }, 
+            true, 
+            {}, 
+            true
+          );
+        
+          // Step 8c: Handle PUT request error
           if (putError) {
             console.error("Error generating job matching scores:", putError);
+            // Remove failed jobs from pending set
+            setPendingScoreGenerations((prev) => {
+              const newSet = new Set(prev);
+              missingJobIds.forEach(id => newSet.delete(id));
+              return newSet;
+            });
             return;
           }
 
-          // Step 12: If the generation was successful, retry fetching the missing scores after 5 seconds.
+          // Step 8d: Handle successful score generation request
           if (putResponse?.matchingScoreCalculationStatus) {
-            // console.log("Successfully triggered matching score generation, retrying in 5 seconds...");
-
-            // Step 13: Use a timeout to retry fetching scores once after 5 seconds.
-               setTimeout(() => fetchJobMatchingScores(missingJobIds), 5000);
+            // Step 8e: Set timeout to retry fetching scores after 5 seconds
+            setTimeout(() => {
+              // Remove completed jobs from pending set
+              setPendingScoreGenerations((prev) => {
+                const newSet = new Set(prev);
+                missingJobIds.forEach(id => newSet.delete(id));
+                return newSet;
+              });
+              // Retry fetching scores for these jobs
+              fetchJobMatchingScores(missingJobIds);
+            }, 5000);
           } else {
+            // Step 8f: Handle failed score generation
             console.warn("Failed to generate matching scores");
+            // Remove failed jobs from pending set
+            setPendingScoreGenerations((prev) => {
+              const newSet = new Set(prev);
+              missingJobIds.forEach(id => newSet.delete(id));
+              return newSet;
+            });
           }
         }
       } catch (err) {
-        // Step 14: Handle any unexpected errors that occur during the execution.
+        // Step 9: Handle any unexpected errors in the entire process
         console.error("Exception in fetchJobMatchingScores:", err);
+        // Clear all pending jobs in case of unexpected error
+        setPendingScoreGenerations(new Set());
       }
     },
-    [setCompanyJobData]
+    [setCompanyJobData, pendingScoreGenerations]
   );
 
   /**

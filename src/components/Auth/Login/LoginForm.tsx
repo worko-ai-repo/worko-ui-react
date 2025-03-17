@@ -185,7 +185,7 @@ const LoginForm = () => {
 							if (pendingReferral) {
 								window.location.href = pendingReferral.url; // Redirect to the referral page
 							} else {
-								navigate('/jobs'); // Redirect to home page
+								window.location.href = '/jobs'; // Redirect to home page
 							}
 						}, 3000);
 					}

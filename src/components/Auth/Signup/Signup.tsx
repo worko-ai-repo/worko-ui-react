@@ -167,7 +167,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 							// prefer local over state
 							const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
 							const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
-							finalActiveFrame === 'CAND' ? navigateTo('/jobs') : window.location.href='/v1/employee/Dashboard'  // Redirect to the home page
+							finalActiveFrame === 'CAND' ? window.location.href = '/jobs' : window.location.href='/v1/employee/Dashboard'  // Redirect to the home page
 						}
 					}, 3000);
 				}
