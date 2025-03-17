@@ -88,6 +88,9 @@ const Signup = () => {
 			let resumeFile = data.cv[0];
 			resumeUserFileName = resumeFile.name;
 			resumeUserFileMimeType = resumeFile.type;
+			//store it in local also
+			localStorage.setItem('resumeUserFileName', resumeUserFileName);
+			localStorage.setItem('resumeUserFileMimeType', resumeUserFileMimeType);
 			setCv(data.cv);
 		} else {
 			formData.companySk = data.company;
@@ -217,11 +220,18 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 	 *
 	 * @description This function is used to allocate the memory to the CV from dev server and return the URL to upload the CV
 	 */
-	const CvS3MemAllocation = useCallback(async () => {
+	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+	const handleFileUpload = (file: File) => {
+		setUploadedFile(file);
+			const fileURL = URL.createObjectURL(file);
+			 window.open(fileURL, "_blank"); // Open PDF in new tab
+		console.log("File received in parent:", file);
+	  };
+	const CvS3MemAllocation = useCallback(async (userdata:any) => {
 		const cvS3metaData = {
-			userId: CognitoResponse?.userId || '', // Ensure `CognitoResponse` is valid
-			resumeUserFileName: resumeUserFileName,
-			resumeFileMimeType: resumeUserFileMimeType,
+			userId: CognitoResponse?.userId || userdata.userId, // Ensure `CognitoResponse` is valid
+			resumeUserFileName: resumeUserFileName || localStorage.getItem('resumeUserFileName'),
+			resumeFileMimeType: resumeUserFileMimeType || localStorage.getItem('resumeUserFileMimeType'),
 		};
 		// debugger;	
 		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
@@ -232,12 +242,20 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 
 		// Upload to S3
 		const metaData: FileUpload = {
-			file: cv,
+			file: uploadedFile,
 			awsS3Tag: response?.awsS3Tag,
 		};
 
 		const signedUrl: string = response?.awsS3SignedUrl || '';
 		// debugger;
+		console.log('signedUrl:', signedUrl);	
+		console.log('metaData:', metaData);
+		console.log('cv:', uploadedFile);
+		if (!metaData.file || metaData.file.size === 0) {
+			console.error('File is empty or undefined:', metaData.file);
+			return;
+		}
+		
 		const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
 
 		if (fileUploadHandler.error) {
@@ -255,7 +273,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 				toast.success('CV uploaded successfully');
 			}
 		}
-	}, [cv]);
+	}, [cv,uploadedFile]);
 
 	/**
 	 * mutateDatatoBackend
@@ -295,7 +313,9 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			if (error) {
 				throw error;
 			} else {
-				await CvS3MemAllocation();
+				if (uploadedFile) {
+				await CvS3MemAllocation(response);
+				}
 			}
 		} else {
 			const companyDetails = secureStorage.getItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY);
@@ -314,7 +334,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			// Add the data to the backend
 			return await httpServiceObj.post('/user/register/employee', employeeData, true);
 		}
-	}, []);
+	}, [uploadedFile]);
 
 
 	const runCognitoBasicSignup = async (data: AuthFormDto): Promise<boolean> => {
@@ -410,7 +430,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 					</div>
 					{/* Signup form */}
 					<div className="scale-90 sm:scale-100  flex mt-2 flex-1 sm:mx-auto sm:w-[85%] ">
-						<SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} setCompanyName={setCompanyName} />
+						<SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} onFileUpload ={handleFileUpload} setCompanyName={setCompanyName} />
 					</div>
 				</div>
 			</div>

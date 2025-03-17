@@ -47,8 +47,9 @@ const SignupForm: React.FC<{
   runCognitoBasicSignup: (data: AuthFormDto) => Promise<boolean>;
   handleVerifyOtp: (email: string, otp: string, password: string) => Promise<any>;
   verifyOtp: (otp: string) => Promise<boolean>;
+  onFileUpload: (file: File) => void;
   setCompanyName: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName }) => {
+}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName,onFileUpload  }) => {
   const signUpWithLinkedIn = useLinkedInSignup();
   const [otpError, setOtpError] = useState(false); // Use lowercase for setter
   const [ViewTerms, setViewTerms] = useState(false);
@@ -74,7 +75,13 @@ const SignupForm: React.FC<{
     defaultValues: { name: null, phone: "", whatsappActive: false, company: undefined, cv: "", email: "", password: "", confirmPassword: "", termsAndConditions: false },
     mode: "onChange",
   });
-
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "application/pdf") {
+      onFileUpload(file); // Pass file to parent
+  
+    }
+  };
   useEffect(() => {
     if (activeFrame === "CAND") {
       unregister("company");
@@ -180,6 +187,8 @@ const SignupForm: React.FC<{
     setIsEditingEmail(false);
   };
 
+
+  
   return (
     <div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
       <form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
@@ -237,7 +246,14 @@ const SignupForm: React.FC<{
           {activeFrame === "CAND" ? (
             <div className="relative ">
               <label className="hidden sm:block font-medium">Upload Cv</label>
-              <input disabled={isOtpSent} type="file" className="input_primary auth_input  appearance-none cursor-pointer  " {...register("cv", { validate: validateCV })} accept=".pdf" />
+              <input
+  disabled={isOtpSent}
+  type="file"
+  className="input_primary auth_input appearance-none cursor-pointer"
+  {...register("cv", { validate: validateCV })}
+  accept=".pdf"
+  onChange={handleFileChange}
+/>
               <Upload className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1" />
               {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
             </div>

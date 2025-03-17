@@ -2,17 +2,24 @@ import { HttpHeaderOptionDto, HttpParamsOptions } from '@Interfaces/HttpOption.d
 import CognitoServiceObj from './Cognito.utils';
 
 export const getHttpOptions = (authorization = true, params: HttpParamsOptions = {}) => {
-	let headers: HttpHeaderOptionDto = {
-		'Content-Type': 'application/json',
-	};
+	debugger;
+	let headers: HttpHeaderOptionDto 
+	if(params.fileType){
+		headers={'Content-Type': params.fileType}
+	}
+	else{
+		headers={'Content-Type': 'application/json'}
+	}
 		if (authorization) {
 			// Fetch the token from the local storage	
 			const token =CognitoServiceObj.getAccessToken();
 			if (!token) {
 				// console.log('Token not present ,Using Empty Token');
-				headers['Authorization'] = `Bearer `;
+				headers['Authorization'] = `Bearer Passing DummyToken`;
 			}
+			else{
 			headers['Authorization'] = `Bearer ${token}`;
+		}
 		}
 
 	if (params?.xTenantId) headers['X-TenantID'] = `${params.xTenantId}`;
