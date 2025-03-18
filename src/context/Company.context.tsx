@@ -194,7 +194,7 @@ const fetchJobMatchingScores = useCallback(
         true, 
         {
            jobIds:jobIdsParam,
-           pageSize:100
+           pageSize:200
       }, 
         true
       );

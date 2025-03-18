@@ -16,7 +16,6 @@ interface NavItem {
 const navItems: NavItem[] = [
 	{
 		label: 'For Candidate',
-		// href: '',
 		subItems: [
 			{ label: 'Job Portal', href: '/jobs' },
 			{ label: 'Request Referral', href: '/referrals' },
@@ -98,9 +97,9 @@ const Header = () => {
 					{isLoggedIn ? (
 						<div className="group relative">
 							<div className="flex items-center justify-start gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-[55px] group-hover:bg-[#79bff848]">
-								<div className={styles.userDetails} onClick={() => navigateTo('/profile')}>
+								<a className={styles.userDetails} href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"}>
 									{userDetails?.profileImageAwsS3SignedUrl ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}
-								</div>
+								</a>
 								<i className="fa-solid fa-chevron-down cursor-pointer" onClick={() => CognitoServiceObj.handleSignOut()}></i>
 							</div>
 

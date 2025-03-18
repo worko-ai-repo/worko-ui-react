@@ -100,7 +100,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           borderBottomWidth: isOpen ? '0' : '1px'
         }}
         onClick={() => {
-          setIsOpen(true);
+          setIsOpen(prev => !prev);
           inputRef.current?.focus();
         }}
       >
@@ -121,11 +121,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               />
             </span>
           ))}
+          {type === 'normal' && <div className=' flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-400 font-thin cursor-pointer'>{value.length === 0 ? placeholder : ''}</div>}
           {(value.length === 0 || type !== 'normal') && (
             <input
               ref={inputRef}
+              disabled={type === 'normal'}
               type="text"
-              className="flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent"
+              className={`${type === 'normal' ? 'hidden' : 'block'} flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent`}
               placeholder={value.length === 0 ? placeholder : ''}
               value={inputValue}
               onChange={handleInputChange}
