@@ -104,7 +104,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
         </div>
         <div className="col-span-1 flex justify-center items-end sm:justify-end mt-2 sm:mt-0">
           <button 
-            className="bg-blue-500 font-bold text-white px-3 h-min sm:px-4 sm:py-2 rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm w-full sm:w-auto"
+            className="btn_secondary bg-blue-500 font-bold text-white px-3 h-min sm:px-4 sm:py-2 rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm w-full sm:w-auto"
             onClick={handleReferralNav} 
           >
             Apply Job

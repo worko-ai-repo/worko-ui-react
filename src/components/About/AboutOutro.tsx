@@ -154,10 +154,24 @@ const AboutOutro = () => {
 							</div>
 
 							{/* Upload CV */}
-							<div>
-								<input type="file" {...register('cv', { validate: validateCV })} accept=".pdf" className="p-3 border bg-white border-gray-300 rounded-md w-full" />
+								<div>
+								<div className="relative">
+									<input 
+									type="file" 
+									{...register('cv', { validate: validateCV })} 
+									accept=".pdf" 
+									className="p-3 border bg-white border-gray-300 rounded-md w-full text-transparent"
+									
+									style={{ 
+										color: 'transparent'
+									}}
+									/>
+									<div className="absolute inset-0 pointer-events-none flex items-center pl-3">
+									<span className="text-gray-400 font-thin">Upload your CV</span>
+									</div>
+								</div>
 								{errors.cv && <p className="text-left text-red-500 text-sm">{errors.cv.message}</p>}
-							</div>
+								</div>
 
 							{/* Message */}
 							<div className="col-span-2">

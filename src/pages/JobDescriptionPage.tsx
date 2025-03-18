@@ -111,7 +111,6 @@ useEffect(() => {
       // If the user is not logged in and the referral request is not present in the secure storage, redirect to login page
       // Retrieve any pending referral data from context or secure storage
       const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
-  
       if (pendingReferral && isLoggedIn) {
   
         // Remove from storage *after* submitting
