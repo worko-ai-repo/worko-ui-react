@@ -53,7 +53,7 @@ const ProductHighlight = () => {
   <img 
     src={dorpDown.one[openDropdown.one ?? 0]?.bigimg} // Default to index 0
     alt="mini_frame1" 
-    className="invisible sm:visible" 
+    className="invisible sm:visible rounded-lg rotate-[-5deg]" 
   />
 </div>
 
@@ -70,7 +70,7 @@ const ProductHighlight = () => {
   <img 
     src={dorpDown.two[openDropdown.two ?? 0]?.bigimg} // Default to index 0
     alt="mini_frame1" 
-    className="invisible sm:visible" 
+    className="invisible sm:visible rounded-lg rotate-[5deg]" 
   />
 </div>
             
