@@ -256,10 +256,11 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			return;
 		}
 		
-		const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
-
+		 const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
+		
 		if (fileUploadHandler.error) {
-			throw fileUploadHandler.error;
+			// throw fileUploadHandler.error;
+			console.error('Error uploading file:', fileUploadHandler);
 		} else {
 			// Patch the data to the backend
 			// debugger;

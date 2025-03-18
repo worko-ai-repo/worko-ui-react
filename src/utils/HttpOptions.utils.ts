@@ -4,7 +4,7 @@ import CognitoServiceObj from './Cognito.utils';
 export const getHttpOptions = (authorization = true, params: HttpParamsOptions = {}) => {
 	let headers: HttpHeaderOptionDto 
 	if(params.fileType){
-		headers={'Content-Type': params.fileType}
+		headers={'Content-Type': 'file'}
 	}
 	else{
 		headers={'Content-Type': 'application/json'}

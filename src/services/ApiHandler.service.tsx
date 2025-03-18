@@ -143,7 +143,7 @@ export class HttpService {
 			const options = {
 				method: 'PUT',
 				...getHttpOptions(authorization, params),
-				body: JSON.stringify(data),
+				body: data instanceof File ? data : JSON.stringify(data),
 				//mode: 'no-cors' as RequestMode //test
 			};
 

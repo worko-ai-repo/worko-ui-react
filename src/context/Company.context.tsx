@@ -190,9 +190,12 @@ const fetchJobMatchingScores = useCallback(
 
       // Step 3: Make an API call to fetch existing job matching scores
       const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(
-        `${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobIdsParam}&pageSize=${pageSize}`, 
+        `${APP_JOBS_API_URI}/user-matching-score-job/`, 
         true, 
-        {}, 
+        {
+           jobIds:jobIdsParam,
+           pageSize:100
+      }, 
         true
       );
 
