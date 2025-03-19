@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react"
 import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto, JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
 import JobCard from "./Jobcard";
 import SkillsCard from "./SkillsCard";
 import { formatRange } from "@Utils/RangeFormater.utils";
+import { toTitleCase } from "@Utils/Titlecase.utils";
 
-// Interface for parsed job description
-interface ParsedJobDescription extends JobDto {
-}
 
 export interface JobDescriptionSubComponentDTO {
   jobData: JobDto;
@@ -111,21 +108,15 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   }, []);
   
   // Process company name with proper capitalization
-  const companyName = jobData?.companyName 
-    ? jobData.companyName.charAt(0).toUpperCase() + jobData.companyName.slice(1).toLowerCase()
-    : "";
-
+  const companyName = jobData.externalJobId ? jobData.companyName :  jobData?.companyDetails?.name ;
+  const titleCasedCompanyName = toTitleCase(companyName!);
   return (
     <div className="p-6 bg-[#316BFF]">
       <div className="max-w-[1350px] mx-auto">
         <div className="mb-4 mt-6">
           <h1 className="text-white text-left text-2xl font-bold">
             {jobData
-              ? `Apply for jobs at ${
-                  jobData.externalJobId
-                    ? (companyName ?? 'Company').charAt(0).toUpperCase() + (companyName ?? 'Company').slice(1).toLocaleLowerCase()
-                    : (jobData.companyName ?? 'Company').charAt(0).toUpperCase() + (jobData.companyName ?? 'Company').slice(1).toLocaleLowerCase() || ""
-                }`
+              ? `Apply for jobs at ${titleCasedCompanyName} `
               : "Apply for this position"}
           </h1>
         </div>

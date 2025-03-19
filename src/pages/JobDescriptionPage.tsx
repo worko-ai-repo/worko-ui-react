@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import HeadBanner from "@Components/JobDescription/HeadBanner/index";
-import JobJD from "@Components/JobDescription/JobJD";
+
 import httpServiceObj from "@Services/ApiHandler.service";
 import MainLoader from "@Components/Loader/Loader";
 import { CompanyDto, JobDto, JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
@@ -16,10 +15,10 @@ import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
-import { MatchingScore } from "@Services/MatchingScore.service";
-import { set } from "react-hook-form";
 import { toast } from "react-toastify";
 
+const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
+const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
 
 const JobDescription = () => {
 	// check if the use is logged in
@@ -411,10 +410,10 @@ useEffect(() => {
   return (
     <div className="w-full ">
      {jobDataState && (
-  <>
+  <Suspense fallback={<MainLoader />}>
     <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails}/>
     <JobJD jobData={jobDataState} applicationStatus={applicationStatus } handleApplyClick={handleApplyClick} />
-  </>
+  </Suspense>
 )}
 
       {isLoader && <ReferralLoader step={currStep} />}

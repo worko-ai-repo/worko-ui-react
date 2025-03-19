@@ -55,7 +55,7 @@ export const validationRules = {
 name: {
 	required: 'Name is required',
 	minLength: { value: 3, message: 'Minimum 3 characters required' },
-	pattern: { value: /^[A-Za-z\s]+$/, message: 'Special characters are not allowed' }, // Only allows letters and spaces
+	pattern: { value: /^[A-Za-z\s]+$/, message: 'Special characters and Numbers are not allowed' }, // Only allows letters and spaces
 },
 
 
@@ -249,7 +249,7 @@ name: {
 	 * @property {Function} termsAndConditions.validate - Custom validation function for terms and conditions.
 	 */
 	termsAndConditions: {
-		validate: (value: boolean) => value || 'You must accept the terms and conditions',
+		validate: (value: boolean) => value || 'Please accept our terms and conditions to proceed.',
 	},
 
 	/**

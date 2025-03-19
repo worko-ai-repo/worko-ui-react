@@ -58,7 +58,7 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
             <form className="space-y-4">
                 <div>
                     <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Company :</label>
-                    <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Company Name" {...register('companyDetail.name', validationRules.name)} />
+                    <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Company Name" {...register('companyDetail.name', validationRules.companyName)} />
                     {errors.companyDetail?.name && <p className="text-red-500 text-xs italic">{errors.companyDetail?.name?.message}</p>}
                 </div>
                 <div>

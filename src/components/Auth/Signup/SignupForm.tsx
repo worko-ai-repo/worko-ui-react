@@ -247,14 +247,17 @@ const SignupForm: React.FC<{
             <div className="relative ">
               <label className="hidden sm:block font-medium">Upload Cv</label>
               <input
-  disabled={isOtpSent}
-  type="file"
-  className="input_primary auth_input appearance-none cursor-pointer"
-  {...register("cv", { validate: validateCV })}
-  accept=".pdf"
-  onChange={handleFileChange}
-/>
-              <Upload className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1" />
+                disabled={isOtpSent}
+                type="file"
+                className="input_primary auth_input appearance-none cursor-pointer"
+                {...register("cv", { validate: validateCV })}
+                accept=".pdf"
+                onChange={handleFileChange}
+                />
+             <Upload
+                onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()} // Trigger input click
+                className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1"
+              />
               {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
             </div>
           ) : (
@@ -304,12 +307,13 @@ const SignupForm: React.FC<{
         </div>
 
         {/* Terms and Conditions */}
-        <div className="flex gap-2  mt-5 text-xs items-center justify-center">
+        <div className="flex gap-2  mt-5 text-xs items-center justify-center  ">
           <input disabled={isOtpSent} type="checkbox" {...register("termsAndConditions", validationRules.termsAndConditions)} checked={watch("termsAndConditions")} />
-          <p className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer" onClick={() => setViewTerms(true)}>
+          <p className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer" onClick={() => !isOtpSent && setViewTerms(true)}>
             I accept the <span className="text-blue-500 cursor-pointer">Terms and Conditions</span>
           </p>
         </div>
+          {errors.termsAndConditions && <div className="text-sm text-red-500 text-center">{errors.termsAndConditions.message?.toString()}</div>}
 
         {ViewTerms && (
           <MessageModal

@@ -1,57 +1,80 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCompanyContext } from "../../context/Company.context";
 import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
 import { invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
 import RequestCompany from "./RequestCompany";
 import { useAppContext } from "@Context/App.context";
 import { MultiSelect } from "@Components/Shared/MultiSelect";
+import { useSearchParams } from "react-router-dom";
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
   const { setJobFilters, jobFilterForRender = [] ,resetFiltersValues} = useCompanyContext();
   const { isLoggedIn, userDetails } = useAppContext();
   const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const resetFilters = () => {
     resetFiltersValues();
     setSelectedValues({});
     invalidateFilterCache();
+    setSearchParams({}); // Reset URL
   };
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {
-    // console.log(`key val and filter ${values }`); // Debugging
     setSelectedValues((prev) => ({ ...prev, [key]: values }));
-
+  
     setJobFilters((prev) => {
       const newFilters: any = { ...prev };
-
+      const updatedParams = new URLSearchParams(searchParams); // Copy current URL params
+  
       if (values.length === 0) {
+        //  If values are empty, remove the filter from both state & URL
         delete newFilters[key];
-      } else if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize" || key === "companyName") {
-        newFilters[key] = values.map((v) => v.toLowerCase()).join(",");
-      } else if (key.includes("Range") && values[0]) {
-        // Split the string into min and max values
-        const [min, max] = values[0].split("-").map(Number);
-
-        const baseKey = key.replace("Range", "");
-        const formattedKey = baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
-
-        newFilters[`min${formattedKey}`] = min;
-        newFilters[`max${formattedKey}`] = max;
-
-        delete newFilters[key]; // Cleanup old key
-      } else if (key === "industry") {
-        newFilters["industryName"] = values[0];
-      } else if (key === "workMode") {
-        newFilters[key] = values.map((v) => v.toUpperCase()).join(",");
+        updatedParams.delete(key);
       } else {
-        // Find the matching value from filter options
-        const selectedOption = filter.options.findIndex((opt: any) => opt === values[0]);
-        newFilters[key] = filter.value ? filter.value[selectedOption] : values[0];
+        //  Add valid filters
+        if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize" || key === "companyName") {
+          newFilters[key] = values.map((v) => v.toLowerCase()).join(",");
+        } else if (key.includes("Range") && values[0]) {
+          const [min, max] = values[0].split("-").map(Number);
+          const baseKey = key.replace("Range", "");
+          const formattedKey = baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
+          newFilters[`min${formattedKey}`] = min;
+          newFilters[`max${formattedKey}`] = max;
+          delete newFilters[key];
+        } else if (key === "industry") {
+          newFilters["industryName"] = values[0];
+        } else if (key === "workMode") {
+          newFilters[key] = values.map((v) => v.toUpperCase()).join(",");
+        } else {
+          const selectedOption = filter.options.findIndex((opt: any) => opt === values[0]);
+          newFilters[key] = filter.value ? filter.value[selectedOption] : values[0];
+        }
+  
+        //  Set only if the filter has a value
+        updatedParams.set(key, newFilters[key]);
       }
-
+  
+      setSearchParams(updatedParams); //  Apply new query params without "undefined"
       return newFilters;
     });
   };
+
+  /**
+   * 1. Get the selected values from the URL
+   */
+  useEffect(() => {
+    const filtersFromUrl: Record<string, string[]> = {};
+
+    searchParams.forEach((value, key) => {
+      filtersFromUrl[key] = value.split(",");
+    });
+
+   
+    if (JSON.stringify(filtersFromUrl) !== JSON.stringify(selectedValues)) {
+      setSelectedValues(filtersFromUrl);
+      setJobFilters(filtersFromUrl);
+    }
+  }, []); 
 
   return (
     <div className="sticky top-[100px]">

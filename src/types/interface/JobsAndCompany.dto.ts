@@ -106,6 +106,7 @@ export interface JobDto extends CompanyDto {
   applyStatus?: "APPLIED" | "NOT_APPLIED";
   matchingScore?: number;
   isNew?: boolean;
+  companyLogoUrl?: string;
 }
 
 /**

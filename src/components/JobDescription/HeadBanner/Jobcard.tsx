@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { useAppContext } from '@Context/App.context';
+import { toTitleCase } from '@Utils/Titlecase.utils';
+import { DaysFormatter } from '@Utils/DaysFormatter.utils';
 
 interface JobCardProps {
   jobData: JobDto;
@@ -97,12 +99,12 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
   // Get company name based on job type
   
 
-  const companyName = jobData.companyName
-  const jobTitle = jobData?.jobTitle
-  ?.toLowerCase()
-  .split(' ')
-  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-  .join(' ');
+  const companyName = jobData.externalJobId ? jobData.companyName :  jobData?.companyDetails?.name ;
+  const titleCasedCompanyName = toTitleCase(companyName!);
+  const titleCaseDepartment = toTitleCase(jobData?.department || '');
+  const titleCaseLocation = toTitleCase(jobData?.location?.fullLocation?.join(', ') || '');
+  const companyLogoUrl = jobData?.externalJobId ? jobData?.companyLogoUrl : jobData.companyDetails?.logoUrl;
+  const jobTitle = toTitleCase(jobData?.jobTitle)
 
 
   // Determine if the job posting is recent
@@ -121,28 +123,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
   }, [jobData]);
 
   // Format the time since posting
-  const timeAgo = useMemo(() => {
-    if (!jobData) return "Recently posted";
-    
-    const postedDate = jobData.createdAt
-    
-    if (!postedDate) return "Recently posted";
-    
-    const now = new Date();
-    const posted = new Date(postedDate);
-    const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
-    
-    if (diffMinutes < 60) {
-      return `${diffMinutes} mins ago`;
-    } else if (diffMinutes < 1440) { // Less than 24 hours
-      const diffHours = Math.floor(diffMinutes / 60);
-      return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-    } else {
-      const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
-      return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-    }
-  }, [jobData]);
-
+  const timeAgo = useMemo(() => DaysFormatter(jobData.createdAt), [jobData.createdAt]);
 
 
   function handleApplyClick(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -163,14 +144,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
             <div className="flex w-full gap-4">
               {/* Image column */}
               <div className="relative flex-shrink-0">
-              {jobData?.logoUrl ? (
+               {companyLogoUrl ? (
                     <img 
-                      src={jobData.logoUrl}  
+                      src={companyLogoUrl}  
                       className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
                     />
-                  ) : (
+                   ) : (
                     <div className="w-[60px] object-contain text-xs border text-blue-500 font-semibold h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center">
-                      {jobData?.companyName}
+                      {titleCasedCompanyName}
                     </div>
                   )}
               </div>
@@ -179,12 +160,12 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
               <div className="flex flex-col flex-1 min-w-0">
                 <h2 className="text-md text-left sm:text-lg md:text-[24px] font-poppins font-semibold text-[#0D0D0D] mb-1">
                  
-                     {(companyName ?? 'Company').charAt(0).toUpperCase() + (companyName ?? 'Company').slice(1).toLocaleLowerCase()}  - {jobTitle || 'Job Title'}
+                     {titleCasedCompanyName}  - {jobTitle || 'Job Title'}
                   
                
                 </h2>
                 <p className="text-xs text-left md:text-[12px] text-[#313131] mb-1">
-                  {jobData.department}
+                {titleCaseDepartment}
                 </p>
               </div>
             </div>
@@ -266,11 +247,11 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Location and Job Type */}
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
-            <div className="flex items-center gap-1">
+            <div className="flex gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className='text-[12px] font-semibold'>{!jobData?.location?.fullLocation?.length ? 'Not Disclosed' : jobData?.location?.fullLocation.join(', ')}</span>
+              <span className='text-[12px] font-semibold'>{!jobData?.location?.fullLocation?.length ? 'Not Disclosed' : titleCaseLocation}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
               <span className='text-[12px] font-semibold'>{jobData.typeofEmployment ? (jobData.typeofEmployment.includes("_") ? jobData.typeofEmployment.replace(/_/g, " ") : jobData.typeofEmployment) : "Not Disclosed"}</span>
             </div>
