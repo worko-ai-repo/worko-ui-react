@@ -223,9 +223,6 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const handleFileUpload = (file: File) => {
 		setUploadedFile(file);
-			const fileURL = URL.createObjectURL(file);
-			 window.open(fileURL, "_blank"); // Open PDF in new tab
-		console.log("File received in parent:", file);
 	  };
 	const CvS3MemAllocation = useCallback(async (userdata:any) => {
 		const cvS3metaData = {

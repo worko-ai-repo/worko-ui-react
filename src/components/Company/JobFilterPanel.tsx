@@ -18,6 +18,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
   };
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {
+    // console.log(`key val and filter ${values }`); // Debugging
     setSelectedValues((prev) => ({ ...prev, [key]: values }));
 
     setJobFilters((prev) => {
@@ -25,11 +26,9 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 
       if (values.length === 0) {
         delete newFilters[key];
-      } else if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize") {
+      } else if (key.includes("Skills") || key === "location" || key === "typeofEmployment" || key === "teamSize" || key === "companyName") {
         newFilters[key] = values.map((v) => v.toLowerCase()).join(",");
       } else if (key.includes("Range") && values[0]) {
-        // console.log("values[0]", values[0]); // Debugging
-
         // Split the string into min and max values
         const [min, max] = values[0].split("-").map(Number);
 
