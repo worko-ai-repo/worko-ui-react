@@ -18,6 +18,7 @@ import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import { MatchingScore } from "@Services/MatchingScore.service";
 import { set } from "react-hook-form";
+import { toast } from "react-toastify";
 
 
 const JobDescription = () => {
@@ -307,13 +308,19 @@ useEffect(() => {
         ? `${APP_JOBS_API_URI}/external-job-application/`
         : `${APP_JOBS_API_URI}/job-application/`;
 
-      const { response, error, status } = await httpServiceObj.post(
-        constructUrl,
-        payload,
-        true,
-        {},
-        true
-      );
+        const { response, error, status } = await toast.promise(
+          httpServiceObj.post(
+            constructUrl,
+            payload,
+            true,
+            {},
+            true
+          ),
+          {
+            pending: "Applying...",
+            error: "Failed to submit application",
+          }
+        );
         if(status===403) {
           setApplicationStatus(true);
           setShowApplyModal(true);

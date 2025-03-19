@@ -237,7 +237,6 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
                   <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
                 ) : (
                   <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
-                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm"></i>
                     <small className="text-[8px] sm:text-xs">Account Required</small>
                   </div>
                 )}
@@ -265,7 +264,6 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
                   <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
                 ) : (
                   <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
-                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm"></i>
                     <small className="text-[8px] sm:text-xs">Account Required</small>
                   </div>
                 )}

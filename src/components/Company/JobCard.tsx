@@ -34,19 +34,40 @@ export const JobCard = ({ job }: any) => {
   const timeAgo = useMemo(() => {
     const now = new Date();
     const posted = new Date(createdAt);
-    const diffMinutes = Math.floor((now.getTime() - posted.getTime()) / 1000 / 60);
-
-    if (diffMinutes < 60) {
-      return `${diffMinutes} mins ago`;
-    } else if (diffMinutes < 1440) {
-      // Less than 24 hours
-      const diffHours = Math.floor(diffMinutes / 60);
-      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
-    } else {
-      const diffDays = Math.floor(diffMinutes / 1440); // 1440 = 60 mins * 24 hours
-      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+    const diffMs = now.getTime() - posted.getTime(); // Difference in milliseconds
+  
+    const MINUTE = 60 * 1000;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR;
+    const WEEK = 7 * DAY;
+    const MONTH = 30 * DAY; // Approximate
+    const YEAR = 365 * DAY; // Approximate
+  
+    if (diffMs < HOUR) {
+      const minutes = Math.floor(diffMs / MINUTE);
+      return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
     }
+    if (diffMs < DAY) {
+      const hours = Math.floor(diffMs / HOUR);
+      return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    }
+    if (diffMs < WEEK) {
+      const days = Math.floor(diffMs / DAY);
+      return `${days} day${days === 1 ? "" : "s"} ago`;
+    }
+    if (diffMs < MONTH) {
+      const weeks = Math.floor(diffMs / WEEK);
+      return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+    }
+    if (diffMs < YEAR) {
+      const months = Math.floor(diffMs / MONTH);
+      return `${months} month${months === 1 ? "" : "s"} ago`;
+    }
+  
+    const years = Math.floor(diffMs / YEAR);
+    return `${years} year${years === 1 ? "" : "s"} ago`;
   }, [createdAt]);
+  
 
   const handleReferralNav = () => {
     // console.log(companyName);
@@ -127,8 +148,7 @@ export const JobCard = ({ job }: any) => {
 </p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
-                    <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-sm" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>
-                    <small className="text-[8px] sm:text-xs">Account Required</small>
+                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Account Required</small>
                   </div>
                 )}
               </div>
@@ -152,8 +172,7 @@ export const JobCard = ({ job }: any) => {
               <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <>
-                <i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"></i>
-                <small>Account Required</small>
+                <small  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Account Required</small>
               </>
             )}
           </div>
