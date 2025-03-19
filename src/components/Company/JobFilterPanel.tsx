@@ -8,15 +8,18 @@ import { MultiSelect } from "@Components/Shared/MultiSelect";
 import { useSearchParams } from "react-router-dom";
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
-  const { setJobFilters, jobFilterForRender = [] ,resetFiltersValues} = useCompanyContext();
+  
+  // Variables
   const { isLoggedIn, userDetails } = useAppContext();
-  const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
+  const { setJobFilters, jobFilterForRender = [] ,resetFiltersValues} = useCompanyContext();
+
   const resetFilters = () => {
     resetFiltersValues();
     setSelectedValues({});
     invalidateFilterCache();
-    setSearchParams({}); // Reset URL
+    setSearchParams({}); // Reset 
   };
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {

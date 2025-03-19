@@ -46,7 +46,7 @@ const Guidance = () => {
                                     <div className="flex flex-col items-start justify-start ">
                                         <label className=" my-3 block text-sm font-semibold text-black ">Date</label>
                                         <div className="flex justify-start  w-full sm:max-w-[300px]  text-left ">
-                                            <DropdownCalendar onSelectDate={(date: any) => setValue('date', date)} Cname="select_primary   sm:max-w-[300px]  w-full  p-3 bg-[#FAFAFA]  rounded-xl text-gray-500 text-sm text-left " />
+                                            <DropdownCalendar placeholder='When you need the guidance' onSelectDate={(date: any) => setValue('date', date)} Cname="select_primary   sm:max-w-[300px]  w-full  p-3 bg-[#FAFAFA]  rounded-xl text-gray-500 text-sm text-left " />
                                         </div>{' '}
                                         {errors.date &&
                                             // <p className="text-red-500 text-xs">{errors.date.message}</p>

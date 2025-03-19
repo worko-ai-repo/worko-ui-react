@@ -55,16 +55,6 @@ export const MatchingScore = async (
         }
 
         if(response?.matchingScore! >= 0 && response?.rejectionFeedbackBySystem){
-          if(isJobModeValue){
-            if(response?.matchingScore! >= 50){
-              setLoader(false);
-              setMessageEnabled(true);
-              setModalType("RequestAccepted");
-              setGaugeEnabled(true);
-              setGaugeScore(response.matchingScore);
-              return;
-            }
-         
             setLoader(false);
             setMessageEnabled(true);
             setModalType("RequestRejected");
@@ -78,7 +68,6 @@ export const MatchingScore = async (
                 },
             });
             return;
-          }
         }
 
         //  Handle different cases

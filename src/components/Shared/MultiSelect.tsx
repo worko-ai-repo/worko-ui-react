@@ -75,7 +75,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   };
 
   const handleOptionClick = (selectedIndex: number) => {
-    const selectedApiValue = apiValue[selectedIndex] || filteredOptions[selectedIndex];
+    const selectedOption = filteredOptions[selectedIndex]; // Get the selected display value
+    const originalIndex = options.indexOf(selectedOption); // Find its index in the full options list
+    const selectedApiValue = apiValue[originalIndex] || selectedOption; // Get the correct API value
+  
     if (type === 'multiselect') {
       const newValue = value.includes(selectedApiValue)
         ? value.filter((v) => v !== selectedApiValue)
@@ -85,8 +88,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       onChange([selectedApiValue]);
       setIsOpen(false);
     }
+    setInputValue(''); // Clear input field after selection
   };
-
   const removeValue = (valueToRemove: string) => {
     onChange(value.filter((v) => v !== valueToRemove));
   };

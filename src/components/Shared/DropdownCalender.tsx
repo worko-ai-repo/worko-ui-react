@@ -1,19 +1,32 @@
 import React, { useState, useRef } from 'react';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; // Still need this for base styles
+import 'react-calendar/dist/Calendar.css';
 
-const DropdownCalendar:React.FC<any> = ({ onSelectDate , Cname }) => {
+interface DropdownCalendarProps {
+  onSelectDate: (date: Date) => void;
+  Cname?: string;
+  allowPastDates?: boolean; // New prop to control past date selection
+  placeholder?: string; // New prop to show initial placeholder
+}
+
+const DropdownCalendar: React.FC<DropdownCalendarProps> = ({ 
+  onSelectDate, 
+  Cname, 
+  allowPastDates = false, // Default: allow past dates
+  placeholder = "Select a date" // Default placeholder text
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const calendarRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  const CnameFinal = Cname/*  || "px-4 py-2 text-white bg-blue-600 rounded-md focus:outline-none hover:bg-blue-700 transition duration-150 ease-in-out" */;
-  const handleDateChange = (date:any) => {
+
+  const handleDateChange = (date: Date) => {
+    if (!allowPastDates && date.getTime() < new Date().setHours(0, 0, 0, 0)) return; // Block past dates if disabled
     setSelectedDate(date);
-    onSelectDate(date); // Pass the selected date to the parent component
+    onSelectDate(date);
     setIsOpen(false);
   };
 
@@ -21,23 +34,26 @@ const DropdownCalendar:React.FC<any> = ({ onSelectDate , Cname }) => {
     <div className="relative inline-block w-full">
       <button
         onClick={toggleDropdown}
-        className={CnameFinal}
+        className={Cname || "px-4 py-2 bg-blue-600 text-white rounded-md focus:outline-none hover:bg-blue-700 transition"}
       >
-        {selectedDate.toDateString()}
+        {selectedDate ? selectedDate.toDateString() : placeholder}
       </button>
 
       {isOpen && (
         <div
-          className="absolute max-sm:scale-75 max-sm:top-0  z-10  bg-opacity-20 backdrop-blur-lg border border-gray-200 rounded-md shadow-lg mt-2 p-4"
+          className="absolute z-10 bg-opacity-20 backdrop-blur-lg border border-gray-200 rounded-md shadow-lg mt-2 p-4"
           ref={calendarRef}
         >
           <Calendar
-            onChange={handleDateChange}
-            value={selectedDate}
+            onChange={(value) => {
+              if (value instanceof Date) handleDateChange(value);
+            }}
+            value={selectedDate || new Date()}
             className="!w-max !max-w-[280px] mx-auto !bg-transparent !border-none rounded-lg"
+            tileDisabled={({ date }) => !allowPastDates && date.getTime() < new Date().setHours(0, 0, 0, 0)} // Disable past dates
             tileClassName={({ date, view }) => {
               const isToday = new Date().toDateString() === date.toDateString();
-              const isSelected = selectedDate.toDateString() === date.toDateString();
+              const isSelected = selectedDate?.toDateString() === date.toDateString();
               return `p-1 flex items-center justify-center rounded-full ${
                 view === 'month' && (
                   isToday ? '!bg-gray-200 text-black' : 'hover:bg-blue-200 text-black'
