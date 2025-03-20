@@ -4,7 +4,8 @@ import MessageModal from '@Components/Modals/MessageModal';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 import { toast } from 'react-toastify';
 import { useAppContext } from '@Context/App.context';
-
+import styles from '../jobDescription.module.scss'
+import { toTitleCase } from '@Utils/Titlecase.utils';
 interface JobRequirementsProps {
   experience?: string;
   education?: string;
@@ -12,20 +13,12 @@ interface JobRequirementsProps {
 }
 
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = 'Not specified', education = 'Not specified', skills = [] }) => {
-  const finaljobSummary = experience ? experience.replace(/\n/g, "<br><br>") : "";
+  // const finaljobSummary = experience ? experience.replace(/\n/g, "<br><br>") : "";
   return (
-    <div className="mb-6 min-h-[250px]">
-      <h3 className="font-medium mb-2">Job Requirements:</h3>
-      <div>
-        <div className="space-y-4 mb-4" dangerouslySetInnerHTML={{ __html: finaljobSummary }}></div>
-        {/* <p><span className="font-medium">Education:</span> {education}</p> */}
-        {/* <p className="mb-2"><span className="font-medium">Skills:</span></p>
-        <ul className="list-disc pl-5 space-y-1">
-          {skills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul> */}
-      </div>
+    <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
+      <h2 className="text-xl font-semibold mb-4">Job description</h2>
+      {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
+        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: experience }}></div>
     </div>
   );
 };
@@ -42,13 +35,15 @@ export const AboutCompany: React.FC<AboutCompanyProps> = ({
   paragraphs = [], 
   aboutCompany = '', 
   socialLinks = '', 
-  companyName = 'the company' 
+  companyName 
 }) => {
+
+  const finalCompanyName = toTitleCase(companyName || 'Company'); 
   return (
-    <div className="bg-gray-50 p-6 rounded-lg shadow min-h-[250px] ">
-      <h2 className="text-xl font-semibold mb-4">About {companyName}</h2>
-      <p>{aboutCompany}</p>
-      
+    <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
+    <h2 className="text-xl font-semibold mb-4">About  {finalCompanyName}</h2>
+    {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
+      <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: aboutCompany }}></div>
       {/* {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>} @Todo Vaibhav why this is added? */}
       
       {socialLinks && socialLinks.length > 0 && (
@@ -148,8 +143,8 @@ const JobDetails: React.FC<JobDetailsProps> = ({
 
   return (
     <div className="w-full min-h-full space-y-6">
-      <div className="bg-gray-50 p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Job description</h2>
+      <div className="">
+        
         
         <JobRequirements 
           experience={job.jobDescription} 

@@ -74,10 +74,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     }
   };
 
-  const handleOptionClick = (selectedIndex: number) => {
-    const selectedOption = filteredOptions[selectedIndex]; // Get the selected display value
-    const originalIndex = options.indexOf(selectedOption); // Find its index in the full options list
-    const selectedApiValue = apiValue[originalIndex] || selectedOption; // Get the correct API value
+  const handleOptionClick = (option: string) => {
+    const originalIndex = options.indexOf(option); // Find its index in the full options list
+    const selectedApiValue = apiValue[originalIndex] || option; // Get the correct API value
   
     if (type === 'multiselect') {
       const newValue = value.includes(selectedApiValue)
@@ -90,8 +89,16 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     }
     setInputValue(''); // Clear input field after selection
   };
+
   const removeValue = (valueToRemove: string) => {
     onChange(value.filter((v) => v !== valueToRemove));
+  };
+
+  // Helper function to check if an option is selected
+  const isOptionSelected = (option: string) => {
+    const originalIndex = options.indexOf(option);
+    const apiVal = apiValue[originalIndex] || option;
+    return value.includes(apiVal);
   };
 
   return (
@@ -124,7 +131,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               />
             </span>
           ))}
-          {type === 'normal' && <div className=' flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-400 font-thin cursor-pointer'>{value.length === 0 ? placeholder : ''}</div>}
+          {type === 'normal' && <div className='flex-1 min-w-[120px] bg-transparent outline-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-400 font-thin cursor-pointer'>{value.length === 0 ? placeholder : ''}</div>}
           {(value.length === 0 || type !== 'normal') && (
             <input
               ref={inputRef}
@@ -146,16 +153,16 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           {filteredOptions.length === 0 ? (
             <div className="px-4 py-2 text-xs text-gray-600">No options found</div>
           ) : (
-            filteredOptions.map((option, index) => (
+            filteredOptions.map((option) => (
               <div
                 key={option}
                 className={`px-4 py-2 cursor-pointer hover:bg-gray-50 text-xs font-medium text-gray-600 flex items-center text-left justify-between ${
-                  value.includes(apiValue[index] || option) ? 'text-blue-600 bg-blue-50' : ''
+                  isOptionSelected(option) ? 'text-blue-600 bg-blue-50' : ''
                 }`}
-                onClick={() => handleOptionClick(index)}
+                onClick={() => handleOptionClick(option)}
               >
                 <span>{option}</span>
-                {value.includes(apiValue[index] || option) && <Check size={16} className="text-blue-600" />}
+                {isOptionSelected(option) && <Check size={16} className="text-blue-600" />}
               </div>
             ))
           )}
@@ -164,3 +171,5 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     </div>
   );
 };
+
+export default MultiSelect

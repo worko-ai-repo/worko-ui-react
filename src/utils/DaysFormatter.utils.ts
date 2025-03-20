@@ -1,7 +1,8 @@
 export const DaysFormatter = (createdAt:any) => {
-    const now = new Date();
-    const posted = new Date(createdAt);
-    const diffMs = now.getTime() - posted.getTime(); // Difference in milliseconds
+  const now = new Date().getTime();
+  const posted = new Date(createdAt).getTime();
+  const diffMs = Math.max(now - posted, 0); // Prevent negative differences
+  
   
     const MINUTE = 60 * 1000;
     const HOUR = 60 * MINUTE;
