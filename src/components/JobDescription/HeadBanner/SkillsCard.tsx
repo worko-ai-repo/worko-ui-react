@@ -30,7 +30,7 @@ const MoreSkillsTag = ({ remainingSkills }: { remainingSkills: string[] }) => {
   return (
     <div className="relative">
       <span 
-        className="px-2 py-2 bg-gray-100 max-w-[30px] cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32"
+        className="px-2 py-2 bg-gray-100 max-w-[30px] cursor-pointer rounded-full text-sm text-gray-800 hidden lg:inline-block relative w-32"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
@@ -91,7 +91,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
     return salary || "Not Disclosed";
   }, [salary]);
 
-  // Limit skills to display and prepare remaining skills
+  // Limit skills to display and prepare remaining skills for desktop
   const visibleSkills = displaySkills.slice(0, 8);
   const remainingSkills = displaySkills.length > 8 ? displaySkills.slice(8) : [];
 
@@ -143,12 +143,10 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'coreSkills' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                {visibleSkills.map((skill, index) => (
+                {/* Display ALL skills in mobile view (visibleSkills + remainingSkills) */}
+                {displaySkills.map((skill, index) => (
                   <SkillTag className="" key={index} label={skill} />
                 ))}
-                {remainingSkills.length > 0 && (
-                  <MoreSkillsTag remainingSkills={remainingSkills} />
-                )}
               </div>
             )}
           </div>
