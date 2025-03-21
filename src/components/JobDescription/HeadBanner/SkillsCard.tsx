@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SkillsCardProps {
   department?: string;
@@ -9,7 +9,12 @@ interface SkillsCardProps {
   experience?: string;
 }
 
-const SkillTag = ({ label, className }: { label: string, className: string }) => {
+interface SkillTagProps {
+  label: string;
+  className?: string;
+}
+
+const SkillTag: React.FC<SkillTagProps> = ({ label, className = "" }) => {
   return (
     <span className={`${className} px-2 py-2 bg-gray-100 cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32`}>
       <span 
@@ -23,7 +28,11 @@ const SkillTag = ({ label, className }: { label: string, className: string }) =>
   );
 };
 
-const MoreSkillsTag = ({ remainingSkills }: { remainingSkills: string[] }) => {
+interface MoreSkillsTagProps {
+  remainingSkills: string[];
+}
+
+const MoreSkillsTag: React.FC<MoreSkillsTagProps> = ({ remainingSkills }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -73,27 +82,28 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
     }
   };
   
-  const displaySkills = useMemo(() => {
+  const displaySkills = (): string[] => {
     if (coreSkills && coreSkills.length > 0) return coreSkills;
     if (!department) return ["Not Specified"];
     return department.includes(',') ? 
       department.split(',').map(skill => skill.trim()) : 
       [department];
-  }, [coreSkills, department]);
+  };
   
-  const displayExperience = useMemo(() => {
+  const displayExperience = (): string => {
     if (experience) return experience;
     if (!employmentType) return "Not Specified";
     return employmentType.includes("Senior") ? "3-4 Years" : "1-2 Years";
-  }, [experience, employmentType]);
+  };
   
-  const formattedSalary = useMemo(() => {
-    return salary || "Not Disclosed";
-  }, [salary]);
+  const formattedSalary = salary || "Not Disclosed";
+  
+  // Get the skills to display
+  const skills = displaySkills();
 
   // Limit skills to display and prepare remaining skills for desktop
-  const visibleSkills = displaySkills.slice(0, 8);
-  const remainingSkills = displaySkills.length > 8 ? displaySkills.slice(8) : [];
+  const visibleSkills = skills.slice(0, 8);
+  const remainingSkills = skills.length > 8 ? skills.slice(8) : [];
 
   return (
     <div className="bg-transparent lg:bg-white rounded-[20px] lg:p-6 h-full w-full">
@@ -114,14 +124,14 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
         <div>
           <h2 className="text-xl mt-2 font-bold mb-4">Experience</h2>
           <div className="mb-4">
-            <SkillTag className="" label={displayExperience} />
+            <SkillTag label={displayExperience()} />
           </div>
         </div>
         
         <div>
           <h2 className="text-xl font-bold mb-2">CTC</h2>
           <div>
-            <SkillTag className="" label={formattedSalary} />
+            <SkillTag label={formattedSalary} />
           </div>
         </div>
       </div>
@@ -144,8 +154,8 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             {openSection === 'coreSkills' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
                 {/* Display ALL skills in mobile view (visibleSkills + remainingSkills) */}
-                {displaySkills.map((skill, index) => (
-                  <SkillTag className="" key={index} label={skill} />
+                {skills.map((skill, index) => (
+                  <SkillTag key={index} label={skill} />
                 ))}
               </div>
             )}
@@ -156,7 +166,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             <div className="flex h-[15px] justify-between items-center">
               <h2 className="text-xl font-bold">Experience</h2>
               <div className="flex items-center">
-                <span className="text-md mr-2">{displayExperience}</span>
+                <span className="text-md mr-2">{displayExperience()}</span>
                 <button onClick={() => toggleSection('experience')}>
                   {openSection === 'experience' ? 
                     <ChevronUp size={36} className="text-gray-400" /> : 
@@ -168,7 +178,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'experience' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                <SkillTag className="" label={displayExperience} />
+                <SkillTag label={displayExperience()} />
               </div>
             )}
           </div>
@@ -190,7 +200,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'ctc' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                <SkillTag className="" label={formattedSalary} />
+                <SkillTag label={formattedSalary} />
               </div>
             )}
           </div>
