@@ -125,6 +125,8 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   technicalSkills?: string[];
   companyId?: string;
   jobTitle?: string;
+  industry?: string;
+  industryName?: string;
 }
 
 /**

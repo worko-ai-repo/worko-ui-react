@@ -20,73 +20,102 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 	};
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {
+    // if(!searchParams) return;
     console.log(`key: ${key}, values: ${values}, filter: ${JSON.stringify(filter)}`);
     setSelectedValues(prev => ({ ...prev, [key]: values }));
   
     setJobFilters(prev => {
       const newFilters: any = { ...prev };
       const updatedParams = new URLSearchParams(searchParams);
-  
+    
       if (values.length === 0) {
         delete newFilters[key];
         updatedParams.delete(key);
+    
+        if (key === 'salaryRange') {
+          delete newFilters['minSalary'];
+          delete newFilters['maxSalary'];
+          updatedParams.delete('minSalary');
+          updatedParams.delete('maxSalary');
+        } else if (key === 'experienceRange') {
+          delete newFilters['minExperience'];
+          delete newFilters['maxExperience'];
+          updatedParams.delete('minExperience');
+          updatedParams.delete('maxExperience');
+        }
       } else {
         if (key.includes('Skills') || key === 'location' || key === 'typeofEmployment' || key === 'teamSize' || key === 'companyName') {
-          newFilters[key] = values.map(v => v).join(','); // No encoding here
+          newFilters[key] = values.join(',');
+          updatedParams.set(key, newFilters[key]);
         } else if (key.includes('Range') && values.length > 0) {
           const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
           if (selectedOptionIndex !== -1) {
-            const range = filter.value[selectedOptionIndex].split('-').map(Number);
+            const [min, max] = filter.value[selectedOptionIndex].split('-').map(Number);
             if (key === 'salaryRange') {
-              newFilters['minSalary'] = range[0];
-              newFilters['maxSalary'] = range[1];
-              updatedParams.set('minSalary', range[0].toString());
-              updatedParams.set('maxSalary', range[1].toString());
+              newFilters['minSalary'] = min;
+              newFilters['maxSalary'] = max;
+              newFilters[key] = values[0];
+              updatedParams.set('minSalary', min.toString());
+              updatedParams.set('maxSalary', max.toString());
+              updatedParams.set(key, values[0]);
             } else {
-              newFilters['minExperience'] = range[0];
-              newFilters['maxExperience'] = range[1];
-              updatedParams.set('minExperience', range[0].toString());
-              updatedParams.set('maxExperience', range[1].toString());
+              newFilters['minExperience'] = min;
+              newFilters['maxExperience'] = max;
+              newFilters[key] = values[0];
+              updatedParams.set('minExperience', min.toString());
+              updatedParams.set('maxExperience', max.toString());
+              updatedParams.set(key, values[0]);
             }
           }
         } else if (key === 'industry') {
-          newFilters['industryName'] = values[0];
+          newFilters['industry'] = values[0];
+          updatedParams.set('industry', values[0]);
         } else if (key === 'workMode') {
           newFilters[key] = values.join(',');
+          updatedParams.set(key, values.join(','));
         } else {
           const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
           newFilters[key] = filter.options[selectedOptionIndex] || values[0];
+          updatedParams.set(key, newFilters[key]);
         }
-  
-        updatedParams.set(key, encodeURIComponent(newFilters[key])); // Encode only once
       }
-  
+    
       setSearchParams(updatedParams);
-      console.log('newFilters', newFilters);
       return newFilters;
     });
+    
   };
   
 
     /**
    * 1. Get the selected values from the URL
    */
-    useEffect(() => {
-      const filtersFromUrl: Record<string, string[]> = {};
-    
-      searchParams.forEach((value, key) => {
-        filtersFromUrl[key] = value.split(",").map(v => decodeURIComponent(v)); // Decode here
-      });
-    
-      if (JSON.stringify(filtersFromUrl) !== JSON.stringify(selectedValues)) {
-        setSelectedValues({ ...filtersFromUrl });
-    
-        setJobFilters(prev => ({
-          ...prev,
-          ...filtersFromUrl,
-        }));
-      }
-    }, [searchParams]);
+useEffect(() => {
+  const filtersFromUrl: Record<string, string[]> = {};
+
+  searchParams.forEach((value, key) => {
+    if (!key.startsWith('min') && !key.startsWith('max')) {
+      filtersFromUrl[key] = value.split(',');
+    }
+  });
+
+  if (JSON.stringify(filtersFromUrl) !== JSON.stringify(selectedValues)) {
+    setSelectedValues({ ...filtersFromUrl });
+
+    setJobFilters(prev => ({
+      ...prev,
+      ...filtersFromUrl,
+      ...(filtersFromUrl.salaryRange && {
+        minSalary: Number(searchParams.get('minSalary')),
+        maxSalary: Number(searchParams.get('maxSalary'))
+      }),
+      ...(filtersFromUrl.experienceRange && {
+        minExperience: Number(searchParams.get('minExperience')),
+        maxExperience: Number(searchParams.get('maxExperience'))
+      })
+    }));
+  }
+}, [searchParams, selectedValues, setSelectedValues, setJobFilters]);
     
 
 	return (

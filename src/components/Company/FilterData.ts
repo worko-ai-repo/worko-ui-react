@@ -116,7 +116,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
     {
       placeholder: 'Company',
       paramKey: 'companyName',
-      selectType: 'normal',
+      selectType: 'multiselect',
       options: [], // This can be populated with suggested industries
       value: []
     }

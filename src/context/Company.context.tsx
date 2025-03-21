@@ -50,7 +50,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	  
 	  jobTitle: defaultFiltersState?.userDesignation, // Ensure jobTitle is included
 	  coreSkills: defaultFiltersState?.coreSkills, // Ensure coreSkills persist
-    YOE: defaultFiltersState?.YOE,
+    // YOE: defaultFiltersState?.YOE || 0,
 	};
   }, [defaultFiltersState]);
 
@@ -376,7 +376,19 @@ const fetchJobMatchingScores = useCallback(
       if (hasRelevantFilters && 'jobTitle' in updatedFilters) {
         delete updatedFilters.jobTitle;
       }
-  
+
+      // if updatedFilters has salaryRange or experienceRange, then exclude those values 
+      if(updatedFilters.salaryRange){
+        delete updatedFilters.salaryRange;
+      }
+      if(updatedFilters.experienceRange){
+        delete updatedFilters.experienceRange;
+      }
+      if(updatedFilters?.industry){
+        updatedFilters.industryName =  updatedFilters.industry;
+        delete updatedFilters.industry;
+      }
+
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
   
       try {
