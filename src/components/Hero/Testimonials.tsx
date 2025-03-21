@@ -58,10 +58,10 @@ const Testimonials: React.FC<TestimonialsProps> = ({ heading, title, titleImage,
 			<div className="relative section-wrapper min-h-96 !p-1 md:p-5 mx-auto font-bold text-[10px]">
 				{/* Header Badge */}
 				{heading && (
-					<div className="flex gap-2 mb-5 w-fit mx-auto justify-between items-center border-[0.8px] border-blue-600 shadow-sm shadow-blue-500 rounded-full text-blue-600 bg-white px-2 py-1">
+					<h2 className="flex gap-2 mb-5 w-fit mx-auto justify-between items-center border-[0.8px] border-blue-600 shadow-sm shadow-blue-500 rounded-full text-blue-600 bg-white px-2 py-1">
 						<i className={`text-blue-500 rounded-[50%] bg-blue-900 p-1.5 ${badgeIcon}`}></i>
 						{heading}
-					</div>
+					</h2>
 				)}
 
 				{/* Carousel */}

@@ -9,9 +9,9 @@ const HeroOutro = () => {
 				{/* Carousel */}
 				<div className="relative flex flex-col items-center text-center sm:mb-10 ">
 					{/* Heading */}
-					<p className="text-2xl sm:w-[60%] mx-auto p-5 sm:text-3xl md:text-5xl relative text-wrap font-extrabold text-white" style={{ lineHeight: '1.2' }}>
+					<h2 className="text-2xl sm:w-[60%] mx-auto p-5 sm:text-3xl md:text-5xl relative text-wrap font-extrabold text-white" style={{ lineHeight: '1.2' }}>
 					Start your journey of smarter applications and faster hiring today.
-					</p>
+					</h2>
 					<div className="Outro_ref_buttons flex relative top-4 justify-center items-center md:text-lg  font-semibold  gap-2 sm:gap-4 mx-auto">
 						<button className="bg-white border-[1px] border-gray-700  text-gray-600 p-2 text-[12px] md:px-5 rounded-xl mx-2" onClick={()=>navTo('/referrals')}>Find Job Referral</button>
 						<button className="bg-transparent border-[1px] border-white text-white p-2 text-[12px] md:px-5 rounded-xl mx-2" onClick={()=>navTo('/auth/signup', {state:{activeFrame:'EMP'}})}>Find Candidate</button>

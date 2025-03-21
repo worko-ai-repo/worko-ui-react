@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: //api.worko.ai/
+Disallow: //jobs.worko.ai/
+Disallow: /auth/login
+Disallow: /auth/signup
+Disallow: /auth/resetpassword
+Disallow: /terms

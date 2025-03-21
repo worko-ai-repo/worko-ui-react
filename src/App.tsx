@@ -1,12 +1,9 @@
 import { RouterProvider } from 'react-router-dom';
 import './App.css';
 import AppRoutes from './Routes';
-import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
-import secureStorage from '@Utils/SecureStorage.utils';
-import { useEffect } from 'react';
+
 export default function App() {
-		
-	
+
 /* 	useEffect(() => {
 		Object.keys(SecureStorageKeyEnum).forEach((key) => {
 		  const value = secureStorage.getItem(SecureStorageKeyEnum[key as keyof typeof SecureStorageKeyEnum]);
@@ -20,5 +17,9 @@ export default function App() {
 	 /*  useEffect(() => {
 		console.log(import.meta.env.APP_NAME);
 	}, []); */
-	return (<RouterProvider router={AppRoutes} />);
+	
+	
+	return (
+		<RouterProvider router={AppRoutes} />
+	);
 }
