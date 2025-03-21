@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 
 interface SkillsCardProps {
   department?: string;
@@ -9,15 +9,50 @@ interface SkillsCardProps {
   experience?: string;
 }
 
-const SkillTag = ({ label }: { label: string }) => {
+const SkillTag = ({ label, className }: { label: string, className: string }) => {
   return (
-    <span className="px-2 py-2 bg-gray-100 w-[33%] cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32">
-      <span data-tooltip-id="my-tooltip" 
-            data-tooltip-content={label}  
-            className="truncate block max-w-[82%]">
-        {(label ?? 'Label').charAt(0).toUpperCase() + (label ?? 'Label').slice(1).toLocaleLowerCase()}
+    <span className={`${className} px-2 py-2 bg-gray-100 cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32`}>
+      <span 
+        data-tooltip-id="my-tooltip" 
+        data-tooltip-content={label}  
+        className="truncate block max-w-[82%]"
+      >
+        {(label ?? 'Label').charAt(0).toUpperCase() + (label ?? 'Label').slice(1).toLowerCase()}
       </span>
     </span>
+  );
+};
+
+const MoreSkillsTag = ({ remainingSkills }: { remainingSkills: string[] }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className="relative">
+      <span 
+        className="px-2 py-2 bg-gray-100 max-w-[30px] cursor-pointer rounded-full text-sm text-gray-800 inline-block relative w-32"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        <span className="truncate block max-w-[82%]">...</span>
+      </span>
+      
+      {showTooltip && (
+        <div 
+          ref={tooltipRef}
+          className="absolute z-50 bg-white shadow-lg rounded-lg p-4 w-64 right-0 top-full mt-2"
+          style={{ pointerEvents: 'none' }}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {remainingSkills.map((skill, index) => (
+              <div key={index} className="px-2 py-1 bg-gray-100 rounded-3xl text-xs text-gray-800 truncate">
+                {skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase()}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -56,30 +91,37 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
     return salary || "Not Disclosed";
   }, [salary]);
 
+  // Limit skills to display and prepare remaining skills
+  const visibleSkills = displaySkills.slice(0, 8);
+  const remainingSkills = displaySkills.length > 8 ? displaySkills.slice(8) : [];
+
   return (
     <div className="bg-transparent lg:bg-white rounded-[20px] lg:p-6 h-full w-full">
       {/* Desktop version */}
       <div className="hidden lg:flex text-left lg:flex-col lg:justify-between lg:h-full">
         <div>
-          <h2 className="text-xl font-bold mb-4">Core skills</h2>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {displaySkills.map((skill, index) => (
-              <SkillTag key={index} label={skill} />
+          <h2 className="text-xl font-bold mb-2">Core skills</h2>
+          <div className="grid grid-cols-3 gap-2 w-full">
+            {visibleSkills.map((skill, index) => (
+              <SkillTag className="w-full" key={index} label={skill} />
             ))}
+            {remainingSkills.length > 0 && (
+              <MoreSkillsTag remainingSkills={remainingSkills} />
+            )}
           </div>
         </div>
         
         <div>
-          <h2 className="text-xl font-bold mb-4">Experience</h2>
-          <div className="mb-6">
-            <SkillTag label={displayExperience} />
+          <h2 className="text-xl mt-2 font-bold mb-4">Experience</h2>
+          <div className="mb-4">
+            <SkillTag className="" label={displayExperience} />
           </div>
         </div>
         
         <div>
-          <h2 className="text-xl font-bold mb-4">CTC</h2>
+          <h2 className="text-xl font-bold mb-2">CTC</h2>
           <div>
-            <SkillTag label={formattedSalary} />
+            <SkillTag className="" label={formattedSalary} />
           </div>
         </div>
       </div>
@@ -101,9 +143,12 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'coreSkills' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                {displaySkills.map((skill, index) => (
-                  <SkillTag key={index} label={skill} />
+                {visibleSkills.map((skill, index) => (
+                  <SkillTag className="" key={index} label={skill} />
                 ))}
+                {remainingSkills.length > 0 && (
+                  <MoreSkillsTag remainingSkills={remainingSkills} />
+                )}
               </div>
             )}
           </div>
@@ -125,7 +170,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'experience' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                <SkillTag label={displayExperience} />
+                <SkillTag className="" label={displayExperience} />
               </div>
             )}
           </div>
@@ -147,7 +192,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
             
             {openSection === 'ctc' && (
               <div className="flex justify-start flex-wrap cursor-pointer gap-2 mt-4">
-                <SkillTag label={formattedSalary} />
+                <SkillTag className="" label={formattedSalary} />
               </div>
             )}
           </div>

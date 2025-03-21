@@ -194,13 +194,13 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {/* {jobId && 
+            {!isExternalJob && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
             </button>
-            } */}
+            }
             <button onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
@@ -210,7 +210,13 @@ export const JobCard = ({ job }: any) => {
 
       {/* Modal */}
       {showModal && (
-        <CustomModal type="share" title="Refer a Friend and Earn Rewards!" onSubmit={handleSubmit} onClose={() => setShowModal(false)}>
+        <CustomModal 
+          type="share" 
+          title="Refer a Friend and Earn Rewards!" 
+          onSubmit={handleSubmit} 
+          onClose={() => setShowModal(false)}
+          hideDefaultButtons={true} // Add this prop
+        >
           <div className="text-center px-4">
             <p className="text-gray-600 text-sm mb-4">Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!</p>
           </div>
