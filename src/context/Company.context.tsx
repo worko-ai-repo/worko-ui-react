@@ -31,7 +31,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
-  const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any}>();
+  const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any,YOE?:any}>();
 
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
   const APP_API_URI = import.meta.env.APP_API_URI
@@ -50,6 +50,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	  
 	  jobTitle: defaultFiltersState?.userDesignation, // Ensure jobTitle is included
 	  coreSkills: defaultFiltersState?.coreSkills, // Ensure coreSkills persist
+    YOE: defaultFiltersState?.YOE,
 	};
   }, [defaultFiltersState]);
 
@@ -111,22 +112,25 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
       
       // If either designation or coreSkills exist, update filters
-      if (designation || coreSkills?.length) {
+      if (designation || coreSkills?.length || response?.YOE) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
+          // ...(response?.YOE && { YOE: response.YOE }), // Ensure YOE is always a string
         });
       
         setJobFilters((prev) => ({
           ...prev,
           ...(designation && { jobTitle: designation }),
           ...(coreSkills?.length && { coreSkills }),
+          // ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
         setIsProfileInclomplete(true);
         setDefaultFiltersState({
           userDesignation: "", // Ensure userDesignation is always a string
           ...({ coreSkills }),
+
         });
       }
 
