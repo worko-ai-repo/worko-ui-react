@@ -190,7 +190,6 @@ const fetchJobMatchingScores = useCallback(
     try {
       // Step 2: Format the job IDs as a comma-separated string and set page size for API request
       const jobIdsParam = jobIds.join(",");
-      const pageSize = jobIds.length;
 
       // Step 3: Make an API call to fetch existing job matching scores
       const { response, error } = await httpServiceObj.get<{ data: JobMatchingScoreDto[] }>(
@@ -451,14 +450,17 @@ const fetchJobMatchingScores = useCallback(
     [companyPageMode, fetchJobMatchingScores, isLoggedIn]
   );
   const shouldEnableQuery = () => {
-	if (!companyPageMode || jobFilters.pageSize! <= 0) return false; // If page mode is not set or pageSize is 0, return false
-	if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
-  if(!hasNextPage) return false;
-  // @Todo- fix this
-  // if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
-	// if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
-	return true;
-  };
+    if (!companyPageMode || jobFilters.pageSize! <= 0) return false; // If page mode is not set or pageSize is 0, return false
+    if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
+    // if(!hasNextPage) return false;
+    // @Todo- fix this
+     if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
+    if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
+    return true;
+    // enabled:!!companyPageMode && jobFilters.pageSize! > 0 &&
+    // (companyPageMode === CompanyPageModeEnum.REFERRAL || companyPageMode === CompanyPageModeEnum.JOB) &&
+    // Object.keys(jobFilters).length > 0 ,// Ensure filters are fully set,
+    };
   
 
   /**
@@ -471,9 +473,10 @@ const fetchJobMatchingScores = useCallback(
     queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
     getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
     initialPageParam: null,
-     enabled:  !!companyPageMode && jobFilters.pageSize! > 0 &&
-     (companyPageMode === CompanyPageModeEnum.REFERRAL || companyPageMode === CompanyPageModeEnum.JOB),
+     enabled: shouldEnableQuery(),
     retry: 0,
+    // Removed keepPreviousData as it is not supported in useInfiniteQuery
+    // staleTime: 1000 * 60 , // 5 seconds
   });
 
   /**

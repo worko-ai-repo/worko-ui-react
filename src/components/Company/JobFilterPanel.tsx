@@ -115,7 +115,7 @@ useEffect(() => {
       })
     }));
   }
-}, [searchParams, selectedValues, setSelectedValues, setJobFilters]);
+}, [/* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
     
 
 	return (
