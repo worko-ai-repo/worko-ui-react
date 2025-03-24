@@ -50,7 +50,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	  
 	  jobTitle: defaultFiltersState?.userDesignation, // Ensure jobTitle is included
 	  coreSkills: defaultFiltersState?.coreSkills, // Ensure coreSkills persist
-    // YOE: defaultFiltersState?.YOE || 0,
+    YOE: defaultFiltersState?.YOE ,
 	};
   }, [defaultFiltersState]);
 
@@ -116,14 +116,14 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
-          // ...(response?.YOE && { YOE: response.YOE }), // Ensure YOE is always a string
+          ...(response?.YOE && { YOE: response.YOE }), // Ensure YOE is always a string
         });
       
         setJobFilters((prev) => ({
           ...prev,
           ...(designation && { jobTitle: designation }),
           ...(coreSkills?.length && { coreSkills }),
-          // ...(response?.YOE && { YOE: response.YOE }),
+          ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
         setIsProfileInclomplete(true);
@@ -314,7 +314,7 @@ const fetchJobMatchingScores = useCallback(
   // Step 11: Dependency array for useCallback
   [setCompanyJobData, pendingScoreGenerations]
 );
- 
+
   /**
    * Handle Query Function
    *
