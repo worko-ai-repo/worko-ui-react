@@ -13,15 +13,15 @@ interface JobCardProps {
   isApplying?: boolean;
   onApply: () => void;
   applicationStatus: boolean;
-  jobMatchDetails:any;
+  jobMatchDetails:JobMatchingScoreDto | undefined;
 }
 
 interface MatchMetricsProps {
-  matchPercentage?: number;
+  jobMatchDetails: any;
   isLoggedIn: boolean;
 }
 
-const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0, isLoggedIn }) => {
+const MatchMetrics: React.FC<MatchMetricsProps> = ({ jobMatchDetails, isLoggedIn }) => {
   // Calculate individual metrics based on the overall matching percentage
   const getMetricValue = (baseValue: number, multiplier: number) => {
     // Return 0 if not logged in, otherwise calculate the metric
@@ -30,12 +30,23 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ matchPercentage = 0, isLogg
   };
   
   // Derive individual metrics from the overall match percentage
-  const experienceMatch = getMetricValue(matchPercentage, 0.9);
-  const skillsMatch = getMetricValue(matchPercentage, 1.1);
-  const responsibilityMatch = getMetricValue(matchPercentage, 0.8);
-  const industryMatch = getMetricValue(matchPercentage, 1.2);
-  const achievementMatch = getMetricValue(matchPercentage, 0.95);
 
+  let experienceMatch=0
+  let skillsMatch=0
+  let responsibilityMatch=0
+  let industryMatch=0
+  let achievementMatch=0
+
+  if(jobMatchDetails !== undefined){
+     experienceMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.experience.score
+     skillsMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.technicalSkills.score
+     responsibilityMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.responsibilities.score
+     industryMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.education.score
+     achievementMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.achievements.score
+  }
+  
+  
+  
   return (
     <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 flex-wrap">
       <div className="flex justify-between text-blue-600 flex-wrap gap-4">
@@ -240,7 +251,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
           </div>
         </div>
         {/* Pass the matchPercentage to MatchMetrics */}
-        <MatchMetrics matchPercentage={matchScore} isLoggedIn={isLoggedIn} />
+       { isLoggedIn && <MatchMetrics jobMatchDetails={jobMatchDetails} isLoggedIn={isLoggedIn} />}
         <div style={{width: '100%', height: '100%', border: '0.50px #454545 solid'}}></div>
         
         {/* Location, Job Type, and Buttons */}
