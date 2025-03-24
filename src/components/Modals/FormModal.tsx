@@ -10,6 +10,7 @@ interface ModalProps {
   onSubmit: () => void;
   onClose?: () => void;
   showCloseButton?: boolean;
+  hideDefaultButtons? :boolean;
 }
 
 const icons = {
@@ -28,6 +29,7 @@ export default function CustomModal({
   onSubmit,
   onClose,
   showCloseButton = true,
+  hideDefaultButtons = false,
 }: ModalProps) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -54,25 +56,27 @@ export default function CustomModal({
           )}
         </div>
         <div className="mt-4">{children}</div>
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-           disabled = {isdisabled || false}
-            onClick={onSubmit}
-            className="btn_secondary disabled:opacity-50 disabled:pointer-events-all disabled:cursor-not-allowed "
-          >
-            Submit
-          </button>
-          {onClose && (
+        {!hideDefaultButtons && ( // for removing btns as required..
+          <div className="flex justify-end gap-2 mt-4">
             <button
-              onClick={onClose }
-              className="btn_t1 logout !text-[18px] border-[1px] border-red-500 "
+              disabled = {isdisabled || false}
+              onClick={onSubmit}
+              className="btn_secondary disabled:opacity-50 disabled:pointer-events-all disabled:cursor-not-allowed "
             >
-              Cancel
+              Submit
             </button>
-          )}
-        </div>
+            {onClose && (
+              <button
+                onClick={onClose }
+                className="btn_t1 logout !text-[18px] border-[1px] border-red-500 "
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>,
-    	document.body
+    document.body
   );
 }

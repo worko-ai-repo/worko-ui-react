@@ -11,7 +11,7 @@ interface JobCardProps {
   isApplying?: boolean;
   onApply: () => void;
   applicationStatus: boolean;
-  jobMatchDetails:any;
+  jobMatchDetails:JobMatchingScoreDto | undefined;
 }
 
 interface MatchMetricsProps {

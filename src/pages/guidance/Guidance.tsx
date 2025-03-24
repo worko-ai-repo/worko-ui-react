@@ -1,66 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { validationRules } from '@Utils/FormValidator.utils';
+import secureStorage from '@Utils/SecureStorage.utils';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import DropdownCalendar from '@Components/Shared/DropdownCalender';
 import CompanyBanner from '@Components/Company/CompanyBanner';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
 import MessageModal from '@Components/Modals/MessageModal';
 import { toast } from 'react-toastify';
+import { useAppContext } from '@Context/App.context';
 
-// Define the enum for guidance request types
-enum UserGuidanceRequestTypeEnum {
-  INTERVIEW_HANDHOLDING = "INTERVIEW_HAND_HOLDING",
-  MOCK_INTERVIEW = "MOCK_INTERVIEW_PREPARATION",
-  ASSIGNMENT_HELP = "HELP_WITH_ASSIGNMENT",
-  CAREER_GUIDANCE = "CAREER_GUIDANCE",
-  RESUME_REVIEW = "RESUME_REVIEW",
-  OTHER = "OTHER"
-}
-
-// Define the interface for the request payload
-interface GuidanceRequestPayload {
-  guidanceRequestType: UserGuidanceRequestTypeEnum;
+// Define guidance form data interface
+interface GuidanceFormDTO {
+  guidanceRequestType: string;
   guidanceRequestDeadline: string;
+  guidanceRequestDescription: string;
   companyName: string;
   jobUrl: string;
-  guidanceRequestDescription: string;
+}
+
+// Continue request data interface matching your existing pattern
+interface ContinueGuidanceRequestData {
+  type: 'guidance';
+  url: string;
+  data: GuidanceFormDTO;
 }
 
 const Guidance = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [modalData, setModalData] = useState<any>(null);
-
+  const nav = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn } = useAppContext()
+  
+  // Form setup with default values
   const {
     register,
     handleSubmit,
     setValue,
     reset,
-    formState: { errors },
-  } = useForm({ mode: 'onChange' });
-
-  // Map form values to API payload
-  const mapFormToPayload = (formData: any): GuidanceRequestPayload => {
-    // Map the select options to the enum values
-    const typeMapping: { [key: string]: UserGuidanceRequestTypeEnum } = {
-      'interview-handholding': UserGuidanceRequestTypeEnum.INTERVIEW_HANDHOLDING,
-      'mock-interview': UserGuidanceRequestTypeEnum.MOCK_INTERVIEW,
-      'assignment-help': UserGuidanceRequestTypeEnum.ASSIGNMENT_HELP,
-      'career-guidance': UserGuidanceRequestTypeEnum.CAREER_GUIDANCE,
-      'resume-review': UserGuidanceRequestTypeEnum.RESUME_REVIEW,
-      'other': UserGuidanceRequestTypeEnum.OTHER
-    };
-
-    return {
-      guidanceRequestType: typeMapping[formData.guidanceType] || UserGuidanceRequestTypeEnum.OTHER,
-      guidanceRequestDeadline: formData.date ? new Date(formData.date).toISOString() : new Date().toISOString(),
-      companyName: formData.companyName,
-      jobUrl: formData.jobUrl,
-      guidanceRequestDescription: formData.serviceDescription
-    };
-  };
+    formState: { errors, isSubmitting },
+  } = useForm<GuidanceFormDTO>({
+    mode: 'onChange',
+    defaultValues: {
+      guidanceRequestType: '',
+      guidanceRequestDeadline: new Date().toISOString().split('T')[0],
+      companyName: '',
+      jobUrl: '',
+      guidanceRequestDescription: ''
+    }
+  });
+  
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [modalData, setModalData] = useState<any>(null);
+  const [pendingGuidance, setPendingGuidance] = useState<ContinueGuidanceRequestData | null>(null);
 
   // Function to show different modal messages
   const showModalMessage = (type: 'success' | 'error' | 'duplicate' | 'jobUrlInvalid') => {
@@ -129,17 +123,63 @@ const Guidance = () => {
     }
   };
 
-  const onSubmit = async (formData: any) => {
-    try {
-      setIsSubmitting(true);
-      setSubmitError(null);
+  // useEffect to check login status and restore form data
+  useEffect(() => { 
+    // First check from state, then fallback to secure storage
+    const savedGuidance = pendingGuidance || secureStorage.getItem<ContinueGuidanceRequestData>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+
+    if (savedGuidance?.type === 'guidance' && isLoggedIn) {
+      // Safely patch form data if it exists
+      if (savedGuidance.data) {
+        setValue('guidanceRequestType', savedGuidance.data.guidanceRequestType || '');
+        console.log(savedGuidance.data.guidanceRequestType);
+        setValue('guidanceRequestDeadline', savedGuidance.data.guidanceRequestDeadline || new Date().toISOString().split('T')[0]);
+        setValue('companyName', savedGuidance.data.companyName || '');
+        setValue('jobUrl', savedGuidance.data.jobUrl || '');
+        setValue('guidanceRequestDescription', savedGuidance.data.guidanceRequestDescription || '');
+
+        // Clear stored data
+        setPendingGuidance(null);
+        secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null);
+
+        // Auto-submit if data exists
+        handleSubmit(onSubmit)();
+      } else {
+        reset();
+        toast.error('Something went wrong!')
+        secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null);
+    }
+    } 
+  }, [isLoggedIn, pendingGuidance]);
+
+  // Modified onSubmit to handle non-logged in users
+  const onSubmit = async (formData: GuidanceFormDTO) => {
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      // Store guidance request data
+      const continueGuidanceRequestData: ContinueGuidanceRequestData = {
+        type: 'guidance',
+        url: window.location.href,
+        data: formData,
+      };
       
-      const payload = mapFormToPayload(formData);
+      // Save to state and secure storage
+      setPendingGuidance(continueGuidanceRequestData);
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, continueGuidanceRequestData);
+      
+      // Redirect to login
+      nav('/auth/login');
+      return;
+    }
+
+    // Existing submission logic for logged-in users
+    try {
+      setSubmitError(null);
       
       const { response, error, status } = await toast.promise(
         httpServiceObj.post(
           '/user/guidance-request', 
-          payload,
+          formData,
           true
         ),
         {
@@ -148,7 +188,6 @@ const Guidance = () => {
       );
       
       if (status === 409) {
-        // Handle duplicate request
         showModalMessage('duplicate');
         return;
       }
@@ -164,98 +203,92 @@ const Guidance = () => {
       console.error('Error submitting guidance request:', error);
       setSubmitError(error instanceof Error ? error.message : 'An unknown error occurred');
       showModalMessage('error');
-    } finally {
-      setIsSubmitting(false);
-    }
+    } 
   };
 
   return (
     <div className="w-full">
       <CompanyBanner BannerMode={CompanyPageModeEnum.GUIDANCE} />
       <div className="section-wrapper !max-w-5xl">
-       
-          <form onSubmit={handleSubmit(onSubmit)} className="mx-auto bg-[#F2F4F5] pb-10 rounded-2xl">
-            <h2 className="text-lg text-left py-2 px-4 sm:px-10 font-semibold mb-4 border-b border-black">
-              Get Guidance for any job listed on Worko
-            </h2>
-
+        <form onSubmit={handleSubmit(onSubmit)} className="mx-auto bg-[#F2F4F5] pb-10 rounded-2xl">
+          <h2 className="text-lg text-left py-2 px-4 sm:px-10 font-semibold mb-4 border-b border-black">
+            Get Guidance for any job listed on Worko
+          </h2>
           
-            
-            {/* second section */}
-            <div className="grid sm:grid-cols-2 gap-4 mb-10 pb-7 border-b border-gray-400 px-4 sm:px-10">
-              <div className="flex flex-col items-start justify-start">
-                <label className="my-3 block text-sm font-semibold !ml-0 text-black">Guidance Type</label>
-                <select 
-                  {...register('guidanceType', { required: 'Please select a guidance type' })} 
-                  className="select_primary max-sm:min-w-[70vw] sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm"
-                >
-                  <option value="">What you need guidance for</option>
-                  <option value="interview-handholding">Interview hand holding</option>
-                  <option value="mock-interview">Mock Interview / Preparation</option>
-                  <option value="assignment-help">Help with assignment</option>
-                  <option value="career-guidance">Career Guidance</option>
-                  <option value="resume-review">Resume Review</option>
-                  <option value="other">Other</option>
-                </select>
-                {errors.guidanceType && <p className="text-red-500 text-xs">{errors.guidanceType.message as string}</p>}
-              </div>
-              
-              {/* Date */}
-              <div className="flex flex-col items-start justify-start">
-                <label className="my-3 block text-sm font-semibold text-black">Deadline Date</label>
-                <div className="flex justify-start w-full sm:max-w-[300px] text-left">
-                  <DropdownCalendar 
-                    onSelectDate={(date: any) => setValue('date', date)} 
-                    Cname="select_primary sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm text-left" 
-                  />
-                </div>
-                {errors.date && <p className="text-red-500 text-xs">{errors.date.message as string}</p>}
-              </div>
-              
-              <div className="flex flex-col items-start justify-start">
-                <label className="my-3 block text-sm font-semibold text-black">Company Name</label>
-                <input 
-                  {...register('companyName', { required: 'Company name is required' })} 
-                  className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" 
-                  placeholder="Enter the company name"
-                />
-                {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message as string}</p>}
-              </div>
-
-              {/* Job URL */}
-              <div className="flex flex-col items-start justify-start">
-                <label className="my-3 block text-sm font-semibold text-black">Job URL</label>
-                <input 
-                  {...register('jobUrl', validationRules.url)} 
-                  className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" 
-                  placeholder="Enter the job URL"
-                />
-                {errors.jobUrl && <p className="text-red-500 text-xs">{errors.jobUrl.message as string}</p>}
-              </div>
-            </div>
-
-            {/* third sections */}
-            <div className="px-4 sm:px-10">
-              <div className="mt-4">
-                <label className="block text-sm font-semibold text-black">Provide the detailed description of the required guidance</label>
-                <textarea 
-                  {...register('serviceDescription', { required: 'Description is required' })} 
-                  className="w-full p-2 border rounded-md bg-white" 
-                  rows={10}
-                />
-                {errors.serviceDescription && <p className="text-red-500 text-xs">{errors.serviceDescription.message as string}</p>}
-              </div>
+          {/* second section */}
+          <div className="grid sm:grid-cols-2 gap-4 mb-10 pb-7 border-b border-gray-400 px-4 sm:px-10">
+            <div className="flex flex-col items-start justify-start">
+              <label className="my-3 block text-sm font-semibold !ml-0 text-black">Guidance Type</label>
+              <select 
+                {...register('guidanceRequestType', { required: 'Please select a guidance type' })} 
+                className="select_primary max-sm:min-w-[70vw] sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm"
+              >
+                <option value="">What you need guidance for</option>
+                <option value="INTERVIEW_HAND_HOLDING">Interview hand holding</option>
+                <option value="MOCK_INTERVIEW_PREPARATION">Mock Interview / Preparation</option>
+                <option value="HELP_WITH_ASSIGNMENT">Help with assignment</option>
+                <option value="CAREER_GUIDANCE">Career Guidance</option>
+                <option value="RESUME_REVIEW">Resume Review</option>
+                <option value="OTHER">Other</option>
+              </select>
+              {errors.guidanceRequestType && <p className="text-red-500 text-xs">{errors.guidanceRequestType.message as string}</p>}
             </div>
             
-            <button 
-              type="submit" 
-              className="btn_primary mt-6 px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </button>
-          </form>
-        
+            {/* Date */}
+            <div className="flex flex-col items-start justify-start">
+              <label className="my-3 block text-sm font-semibold text-black">Deadline Date</label>
+              <div className="flex justify-start w-full sm:max-w-[300px] text-left">
+                <DropdownCalendar 
+                  onSelectDate={(date: any) => setValue('guidanceRequestDeadline', date)} 
+                  Cname="select_primary sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm text-left" 
+                />
+              </div>
+              {errors.guidanceRequestDeadline && <p className="text-red-500 text-xs">{errors.guidanceRequestDeadline.message as string}</p>}
+            </div>
+            
+            <div className="flex flex-col items-start justify-start">
+              <label className="my-3 block text-sm font-semibold text-black">Company Name</label>
+              <input 
+                {...register('companyName', { required: 'Company name is required' })} 
+                className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" 
+                placeholder="Enter the company name"
+              />
+              {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message as string}</p>}
+            </div>
+
+            {/* Job URL */}
+            <div className="flex flex-col items-start justify-start">
+              <label className="my-3 block text-sm font-semibold text-black">Job URL</label>
+              <input 
+                {...register('jobUrl', validationRules.url)} 
+                className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" 
+                placeholder="Enter the job URL"
+              />
+              {errors.jobUrl && <p className="text-red-500 text-xs">{errors.jobUrl.message as string}</p>}
+            </div>
+          </div>
+
+          {/* third sections */}
+          <div className="px-4 sm:px-10">
+            <div className="mt-4">
+              <label className="block text-sm font-semibold text-black">Provide the detailed description of the required guidance</label>
+              <textarea 
+                {...register('guidanceRequestDescription', { required: 'Description is required' })} 
+                className="w-full p-2 border rounded-md bg-white" 
+                rows={10}
+              />
+              {errors.guidanceRequestDescription && <p className="text-red-500 text-xs">{errors.guidanceRequestDescription.message as string}</p>}
+            </div>
+          </div>
+          
+          <button 
+            type="submit" 
+            className="btn_primary mt-6 px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </form>
       </div>
       
       {/* Modal for displaying messages */}
