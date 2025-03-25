@@ -156,25 +156,25 @@ export interface BaseApiFiltersDto {
 }
 
 export interface JobMatchingScoreDto {
-  isTriggered?: boolean;
-  // Ids
   id: string;
-  // references
   userId: string;
   jobId: string;
-
-  status?: "APPLIED";
-  matchingScore?: number;
-  matchingScoreForRecruiter?: number;
-  scoreFetchedDate?: string;
-  jdMatchErrorCode?: number;
-  jdMatchErrorDesc?: string;
-
-  // Additional fields that might be used in the future
-  rejectionFeedbackBySystem?: string;
-  scoreDetails?: string;
-  cvExtract?: string;
+  jdMatchErrorCode: number;
+  jdMatchErrorDesc: string;
+  matchingScore: number;
+  scoreDetails:any, /* {
+    skill: number;
+    experience: number;
+    roleAndResponsibilities: number;
+    industryExperience: number;
+    education: number;
+  }; */
+  createdAt: string;
+  updatedAt: string;
+  isTriggered: boolean;
+  status?: string;
 }
+
 export interface UserBasicDetailsDto {
   CTC: number;
   ECTC: number;

@@ -16,6 +16,7 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import { toast } from "react-toastify";
+import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
@@ -54,36 +55,68 @@ const JobDescription = () => {
 
 
 // Add this new function to check application status
-const checkApplicationStatus = async () => {
+const checkApplicationStatus = async (retryCount = 0) => {
   if (!isLoggedIn || !jobDataState) return;
   
   try {
-    const { response, error, status } = await httpServiceObj.get<{data:[JobMatchingScoreDto], pagination:Object}>(
-      `${APP_JOBS_API_URI}/user-matching-score-job/?jobIds=${jobid}`,
-      true,
-      {},
-      true
+    const { response, error } = await httpServiceObj.put<{data:JobMatchingScoreDto[] , pagination:object}>(
+      `${APP_JOBS_API_URI}/user-matching-score-job/`, 
+      { jobIds:[jobid] },                        // Step 4.3: Pass array of job IDs in request body
+      true,                              // Step 4.4: Flag for authentication requirement
+      {},                                // Step 4.5: Empty options object
+      true                               // Step 4.6: Flag for additional behavior (possibly error handling)
     );
-      
 
-  
-    // Check all items in the array for status property using a for loop
+    if (response?.data && response.data.length === 0 || (response?.data[0].isTriggered ===  true  && response.data[0].scoreDetails.length === 0)) {
+      // Prepare a dummy object for jobMatchDetails
+      setJobMatchDetails({
+        id: "",
+        userId: "",
+        jobId: "",
+        jdMatchErrorCode: 0,
+        jdMatchErrorDesc: "",
+        matchingScore: -1,
+        scoreDetails: {
+          skill: -1,
+          experience: -1,
+          roleAndResponsibilities: -1,
+          industryExperience: -1,
+          education: -1
+        },
+        createdAt: "",
+        updatedAt: "",
+        isTriggered: false
+      });
+      setGlobalMatchingScore(-1);
+
+      // Retry only if retry count is less than 2
+      if (retryCount < 3) {
+        setTimeout(() => checkApplicationStatus(retryCount + 1), 5000);
+      }
+      return;
+    }
+
     if (response?.data && response.data.length > 0) {
+      response.data = response.data.map(item => ({
+        ...item,
+        scoreDetails: item.scoreDetails // Ensure scoreDetails is parsed correctly
+      }));
+
       for (let i = 0; i < response.data.length; i++) {
         if (response.data[i].status) {
-          console.log(response.data[i].status);
+          console.log(response.data[i]?.status);
           setApplicationStatus(true);
-          break; // Exit the loop once we find a truthy status
+          break;
         }
       }
-          
-      // Process the first item for job match details (keeping existing behavior)
+
+      // Process the first item for job match details
       const fullData = response.data[0];
       if (fullData.scoreDetails) {
         fullData.scoreDetails = JSON.parse(fullData.scoreDetails);
       }
-      
-      // Set the job match details
+
+      // Set job match details
       setJobMatchDetails(fullData);
       
       // Check if matching score is present and set it
@@ -393,7 +426,7 @@ useEffect(() => {
   function ModalAction() {
 		switch (ModalType) {
 			case 'profileCompletion':
-				window.location.href = '/v1/candidate/edit-profile';
+        handleEditProfileRedirection(userDetails?.lastAccessedDash as 'CAND' | 'EMP' || 'CAND');
 				break;
 		}
 	}

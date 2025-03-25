@@ -62,7 +62,7 @@ const GaugeComponent: React.FC<GaugeProps> = ({ score ,strokeWidth, color}) => {
       </svg>
       {/* Score Text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        {isLoggedIn ?( <span className={`text-xs scale-95 md:text-xl font-semibold ${color ? 'text-black' : 'text-white'}`}>{progress != -1 ? `${progress}%`:<Loader/>}</span>):(<i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-lg"></i>)}
+        {isLoggedIn ?( <span className={`text-xs scale-95 md:text-xl font-semibold ${color ? 'text-black' : 'text-white'}`}>{progress != -1 ? `${progress}%`:<Loader className="animate-spin"/>}</span>):(<i className="fa-solid text-yellow-500 fa-triangle-exclamation cursor-pointer text-xs sm:text-lg"></i>)}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import RequestReferralMessage from '@Components/ReferralRequest/RequestReferralMessage';
 import { MatchingScore } from '@Services/MatchingScore.service';
 import FeedbackModal, { FeedbackModalProps } from '@Components/Shared/Feedback';
+import { handleEditProfileRedirection } from '@Components/Company/CompanyJobContent';
 
 /**
  * MatchingScoreDto
@@ -265,7 +266,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'profileCompletion':
-				window.location.href = '/v1/candidate/edit-profile';
+				  handleEditProfileRedirection(userDetails?.lastAccessedDash as 'CAND' | 'EMP' || 'CAND');
 				break;
 		}
 	}

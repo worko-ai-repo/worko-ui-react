@@ -1,4 +1,4 @@
-import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto } from "./JobsAndCompany.dto";
+import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from "./JobsAndCompany.dto";
 
 /**
  * Company page mode

@@ -17,17 +17,24 @@ interface JobCardProps {
 }
 
 interface MatchMetricsProps {
-  jobMatchDetails: any;
+  jobMatchDetails: JobMatchingScoreDto | undefined;
   isLoggedIn: boolean;
 }
-
+interface finalScoreDetails{
+    skill: number;
+    experience: number;
+    roleAndResponsibilities: number;
+    industryExperience: number;
+    education: number; 
+    
+}
 const MatchMetrics: React.FC<MatchMetricsProps> = ({ jobMatchDetails, isLoggedIn }) => {
   // Calculate individual metrics based on the overall matching percentage
-  const getMetricValue = (baseValue: number, multiplier: number) => {
+/*   const getMetricValue = (baseValue: number, multiplier: number) => {
     // Return 0 if not logged in, otherwise calculate the metric
     if (!isLoggedIn) return 0;
     return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
-  };
+  }; */
   
   // Derive individual metrics from the overall match percentage
 
@@ -37,13 +44,14 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ jobMatchDetails, isLoggedIn
   let industryMatch=0
   let achievementMatch=0
 
-  if(jobMatchDetails !== undefined){
-     experienceMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.experience.score
-     skillsMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.technicalSkills.score
-     responsibilityMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.responsibilities.score
-     industryMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.education.score
-     achievementMatch = jobMatchDetails?.scoreDetails.detailedAnalysis.achievements.score
-  }
+  if (jobMatchDetails !== undefined) {
+    const finalScoreDetails: finalScoreDetails = jobMatchDetails?.scoreDetails;
+    experienceMatch = Math.floor(finalScoreDetails?.experience) || -1;
+    skillsMatch = Math.floor(finalScoreDetails?.skill) || -1;
+    responsibilityMatch = Math.floor(finalScoreDetails?.roleAndResponsibilities) || -1;
+    industryMatch = Math.floor(finalScoreDetails?.industryExperience) || -1;
+    achievementMatch = Math.floor(finalScoreDetails?.education) || -1;
+}
   
   
   
@@ -215,7 +223,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
                 </div>
 
                 {isLoggedIn ? (
-                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{displayMatchScore !== -1 ? strengthLabel : "Processing"}</p>
                 ) : (
                   <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
                     <small className="text-[8px] sm:text-xs">Account Required</small>
@@ -242,7 +250,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
                     
             {/* Text Below Gauge */}
             {isLoggedIn ? (
-                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{strengthLabel}</p>
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{displayMatchScore !== -1 ? strengthLabel : "Processing"}</p>
                 ) : (
                   <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores" >
                     <small className="text-[8px] sm:text-xs">Account Required</small>

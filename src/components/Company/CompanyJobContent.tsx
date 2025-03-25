@@ -10,7 +10,6 @@ import { useInView } from "react-intersection-observer";
 // Lazy load components
 import CompanyCard from "./CompanyCard";
 import { isExternal } from "util/types";
-import { JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
 import { useAppContext } from "@Context/App.context";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
@@ -20,7 +19,6 @@ const RequestCompany = lazy(() => import("./RequestCompany"));
 
 const CompanyJobContent = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [matchScore, setMatchScore] = useState<Record<string, JobMatchingScoreDto>>({});
   const {userDetails}:{userDetails:Partial<AuthLoginForGeneralUserDto>} = useAppContext();
   const { 
     companyJobData, 
@@ -199,7 +197,7 @@ const CompanyJobContent = () => {
             {
               label: 'Complete Profile',
               action: () => {
-                window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile";
+                handleEditProfileRedirection(userDetails?.lastAccessedDash as 'CAND' | 'EMP' || 'CAND');
               },
               type: 'primary',
             }
@@ -211,3 +209,8 @@ const CompanyJobContent = () => {
 };
 
 export default CompanyJobContent;
+
+export function handleEditProfileRedirection(userDetails:'CAND'|'EMP') {
+  const params =  encodeURIComponent(window.location.href);
+  window.location.href = userDetails === 'CAND' ? `/v1/candidate/edit-profile?${params}` : `/v1/employee/Edit-profile?${params}`;
+}

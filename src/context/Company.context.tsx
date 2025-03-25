@@ -48,9 +48,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	  pageSize: 10,
 	  sortOrder: "descending",
 	  
-	  jobTitle: defaultFiltersState?.userDesignation, // Ensure jobTitle is included
-	  coreSkills: defaultFiltersState?.coreSkills, // Ensure coreSkills persist
-    YOE: defaultFiltersState?.YOE ,
+    ...(defaultFiltersState?.userDesignation && { jobTitle: defaultFiltersState.userDesignation }),
+    ...(defaultFiltersState?.coreSkills && { coreSkills: defaultFiltersState.coreSkills }),
+    ...(defaultFiltersState?.YOE !== undefined && { YOE: defaultFiltersState.YOE })
 	};
   }, [defaultFiltersState]);
 
@@ -181,24 +181,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
  */
  // Step 1: Define interface for detailed score information
- interface ScoreDetails {
-  score: number;
-  detailedAnalysis: string;
-}
-
-// Step 2: Define main DTO interface for job matching score data
-interface JobMatchingScoreDto {
-  id: string;                              // Step 2.1: Unique identifier for the matching score record
-  userId: string;                          // Step 2.2: User's unique identifier
-  jobId: string;                           // Step 2.3: Job's unique identifier
-  jdMatchErrorCode: number;                // Step 2.4: Error code if matching process had issues
-  jdMatchErrorDesc: string;                // Step 2.5: Description of any errors encountered
-  matchingScore: number;                   // Step 2.6: Calculated match percentage between user and job
-  scoreDetails: string | ScoreDetails;     // Step 2.7: Can be a string or parsed object with detailed analysis
-  createdAt: string;                       // Step 2.8: Timestamp when record was created
-  updatedAt: string;                       // Step 2.9: Timestamp when record was last updated
-  isTriggered: boolean;                    // Step 2.10: Flag indicating if score generation has been triggered
-}
 
 // Step 3: Initialize state to track jobs that are currently being processed for score generation
 const [pendingScoreGenerations, setPendingScoreGenerations] = useState<Set<string>>(new Set());
