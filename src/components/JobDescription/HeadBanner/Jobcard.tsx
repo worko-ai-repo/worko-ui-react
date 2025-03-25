@@ -62,7 +62,7 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ jobMatchDetails, isLoggedIn
         <MetricGauge value={skillsMatch} label="Skills" />
         <MetricGauge value={responsibilityMatch} label="Responsibility" />
         <MetricGauge value={industryMatch} label="Industry" />
-        <MetricGauge value={achievementMatch} label="Achievement" />
+        <MetricGauge value={achievementMatch} label="Education" />
       </div>
     </div>
   );
