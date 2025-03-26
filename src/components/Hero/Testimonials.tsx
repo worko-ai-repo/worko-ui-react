@@ -39,7 +39,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ heading, title, titleImage,
 		return (
 			<span className="flex items-center justify-center w-full flex-wrap gap-2">
 				{words.map((word, index) => {
-					if (word.toLowerCase().includes('.png')) {
+					if (word.toLowerCase().includes('.webp')) {
 						return <img key={index} src={titleImage} alt="content" className="inline-block h-12 object-contain my-auto" />;
 					}
 

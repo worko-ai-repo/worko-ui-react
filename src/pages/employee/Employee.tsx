@@ -43,7 +43,7 @@ const Employee = () => {
             <EmployeePageStepper1 />
 
             {/* Secondary Section */}
-            <div className="w-full max-h-screen flex flex-col items-center justify-center text-center text-blue-600 p-28 gap-12">
+            <div className="w-full flex flex-col items-center justify-center text-center text-blue-600 p-28 gap-12">
                 <h2 className="max-w-3xl text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
                     It is more than referrals and bonuses
                 </h2>
