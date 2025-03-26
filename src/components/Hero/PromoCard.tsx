@@ -70,16 +70,16 @@ const PromoCard = () => {
 											<small className="text-gray-400 text-[0.5rem] sm:text-[0.6rem]  underline "> Student Profile </small>
 										</div>
 										<p className="text-blue-500 mt-2 tracking-wide text-[10px] text-start ">Job Applied</p>
-										<h1 className="text-lg font-bold mt-0 tracking-wide text-blue-500 text-start">500</h1>
+										<p className="text-lg font-bold mt-0 tracking-wide text-blue-500 text-start">500</p>
 
 										<p className="bg-transparent border-[1px] border-gray-400 rounded-full w-fit  text-gray-500 font-medium text-[0.5rem] sm:text-[0.6rem]  my-1 px-1  md:mx-0">Responses</p>
-										<h1 className="pt-2 text-[25px] sm:!text-[1.6rem] font-bold mt-0 tracking-wide text-red-500 text-left ">0</h1>
+										<p className="pt-2 text-[25px] sm:!text-[1.6rem] font-bold mt-0 tracking-wide text-red-500 text-left ">0</p>
 									</div>
 								</div>
 							</>
 						) : (
 							<div className="flex flex-col h-[200px] gap-4 sm:gap-2 justify-start items-center ">
-								<h1 className="text-[110%] max-w-[60%] md:max-w-[95%] md:text-xl tracking-wider  text-white font-extrabold">Boost You Job Success Rate By<div className='text-green-300'>10X!</div></h1>
+								<p className="text-[110%] max-w-[60%] md:max-w-[95%] md:text-xl tracking-wider  text-white font-extrabold">Boost You Job Success Rate By<div className='text-green-300'>10X!</div></p>
 								
 
 								<div className="flex gap-1 sm:gap-3 relative  w-full   justify-center">

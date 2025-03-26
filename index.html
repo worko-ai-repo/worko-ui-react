@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta property="og:site_name" content="Worko AI" />
+  <meta property="og:locale" content="en" />
   <link rel="icon" type="image/svg+xml" href="/16.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preload" href="/fonts/Gilroy-Light.otf" as="font" type="font/woff2" crossorigin="anonymous">
@@ -47,7 +49,7 @@
   </script>
 
   <!-- Canonical URL placeholder -->
-  <link rel="canonical" href="" />
+  <link rel="canonical" href="https://worko.ai" />
   <meta name="description" content="Discover your dream job with Worko, the AI-powered job search platform that tailors job 
     matches to your resume. Get personalised job recommendations, insightful feedback, and 
     direct referrals to land your perfect role faster." />
@@ -67,11 +69,66 @@
     matches to your resume. Get personalised job recommendations, insightful feedback, and 
     direct referrals to land your perfect role faster." />
   <meta name="twitter:image" content="/logo-text.png" />
-  <meta name="twitter:site" content="@Worko_ai" />
-  <meta name="twitter:creator" content="@Worko_ai" />
+  <meta name="twitter:site" content="@WorkoAI" />
+  <meta name="twitter:creator" content="@WorkoAI" />
   <meta name="author" content="Worko.ai" />
   <meta name="publisher" content="Worko.ai" />
 
+
+  <!-- Schema Markups -->
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Worko AI",
+      "url": "https://worko.ai",
+      "logo": "https://worko.ai/logo-text.png",
+      "description": "AI-powered job search platform that matches job seekers with the best opportunities.",
+      "sameAs": [
+        "https://x.com/WorkoAI",
+        "https://www.linkedin.com/company/worko",
+        "https://www.facebook.com/Workoai",
+        "https://www.instagram.com/worko_ai"
+      ]
+    }
+    </script>
+    <!-- Website Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Worko AI",
+      "url": "https://worko.ai",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://worko.ai/search?q={search_term}",
+        "query-input": "required name=search_term"
+      }
+    }
+    </script>
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://worko.ai"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Jobs",
+          "item": "https://worko.ai/jobs"
+        }
+      ]
+    }
+    </script>
+    
   <!-- Meta Pixel Code -->
   <script>
     !(function (f, b, e, v, n, t, s) {

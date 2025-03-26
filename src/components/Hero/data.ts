@@ -18,9 +18,9 @@ export const testimonials = [
 	{
 		id: 1,
 		items: [
-			{ icon: student1, student_name: 'Amit', student_comp: 'AMAZON', content: "I appreciated the transparency and effort at Worko. Previously, I was referred to a few jobs but didn't receive any calls. Later on, with the help of the Worko team, I was able to find the right set of jobs for me. Their support throughout the process landed me quite a few good interviews and, eventually, a job." },
-			{ icon: student1, student_name: 'Neha', student_comp: 'AMAZON', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
-			{ icon: student1, student_name: 'Raj', student_comp: 'AMAZON', content:"Worko's Peer 2 Peer hiring approach is truly revolutionary. Unlike other platforms, they never bombard me with random CVs. Instead, I find top-tier candidates perfectly matched to our requirements. Not only have I earned a significant referral bonus, but my HR team is also thrilled with the quality of candidates" },
+			{ icon: student1, student_name: 'Amit', student_comp: 'AMAZON', content: "I really valued the transparency and dedication of the Worko team. Before, I struggled to get traction in my job search, but Worko changed that. They guided me to opportunities that matched my skills and experience, providing support every step of the way. Thanks to their efforts, I landed several strong interviews and ultimately secured a great job." },
+			{ icon: student1, student_name: 'Neha', student_comp: 'Rapido', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
+			{ icon: student1, student_name: 'Raj', student_comp: 'Phonepe', content:"Worko turned my job search around completely. Their referral system opened doors to companies I'd only dreamed of working for, and their interview prep was spot on tailored advice that helped me nail tough questions. With their guidance, I went from no callbacks to securing a fantastic position in phonepe." },
 			
 			
 		],
@@ -28,9 +28,9 @@ export const testimonials = [
 	{
 		id: 2,
 		items: [
-			{ icon: student1, student_name: 'Amit', student_comp: 'AMAZON', content: "I appreciated the transparency and effort at Worko. Previously, I was referred to a few jobs but didn't receive any calls. Later on, with the help of the Worko team, I was able to find the right set of jobs for me. Their support throughout the process landed me quite a few good interviews and, eventually, a job." },
-			{ icon: student1, student_name: 'Neha', student_comp: 'AMAZON', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
-			{ icon: student1, student_name: 'Raj', student_comp: 'AMAZON', content:"Worko's Peer 2 Peer hiring approach is truly revolutionary. Unlike other platforms, they never bombard me with random CVs. Instead, I find top-tier candidates perfectly matched to our requirements. Not only have I earned a significant referral bonus, but my HR team is also thrilled with the quality of candidates" },
+			{ icon: student1, student_name: 'Rahul', student_comp: 'SWIGGY', content: "Worko is awesome. My buddy referred me, and I found jobs that fit me right away. They helped me practice for interviews, so I wasn't nervous. I landed a job I really like because of them." },
+			{ icon: student1, student_name: 'Rohan', student_comp: 'NU REPUBLIC', content: "Worko made my job search a breeze. Their team took the time to understand my skills and career goals, connecting me with opportunities I wouldn't have found on my own. With their support, I landed a role that's a perfect fit for me—hands down the best job-hunting experience I've had" },
+			{ icon: student1, student_name: 'Ajay', student_comp: 'GOOGLE', content:"Worko's interview guidance was a total game-changer for me. They didn't just find me job openings—they coached me through the entire interview process, from prep to follow-up. Their tips gave me the confidence I needed, and I landed my dream job after acing the interviews they set up!" },
 		],
 	},
 ];
@@ -38,18 +38,18 @@ export const testimonials = [
 export const EmployeeTestimonials = [
 	{	id:1,
 		items: [
-			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content: "Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation" },
-			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
-			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content:"Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation" },
+			{ icon: student, student_name: 'Aditya Raj', student_comp: 'Flipkart', content: "Worko's platform makes referring others a breeze. I can trust that the jobs I recommend are a perfect fit for my contacts, and they always thank me for pointing them to such solid opportunities." },
+			{ icon: student, student_name: 'Rishav', student_comp: 'Amazon', content: 'Referring someone through Worko took me less than five minutes. The platform is so user-friendly, and I was thrilled when my referral landed the job and I got a bonus!' },
+			{ icon: student, student_name: 'Aditi', student_comp: 'Makemytrip', content:"As an employee, I use Worko to refer talent to my company. My HR team loves the high-quality hires, and I love the extra cash I get for helping out!" },
 		],
 		
 	},
 	{
 		id: 2,
 		items: [
-			{ icon: student, student_name: 'Vikas', student_comp: 'AMAZON', content: 'Product 6 is amazing!' },
-			{ icon: student, student_name: 'Rohan', student_comp: 'AMAZON', content: 'Product 7 changed my life!' },
-			{ icon: student, student_name: 'Tina', student_comp: 'AMAZON', content: 'Product 8 is the best!' },
+			{ icon: student, student_name: 'Vikas', student_comp: 'Google', content: "Worko makes me the go-to person in my network for job connections. I've referred several friends to roles that fit them perfectly, and the gratitude plus the bonuses—keeps me coming back!" },
+			{ icon: student, student_name: 'Rohan', student_comp: 'Swiggy', content: "Using Worko to refer people has boosted my reputation in my circle. Everyone knows I'm the one who connects them to great jobs, and the referral bonuses are a sweet perk on top" },
+			{ icon: student, student_name: 'Tina', student_comp: 'Accenture', content: "I've referred a handful of people through Worko, and every time, the results are spot-on. They get hired quickly, my company gets talent, and I get a payout—it's a reliable system I can count on!" },
 		],
 	},
 ]

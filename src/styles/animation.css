@@ -13,6 +13,14 @@
   display: flex;
   animation: scroll 30s linear infinite;
 }
+@media (max-width: 768px) {
+  .marquee-content {
+    animation-duration: 10s; /* Faster speed on mobile */
+  }
+  .marquee-content.reverse {
+    animation-duration: 10s;
+  }
+}
 
 .marquee-content.reverse{
   animation: scroll_reverse 30s linear infinite;  
