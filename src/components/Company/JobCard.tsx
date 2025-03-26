@@ -3,9 +3,10 @@ import { Star, MapPin, Clock } from "lucide-react";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "@Context/App.context";
+import { AppContext, useAppContext } from "@Context/App.context";
 import { toast } from 'react-toastify';
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
+import httpServiceObj from "@Services/ApiHandler.service";
 
 export const JobCard = ({ job }: any) => {
   const { companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus } = job;
@@ -13,6 +14,9 @@ export const JobCard = ({ job }: any) => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
+
+  const {userDetails} = useAppContext()
+  const userId = userDetails.id
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +28,40 @@ export const JobCard = ({ job }: any) => {
     toast.success(`Job shared with: ${formData.phone}, ${formData.email}`);
     setShowModal(false);
   };
+
+  const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    const requestData = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phoneNumber: formData.phone,
+      jobId,
+      companyName,
+      userId
+      
+    };
+  
+    try {
+      const { response, error, status } = await
+        httpServiceObj.post('http://localhost:3000/local/refer', requestData, true, {}, true)
+       
+      
+  
+      if (status === 409) {
+        toast.error('Referral already exists!');
+        return;
+      }
+  
+      setShowModal(false);
+    } catch (error: any) {
+      console.error('Error details:', error);
+      toast.error(error?.message || 'Failed to submit referral');
+    }
+  };
+  
+  
+  
 
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
@@ -176,35 +214,67 @@ export const JobCard = ({ job }: any) => {
 
       {/* Modal */}
       {showModal && (
-        <CustomModal 
-          type="share" 
-          title="Refer a Friend and Earn Rewards!" 
-          onSubmit={handleSubmit} 
-          onClose={() => setShowModal(false)}
-          hideDefaultButtons={true} // Add this prop
+  <CustomModal 
+    type="share" 
+    title="Refer a Friend and Earn Rewards!" 
+    onSubmit={()=>{handleReferSubmit}} // Pass function directly
+    onClose={() => setShowModal(false)}
+    hideDefaultButtons={true}
+  >
+    <div className="text-center px-4">
+      <p className="text-gray-600 text-sm mb-4">
+        Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
+      </p>
+    </div>
+    <form className="space-y-4 px-4" onSubmit={handleReferSubmit}> 
+      <div>
+        <input 
+          type="text" 
+          name="fullName" 
+          value={formData.fullName} 
+          onChange={handleChange} 
+          className="input_primary text-gray-500 w-full p-2 border rounded" 
+          placeholder="Full Name" 
+          required 
+        />
+      </div>
+      <div>
+        <input 
+          type="email" 
+          name="email" 
+          value={formData.email} 
+          onChange={handleChange} 
+          className="input_primary text-gray-500 w-full p-2 border rounded" 
+          placeholder="E-Mail ID" 
+          required 
+        />
+      </div>
+      <div>
+        <input 
+          type="tel" 
+          name="phone" 
+          value={formData.phone} 
+          onChange={handleChange} 
+          className="input_primary text-gray-500 w-full p-2 border rounded" 
+          placeholder="Contact Number / WhatsApp Number" 
+          required 
+        />
+      </div>
+      <div className="text-center mt-4">
+        <button 
+          type="submit" 
+          className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full"
         >
-          <div className="text-center px-4">
-            <p className="text-gray-600 text-sm mb-4">Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!</p>
-          </div>
-          <form className="space-y-4 px-4">
-            <div>
-              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="Full Name" required />
-            </div>
-            <div>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="E-Mail ID" required />
-            </div>
-            <div>
-              <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="Contact Number / WhatsApp Number" required />
-            </div>
-            <div className="text-center mt-4">
-              <button type="submit" className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full">
-                Submit Referral
-              </button>
-            </div>
-          </form>
-          <p className="text-gray-400 text-xs text-center mt-4 px-4">Your information is secure and will only be used to process your referral and communicate about the program.</p>
-        </CustomModal>
-      )}
+          Submit Referral
+        </button>
+      </div>
+    </form>
+    <p className="text-gray-400 text-xs text-center mt-4 px-4">
+      Your information is secure and will only be used to process your referral and communicate about the program.
+    </p>
+  </CustomModal>
+)}
+
     </div>
   );
 };

@@ -7,7 +7,7 @@ interface ModalProps {
   isdisabled?: boolean;
   title: string;
   children: ReactNode;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<any>;
   onClose?: () => void;
   showCloseButton?: boolean;
   hideDefaultButtons? :boolean;
