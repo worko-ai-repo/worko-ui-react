@@ -67,7 +67,7 @@ const checkApplicationStatus = async (retryCount = 0) => {
       true                               // Step 4.6: Flag for additional behavior (possibly error handling)
     );
 
-    if (response?.data && response.data.length === 0 || (response?.data[0].isTriggered ===  true  && response.data[0].scoreDetails.length === 0)) {
+    if (response?.data && response.data.length === 0 || (response?.data[0].isTriggered ===  true && !response?.data[0].matchingScore)) {
       // Prepare a dummy object for jobMatchDetails
       setJobMatchDetails({
         id: "",
@@ -90,7 +90,7 @@ const checkApplicationStatus = async (retryCount = 0) => {
       setGlobalMatchingScore(-1);
 
       // Retry only if retry count is less than 2
-      if (retryCount < 3) {
+      if (retryCount < 8) {
         setTimeout(() => checkApplicationStatus(retryCount + 1), 5000);
       }
       return;
