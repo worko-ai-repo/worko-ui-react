@@ -1,23 +1,29 @@
-import { logo_text } from '@Assets';
 import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
-import { Users } from 'lucide-react';
+import { Building, Building2, Users } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 	const nav = useNavigate();
+	const [imgError, setImgError] = useState(false); // Track image load failure
 
 	const handleReferralNav = () => {
 		// Replace any whitespace special characters with underscore in company name
 		const companyName = companyData.name.replace(/\s/g, '_');
 		nav(`/referrals/${companyName}/${companyData.SK}`);
 	};
+	const finalLogoUrl = companyData?.logo 
+	? `${import.meta.env.APP_WORKO_BASE_URL}/images/${companyData.logo}` 
+	: companyData?.logoUrl;
+
+  const isLogoAvailable = finalLogoUrl && finalLogoUrl.trim() !== "";
 	return (
 		<>
 			<div className="h-fit  bg-white  p-4 w-full rounded-2xl border">
 				{/* first col with images title and starts */}
 				<div className=" flex items-start justify-start gap-2 md:gap-5 mb-2 ">
 					{/* Left Section: Company Logo */}
-					<div className="relative flex-shrink-0 min-w-[60px] w-[60px] h-[60px] rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{companyData.logoUrl ? <img src={companyData.logoUrl} alt={companyData.name} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="text-wrap text-[10px] font-bold text-blue-500 h-full w-full flex items-center justify-center text-center p-1">{companyData.name}</div>}</div>
+					<div className="relative flex-shrink-0 min-w-[60px] w-[60px] h-[60px] rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{isLogoAvailable && !imgError ? <img src={finalLogoUrl} onError={() => setImgError(true)} alt={companyData.name} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <Building2 />}</div>
 
 					{/* Right Section */}
 					<div className=" flex flex-col items-start justify-between w-[70%]   ">

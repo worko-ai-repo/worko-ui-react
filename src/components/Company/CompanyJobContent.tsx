@@ -124,11 +124,22 @@ const CompanyJobContent = () => {
                 {companyJobData.map((job, index) => {
                   const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
                   const Finallocations = !job?.location?.fullLocation?.length ? 'Not Disclosed' : job?.location?.fullLocation.join(', ');
+                  const finalLogoUrl = job?.companyDetails?.logo 
+                  ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` 
+                  : job?.companyDetails?.logoUrl;
+                
+                const companyLogoUrl = job?.externalJobId 
+                  ? job?.companyLogoUrl 
+                  : finalLogoUrl;
+                
+                const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
+                  // const finalLogoUrl =  job.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job.companyDetails.logo}` : job.companyDetails?.logoUrl
                   return (
                     <JobCard
                       key={job.id || index}
                       job={{
-                        companyLogo: job.logoUrl,
+                        isLogoAvailable : isLogoAvailable,
+                        companyLogo:companyLogoUrl,
                         title: job.jobTitle,
                         department: job.department,
                         salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, "salary"),
@@ -212,5 +223,5 @@ export default CompanyJobContent;
 
 export function handleEditProfileRedirection(userDetails:'CAND'|'EMP') {
   const params =  encodeURIComponent(window.location.href);
-  window.location.href = userDetails === 'CAND' ? `/v1/candidate/edit-profile?${params}` : `/v1/employee/Edit-profile?${params}`;
+  window.location.href =`/v1/candidate/edit-profile?returnUrl=${params}`;
 }

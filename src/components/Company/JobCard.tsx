@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Star, MapPin, Clock } from "lucide-react";
+import { Star, MapPin, Clock, Building2 } from "lucide-react";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +9,12 @@ import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 
 export const JobCard = ({ job }: any) => {
-  const { companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus } = job;
+  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
+  const [imgError, setImgError] = useState(false);
 
   const {userDetails} = useAppContext()
   const userId = userDetails.id
@@ -103,7 +104,7 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div className=" relative flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{companyLogo ? <img src={companyLogo} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="text-wrap text-[10px] font-bold text-blue-500 h-full w-full flex items-center justify-center text-center p-1">{companyName}</div>}</div>
+              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName}  className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{isLogoAvailable && !imgError ?  <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> :<Building2 />}</div>
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
@@ -198,12 +199,12 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {!isExternalJob && 
+            {/* !isExternalJob && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
-            </button>
+            </button> */
             }
             <button onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details

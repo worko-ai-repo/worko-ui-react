@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, Briefcase, Clock, MapPin } from 'lucide-react';
+import { Share2, Briefcase, Clock, MapPin, Building2 } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 import { useNavigate } from 'react-router-dom';
@@ -13,12 +13,13 @@ interface JobCardProps {
 const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   const nav = useNavigate();
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
-    const companyName = job.externalJobId ? job.companyName :  job?.companyDetails?.name ;
-    const titleCasedCompanyName = toTitleCase(companyName!);
-    const titleCaseLocation = toTitleCase(job?.location?.fullLocation?.join(', ') || '');
-    const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : job.companyDetails?.logoUrl;
-    const jobTitle = toTitleCase(job?.jobTitle)
+  const companyName = job.externalJobId ? job.companyName :  job?.companyDetails?.name ;
+  const titleCasedCompanyName = toTitleCase(companyName!);
+  const titleCaseLocation = toTitleCase(job?.location?.fullLocation?.join(', ') || '');
+  const jobTitle = toTitleCase(job?.jobTitle)
   const jobId = job.id;
+  const [imgError, setImgError] = useState(false);
+
   
   // Calculate if job is new (posted within last 7 days)
   const isNew = job.createdAt ? 
@@ -38,17 +39,28 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     const refinedCompanyName = companyName?.replace(/\s/g, "_"); // Replace spaces with underscores
     nav(`/jobs/${refinedCompanyName}/${jobId}`);
   };
+
+  const finalLogoUrl = job?.companyDetails?.logoUrl 
+  ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logoUrl}` 
+  : job?.companyDetails?.logoUrl;
+
+const companyLogoUrl = job?.externalJobId 
+  ? job?.companyLogoUrl 
+  : finalLogoUrl;
+
+const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
+
   
   return (
     <div className="border rounded-lg p-3 sm:p-4 mb-4 transition-all hover:shadow-md">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
         <div className="flex w-full justify-between">
           <span className='flex w-fit  gap-2 '>
-          <div className="  w-10 h-10 border bg-gray-100 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
-            {typeof companyLogoUrl === 'string' ? (
+          <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName}  className="  w-10 h-10 border cursor-pointer bg-gray-100 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
+            {isLogoAvailable && !imgError ? (
               <img src={companyLogoUrl} alt={`${companyName} logo`} className="w-full h-full object-contain" />
             ) : (
-              <div className="w-8 h-8 bg-gray-200 rounded-full">{companyName}</div>
+              <Building2 />
             )}
           </div>
           <div className="w-full   min-w-0">

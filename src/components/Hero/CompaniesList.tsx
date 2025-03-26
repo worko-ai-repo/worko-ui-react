@@ -8,6 +8,9 @@ import { useNavigate } from 'react-router-dom';
 const CompaniesList = () => {
   const navigateTo = useNavigate();
 
+  // State to handle image error
+  const [imgError, setImgError] = React.useState(false);
+
   // Fetch data function
   const fetchData = async () => {
     const { response, error, status } = await httpServiceObj.get<{ data: CompanyDto[] }>(
@@ -72,12 +75,13 @@ const CompaniesList = () => {
       onClick={() => window.location.href = `/jobs`}
     >
       <div className="w-[200px] h-[100px] overflow-hidden flex items-center justify-center">
-      {company.logoUrl ? (
+      {company.logoUrl && imgError ? (
             <img 
               src={company.logoUrl} 
               alt={company.name} 
               loading="lazy" 
               className="h-[85%] w-[85%] object-contain"
+              onError = {() => setImgError(true)}
             />
           ) : (
             <div className="h-[85%] w-[85%] flex items-center justify-center text-white text-lg font-medium">
