@@ -24,11 +24,16 @@ const DropdownCalendar: React.FC<DropdownCalendarProps> = ({
   };
 
   const handleDateChange = (date: Date) => {
-    if (!allowPastDates && date.getTime() < new Date().setHours(0, 0, 0, 0)) return; // Block past dates if disabled
-    setSelectedDate(date);
-    onSelectDate(date);
+    // Create a date at the start of the day in UTC to prevent timezone shifts
+    const selectedDateAtStartOfDay = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    
+    if (!allowPastDates && selectedDateAtStartOfDay.getTime() < new Date().setHours(0, 0, 0, 0)) return;
+    
+    setSelectedDate(selectedDateAtStartOfDay);
+    onSelectDate(selectedDateAtStartOfDay);
     setIsOpen(false);
   };
+  
 
   return (
     <div className="relative inline-block w-full">
