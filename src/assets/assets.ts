@@ -1,5 +1,4 @@
 import bg_plexus from './backgrounds/plexus.webp';
-import bg_globe_abstract from './backgrounds/globe_abstract.webp';
 import employee_hero from './backgrounds/employee_hero.webp';
 import employee_hero_mobile from './backgrounds/employee_hero_mobile.webp';
 import employee_stepper_1_cursor from './backgrounds/employee_stepper_1_cursor.webp';
@@ -69,7 +68,6 @@ import time from './svgs/time.svg';
 export { 
     // Backgrounds
     bg_plexus,
-    bg_globe_abstract, 
     student_male,
     student,
     student1,

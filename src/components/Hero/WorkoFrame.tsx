@@ -82,6 +82,7 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
           <div className="h-auto">
             <div className=" rounded-2xl  lg:h-[600px] max-h-[600px] sm:min-w-[500px] lg:min-w-[900px] p-4 md:p-10 ">
               <img
+                fetchPriority="high" 
                 src={activeFrame === 'jobs' ? job_frame : ref_frame}
                 alt="job_frame"
                 className="mx-auto max-h-[600px] md:min-w-[500px] sm:h-[100%] object-contain "
