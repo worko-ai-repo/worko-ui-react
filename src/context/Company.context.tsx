@@ -298,6 +298,18 @@ const fetchJobMatchingScores = useCallback(
 );
 
   /**
+   * hasRelevantFilters
+   * 
+   * @description - This function is used to check if the filters are relevant and are included in the filtes
+   */
+      
+  const hasRelevantFilters = (filters:JobFiltersDto , filteringKeys:(keyof JobFiltersDto)[]) :boolean=> {
+    return filteringKeys.some(
+      (key) => filters[key] !== undefined && filters[key] !== null && filters[key] !== ''
+    );
+  }
+
+  /**
    * Handle Query Function
    *
    * @description - This function is used to handle the query function for fetching data from the API
@@ -310,24 +322,6 @@ const fetchJobMatchingScores = useCallback(
       // If pageParam is null, it's a new filter request
       const isFiltering = pageParam === null;
   
-      // List of filters that should be considered for filtering
-      const filteringKeys: (keyof JobFiltersDto)[] = [
-        "experienceRange",
-        "location",
-        "salaryRange",
-        "workMode",
-        "department",
-        'searchText',
-        "softSkills",
-        "technicalSkills",
-        "companyId",
-      ];
-  
-      // Check if any of the filtering keys have values
-      const hasRelevantFilters = filteringKeys.some(
-        (key) => filters[key] !== undefined && filters[key] !== null && filters[key] !== ''
-      );
-  
       // Create updated filters object
       const updatedFilters = {
         ...filters,
@@ -336,10 +330,17 @@ const fetchJobMatchingScores = useCallback(
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {})
       };
-  
-      // Remove jobTitle if other relevant filters are present
-      if (hasRelevantFilters && 'jobTitle' in updatedFilters) {
+
+      // Step 6 → If searchText is present, remove jobTitle, experienceRange, and coreSkills
+      if (filters.searchText) {
         delete updatedFilters.jobTitle;
+        delete updatedFilters.experienceRange;
+        delete updatedFilters.coreSkills;
+      }
+
+      // Step 7 → If any filter includes 'experience Range' in its key, remove YOE
+      if (filters.experienceRange) {
+        delete updatedFilters.YOE;
       }
 
       // if updatedFilters has salaryRange or experienceRange, then exclude those values 

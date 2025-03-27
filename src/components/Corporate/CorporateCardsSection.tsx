@@ -46,7 +46,7 @@ const CorporateCardsSection = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[235px] h-full py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-4 
+              className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[235px] h-full py-4 sm:py-6 md:py-8 max-sm:px-0.5 sm:px-4 md:px-4 
                  relative bg-white shadow-lg rounded-[12px] sm:rounded-[14px] md:rounded-[16px] 
                  overflow-hidden border border-[#57E1E166] flex flex-col items-center justify-center 
                  transform scale-90 sm:scale-100"

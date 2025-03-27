@@ -65,9 +65,9 @@ function CorporatePlans() {
 
         
         
-        <div className="grid grid-cols-1 max-w-5xl mx-auto md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1  max-w-5xl mx-auto md:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <div key={index} className="relative bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+            <div key={index} className="group cursor-pointer relative bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
               {plan.isRecommended && (
                 <div className="absolute top-0 left-0 right-0 bg-[#4B7EFF] text-white text-center py-2 text-xs tracking-[3.5px]">
                   RECOMMENDED
@@ -84,8 +84,8 @@ function CorporatePlans() {
                 <button
                   className={`w-full py-2 rounded text-center text-sm font-semibold tracking-wider transition-colors duration-300 ${
                     plan.buttonVariant === 'primary'
-                      ? 'bg-[#4B7EFF] text-white w-full rounded-lg py-1 hover:bg-[#3A6AE8]'
-                      : 'bg-black text-gray-200 w-full rounded-lg py-1 hover:bg-[#316BFF]'
+                      ? 'bg-[#4B7EFF] text-white w-full rounded-lg py-1 group-hover:bg-[#3A6AE8]'
+                      : 'bg-black text-gray-200 w-full rounded-lg py-1 group-hover:bg-[#316BFF]'
                   }`}
                   onClick={() => window.location.href = '/for-corporate/connect-with-us '}
                 >
