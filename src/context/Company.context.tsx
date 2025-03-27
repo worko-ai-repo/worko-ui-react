@@ -298,18 +298,6 @@ const fetchJobMatchingScores = useCallback(
 );
 
   /**
-   * hasRelevantFilters
-   * 
-   * @description - This function is used to check if the filters are relevant and are included in the filtes
-   */
-      
-  const hasRelevantFilters = (filters:JobFiltersDto , filteringKeys:(keyof JobFiltersDto)[]) :boolean=> {
-    return filteringKeys.some(
-      (key) => filters[key] !== undefined && filters[key] !== null && filters[key] !== ''
-    );
-  }
-
-  /**
    * Handle Query Function
    *
    * @description - This function is used to handle the query function for fetching data from the API
