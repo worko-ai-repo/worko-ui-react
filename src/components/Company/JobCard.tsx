@@ -17,7 +17,7 @@ export const JobCard = ({ job }: any) => {
   const [imgError, setImgError] = useState(false);
 
   const {userDetails} = useAppContext()
-  const userId = userDetails.id
+  // const userId = userDetails?.id
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,7 +39,7 @@ export const JobCard = ({ job }: any) => {
       phoneNumber: formData.phone,
       jobId,
       companyName,
-      userId
+      // userId
       
     };
   
