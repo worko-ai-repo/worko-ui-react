@@ -17,7 +17,7 @@ const CompanyLogos = () => {
   ];
 
   return (
-    <section className="flex flex-col w-full bg-[#316BFF] overflow-x-auto py-16 items-center justify-center rounded-3xl">
+    <section className="flex flex-col w-full bg-[#316BFF] overflow-x-hidden py-16 items-center justify-center rounded-3xl">
       {/* Added Trusted Partners heading */}
       <h2 className="text-white text-3xl font-semibold mb-12 text-center">
       We Partner With
