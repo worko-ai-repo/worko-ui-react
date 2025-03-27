@@ -6,3 +6,4 @@ Disallow: /auth/login
 Disallow: /auth/signup
 Disallow: /auth/resetpassword
 Disallow: /terms
+Sitemap: https://worko.ai/sitemap.xml

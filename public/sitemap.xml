@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+	xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>https://worko.ai/</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/jobs</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/referrals</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/for-employee</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/for-corporate</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/about</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/faq</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+	<url>
+		<loc>https://worko.ai/guidance</loc>
+		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
+		<priority>1.0</priority>
+	</url>
+</urlset>

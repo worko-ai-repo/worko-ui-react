@@ -45,11 +45,11 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ jobMatchDetails, isLoggedIn
 
 	if (jobMatchDetails !== undefined) {
 		const finalScoreDetails: finalScoreDetails = jobMatchDetails?.scoreDetails;
-		experienceMatch = Math.floor(finalScoreDetails?.experience) || -1;
-		skillsMatch = Math.floor(finalScoreDetails?.skill) || -1;
-		responsibilityMatch = Math.floor(finalScoreDetails?.roleAndResponsibilities) || -1;
-		industryMatch = Math.floor(finalScoreDetails?.industryExperience) || -1;
-		achievementMatch = Math.floor(finalScoreDetails?.education) || -1;
+		experienceMatch = Math.floor(finalScoreDetails?.experience) ??  -1;
+		skillsMatch = Math.floor(finalScoreDetails?.skill)  ??  -1;
+		responsibilityMatch = Math.floor(finalScoreDetails?.roleAndResponsibilities)  ??  -1;
+		industryMatch = Math.floor(finalScoreDetails?.industryExperience)  ??  -1;
+		achievementMatch = Math.floor(finalScoreDetails?.education)  ??  -1;
 	}
 
 	return (
