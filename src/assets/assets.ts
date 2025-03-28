@@ -26,8 +26,7 @@ import vector_1 from './backgrounds/vector_1.webp'
 import mag_glass from './backgrounds/mag_glass.webp'
 import check from './backgrounds/check.webp'
 import worko_new from './worko-assets/Worko_new_logo.webp'
-import mini_frame1 from './backgrounds/Mini_Frame_1.webp'
-import mini_frame2 from './backgrounds/Mini_Frame_2.webp'
+
 import auth_bg from './backgrounds/auth_bg.webp'
 import auth_bg2 from './backgrounds/auth_bg2.webp'
 import Login_Boy from "./backgrounds/Login_Boy.webp"
@@ -74,8 +73,7 @@ export {
     vector_1,
     mag_glass,
     check,
-    mini_frame1,
-    mini_frame2,
+
     employee_hero,
     employee_hero_mobile,
     employee_stepper_1_cursor,

@@ -22,8 +22,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
 
   
   // Calculate if job is new (posted within last 7 days)
-  const isNew = job.createdAt ? 
-    (new Date().getTime() - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24) < 7 : 
+  const isNew = job.createdAt || job.jobPostedDate ?  //@Fix this if it breaks
+    (new Date().getTime() - new Date(job.externalJobId ? job?.jobPostedDate! : job.createdAt).getTime()) / (1000 * 3600 * 24) < 7 : 
     job.isNew || false;
   
   // Format experience display based on available data

@@ -1,4 +1,4 @@
-import { job_frame, mini_frame1, mini_frame2, mini_Frame_3, mini_Frame_4, mini_Frame_5, mini_Frame_6, ph1, ph2, ph3, ph4, ref_frame, ss_guidance, ss_job, ss_ref, student, student1 } from '@Assets';
+import { mini_Frame_3, mini_Frame_4, mini_Frame_5, mini_Frame_6, ph1, ph2, ph3, ph4, ss_guidance, ss_job, ss_ref, student, student1 } from '@Assets';
 export const dorpDown = {
 	one: [
 		{ title:"No more spray-and-pray job hunting ", description: 'See and apply for genuinely-fit roles with our matchmaking engine that only shows opportunities you’re truly interested in.', image: ph1,bigimg:ss_job },

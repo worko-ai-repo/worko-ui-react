@@ -145,7 +145,7 @@ const CompanyJobContent = () => {
                         salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, "salary"),
                         location: Finallocations || 'Not Disclosed',
                         employmentType: job.typeofEmployment || 'Not Disclosed',
-                        createdAt: job.createdAt,
+                        createdAt: job.externalJobId ? job.jobPostedDate : job.createdAt,
                         matchPercentage: job.matchingScore || -1,
                         status: job.applyStatus || "NOT_APPLIED",
                         jobId: job.id,

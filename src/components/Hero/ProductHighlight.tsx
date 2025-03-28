@@ -1,5 +1,4 @@
-import { mini_frame1, mini_frame2 } from '@Assets';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { dorpDown } from './data';
 
 const ProductHighlight = () => {

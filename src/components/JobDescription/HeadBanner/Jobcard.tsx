@@ -134,7 +134,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
 	const isEarlyApplicant = useMemo(() => {
 		if (!jobData) return false;
 
-		const createdDate = new Date(jobData.externalJobId ? jobData.jobCreatedDate || jobData.createdAt || '' : jobData.createdAt || '');
+		const createdDate = new Date(jobData.externalJobId ? jobData.jobPostedDate || jobData.createdAt || '' : jobData.createdAt || '');
 
 		const threeDaysAgo = new Date();
 		threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -142,7 +142,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, isApplying = false, onApply,
 	}, [jobData]);
 
 	// Format the time since posting
-	const timeAgo = useMemo(() => DaysFormatter(jobData.createdAt), [jobData.createdAt]);
+	const timeAgo = useMemo(() => DaysFormatter(jobData.externalJobId ? jobData?.jobPostedDate : jobData?.createdAt), [jobData.createdAt]);
 
 	function handleApplyClick(event: React.MouseEvent<HTMLButtonElement>): void {
 		throw new Error('Function not implemented.');
