@@ -1,5 +1,6 @@
 /* styles/index.css */
 @import url(./styles/font.css);
+@import url(./styles/common.css);
 @import url(./styles/input.css);
 @import url(./styles/buttons.css);
 @import url(./styles/checkbox.css);

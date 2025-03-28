@@ -7,10 +7,10 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 	const nav = useNavigate();
 	const [imgError, setImgError] = useState(false); // Track image load failure
 
-	const handleReferralNav = () => {
+	const handleNav = (type:'referrals'|'guidance') => {
 		// Replace any whitespace special characters with underscore in company name
 		const companyName = companyData.name.replace(/\s/g, '_');
-		nav(`/referrals/${companyName}/${companyData.SK}`);
+		nav(`/${type}/${companyName}/${companyData.SK}`);
 	};
 	const finalLogoUrl = companyData?.logo 
 	? `${import.meta.env.APP_WORKO_BASE_URL}/images/${companyData.logo}` 
@@ -46,7 +46,7 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 								LinkedIn Page
 							</a>
 						</div>
-						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>handleReferralNav()}>Request Referral</button>
+						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>handleNav('referrals')}>Request Referral</button>
 					</div>
 					<div className="flex justify-between gap-2  ">
 						<div className="linkedin_ref flex  justify-start  items-start gap-2  md:my-1  relative top-2 ">
@@ -55,7 +55,7 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 								Career Page
 							</a>
 						</div>
-						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>nav('/guidance')}>Request Guidance</button>
+						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 "  onClick={()=>handleNav('guidance')}>Request Guidance</button>
 					</div>
 				</div>
 			</div>

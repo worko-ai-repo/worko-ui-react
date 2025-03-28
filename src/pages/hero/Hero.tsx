@@ -37,10 +37,10 @@ const Hero = () => {
 				<CompaniesList />
 				<PromoCard />
 				{/* This section will always be rendered */}
-				<h2 className="lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-5 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
+				<h2 className="lg:max-w-[1120px] bg-transparent border-0 text-2xl w-3/4 mx-auto m-10 p-2 sm:text-3xl md:text-4xl relative text-wrap font-extrabold text-white">
 					<Reveal CName="slide_up" threshold={0.5}>
-						Worko tells you exactly what worked, what didn’t, and how you can secure that coveted role.
-						<img src={worko_new} className="absolute top-[-12px] left-[-40px] w-20 -rotate-45" alt="worko_new" />
+						<img src={worko_new} className=" w-20 inline mr-2" alt="worko_new" />
+						 <span>tells you exactly what worked, what didn’t, and how you can secure that coveted role.</span>
 					</Reveal>
 				</h2>
 				<ProductHighlight />

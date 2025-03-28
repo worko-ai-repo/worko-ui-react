@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 				{/* fallback error boundary component */}
 				<AppProvider>
 					<App />
-					<Tooltip id="my-tooltip" />
+					<Tooltip id="my-tooltip" className='z-50' />
 					<ToastContainer stacked /> {/* Toast Container for the application */}
 				</AppProvider>
 			</ErrorBoundary>

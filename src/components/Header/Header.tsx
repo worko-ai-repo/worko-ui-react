@@ -17,8 +17,9 @@ const navItems: NavItem[] = [
 	{
 		label: 'For Candidate',
 		subItems: [
-			{ label: 'Job Portal', href: '/jobs' },
+			{ label: 'Jobs', href: '/jobs' },
 			{ label: 'Request Referral', href: '/referrals' },
+			{ label: 'Request Guidance', href: '/guidance' },
 		],
 	},
 	{ label: 'For Employee', href: '/for-employee' },
@@ -38,10 +39,6 @@ const Header = () => {
 	const toggleDropdown = (label: string) => {
 		setActiveDropdown(activeDropdown === label ? null : label);
 	};
-
-	useEffect(() => {
-		console.info('isLoginChanged');
-	}, [isLoggedIn]);
 
 	// Effect to handle click outside of header to close mobile menu
 	useEffect(() => {
@@ -63,7 +60,7 @@ const Header = () => {
 	}, [isOpen]);
 
 	return (
-		<header className={styles.header} ref={headerRef}>
+		<header className={styles.header} id="header_main_body" ref={headerRef}>
 			<div className={styles.container}>
 				{/* Logo */}
 				<div className={`cursor-pointer w-32 `} onClick={() =>{ navigateTo('/'); setUpdateCheck(true);}}>

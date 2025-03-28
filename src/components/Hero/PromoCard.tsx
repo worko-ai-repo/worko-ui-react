@@ -19,7 +19,7 @@ const PromoCard = () => {
 
 	return (
 		<section className="rounded-[2.5rem] bg-white w-full">
-			<div className={'section-wrapper text-sm flex flex-col gap-4 justify-center items-center font-bold min-h-[100px] '}>
+			<div className={'section-wrapper !py-10 text-sm flex flex-col gap-4 justify-center items-center font-bold min-h-[100px] '}>
 				{!sadView ? (
 					<>
 						<div className="flex gap-2 justify-between items-center border-2 border-red-600 shadow-md shadow-red-500 rounded-full text-red-600 bg-black px-3 py-2">
@@ -38,7 +38,7 @@ const PromoCard = () => {
 
 				<ToggleBtn isToggleEnabled={sadView} setIsToggleEnabled={setSadView} inactiveBgColor="bg-black ring-2 ring-red-500 " activeBgColor="bg-black ring-2 ring-green-500  " inactiveDialColor="bg-red-500" activeDialColor="bg-green-500" />
 
-				{!sadView ? <h2 className="text-4xl max-w-[600px] tracking-wide font-bold text-red-600 ">Applying endlessly without a single interview call</h2> : <h2 className="text-4xl max-w-[600px] tracking-wide font-bold text-blue-500 "> Referral Increase your chance by 10X</h2>}
+				{!sadView ? <h2 className="text-3xl max-w-[600px] tracking-wide font-bold text-red-600 ">Applying endlessly without a single interview call</h2> : <h2 className="text-3xl max-w-[600px] tracking-wide font-bold text-blue-500 "> Referral Increase your chance by 10X</h2>}
 
 				<div className={`min-w-[300px]  min-h-[100%] w-[300px] sm:w-[450px] md:w-[600px] rounded-[2rem] border-2 md:my-10 border-sky-600 bg-gradient-to-bl from-[#CEFFFF] to-[#4B7EFF]  ` + styles.base_card}>
 					<div className={`min-h-[220px] max-h-[500px] md:h-[250px] md:mx-10 md:rounded-[4rem] border-8 border-sky-200 scale-105 rounded-3xl  md:scale-y-125   ${sadView ? 'bg-gradient-to-bl from-[#48A0FF] to-[#48A0FF] to-100% ' : ' bg-gradient-to-bl from-[#316BFF] to-[#1D4099] to-100% '}  flex justify-around items-center gap-4 relative sm:p-[10px] ` + styles.base_card_content}>

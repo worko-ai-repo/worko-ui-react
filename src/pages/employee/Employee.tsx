@@ -43,7 +43,7 @@ const Employee = () => {
             <EmployeePageStepper1 />
 
             {/* Secondary Section */}
-            <div className="w-full flex flex-col items-center justify-center text-center text-blue-600 p-28 gap-12">
+            <div className="w-full flex flex-col items-center justify-center text-center text-blue-600  gap-12">
                 <h2 className="max-w-3xl text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
                     It is more than referrals and bonuses
                 </h2>
@@ -52,7 +52,7 @@ const Employee = () => {
                     Your journey, struggles, and victories are unique. Why let them sit idle when you can leverage them to make an impact in others' lives?
                 </p>
                 
-                <div className="w-full flex justify-center">
+                <div className="w-full  flex justify-center">
                     <EmployeePageStepper2 />
                 </div>
             </div>

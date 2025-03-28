@@ -349,4 +349,18 @@ name: {
 		minLength: { value: 50, message: 'Minimum 50 characters required' },
 	},
 
+	/**
+	 * guidanceRequestDeadline
+	 * 
+	 * @description - Default validation rules for form fields. This is used for date fields.
+	 */
+	guidanceRequestDeadline: {
+		required: 'This field is required',
+		validate: (value: Date) => {
+		  const today = new Date();
+		  today.setHours(0, 0, 0, 0); // Normalize time to midnight
+		  if (value < today) return 'Date must be today or later';
+		  return true;
+		},
+	  },
 };

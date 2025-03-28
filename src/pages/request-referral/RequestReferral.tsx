@@ -46,9 +46,9 @@ export interface continueReferralRequestDataDto {
 }
 
 /**
- * fetchCompany - This function is used to fetch the company details
+ * fetchCompanyById - This function is used to fetch the company details
  */
-async function fetchCompany(id: string): Promise<CompanyByIdDto> {
+export async function fetchCompanyById(id: string): Promise<CompanyByIdDto> {
 	const { response, error } = await httpServiceObj.get<[CompanyByIdDto]>(`/company/${id}`, true);
 	if (!response?.length) {
 		throw new Error('Somthing went wrong! Please try again later.'); // Proper error handlin
@@ -107,7 +107,7 @@ const RequestReferral = () => {
 	 */
 	const { data, error } = useQuery<CompanyByIdDto, Error>({
 		queryKey: ['company', location.hash],
-		queryFn: () => fetchCompany(location.hash.substring(1)), // No extra error handling
+		queryFn: () => fetchCompanyById(location.hash.substring(1)), // No extra error handling
 		enabled: Boolean(location.hash),
 		staleTime: 1000 * 60 * 5,
 		retry: 0,

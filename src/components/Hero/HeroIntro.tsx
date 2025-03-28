@@ -25,10 +25,10 @@ const HeroIntro = () => {
 	
 
 	return (
-		<section className="rounded-b-[2.5rem] pb-52 bg-white ">
-			<div className="section-wrapper !pb-0 text-sm  font-bold ">
+		<section className="rounded-b-[2.5rem] max-sm:pb-10 pb-52 bg-white ">
+			<div className="section-wrapper max-sm:!pt-10  !pb-0 text-sm  font-bold ">
 			<Reveal IsDual={false} CName="scale_up" threshold={0.5} PCName="mb-7 mx-auto text-4xl lg:text-[64px] md:w-2/3 h-auto">
-				<h1 className="  text-center leading-[1.2]">Increase your chances of getting a job by</h1>
+				<h1 className="  text-center leading-[1.2]  ">Increase your chances of getting a job by</h1>
 			</Reveal>
 			<Reveal IsDual={false} CName="slide_up" threshold={0.5} PCName="mx-auto w-fit">
 				<p className="font-bold text-4xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-6 py-1 sm:px-4 sm:py-2 tracking-wide rounded-lg bg-[#6DE5E5] w-min mx-auto">10X</p>

@@ -55,7 +55,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ heading, title, titleImage,
 
 	return (
 		<div className={`bg-transparent p-1 md:p-5 ${className}`}>
-			<div className="relative section-wrapper min-h-96 !p-1 md:p-5 mx-auto font-bold text-[10px]">
+			<div className="relative section-wrapper max-sm:!pt-8 min-h-96 !p-1 md:p-5 mx-auto font-bold text-[10px]">
 				{/* Header Badge */}
 				{heading && (
 					<h2 className="flex gap-2 mb-5 w-fit mx-auto justify-between items-center border-[0.8px] border-blue-600 shadow-sm shadow-blue-500 rounded-full text-blue-600 bg-white px-2 py-1">

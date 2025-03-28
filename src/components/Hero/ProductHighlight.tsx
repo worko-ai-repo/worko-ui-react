@@ -17,7 +17,7 @@ const ProductHighlight = () => {
 
 	return (
 		<section className="bg-white pt-0">
-			<div className="section-wrapper min-h-96 !pb-32 mx-auto font-bold text-[10px]">
+			<div className="section-wrapper max-sm:!py-10 min-h-96 !pb-32 mx-auto font-bold text-[10px]">
 				{/* Header */}
 				<div className="flex gap-2 mb-5 w-fit mx-auto justify-between items-center border-[0.8px] border-blue-600 shadow-sm shadow-blue-500 rounded-full text-blue-600 bg-transparent px-2 py-1">
 					<i className="text-blue-500 rounded-[50%] bg-blue-900 p-1.5 fa-md fa-solid fa-box-open"></i>
@@ -48,12 +48,11 @@ const ProductHighlight = () => {
 								</div>
 							))}
 						</div>
-
-						<div className="w-[0px] product_highlight_img sm:w-[400px] h-full">
+						<div className=" rounded-lg  rotate-[-5deg] overflow-hidden p-5 w-[0px] product_highlight_img sm:w-[350px] max-w-[350px] h-full glass_container" >
 							<img
 								src={dorpDown.one[openDropdown.one ?? 0]?.bigimg} // Default to index 0
 								alt="mini_frame1"
-								className="invisible sm:visible rounded-lg rotate-[-5deg]"
+								className="invisible sm:visible rounded-lg "
 							/>
 						</div>
 					</div>

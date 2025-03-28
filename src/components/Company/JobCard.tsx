@@ -30,7 +30,7 @@ export const JobCard = ({ job }: any) => {
     setShowModal(false);
   };
 
-  const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+/*   const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     const requestData = {
@@ -45,7 +45,7 @@ export const JobCard = ({ job }: any) => {
   
     try {
       const { response, error, status } = await
-        httpServiceObj.post('http://localhost:3000/local/refer', requestData, true, {}, true)
+        httpServiceObj.post('http://localhost:3000/local/refer', requestData, true, {}, true)//@Todo vaibhav why are we using localhost here
        
       
   
@@ -60,7 +60,7 @@ export const JobCard = ({ job }: any) => {
       toast.error(error?.message || 'Failed to submit referral');
     }
   };
-  
+   */
   
   
 
@@ -104,7 +104,7 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName}  className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{isLogoAvailable && !imgError ?  <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> :<Building2 />}</div>
+              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName}  className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{isLogoAvailable && !imgError ?  <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="w-full text-wrap truncate text-[60%] font-extrabold text-sky-400 ">{companyName}</div>}</div>
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
@@ -218,7 +218,7 @@ export const JobCard = ({ job }: any) => {
   <CustomModal 
     type="share" 
     title="Refer a Friend and Earn Rewards!" 
-    onSubmit={()=>{handleReferSubmit}} // Pass function directly
+    onSubmit={()=>{/* handleReferSubmit */}} // Pass function directly
     onClose={() => setShowModal(false)}
     hideDefaultButtons={true}
   >
@@ -227,7 +227,7 @@ export const JobCard = ({ job }: any) => {
         Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
       </p>
     </div>
-    <form className="space-y-4 px-4" onSubmit={handleReferSubmit}> 
+    <form className="space-y-4 px-4" onSubmit={()=>{}/* handleReferSubmit */}> 
       <div>
         <input 
           type="text" 

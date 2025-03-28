@@ -47,14 +47,14 @@ const AppRoutes = createBrowserRouter([
 					</Suspense>
 				),
 			},
-			{
+			/* {
 				path: 'test',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<TestPage />
 					</Suspense>
 				),
-			},
+			}, */
 			{
 				path: 'jobs/',
 				children: [
@@ -145,7 +145,7 @@ const AppRoutes = createBrowserRouter([
 			},
  
 			{
-				path: 'guidance',
+				path: 'guidance*',
 				element: (
 					<Suspense fallback={<MainLoader />}>
 						<Guidance />
