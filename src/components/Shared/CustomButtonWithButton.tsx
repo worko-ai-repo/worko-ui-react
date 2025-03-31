@@ -1,6 +1,6 @@
 import { SignupMode } from '@Components/Auth/Signup/Signup';
 import { useAuthContext } from '@Context/Auth.context';
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 
 interface ToggleOption {
 	label: string;
@@ -46,9 +46,16 @@ interface ToggleProps {
  * export default App;
  */
 const CustomButtonWithButton: React.FC<ToggleProps> = ({ options, activeFrame, setActiveFrame }) => {
-	
-	const {setAuthContextActiveFrame} = useAuthContext();
-	
+	//ref to track the select frame
+	const selectedFrame = React.useRef<HTMLInputElement>(null);
+
+	//Update The url params to the active frame
+	useLayoutEffect(() => {
+		const url = new URL(window.location.href);
+		url.searchParams.set('mode', activeFrame);
+		window.history.replaceState({}, '', url.toString());
+	}, [activeFrame]);
+
 	const handleActiveFrame = (frame: SignupMode) => {
 		// console.log(`Chnage to ${frame}`);
 		setActiveFrame(frame);
@@ -66,6 +73,7 @@ const CustomButtonWithButton: React.FC<ToggleProps> = ({ options, activeFrame, s
 			{options.map((option, index) => (
 				<div key={index} className="relative flex-1 " >
 					<input
+						ref={selectedFrame}
 						type="radio"
 						id={option.value}
 						name="toggle"

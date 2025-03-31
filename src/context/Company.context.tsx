@@ -261,7 +261,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   
         if (retryJobIds.length > 0) {
           // console.log("Retrying missing jobs:", retryJobIds);
-          setTimeout(() => fetchJobMatchingScores(retryJobIds), 20000); // Retry after 20 seconds
+          setTimeout(() => fetchJobMatchingScores(retryJobIds), 5000); // Retry after 20 seconds
         }
       } catch (err) {
         console.error("Exception in fetchJobMatchingScores:", err);
