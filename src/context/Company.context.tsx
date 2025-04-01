@@ -181,94 +181,123 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
  */
   const MAX_RETRIES = 5; // Limit the number of retries per job
-  const pendingJobRetries = new Map<string, number>(); // Track retries per job
-  
-  const fetchJobMatchingScores = useCallback(
-    async (jobIds: string[]) => {
-      if (!jobIds.length) return;
-  
-      try {
-        const { response, error } = await httpServiceObj.put<{
-          data: JobMatchingScoreDto[];
-          pagination: object;
-        }>(
-          `${APP_JOBS_API_URI}/user-matching-score-job/`,
-          { jobIds },
-          true,
-          {},
-          true
-        );
-  
-        if (error) {
-          console.error("Error fetching job matching scores:", error);
-          return;
+const pendingJobRetries = new Map<string, number>(); // Track retries per job
+const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // Persist missing job IDs
+
+const fetchJobMatchingScores = useCallback(
+  async (jobIds: string[]) => {
+    if (!jobIds.length) return;
+
+    try {
+      // Create a new updated set
+      const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
+      jobIds.forEach((jobId) => updatedMissingJobIdsSet.add(jobId));
+
+      // Update state asynchronously
+      setMissingJobIdsSet(updatedMissingJobIdsSet);
+
+      // Use updatedMissingJobIdsSet for API call
+      const { response, error } = await httpServiceObj.put<{
+        data: JobMatchingScoreDto[];
+        pagination: object;
+      }>(
+        `${APP_JOBS_API_URI}/user-matching-score-job/`,
+        { jobIds: Array.from(updatedMissingJobIdsSet) }, // Use updated set
+        true,
+        {},
+        true
+      );
+
+
+      if (error) {
+        console.error("Error fetching job matching scores:", error);
+        return;
+      }
+
+      const scoresMap: Record<string, JobMatchingScoreDto> = {};
+      const receivedJobIds = new Set<string>();
+      const alreadyTriggeredJobIds = new Set<string>();
+
+      response?.data?.forEach((score) => {
+        scoresMap[score.jobId] = score;
+        receivedJobIds.add(score.jobId);
+
+        if (score.isTriggered && !score.matchingScore) {
+          alreadyTriggeredJobIds.add(score.jobId);
         }
-  
-        const scoresMap: Record<string, JobMatchingScoreDto> = {};
-        const receivedJobIds = new Set<string>();
-        const alreadyTriggeredJobIds = new Set<string>();
-  
-        response?.data?.forEach((score) => {
-          scoresMap[score.jobId] = score;
-          receivedJobIds.add(score.jobId);
-  
-          if (score.isTriggered && !score.matchingScore) {
-            alreadyTriggeredJobIds.add(score.jobId);
-          }
-        });
-  
-        const missingJobIds = jobIds.filter(
+      });
+
+        const currentMissingJobIds = jobIds.filter(
           (jobId) =>
             !receivedJobIds.has(jobId) || // If we never got the job back
             (alreadyTriggeredJobIds.has(jobId) && !scoresMap[jobId]?.matchingScore) // If job was triggered but score is still missing
         );
-  
-        // Increment retry count for missing jobs
-        const retryJobIds = missingJobIds.filter((jobId) => {
-          const retries = pendingJobRetries.get(jobId) || 0;
-          if (retries >= MAX_RETRIES) {
-            console.warn(`Max retries reached for job ${jobId}, skipping.`);
-            return false;
-          }
-          pendingJobRetries.set(jobId, retries + 1);
-          return true;
+        setMissingJobIdsSet((prevSet) => {
+          const newSet = new Set(prevSet);
+          currentMissingJobIds.forEach((jobId) => newSet.add(jobId));
+          return newSet;
         });
-  
-        setCompanyJobData((prev) => {
-          if (!prev) return undefined;
-  
-          const existingJobsMap = prev.reduce((acc, job) => {
-            acc[job.id] = job;
-            return acc;
-          }, {} as Record<string, JobDto>);
-  
-          jobIds.forEach((jobId) => {
-            if (existingJobsMap[jobId]) {
-              existingJobsMap[jobId] = {
-                ...existingJobsMap[jobId],
-                matchingScore:
-                  scoresMap[jobId]?.matchingScore ??
-                  existingJobsMap[jobId].matchingScore,
-                applyStatus: scoresMap[jobId]
-                  ? "APPLIED"
-                  : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
-              };
-            }
+      
+      // Increment retry count for missing jobs
+      const retryJobIds = currentMissingJobIds.filter((jobId) => {
+        const retries = pendingJobRetries.get(jobId) || 0;
+        if (retries >= MAX_RETRIES) {
+          console.warn(`Max retries reached for job ${jobId}, skipping.`);
+          setMissingJobIdsSet((prevSet) => {
+            const newSet = new Set(prevSet);
+            newSet.delete(jobId);
+            return newSet;
           });
-  
-          return prev.map((job) => existingJobsMap[job.id] || job);
-        });
-  
-        if (retryJobIds.length > 0) {
-          // console.log("Retrying missing jobs:", retryJobIds);
-          setTimeout(() => fetchJobMatchingScores(retryJobIds), 5000); // Retry after 20 seconds
+         
+          pendingJobRetries.delete(jobId); // Clean up the retry counter
+          return false;
         }
-      } catch (err) {
-        console.error("Exception in fetchJobMatchingScores:", err);
+        pendingJobRetries.set(jobId, retries + 1);
+        return true;
+      });
+
+      setCompanyJobData((prev) => {
+        if (!prev) return undefined;
+
+        const existingJobsMap = prev.reduce((acc, job) => {
+          acc[job.id] = job;
+          return acc;
+        }, {} as Record<string, JobDto>);
+
+          jobIds.forEach((jobId) => {
+            // Delete job ids from missingJobIdsSet
+            setMissingJobIdsSet((prevSet) => {
+              const newSet = new Set(prevSet);
+              newSet.delete(jobId);
+              return newSet;
+            });
+
+          if (existingJobsMap[jobId]) {
+            existingJobsMap[jobId] = {
+              ...existingJobsMap[jobId],
+              matchingScore:
+                scoresMap[jobId]?.matchingScore ??
+                existingJobsMap[jobId].matchingScore,
+                applyStatus: scoresMap[jobId]
+                ? "APPLIED"
+                : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
+            };
+          }
+        });
+
+        return prev.map((job) => existingJobsMap[job.id] || job);
+      });
+
+      if (retryJobIds.length > 0) {
+        // console.log("Retrying missing jobs:", retryJobIds);
+        setTimeout(() => fetchJobMatchingScores(retryJobIds), 5000); // Retry after 20 seconds
       }
-    },
-    [setCompanyJobData]
-  );
+    } catch (err) {
+      console.error("Exception in fetchJobMatchingScores:", err);
+    }
+  },
+  [setCompanyJobData, missingJobIdsSet]
+);
   
 
 
