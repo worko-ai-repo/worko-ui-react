@@ -206,7 +206,7 @@ export const JobCard = ({ job }: any) => {
               Refer A Friend
             </button> */
             }
-            <button onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+            <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details
             </button>
           </div>
