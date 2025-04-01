@@ -9,6 +9,8 @@ import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateF
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
 import { BaseApiFiltersDto, CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { toast } from "react-toastify";
+import CustomToast from "@Utils/Toast.utils";
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -258,35 +260,57 @@ const fetchJobMatchingScores = useCallback(
 
       setCompanyJobData((prev) => {
         if (!prev) return undefined;
-
+      
+        // Step 1 → Create a map of existing jobs for quick lookup
         const existingJobsMap = prev.reduce((acc, job) => {
           acc[job.id] = job;
           return acc;
         }, {} as Record<string, JobDto>);
-
-          jobIds.forEach((jobId) => {
-            // Delete job ids from missingJobIdsSet
-            setMissingJobIdsSet((prevSet) => {
-              const newSet = new Set(prevSet);
-              newSet.delete(jobId);
-              return newSet;
-            });
-
+      
+        const jobsToRemove: string[] = []; // Store jobs that need to be removed
+      
+        jobIds.forEach((jobId) => {
+          // Step 2 → Remove jobId from missingJobIdsSet since we got a response
+          setMissingJobIdsSet((prevSet) => {
+            const newSet = new Set(prevSet);
+            newSet.delete(jobId);
+            return newSet;
+          });
+      
           if (existingJobsMap[jobId]) {
+            // Step 3 → Retrieve or maintain the job's matching score
+            const matchingScore =
+              scoresMap[jobId]?.matchingScore ?? existingJobsMap[jobId].matchingScore;
+      
+            // Step 4 → Update job details including applyStatus and badJob flag
             existingJobsMap[jobId] = {
               ...existingJobsMap[jobId],
-              matchingScore:
-                scoresMap[jobId]?.matchingScore ??
-                existingJobsMap[jobId].matchingScore,
-                applyStatus: scoresMap[jobId]
-                ? "APPLIED"
-                : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
+              matchingScore,
+              applyStatus: scoresMap[jobId] ? "APPLIED" : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
+              badJob: matchingScore !== undefined && matchingScore < 30, // Step 5 → Mark job as bad if score < 30%
             };
+      
+            // Step 6 → If job score is below 30%, mark it for removal
+            if (matchingScore !== undefined && matchingScore < 30) {
+              jobsToRemove.push(jobId);
+            }
           }
         });
-
+      
+        // Step 7 → Schedule removal of jobs with score < 30% after 5 seconds
+        if (jobsToRemove.length > 0) {
+          setTimeout(() => {
+            setCompanyJobData((prevJobs) =>
+              prevJobs?.filter((job) => !jobsToRemove.includes(job.id)) // Remove marked jobs
+            );
+            CustomToast.success("Filtered out jobs with low scores.", { autoClose:false , position:"bottom-center"}, true); // Glass style applied
+          }, 2000);
+        }
+      
+        // Step 8 → Return the updated job list
         return prev.map((job) => existingJobsMap[job.id] || job);
       });
+      
 
       if (retryJobIds.length > 0) {
         // console.log("Retrying missing jobs:", retryJobIds);

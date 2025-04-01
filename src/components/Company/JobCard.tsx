@@ -9,7 +9,7 @@ import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus } = job;
+  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus,badJob } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
@@ -130,7 +130,7 @@ export const JobCard = ({ job }: any) => {
                 {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
                 {!isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Posted Job by Worko</span>}
                 {/* {<span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{jobStatus}</span>} */}
-                
+                {badJob && <span className="px-3 py-1 max-h-[25px] bg-red-400 rounded-full text-xs md:text-[10.5px]  whitespace-nowrap animate-pulse text-white ">Removing irrelevant job...</span>}
               </div>
 
               {/* Gauge on mobile only */}

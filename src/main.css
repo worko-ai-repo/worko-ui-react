@@ -30,6 +30,7 @@
 	/* Brand color */
 	--brand-bright: #22019c;
 	--header-scrolled: rgba(255, 255, 255, 0.8);
+	--toastify-toast-bottom: 100px !important;
 
 	--text-xxs: 0.8rem;
 	--text-xs: 1rem;

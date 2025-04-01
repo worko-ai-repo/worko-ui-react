@@ -107,6 +107,7 @@ export interface JobDto extends CompanyDto {
   matchingScore?: number;
   isNew?: boolean;
   companyLogoUrl?: string;
+  badJob?: boolean;
 }
 
 /**

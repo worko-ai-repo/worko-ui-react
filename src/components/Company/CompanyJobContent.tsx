@@ -153,7 +153,8 @@ const CompanyJobContent = () => {
                         companyName: finalCompanyName,
                         jobdescription: job.jobDescription,
                         aboutcompany: job.companyDetails,
-                        jobStatus: job.status
+                        jobStatus: job.status,
+                        badJob: job.badJob
                       }}
                     />
                   );
