@@ -13,27 +13,29 @@ import { isExternal } from "util/types";
 import MessageModal from "@Components/Modals/MessageModal";
 import { useAppContext } from "@Context/App.context";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
+
 const JobCard = lazy(() => import("@Components/Company/JobCard"));
 const JobFilterPanel = lazy(() => import("./JobFilterPanel"));
 const RequestCompany = lazy(() => import("./RequestCompany"));
 
 const CompanyJobContent = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const {userDetails}:{userDetails:Partial<AuthLoginForGeneralUserDto>} = useAppContext();
-  const { 
-    companyJobData, 
-    setSearchText, 
-    handleSearch, 
-    searchText, 
-    resetSearch, 
-    companyPageMode, 
-    isLoading, 
-    companyRefData, 
-    isError, 
-    hasNextPage, 
-    isFetchingNextPage, 
+  const { userDetails }: { userDetails: Partial<AuthLoginForGeneralUserDto> } = useAppContext();
+  const {
+    companyJobData,
+    setSearchText,
+    handleSearch,
+    searchText,
+    resetSearch,
+    companyPageMode,
+    isLoading,
+    companyRefData,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
     fetchNextPage,
-    isProfileInclomplete 
+    isProfileInclomplete
   } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
@@ -41,15 +43,15 @@ const CompanyJobContent = () => {
   const loadingRef = useRef(false);
 
   // Debounced fetch function to prevent multiple rapid calls
-	// Intersection Observer for Infinite Scroll
-	const { ref: inViewRef } = useInView({
-		triggerOnce: false,
-		onChange: inView => {
-			if (inView && hasNextPage && !isFetchingNextPage) {
-				fetchNextPage();
-			}
-		},
-	});
+  // Intersection Observer for Infinite Scroll
+  const { ref: inViewRef } = useInView({
+    triggerOnce: false,
+    onChange: inView => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+  });
 
   return (
     <div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
@@ -84,8 +86,8 @@ const CompanyJobContent = () => {
               </button>
             )}
           </div>
-          <button 
-            onClick={handleSearch} 
+          <button
+            onClick={handleSearch}
             className="w-[80px] sm:min-w-max text-xs sm:text-base md:text-lg bg-gradient-to-b from-sky-400 to-blue-600 rounded-e-lg px-3 py-2 text-white flex justify-center items-center">
             <i className="fa-solid fa-magnifying-glass sm:hidden"></i>
             <span className="hidden sm:inline text-sm">{companyPageMode === CompanyPageModeEnum.JOB ? "Search Job" : "Search Company"}</span>
@@ -93,8 +95,8 @@ const CompanyJobContent = () => {
         </div>
 
         {/* Filters Button (Mobile) */}
-        <button 
-          onClick={toggleFilters} 
+        <button
+          onClick={toggleFilters}
           className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
           Filters <i className="fa-solid fa-filter"></i>
         </button>
@@ -124,22 +126,22 @@ const CompanyJobContent = () => {
                 {companyJobData.map((job, index) => {
                   const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
                   const Finallocations = !job?.location?.fullLocation?.length ? 'Not Disclosed' : job?.location?.fullLocation.join(', ');
-                  const finalLogoUrl = job?.companyDetails?.logo 
-                  ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` 
-                  : job?.companyDetails?.logoUrl;
-                
-                const companyLogoUrl = job?.externalJobId 
-                  ? job?.companyLogoUrl 
-                  : finalLogoUrl;
-                
-                const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
+                  const finalLogoUrl = job?.companyDetails?.logo
+                    ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}`
+                    : job?.companyDetails?.logoUrl;
+
+                  const companyLogoUrl = job?.externalJobId
+                    ? job?.companyLogoUrl
+                    : finalLogoUrl;
+
+                  const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
                   // const finalLogoUrl =  job.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job.companyDetails.logo}` : job.companyDetails?.logoUrl
                   return (
                     <JobCard
                       key={job.id || index}
                       job={{
-                        isLogoAvailable : isLogoAvailable,
-                        companyLogo:companyLogoUrl,
+                        isLogoAvailable: isLogoAvailable,
+                        companyLogo: companyLogoUrl,
                         title: job.jobTitle,
                         department: job.department,
                         salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, "salary"),
@@ -165,9 +167,10 @@ const CompanyJobContent = () => {
                 </div>
               </>
             ) : (
-              <p className="text-2xl relative font-medium text-gray-500 top-[43%]">
-                {isError ? "Something went wrong." : "Sorry, we couldn't find anything here."}
-              </p>
+              isError ?
+                <p className="text-2xl relative font-medium text-gray-500 top-[43%]">
+                  "Something went wrong."
+                </p> : <CompanyPageFallback mode = 'JOB' />
             )}
           </div>
         ) : (
@@ -189,9 +192,10 @@ const CompanyJobContent = () => {
                 </div>
               </>
             ) : (
-              <p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">
-                {isError ? "Something went wrong." : "Sorry, we couldn't find anything here."}
-              </p>
+              isError ?
+                <p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">
+                  "Something went wrong."
+                </p> : <CompanyPageFallback mode = "REFERRAL" />
             )}
           </div>
         )}
@@ -203,7 +207,7 @@ const CompanyJobContent = () => {
           size="lg"
           heading={{ type: 'warning', message: 'Complete Your Profile' }}
           message="Please complete your profile before searching for jobs or companies."
-          onClose={() => {}}
+          onClose={() => { }}
           showCloseButton={false}
           buttons={[
             {
@@ -222,7 +226,7 @@ const CompanyJobContent = () => {
 
 export default CompanyJobContent;
 
-export function handleEditProfileRedirection(userDetails:'CAND'|'EMP') {
-  const params =  encodeURIComponent(window.location.href);
-  window.location.href =`/v1/candidate/edit-profile?returnUrl=${params}`;
+export function handleEditProfileRedirection(userDetails: 'CAND' | 'EMP') {
+  const params = encodeURIComponent(window.location.href);
+  window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}`;
 }
