@@ -170,7 +170,7 @@ const CompanyJobContent = () => {
               isError ?
                 <p className="text-2xl relative font-medium text-gray-500 top-[43%]">
                   "Something went wrong."
-                </p> : <CompanyPageFallback mode = 'JOB' />
+                </p> : <CompanyPageFallback  mode='JOB' />
             )}
           </div>
         ) : (

@@ -303,7 +303,7 @@ const fetchJobMatchingScores = useCallback(
             setCompanyJobData((prevJobs) =>
               prevJobs?.filter((job) => !jobsToRemove.includes(job.id)) // Remove marked jobs
             );
-            CustomToast.success("Filtered out jobs with low scores.", { autoClose:false , position:"bottom-center"}, true); // Glass style applied
+            CustomToast.success("Filtered out jobs with low scores.", {autoClose: 2000,closeButton:true,position:"bottom-center"}, true); // Glass style applied
           }, 2000);
         }
       

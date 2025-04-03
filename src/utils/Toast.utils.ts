@@ -25,7 +25,7 @@ class CustomToast {
 
   // Merges glass style with other options if 'glass' flag is true
   private static mergeOptions(options?: ToastOptions, glass?: boolean): ToastOptions {
-    const finalOptions = { ...options,closeButton:false, hideProgressBar: true, pauseOnHover: true, draggable: true };
+    const finalOptions = { ...options, hideProgressBar: true, pauseOnHover: true, draggable: true };
     if (glass) {
       finalOptions.style = { ...this.glassStyle, ...(options?.style || {}) };
     }

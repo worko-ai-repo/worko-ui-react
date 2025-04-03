@@ -64,6 +64,8 @@ import document from './svgs/document.svg';
 import lightening from './svgs/lightening.svg';
 import shield from './svgs/shield.svg';
 import time from './svgs/time.svg';
+import Bubble from './svgs/bubble.svg';
+import WavyLine from './svgs/wavyline.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -123,4 +125,6 @@ export {
     lightening,
     shield,
     time,
+    Bubble,
+    WavyLine,
 };
