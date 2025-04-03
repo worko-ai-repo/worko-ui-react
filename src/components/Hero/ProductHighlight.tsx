@@ -47,7 +47,7 @@ const ProductHighlight = () => {
 								</div>
 							))}
 						</div>
-						<div className=" rounded-lg  rotate-[-5deg] overflow-hidden p-5 w-[0px] product_highlight_img sm:w-[350px] max-w-[350px] h-full glass_container" >
+						<div className="hidden sm:block rounded-lg  rotate-[-5deg] overflow-hidden p-5 w-[0px] product_highlight_img sm:w-[350px] max-w-[350px] h-full glass_container" >
 							<img
 								src={dorpDown.one[openDropdown.one ?? 0]?.bigimg} // Default to index 0
 								alt="mini_frame1"
