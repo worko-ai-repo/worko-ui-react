@@ -35,6 +35,7 @@ const Header = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 	const headerRef = useRef<HTMLElement>(null);
+	const [imgError, setImgError] = useState(false); // Track image load failure
 
 	const toggleDropdown = (label: string) => {
 		setActiveDropdown(activeDropdown === label ? null : label);
@@ -94,8 +95,20 @@ const Header = () => {
 					{isLoggedIn ? (
 						<div className="group relative">
 							<div className="flex items-center justify-start gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-[55px] group-hover:bg-[#79bff848]">
-								<a className={styles.userDetails} href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"}>
-									{userDetails?.profileImageAwsS3SignedUrl ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}
+								<a className={styles.userDetails} href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile"}>
+									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
+										<img
+											onError={() => setImgError(true)}
+											className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full"
+											src={userDetails?.profileImageAwsS3SignedUrl}
+										/>
+									) : userDetails?.name ? (
+										<span className="text-gray-400 border-[1px] font-bold border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full flex items-center justify-center">
+														{userDetails.name.charAt(0).toUpperCase()}
+													</span>
+									) : (
+										<User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />
+									)}
 								</a>
 								<i className="fa-solid fa-chevron-down cursor-pointer" onClick={() => CognitoServiceObj.handleSignOut()}></i>
 							</div>
@@ -106,7 +119,22 @@ const Header = () => {
 									<li className="flex items-center justify-between  rounded-lg bg-white ">
 										<div className="flex items-center justify-start w-full gap-2 ">
 											{/* Avatar */}
-											<div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 overflow-hidden">{userDetails?.profileImageAwsS3SignedUrl ? <img className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} /> : <User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />}</div>
+											<div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 font-bold  overflow-hidden flex items-center justify-center text-gray-400">
+												{userDetails?.profileImageAwsS3SignedUrl  && !imgError ? (
+													<img
+														className="border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full"
+														src={userDetails?.profileImageAwsS3SignedUrl}
+														onError={() => setImgError(true)}
+														alt="User Avatar"
+													/>
+												) : userDetails?.name ? (
+													
+														userDetails.name.charAt(0).toUpperCase()
+							
+												) : (
+													<User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />
+												)}
+											</div>
 
 											{/* User Info */}
 											<div className="flex flex-col justify-start items-start flex-1  ">
@@ -187,9 +215,15 @@ const Header = () => {
 				<div className={`absolute z-50 w-full transition-all ease-in-out duration-300 ${styles.mobileMenu}`}>
 					{isLoggedIn && (
 						<div className="flex flex-col items-start justify-start gap-4 p-2">
-							<div className="flex justify-between items-center w-full">
+							<div className="flex font-bold justify-between items-center w-full">
 								<span className="flex-1 flex items-center" onClick={()=>{window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile"}}>
-									{userDetails?.profileImageAwsS3SignedUrl ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : <User className="w-8 h-8 object-cover rounded-lg border border-gray-400" />}
+									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" onError={()=>setImgError(true)}  src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : userDetails?.name ? (
+													<span className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full flex items-center justify-center">
+														{userDetails.name.charAt(0).toUpperCase()}
+													</span>
+												) : (
+													<User className="w-8 h-8 object-cover rounded-lg border border-gray-400" />
+												)} 
 									<h4 className="text-lg font-semibold capitalize px-2 ">{userDetails?.name || 'user'}</h4>
 								</span>
 								<LogOut
