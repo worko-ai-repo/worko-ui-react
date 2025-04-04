@@ -4,6 +4,7 @@ import MessageModal from '@Components/Modals/MessageModal';
 import { AwsS3FileUploadResponse } from '@Interfaces/Auth.dto';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { validationRules } from '@Utils/FormValidator.utils';
+import { getToastOptions } from '@Utils/Toast.utils';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -97,7 +98,7 @@ const AboutOutro = () => {
       
   };
 } catch (error: any) {
-  toast.error(error.message);
+  toast.error(error.message, getToastOptions());
 } 
 }
   

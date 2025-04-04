@@ -59,6 +59,3 @@ export const getToastOptions = (
     ...(overrides.style || {}), // Merge any custom style overrides
   },
 });
-
-
-//Type 'unknown' is not assignable to type 'ApiCallResponse'.ts(2322)
