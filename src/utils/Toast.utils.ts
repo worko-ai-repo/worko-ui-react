@@ -53,4 +53,4 @@ class CustomToast {
   }
 }
 
-export default CustomToast;
+export default CustomToast; 
