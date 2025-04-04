@@ -5,6 +5,7 @@ import { validationRules } from '@Utils/FormValidator.utils';
 import { toast } from 'react-toastify';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import secureStorage from '@Utils/SecureStorage.utils';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 
 interface RequestCompanyFormData {
@@ -47,12 +48,12 @@ const RequestCompany = ({userType}: {userType: Partial<AuthLoginForGeneralUserDt
 		const response = await httpServiceObj.post('/company/request', requestData, true);
 		
 		if (response?.status === 409) {
-		  toast.error('Request has already been submitted.');
+		  toast.error('Request has already been submitted.',getToastOptions());
 		} else {
-		  toast.success('Request submitted successfully!');
+		  toast.success('Request submitted successfully!',getToastOptions());
 		}
 	  } catch (error: any) {
-		toast.error('Failed to submit request. Please try again.');
+		toast.error('Failed to submit request. Please try again.',getToastOptions());
 	  } finally {
       reset();
     }

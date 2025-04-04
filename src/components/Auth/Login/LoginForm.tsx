@@ -105,7 +105,7 @@ const LoginForm = () => {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 			// If error occurs, show the error message and reset the form
 			if (error) {
-				toast.error(error.message, getToastOptions({autoClose: false,position:'top-center'}, "default"));
+				toast.error(error.message, getToastOptions({autoClose: false}));
 				reset(undefined, { keepValues: false });
 				throw new Error(error.message);
 			} else {
@@ -117,7 +117,7 @@ const LoginForm = () => {
 				 * If corporate, show a popup and log out the user.
 				 */
 				if (userType === 'Corporate') {
-					toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.");
+					toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.",getToastOptions({autoClose: false}));
 					CognitoServiceObj.handleSignOut();
 					return;
 				}
@@ -126,10 +126,10 @@ const LoginForm = () => {
 				 * If the account is not confirmed, prompt the user to confirm the email.
 				 */
 				if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
-					toast.error('Please confirm your email address before signing in.');
+					toast.error('Please confirm your email address before signing in.',getToastOptions({autoClose: false}));
 					const { response, error } = await CognitoServiceObj.resendOtp({ username: data.email });
 					if (error) {
-						toast.error(error.message);
+						toast.error(error.message,getToastOptions({autoClose: false}));
 						reset(undefined, { keepValues: false });
 					}
 					setConfEmail(data.email);
@@ -144,7 +144,7 @@ const LoginForm = () => {
 					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
 
 					if (userError) {
-						toast.error('Error: ' + userError);
+						toast.error('Error: ' + userError, getToastOptions({autoClose: false}));
 						reset(undefined, { keepValues: false });
 						throw new Error();
 					} else {
@@ -152,7 +152,7 @@ const LoginForm = () => {
 						let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
 
 						if (!user) {
-							toast.error('Error: No user data found');
+							toast.error('Error: No user data found', getToastOptions({autoClose: false}));
 							reset(undefined, { keepValues: false });
 							throw new Error();
 						}
@@ -177,7 +177,7 @@ const LoginForm = () => {
 						await handleRememberDevice();
 						await currentSession();
 						setUpdateCheck(true);
-						toast.success('Successfully signed in');
+						toast.success('Successfully signed in', getToastOptions({}));
 						setTimeout(() => {
 							// Construct the referral object
 							const pendingReferral =
@@ -193,7 +193,7 @@ const LoginForm = () => {
 				}
 			}
 		} catch (error: any) {
-			toast.error(error?.message || 'Something went wrong', getToastOptions({autoClose: false,position:'top-center'}, "default"));
+			toast.error(error?.message || 'Something went wrong',  getToastOptions({autoClose: false}));
 			// CognitoServiceObj.handleSignOut();
 		}
 	};
@@ -208,11 +208,11 @@ const LoginForm = () => {
 
 			// Call handleSignUpConfirmation and await the result
 			// debugger;
-			const { response, error } = await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform), {
+			 await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform), {
 				pending: 'Verifying Otp',
 				success: 'Otp verified successfully',
 				error: 'Error verifying Otp',
-			});
+			}, getToastOptions({}));
 			// Get form values and submit login
 			const formData = getValues();
 
@@ -220,7 +220,7 @@ const LoginForm = () => {
 				pending: 'Signing in...',
 				success: 'Successfully signed in',
 				error: 'Error: An error occurred while signing in',
-			});
+			}, getToastOptions({}));
 		} catch (error) {
 			console.error('OTP verification failed', error);
 		} finally {
@@ -238,7 +238,7 @@ const LoginForm = () => {
 					toast.promise(() => onSubmit(data), {
 						pending: 'Signing in...',
 						error: 'Error: An error occurred while signing in',
-					})
+					}, getToastOptions({}))
 				)}
 				className=" min-w-full h-full ">
 				<div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-2 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">

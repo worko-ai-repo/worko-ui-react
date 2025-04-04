@@ -65,21 +65,3 @@ const Login = () => {
   );
 };
 export default Login;
-
-{
-  /* <div className=" px-3 sm:px-8 pt-8 pb-16  sm:px:14 flex justify-between w-full items-center "> */
-}
-{
-  /* Form and Image */
-}
-{
-  /* <div className=" img hidden sm:block h-full max-w-[50%]"> */
-}
-// <img src={Login_Boy} alt="login_img" className="w-full h-full object-contain  " />
-// </div>
-{
-  /* <div className=" img h-full w-full sm:w-[50%] "> */
-}
-// <LoginForm />
-// </div>
-// </div>

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { validationRules } from "@Utils/FormValidator.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { toast } from 'react-toastify';
+import { getToastOptions } from "@Utils/Toast.utils";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
@@ -148,7 +149,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     } , true)
 
     if(status===409) {
-      toast.error('Already Registered!')
+      toast.error('Already Registered!',getToastOptions())
     }
 
     if(response) {

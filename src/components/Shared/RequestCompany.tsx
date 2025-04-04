@@ -2,6 +2,7 @@ import CustomModal from '@Components/Modals/FormModal';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { useMutation } from '@tanstack/react-query';
 import { validationRules } from '@Utils/FormValidator.utils';
+import { getToastOptions } from '@Utils/Toast.utils';
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -24,17 +25,17 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
         const { response, error, status } = await httpServiceObj.post('/company/request', data, true);
         
         if (status === 409) {
-            toast.error('Request already submitted');
+            toast.error('Request already submitted',getToastOptions());
 			setShowModal(false);
             return null;
         }
         else if (error) {
-            toast.error('Error submitting');
+            toast.error('Error submitting',getToastOptions());
 			setShowModal(false);
             return null;
         }
 		else{
-			toast.success('Submitted successfully');
+			toast.success('Submitted successfully',getToastOptions());
             setShowModal(false);
 			return response;
 		}

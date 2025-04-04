@@ -1,5 +1,6 @@
 import httpServiceObj from '@Services/ApiHandler.service';
 import { validationRules } from '@Utils/FormValidator.utils';
+import { getToastOptions } from '@Utils/Toast.utils';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -46,7 +47,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 		setVerifying(false);
 
 		if (dbError) {
-			toast.error('Something went wrong. Please try again later.');
+			toast.error('Something went wrong. Please try again later.',getToastOptions());
 			// If OTP verification failed, reset the OTP field
 			if (isOtpVerification) {
 				setIsOtpSent(false);
@@ -55,12 +56,12 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 			// If OTP verification successful, set email verified
 			if (isOtpVerification && dbResponse?.verificationStatus === true) {
 				setEmailVerified(true);
-				toast.success('Email Verified Successfully');
+				toast.success('Email Verified Successfully',getToastOptions());
 			} else if (dbResponse?.verificationStatus === false) {
-				toast.error('Please enter correct OTP');
+				toast.error('Please enter correct OTP',getToastOptions());
 			} else {
 				setIsOtpSent(true);
-				toast.success('OTP Sent to your Email');
+				toast.success('OTP Sent to your Email',getToastOptions());
 				setTimeout(() => setResendOtpVisible(true), 10000); // Show resend option after 10 sec
 			}
 		}
@@ -182,7 +183,7 @@ const CorporateConnectForm = ({ handleFormSubmit }: { handleFormSubmit: (data: a
 					if (isFormValid && isEmailVerified) {
 						handleSubmit(onSubmit)();
 					} else {
-						toast.warn('Please verify the fields before submitting');
+						toast.warn('Please verify the fields before submitting',getToastOptions());
 					}
 				}}>
 				Submit

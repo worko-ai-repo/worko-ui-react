@@ -37,3 +37,12 @@ export interface HttpMethodResponseDto<ResponseDataDto>{
     error:Error | null;
     status?:number;
 }
+
+/**
+ * HttpOption Interface for toast
+ */
+export interface ApiCallResponse{
+    response?: any;
+    error?: any;
+    status?: number;
+}

@@ -5,6 +5,7 @@ import httpServiceObj from '@Services/ApiHandler.service';
 import CorporateConnectForm from './CorporateConnectForm';
 import MessageModal from '@Components/Modals/MessageModal';
 import { toast } from 'react-toastify';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 
 const CorporateConnect = () => {
@@ -34,11 +35,11 @@ const CorporateConnect = () => {
 		};
 		const { response: dbResponse, error: dbError, status } = await httpServiceObj.post<any>('/corporate', constructPayload, true);
 		if (status === 409) {
-			toast.warn('You have already submitted the form. Our team will reach out to you shortly.');
+			toast.warn('You have already submitted the form. Our team will reach out to you shortly.',getToastOptions());
 			return;
 		}
 		if (dbError) {
-			toast.error('Something went wrong. Please try again later.');
+			toast.error('Something went wrong. Please try again later.',getToastOptions());
 			return;
 		} else {
 			setModalData({

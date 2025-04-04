@@ -14,6 +14,8 @@ import { useAppContext } from '@Context/App.context';
 import { useQuery } from '@tanstack/react-query';
 import { CompanyByIdDto } from '@Interfaces/JobsAndCompany.dto';
 import { fetchCompanyById } from '@Pages/request-referral/RequestReferral';
+import { getToastOptions } from '@Utils/Toast.utils';
+import { ApiCallResponse } from '@Interfaces/HttpOption.dto';
 
 // Define guidance form data interface
 interface GuidanceFormDTO {
@@ -177,7 +179,7 @@ const Guidance = () => {
 				handleSubmit(onSubmit)();
 			} else {
 				reset();
-				toast.error('Something went wrong!');
+				toast.error('Something went wrong!',getToastOptions());
 				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null);
 			}
 		}
@@ -230,9 +232,11 @@ const Guidance = () => {
       // Append companyId if data.id exists
       const companyId = data?.id;
       if(companyId) formData = {...formData, companyId};
-			const { response, error, status } = await toast.promise(httpServiceObj.post('/user/guidance-request', formData, true), {
+			const result = await toast.promise(httpServiceObj.post('/user/guidance-request', formData, true), {
 				pending: 'Submitting guidance request...',
-			});
+			},getToastOptions()) as ApiCallResponse;
+
+			const { response, error, status } = result;
 
 			if (status === 409) {
 				showModalMessage('duplicate');

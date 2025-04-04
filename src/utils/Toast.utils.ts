@@ -34,39 +34,6 @@ const toastVariants: Record<string, React.CSSProperties> = {
   // Add more variants here as needed
 };
 
-<<<<<<< Updated upstream
-  // Merges glass style with other options if 'glass' flag is true
-  private static mergeOptions(options?: ToastOptions, glass?: boolean): ToastOptions {
-    const finalOptions = { ...options, hideProgressBar: true, pauseOnHover: true, draggable: true };
-    if (glass) {
-      finalOptions.style = { ...this.glassStyle, ...(options?.style || {}) };
-    }
-    return finalOptions;
-  }
-
-  static success(message: string, options?: ToastOptions, glass: boolean = false): void {
-    toast.success(message, this.mergeOptions(options, glass));
-  }
-
-  static error(message: string, options?: ToastOptions, glass: boolean = false): void {
-    toast.error(message, this.mergeOptions(options, glass));
-  }
-
-  static info(message: string, options?: ToastOptions, glass: boolean = false): void {
-    toast.info(message, this.mergeOptions(options, glass));
-  }
-
-  static warning(message: string, options?: ToastOptions, glass: boolean = false): void {
-    toast.warning(message, this.mergeOptions(options, glass));
-  }
-
-  static custom(message: string, options?: ToastOptions, glass: boolean = false): void {
-    toast(message, this.mergeOptions(options, glass));
-  }
-}
-
-export default CustomToast; 
-=======
 /**
  * Generates toast configuration options by combining default settings,
  * variant-specific styles, and any custom overrides
@@ -92,4 +59,6 @@ export const getToastOptions = (
     ...(overrides.style || {}), // Merge any custom style overrides
   },
 });
->>>>>>> Stashed changes
+
+
+//Type 'unknown' is not assignable to type 'ApiCallResponse'.ts(2322)

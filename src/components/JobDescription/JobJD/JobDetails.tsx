@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { useAppContext } from '@Context/App.context';
 import styles from '../jobDescription.module.scss'
 import { toTitleCase } from '@Utils/Titlecase.utils';
+import { getToastOptions } from '@Utils/Toast.utils';
 interface JobRequirementsProps {
   experience?: string;
   education?: string;
@@ -137,7 +138,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
           console.error("Error sharing:", error);
         }
       } else {
-        toast.error("Sharing not supported, try another method.");
+        toast.error("Sharing not supported, try another method.",getToastOptions());
       }
     };
 

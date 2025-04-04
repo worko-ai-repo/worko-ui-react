@@ -4,6 +4,7 @@ import CognitoServiceObj from '@Utils/Cognito.utils';
 import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { toast } from 'react-toastify';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 /**
  * Custom hook for handling LinkedIn signup/signin
@@ -39,7 +40,7 @@ const useLinkedInSignup = () => {
 				await CognitoServiceObj.handleSocialSignIn();
 			
 			} catch (error: any) {
-				toast.error(error.message);
+				toast.error(error.message,getToastOptions());
 				console.error('LinkedIn sign in error:', error);
 				throw error;
 			}

@@ -17,6 +17,8 @@ import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import { toast } from "react-toastify";
 import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
+import { getToastOptions } from "@Utils/Toast.utils";
+import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
@@ -340,7 +342,7 @@ useEffect(() => {
         ? `${APP_JOBS_API_URI}/external-job-application/`
         : `${APP_JOBS_API_URI}/job-application/`;
 
-        const { response, error, status } = await toast.promise(
+        const result = await toast.promise(
           httpServiceObj.post(
             constructUrl,
             payload,
@@ -351,8 +353,12 @@ useEffect(() => {
           {
             pending: "Applying...",
             error: "Failed to submit application",
-          }
-        );
+          },
+          getToastOptions()
+        ) as ApiCallResponse;
+        
+        const { response, error, status } = result;
+        
         if(status===403) {
           setApplicationStatus(true);
           setShowApplyModal(true);
