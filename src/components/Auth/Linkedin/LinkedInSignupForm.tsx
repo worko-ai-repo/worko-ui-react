@@ -10,6 +10,7 @@ import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestR
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import secureStorage from '@Utils/SecureStorage.utils';
 import { useAppContext } from '@Context/App.context';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
@@ -126,7 +127,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 		try {
 			const success = await handleDataMutationtoDb(data);
 			if (success) {
-				toast.success('Account created successfully');
+				toast.success('Account created successfully', getToastOptions());
 				// Redirect to referral page if pending referral found or pending Apply job found
 				let pendingReferral =
 						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);

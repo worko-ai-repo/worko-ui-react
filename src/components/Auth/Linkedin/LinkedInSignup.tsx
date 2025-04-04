@@ -13,6 +13,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { SignupMode } from '../Signup/Signup';
 import { LinkedinIcon } from 'lucide-react';
 import LinkedInSignupForm from './LinkedInSignupForm';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 const LinkedInSignup = () => {
 	const location = useLocation();
@@ -162,7 +163,7 @@ const LinkedInSignup = () => {
 			if (CvNamePatchRequest.status !== 200) {
 				throw CvNamePatchRequest.error;
 			} else {
-				toast.success('CV uploaded successfully');
+				toast.success('CV uploaded successfully', getToastOptions());
 			}
 		}
 	}, [cv]);
@@ -217,13 +218,13 @@ const LinkedInSignup = () => {
 					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${formData.emailId}/details`, true, {});
 
 					if (userError) {
-						toast.error('Error: ' + userError);
+						toast.error('Error: ' + userError, getToastOptions());
 						throw new Error();
 					} else {
 						// Extract the first element from the array response
 						let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
 						if (!user) {
-							toast.error('Error: No user data found');
+							toast.error('Error: No user data found', getToastOptions());
 							throw new Error();
 						}
 
@@ -259,11 +260,12 @@ const LinkedInSignup = () => {
 		mutationFn: async (clientId: string) => {
 			return await toast.promise(mutateDatatoBackend(clientId), {
 				pending: 'Registering user...',
-			});
+			}, getToastOptions());
+			
 		},
 		onError: error => {
 			console.error('Submission failed:', error);
-			toast.error('Error registering user');
+			toast.error('Error registering user', getToastOptions());
 		},
 	});
 	/**
@@ -276,7 +278,7 @@ const LinkedInSignup = () => {
 			await mutateAsync(userId!); // Wait for the mutation to complete
 			return true; // Return true only after successful mutation
 		} catch (error: any) {
-			toast.error(error.message);
+			toast.error(error.message, getToastOptions());
 			return false; // Return false if an error occurs
 		}
 	};

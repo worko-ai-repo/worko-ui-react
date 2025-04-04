@@ -7,6 +7,7 @@ import MessageModal from "@Components/Modals/MessageModal";
 import { toast } from "react-toastify";
 import MainLoader from "@Components/Loader/Loader"; // Assuming you have a loader component
 import CognitoServiceObj from "@Utils/Cognito.utils";
+import { getToastOptions } from "@Utils/Toast.utils";
 
 const CorporateSignup = () => {
   const { id } = useParams();
@@ -77,7 +78,7 @@ const CorporateSignup = () => {
   // Handle errors in useEffect to prevent infinite loop
   useEffect(() => {
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message, getToastOptions());
     }
   }, [error]);
 
@@ -118,7 +119,7 @@ const CorporateSignup = () => {
     };
     const { response, error } = await CognitoServiceObj.handleSignUp(signupData);
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message, getToastOptions());
       return;
     }
     if(response){
@@ -127,7 +128,7 @@ const CorporateSignup = () => {
     // debugger;
     const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>("/corporate-user/", dbData, true);
     if (dbError) {
-      toast.error("Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again later.", getToastOptions());
     } else {
       setModalData({
         type: "success",

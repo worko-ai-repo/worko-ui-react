@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { ConfirmResetPasswordInput, confirmResetPassword,  resetPassword } from '@aws-amplify/auth';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 type PageType = 'CORP' | 'GEN';
 
@@ -79,7 +80,7 @@ const ForgotPassword = () => {
           success: 'Password Reset Successfully',
           error: 'Error resetting password'
         }
-        
+        , getToastOptions()
     );
 
        // Change the screen after 3 seconds
@@ -89,7 +90,7 @@ const ForgotPassword = () => {
 
        }, 3000)
      } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message, getToastOptions());
      }
 };
 

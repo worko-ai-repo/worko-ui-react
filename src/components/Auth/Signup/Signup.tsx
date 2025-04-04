@@ -15,6 +15,7 @@ import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestR
 import { currentSession } from '../Login/LoginForm';
 import { useAuthContext } from '@Context/Auth.context';
 import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 export type SignupMode = 'EMP' | 'CAND';
 interface ToggleOptionsDto {
@@ -108,7 +109,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 		const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 		// If error occurs, show the error message and reset the form
 		if (error) {
-			toast.error(error.message);
+			toast.error(error.message, getToastOptions());
 			window.location.href = '/auth/login'; // Navigate to the login page if an error occurs
 		} else {
 			
@@ -120,14 +121,14 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 				const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
 
 				if (userError) {
-					toast.error('Error: ' + userError);
+					toast.error('Error: ' + userError, getToastOptions());
 					throw new Error();
 				} else {
 					// Extract the first element from the array response
 					let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
 
 					if (!user) {
-						toast.error('Error: No user data found');
+						toast.error('Error: No user data found', getToastOptions());
 						throw new Error();
 					}
 
@@ -148,7 +149,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 					
 					await currentSession();
 					setUpdateCheck(true);
-					toast.success('Successfully signed in');
+					toast.success('Successfully signed in', getToastOptions());
 					setTimeout(() => {
 						
 						  // Retrieve pending referral data from context and secure storage
@@ -177,7 +178,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			}
 		}
 	} catch (error: any) {
-		toast.error(error?.message || 'Something went wrong');
+		toast.error(error?.message || 'Something went wrong', getToastOptions());
 		// CognitoServiceObj.handleSignOut();
 	}
 };
@@ -201,7 +202,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 
 			// Check if the confirmation was successful
 			if (response) {
-				toast.success('User registered successfully');
+				toast.success('User registered successfully', getToastOptions());
 				await handleAutoLogin(autoLoginData);
 				// Handle the confirmed sign-up as needed
 				return { response: response };
@@ -211,7 +212,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			// If no response or error was encountered, return a default value
 			throw new Error('Unexpected error: No response or error.');
 		} catch (error: any) {
-			toast.error(error.message);
+			toast.error(error.message, getToastOptions());
 		}
 	};
 
@@ -268,7 +269,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			if (CvNamePatchRequest.status !== 200) {
 				throw CvNamePatchRequest.error;
 			} else {
-				toast.success('CV uploaded successfully');
+				toast.success('CV uploaded successfully', getToastOptions());
 			}
 		}
 	}, [cv,uploadedFile]);
@@ -350,9 +351,9 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 	
 			if (error) {
 				if (error.name === 'UsernameExistsException') {
-					toast.error('User already exists');
+					toast.error('User already exists', getToastOptions());
 				} else {
-					toast.error(error.message);
+					toast.error(error.message, getToastOptions());
 				}
 				return false; // Explicitly return false
 			}
@@ -366,8 +367,8 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 						pending: 'Registering user...',
 						success: 'User registered successfully',
 						error: 'Error registering user',
-					});
-					toast.info('OTP sent to your email. Please verify it.');
+					}, getToastOptions());
+					toast.info('OTP sent to your email. Please verify it.', getToastOptions());
 					return true; // Explicitly return true on success
 				} catch (mutationError) {
 					console.error('Error during backend mutation:', mutationError);
@@ -378,7 +379,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 			return false; // If `response?.userId` is not present, return false
 		} catch (err) {
 			console.error('An error occurred:', err);
-			toast.error('Something went wrong');
+			toast.error('Something went wrong', getToastOptions());
 			return false; // Explicitly return false on general error
 		}
 	};

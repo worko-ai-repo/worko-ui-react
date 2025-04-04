@@ -13,6 +13,7 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { toast } from "react-toastify";
+import { getToastOptions } from "@Utils/Toast.utils";
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
 
 /**
@@ -165,7 +166,7 @@ const SignupForm: React.FC<{
 		  pending: "Sending OTP...",
 		  success: "OTP sent successfully!",
 		  error: "Failed to resend OTP",
-		}
+		}, getToastOptions()
 	  );
 	} catch (error) {
 	  console.error("OTP resend failed", error);
