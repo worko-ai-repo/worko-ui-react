@@ -14,8 +14,10 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 import { currentSession } from '../Login/LoginForm';
 import { useAuthContext } from '@Context/Auth.context';
-import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
+import { CompanyShortDto, UserBasicDetailsDto } from '@Interfaces/JobsAndCompany.dto';
 import { getToastOptions } from '@Utils/Toast.utils';
+import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
+import { set } from 'react-hook-form';
 
 export type SignupMode = 'EMP' | 'CAND';
 interface ToggleOptionsDto {
@@ -29,6 +31,9 @@ const Signup = () => {
 	const {authContextActiveFrame} = useAuthContext();
 	const location = useLocation(); // Get location object
 	let initialFrame : SignupMode = 'CAND'; // Default to 'CAND'
+	const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
+	const APP_API_URI = import.meta.env.APP_API_URI
+
 	
 	useEffect(() => {
 	initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
@@ -37,6 +42,7 @@ const Signup = () => {
 	const [cv, setCv] = useState<any>();
 	const [CompanyName, setCompanyName] = useState<string>('');
 	const [activeFrame, setActiveFrame] = useState<SignupMode>(initialFrame);
+	const [OpenReferralLoader, setOpenReferralLoader] = useState<boolean>(false);
 
 	let resumeUserFileName: string;
 	let resumeUserFileMimeType: string;
@@ -97,91 +103,147 @@ const Signup = () => {
 			formData.companySk = data.company;
 		}
 	};
-	
-const handleAutoLogin = async (data: any): Promise<void> => {
-	
-	const loginData = {
-		email: data.email,
-		password: data.password,
-	};
-
-	try {
-		const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
-		// If error occurs, show the error message and reset the form
-		if (error) {
-			toast.error(error.message, getToastOptions());
-			window.location.href = '/auth/login'; // Navigate to the login page if an error occurs
-		} else {
+	/**
+	 * checkBasicDetails
+	 *
+	 * @description This function is used to check if the user has completed the basic details or not
+	 */
+	const checkBasicDetails = async () => {
+		let retryCount = 0;
+		const maxRetries = 2;
+		
+		const attemptCheck = async () => {
+		  try {
+			setOpenReferralLoader(true);
+			const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+			  `${APP_API_URI}/user/basic-details`, 
+			  true, 
+			  {}, 
+			  true
+			);
 			
-			/**
-			 * If the account is confirmed, proceed with the sign-in process
-			 */
-			if (response?.isSignedIn) {
-				const email = data.email.toLowerCase();
-				const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+			if (error) throw error;
+			
+			const designation = response?.candidateExperience?.designation;
+			const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
+			
+			// If either designation or coreSkills exist, update filters
+			if (designation || coreSkills?.length || response?.YOE) {
+				setOpenReferralLoader(false);
+			  // Retrieve pending referral data from context and secure storage
+			  let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(
+				SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA
+			  );
+	  
+			  // Sync PendingApply and secureStorage
+			  if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+			  } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+				setPendingApply(pendingReferral);
+			  }
+	  
+			  if (PendingApply) {
+				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+				window.location.href = PendingApply.url; // Redirect to the referral page
+			  } else {
+				// prefer local over state
+				const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
+				const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
+				finalActiveFrame === 'CAND' ? window.location.href = '/jobs' : window.location.href = '/v1/employee/Dashboard';  // Redirect to the home page
+			  }
+			} else {
+				setOpenReferralLoader(false);
+			  // Check if we should retry
+			  if (retryCount < maxRetries) {
+				retryCount++;
+				setCurrStep(prev => (prev < 4 ? (prev + 1) as 0 | 1 | 2 | 3 | 4 : prev));
+				console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
+				setTimeout(attemptCheck, 5000); // Retry after 5 seconds
+			  } else {
+				console.log('Max retries reached for checkBasicDetails');
+				// Optional: Show a message to the user that we couldn't get their details
+				toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
+			  }
+			}
+		  } catch (error) {
+			console.error('Error fetching user basic details:', error);
+			toast.error('Error fetching user basic details', getToastOptions());
+			
+			// Also retry on error
+			if (retryCount < maxRetries) {
+			  retryCount++;
+			  console.log(`Retrying after error (${retryCount}/${maxRetries})...`);
+			  setTimeout(attemptCheck, 5000);
+			}
+		  }
+		};
+		
+		// Start the first attempt
+		await attemptCheck();
+	  };
+	
 
-				if (userError) {
-					toast.error('Error: ' + userError, getToastOptions());
-					throw new Error();
-				} else {
-					// Extract the first element from the array response
-					let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+	const handleAutoLogin = async (data: any): Promise<void> => {
+		
+		const loginData = {
+			email: data.email,
+			password: data.password,
+		};
 
-					if (!user) {
-						toast.error('Error: No user data found', getToastOptions());
+		try {
+			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
+			// If error occurs, show the error message and reset the form
+			if (error) {
+				toast.error(error.message, getToastOptions());
+				window.location.href = '/auth/login'; // Navigate to the login page if an error occurs
+			} else {
+				
+				/**
+				 * If the account is confirmed, proceed with the sign-in process
+				 */
+				if (response?.isSignedIn) {
+					const email = data.email.toLowerCase();
+					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+
+					if (userError) {
+						toast.error('Error: ' + userError, getToastOptions());
 						throw new Error();
-					}
+					} else {
+						// Extract the first element from the array response
+						let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
 
-					// Create userDetails from the first element
-					const userDetails: Partial<AuthLoginForGeneralUserDto> = {
-						lastAccessedDash: user.lastAccessedDash,
-						name: user.name,
-						email: user.email,
-						id: user.id,
-						profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
-						referralCount: user.referralCount,
-					};
-					// Store user details
-					secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
-					secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
-					secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
-
-					
-					await currentSession();
-					setUpdateCheck(true);
-					toast.success('Successfully signed in', getToastOptions());
-					setTimeout(() => {
-						
-						  // Retrieve pending referral data from context and secure storage
-							let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(
-								SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA
-							);
-
-							// Sync PendingApply and secureStorage
-							if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-								secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-							} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-								setPendingApply(pendingReferral);
-							}
-
-						if (PendingApply) {
-							secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-							window.location.href = PendingApply.url; // Redirect to the referral page
-						} else {
-							// prefer local over state
-							const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
-							const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
-							finalActiveFrame === 'CAND' ? window.location.href = '/jobs' : window.location.href='/v1/employee/Dashboard'  // Redirect to the home page
+						if (!user) {
+							toast.error('Error: No user data found', getToastOptions());
+							throw new Error();
 						}
-					}, 3000);
+
+						// Create userDetails from the first element
+						const userDetails: Partial<AuthLoginForGeneralUserDto> = {
+							lastAccessedDash: user.lastAccessedDash,
+							name: user.name,
+							email: user.email,
+							id: user.id,
+							profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
+							referralCount: user.referralCount,
+						};
+						// Store user details
+						secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
+						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
+						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
+
+						
+						await currentSession();
+						setUpdateCheck(true);
+						toast.success('Successfully signed in', getToastOptions());
+						checkBasicDetails();
+					}
 				}
 			}
+		} catch (error: any) {
+			toast.error(error?.message || 'Something went wrong', getToastOptions());
+			// CognitoServiceObj.handleSignOut();
 		}
-	} catch (error: any) {
-		toast.error(error?.message || 'Something went wrong', getToastOptions());
-		// CognitoServiceObj.handleSignOut();
-	}
-};
+	};
 
 
 	/**
@@ -433,6 +495,7 @@ const handleAutoLogin = async (data: any): Promise<void> => {
 					</div>
 				</div>
 			</div>
+			{OpenReferralLoader &&< ReferralLoader step={currStep} />}
 		</>
 	);
 };
