@@ -10,7 +10,7 @@ import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
 import { BaseApiFiltersDto, CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { toast } from "react-toastify";
-import CustomToast from "@Utils/Toast.utils";
+import { getToastOptions } from "@Utils/Toast.utils";
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -303,7 +303,7 @@ const fetchJobMatchingScores = useCallback(
             setCompanyJobData((prevJobs) =>
               prevJobs?.filter((job) => !jobsToRemove.includes(job.id)) // Remove marked jobs
             );
-            CustomToast.success("Filtered out jobs with low scores.", {autoClose: 2000,closeButton:true,position:"bottom-center"}, true); // Glass style applied
+            toast.success("Filtered out jobs with low scores.", getToastOptions({autoClose: 1000 ,theme:"light",position:'bottom-center'}, "glass")); // Glass style applied
           }, 2000);
         }
       

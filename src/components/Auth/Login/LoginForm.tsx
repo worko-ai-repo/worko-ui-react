@@ -14,6 +14,7 @@ import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import useLinkedInSignup from '@Hooks/useSignupLinkedIn.hook';
 import CustomModal from '@Components/Modals/FormModal';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+import { getToastOptions } from '@Utils/Toast.utils';
 
 /**
  * currentSession
@@ -104,7 +105,7 @@ const LoginForm = () => {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 			// If error occurs, show the error message and reset the form
 			if (error) {
-				toast.error(error.message);
+				toast.error(error.message, getToastOptions({autoClose: false,position:'top-center'}, "default"));
 				reset(undefined, { keepValues: false });
 				throw new Error(error.message);
 			} else {
@@ -192,7 +193,7 @@ const LoginForm = () => {
 				}
 			}
 		} catch (error: any) {
-			toast.error(error?.message || 'Something went wrong');
+			toast.error(error?.message || 'Something went wrong', getToastOptions({autoClose: false,position:'top-center'}, "default"));
 			// CognitoServiceObj.handleSignOut();
 		}
 	};

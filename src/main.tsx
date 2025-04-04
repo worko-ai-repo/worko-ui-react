@@ -1,6 +1,5 @@
 import './main.css';
 import App from './App.tsx';
-import { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Tooltip } from 'react-tooltip';
 import { ToastContainer } from 'react-toastify';
