@@ -18,6 +18,7 @@ import { CompanyShortDto, UserBasicDetailsDto } from '@Interfaces/JobsAndCompany
 import { getToastOptions } from '@Utils/Toast.utils';
 import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
 import { set } from 'react-hook-form';
+import MessageModal from '@Components/Modals/MessageModal';
 
 export type SignupMode = 'EMP' | 'CAND';
 interface ToggleOptionsDto {
@@ -27,22 +28,27 @@ interface ToggleOptionsDto {
 
 const Signup = () => {
 	const navigateTo = useNavigate();
-	const { setPendingApply,PendingApply,isLoggedIn,setUpdateCheck } = useAppContext();
-	const {authContextActiveFrame} = useAuthContext();
+	const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck } = useAppContext();
+	const { authContextActiveFrame } = useAuthContext();
 	const location = useLocation(); // Get location object
-	let initialFrame : SignupMode = 'CAND'; // Default to 'CAND'
+	let initialFrame: SignupMode = 'CAND'; // Default to 'CAND'
 	const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
-	const APP_API_URI = import.meta.env.APP_API_URI
+	const APP_API_URI = import.meta.env.APP_API_URI;
 
-	
 	useEffect(() => {
-	initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
+		initialFrame = location.state?.activeFrame ?? 'CAND'; // Default to 'CAND'
 	}, []);
 
 	const [cv, setCv] = useState<any>();
 	const [CompanyName, setCompanyName] = useState<string>('');
 	const [activeFrame, setActiveFrame] = useState<SignupMode>(initialFrame);
 	const [OpenReferralLoader, setOpenReferralLoader] = useState<boolean>(false);
+	const [modalData, setModalData] = useState<{
+		type: "none" | "error" | "warning" | "success" | "info";
+		heading?: { message: string; type: "error" | "warning" | "success" | "info" };
+		message: string;
+		buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
+	  } | null>(null);
 
 	let resumeUserFileName: string;
 	let resumeUserFileMimeType: string;
@@ -59,8 +65,7 @@ const Signup = () => {
 		companySk: '',
 	};
 
-
-	const options:ToggleOptionsDto[] = [
+	const options: ToggleOptionsDto[] = [
 		{ label: 'Candidate/Job Seeker', value: 'CAND' },
 		{ label: 'Employee/Referee', value: 'EMP' },
 	];
@@ -103,6 +108,33 @@ const Signup = () => {
 			formData.companySk = data.company;
 		}
 	};
+
+	/**
+	 * initiateFinalRedirection
+	 *
+	 * @description This function is used to redirect the user to the final page after the signup process is completed
+	 */
+	const initiateFinalRedirection = () => {
+		// Retrieve pending referral data from context and secure storage
+		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+
+		// Sync PendingApply and secureStorage
+		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+			setPendingApply(pendingReferral);
+		}
+
+		if (PendingApply) {
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+			window.location.href = PendingApply.url; // Redirect to the referral page
+		} else {
+			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
+			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
+			// prefer local over state
+			finalActiveFrame === 'CAND' ? (window.location.href = '/jobs') : (window.location.href = '/v1/employee/Dashboard'); // Redirect to the home page
+		}
+	};
 	/**
 	 * checkBasicDetails
 	 *
@@ -111,80 +143,66 @@ const Signup = () => {
 	const checkBasicDetails = async () => {
 		let retryCount = 0;
 		const maxRetries = 2;
-		
+
 		const attemptCheck = async () => {
-		  try {
-			setOpenReferralLoader(true);
-			const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
-			  `${APP_API_URI}/user/basic-details`, 
-			  true, 
-			  {}, 
-			  true
-			);
-			
-			if (error) throw error;
-			
-			const designation = response?.candidateExperience?.designation;
-			const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
-			
-			// If either designation or coreSkills exist, update filters
-			if (designation || coreSkills?.length || response?.YOE) {
-				setOpenReferralLoader(false);
-			  // Retrieve pending referral data from context and secure storage
-			  let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(
-				SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA
-			  );
-	  
-			  // Sync PendingApply and secureStorage
-			  if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-			  } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-				setPendingApply(pendingReferral);
-			  }
-	  
-			  if (PendingApply) {
-				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-				window.location.href = PendingApply.url; // Redirect to the referral page
-			  } else {
-				// prefer local over state
+			try {
 				const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
-				const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
-				finalActiveFrame === 'CAND' ? window.location.href = '/jobs' : window.location.href = '/v1/employee/Dashboard';  // Redirect to the home page
-			  }
-			} else {
-				setOpenReferralLoader(false);
-			  // Check if we should retry
-			  if (retryCount < maxRetries) {
-				retryCount++;
-				setCurrStep(prev => (prev < 4 ? (prev + 1) as 0 | 1 | 2 | 3 | 4 : prev));
-				console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
-				setTimeout(attemptCheck, 5000); // Retry after 5 seconds
-			  } else {
-				console.log('Max retries reached for checkBasicDetails');
-				// Optional: Show a message to the user that we couldn't get their details
-				toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
-			  }
+				const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
+				if(finalActiveFrame === 'EMP') {
+					initiateFinalRedirection();
+				}
+				else{
+				setOpenReferralLoader(true);
+				const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
+
+				if (error) throw error;
+
+				const designation = response?.candidateExperience?.designation;
+				const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
+
+				// If either designation or coreSkills exist, update filters
+				if (designation || coreSkills?.length || response?.YOE) {
+					setOpenReferralLoader(false);
+					initiateFinalRedirection();
+				} else {
+					setOpenReferralLoader(false);
+					// Check if we should retry
+					if (retryCount < maxRetries) {
+						retryCount++;
+						setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
+						console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
+						setTimeout(attemptCheck, 5000); // Retry after 5 seconds
+					} else {
+						console.log('Max retries reached for checkBasicDetails');
+						// Optional: Show a message to the user that we couldn't get their details
+						toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
+					}
+				}
 			}
-		  } catch (error) {
-			console.error('Error fetching user basic details:', error);
-			toast.error('Error fetching user basic details', getToastOptions());
-			
-			// Also retry on error
-			if (retryCount < maxRetries) {
-			  retryCount++;
-			  console.log(`Retrying after error (${retryCount}/${maxRetries})...`);
-			  setTimeout(attemptCheck, 5000);
+		} catch (error) {
+				console.error('Error fetching user basic details:', error);
+				setModalData({
+					type: "error",
+					heading: { message: "Somthing Went Wrong", type: "error" },
+					message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
+					buttons: [
+					  { label: "Go To Dashboard", action: () => window.location.href = '/v1/candidate/dashboard' },
+					],
+				  });
+				/* // Also retry on error
+				if (retryCount < maxRetries) {
+					retryCount++;
+					console.log(`Retrying after error (${retryCount}/${maxRetries})...`);
+					setTimeout(attemptCheck, 5000);
+				} */
 			}
-		  }
 		};
-		
+
 		// Start the first attempt
 		await attemptCheck();
-	  };
-	
+	};
 
 	const handleAutoLogin = async (data: any): Promise<void> => {
-		
 		const loginData = {
 			email: data.email,
 			password: data.password,
@@ -197,7 +215,6 @@ const Signup = () => {
 				toast.error(error.message, getToastOptions());
 				window.location.href = '/auth/login'; // Navigate to the login page if an error occurs
 			} else {
-				
 				/**
 				 * If the account is confirmed, proceed with the sign-in process
 				 */
@@ -231,7 +248,6 @@ const Signup = () => {
 						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
-						
 						await currentSession();
 						setUpdateCheck(true);
 						toast.success('Successfully signed in', getToastOptions());
@@ -245,11 +261,10 @@ const Signup = () => {
 		}
 	};
 
-
 	/**
 	 * handleVerifyOtp
 	 */
-	const handleVerifyOtp = async (email: string, otp: string,password:string) => {
+	const handleVerifyOtp = async (email: string, otp: string, password: string) => {
 		try {
 			let signupform = {
 				username: email,
@@ -257,8 +272,8 @@ const Signup = () => {
 			};
 			let autoLoginData = {
 				email: email,
-				password: password
-			}
+				password: password,
+			};
 			// Call handleSignUpConfirmation and await the result
 			const { response, error } = await CognitoServiceObj.handleSignUpConfirmation(signupform);
 
@@ -286,131 +301,136 @@ const Signup = () => {
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const handleFileUpload = (file: File) => {
 		setUploadedFile(file);
-	  };
-	const CvS3MemAllocation = useCallback(async (userdata:any) => {
-		const cvS3metaData = {
-			userId: CognitoResponse?.userId || userdata.userId, // Ensure `CognitoResponse` is valid
-			resumeUserFileName: resumeUserFileName || localStorage.getItem('resumeUserFileName'),
-			resumeFileMimeType: resumeUserFileMimeType || localStorage.getItem('resumeUserFileMimeType'),
-		};
-		// debugger;	
-		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
-
-		if (error) {
-			throw error;
-		}
-
-		// Upload to S3
-		const metaData: FileUpload = {
-			file: uploadedFile,
-			awsS3Tag: response?.awsS3Tag,
-		};
-
-		const signedUrl: string = response?.awsS3SignedUrl || '';
-		// debugger;
-		console.log('signedUrl:', signedUrl);	
-		console.log('metaData:', metaData);
-		console.log('cv:', uploadedFile);
-		if (!metaData.file || metaData.file.size === 0) {
-			console.error('File is empty or undefined:', metaData.file);
-			return;
-		}
-		
-		 const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
-		
-		if (fileUploadHandler.error) {
-			// throw fileUploadHandler.error;
-			console.error('Error uploading file:', fileUploadHandler);
-		} else {
-			// Patch the data to the backend
+	};
+	const CvS3MemAllocation = useCallback(
+		async (userdata: any) => {
+			const cvS3metaData = {
+				userId: CognitoResponse?.userId || userdata.userId, // Ensure `CognitoResponse` is valid
+				resumeUserFileName: resumeUserFileName || localStorage.getItem('resumeUserFileName'),
+				resumeFileMimeType: resumeUserFileMimeType || localStorage.getItem('resumeUserFileMimeType'),
+			};
 			// debugger;
-			const finalEmail = formData.emailId.toLocaleLowerCase()
-			// console.log("FINAL EMAILLLLL->>>>" + finalEmail);
-			const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${finalEmail}/cv`, { resume: response?.cloudFileName }, true);
+			const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
 
-			if (CvNamePatchRequest.status !== 200) {
-				throw CvNamePatchRequest.error;
-			} else {
-				toast.success('CV uploaded successfully', getToastOptions());
+			if (error) {
+				throw error;
 			}
-		}
-	}, [cv,uploadedFile]);
+
+			// Upload to S3
+			const metaData: FileUpload = {
+				file: uploadedFile,
+				awsS3Tag: response?.awsS3Tag,
+			};
+
+			const signedUrl: string = response?.awsS3SignedUrl || '';
+			// debugger;
+			console.log('signedUrl:', signedUrl);
+			console.log('metaData:', metaData);
+			console.log('cv:', uploadedFile);
+			if (!metaData.file || metaData.file.size === 0) {
+				console.error('File is empty or undefined:', metaData.file);
+				return;
+			}
+
+			const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
+
+			if (fileUploadHandler.error) {
+				// throw fileUploadHandler.error;
+				console.error('Error uploading file:', fileUploadHandler);
+			} else {
+				// Patch the data to the backend
+				// debugger;
+				const finalEmail = formData.emailId.toLocaleLowerCase();
+				// console.log("FINAL EMAILLLLL->>>>" + finalEmail);
+				const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${finalEmail}/cv`, { resume: response?.cloudFileName }, true);
+
+				if (CvNamePatchRequest.status !== 200) {
+					throw CvNamePatchRequest.error;
+				} else {
+					toast.success('CV uploaded successfully', getToastOptions());
+				}
+			}
+		},
+		[cv, uploadedFile]
+	);
 
 	/**
 	 * mutateDatatoBackend
 	 *
 	 * @description This function is used to add the data to the backend
 	 */
-	const mutateDatatoBackend = useCallback(async (ClientId: string) => {
-		// Check the mode and add the data accordingly
-		// debugger;
-		const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
-		// console.log(`Difference between active frame and contextActiveFrame is ${activeFrame} and ${AuthActiveFrame}`);
-		// prefer local over state
-		const finalActiveFrame = AuthActiveFrame ? AuthActiveFrame as SignupMode : activeFrame;
-		// patch the formData from the secure storage
-		const localFormData = secureStorage.getItem<AuthFormDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA);
-		// debugger;
-		if (localFormData) {
-			formData.name = localFormData.name;
-			formData.emailId = localFormData.email;
-			formData.password = localFormData.password;
-			formData.phoneNumber = localFormData.phone;
-			formData.confirmPassword = localFormData.confirmPassword;
-			formData.acceptedTermsAndConditions = localFormData.termsAndConditions;
-		}
-		if (finalActiveFrame === 'CAND') {
-			// Add the data to the backend
-			//debugger
-			let candidateData: DevCandidateDto = {
-				name: formData.name,
-				email: formData.emailId,
-				number: '+91' + formData.phoneNumber,
-				userId: ClientId,
-				acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
-			};
-			// Add the data to the backend
-			const { response, error } = await httpServiceObj.post('/user/register/candidate', candidateData, true);
-			if (error) {
-				throw error;
-			} else {
-				if (uploadedFile) {
-				await CvS3MemAllocation(response);
-				}
+	const mutateDatatoBackend = useCallback(
+		async (ClientId: string) => {
+			// Check the mode and add the data accordingly
+			// debugger;
+			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
+			// console.log(`Difference between active frame and contextActiveFrame is ${activeFrame} and ${AuthActiveFrame}`);
+			// prefer local over state
+			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
+			// patch the formData from the secure storage
+			const localFormData = secureStorage.getItem<AuthFormDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA);
+			// debugger;
+			if (localFormData) {
+				formData.name = localFormData.name;
+				formData.emailId = localFormData.email;
+				formData.password = localFormData.password;
+				formData.phoneNumber = localFormData.phone;
+				formData.confirmPassword = localFormData.confirmPassword;
+				formData.acceptedTermsAndConditions = localFormData.termsAndConditions;
 			}
-		} else {
-			const companyDetails = secureStorage.getItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY);
+			if (finalActiveFrame === 'CAND') {
+				// Add the data to the backend
+				//debugger
+				let candidateData: DevCandidateDto = {
+					name: formData.name,
+					email: formData.emailId,
+					number: '+91' + formData.phoneNumber,
+					userId: ClientId,
+					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
+				};
+				// Add the data to the backend
+				const { response, error } = await httpServiceObj.post('/user/register/candidate', candidateData, true);
+				if (error) {
+					throw error;
+				} else {
+					if (uploadedFile) {
+						await CvS3MemAllocation(response);
+					}
+				}
+			} else {
+				const companyDetails = secureStorage.getItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY);
 
-			let employeeData: DevEmployeeDto = {
-				name: formData.name,
-				email: formData.emailId,
-				number: '+91' + formData.phoneNumber,
-				YOE: 0,
-				companyName: companyDetails?.name || '',
-				companySK: companyDetails?.id || '',
-				userId: ClientId,
-				acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
-			};
+				let employeeData: DevEmployeeDto = {
+					name: formData.name,
+					email: formData.emailId,
+					number: '+91' + formData.phoneNumber,
+					YOE: 0,
+					companyName: companyDetails?.name || '',
+					companySK: companyDetails?.id || '',
+					userId: ClientId,
+					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
+				};
 
-			// Add the data to the backend
-			return await httpServiceObj.post('/user/register/employee', employeeData, true);
-		}
-	}, [uploadedFile]);
-
+				// Add the data to the backend
+				return await httpServiceObj.post('/user/register/employee', employeeData, true);
+			}
+		},
+		[uploadedFile]
+	);
 
 	const runCognitoBasicSignup = async (data: AuthFormDto): Promise<boolean> => {
 		try {
 			metaDataFilter(data);
-	
+
 			let signupform = {
 				password: formData.password,
 				username: formData.emailId.toLowerCase(),
 				name: formData.name,
 				phone_number: '+91' + formData.phoneNumber,
 			};
-	
+
 			const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
-	
+
 			if (error) {
 				if (error.name === 'UsernameExistsException') {
 					toast.error('User already exists', getToastOptions());
@@ -419,17 +439,21 @@ const Signup = () => {
 				}
 				return false; // Explicitly return false
 			}
-	
+
 			if (response?.userId) {
 				CognitoResponse = response;
-	
+
 				// Safely handle the mutation process
 				try {
-					await toast.promise(mutateDatatoBackend(CognitoResponse.userId), {
-						pending: 'Registering user...',
-						success: 'User registered successfully',
-						error: 'Error registering user',
-					}, getToastOptions());
+					await toast.promise(
+						mutateDatatoBackend(CognitoResponse.userId),
+						{
+							pending: 'Registering user...',
+							success: 'User registered successfully',
+							error: 'Error registering user',
+						},
+						getToastOptions()
+					);
 					toast.info('OTP sent to your email. Please verify it.', getToastOptions());
 					return true; // Explicitly return true on success
 				} catch (mutationError) {
@@ -437,7 +461,7 @@ const Signup = () => {
 					return false; // Explicitly return false on mutation error
 				}
 			}
-	
+
 			return false; // If `response?.userId` is not present, return false
 		} catch (err) {
 			console.error('An error occurred:', err);
@@ -445,8 +469,7 @@ const Signup = () => {
 			return false; // Explicitly return false on general error
 		}
 	};
-	
-	
+
 	/**
 	 * verifyOtp
 	 *
@@ -477,8 +500,8 @@ const Signup = () => {
 
 	return (
 		<>
-		<img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
-		<img src={auth_bg2} alt="auth_bg2" className="absolute z-10  bottom-10 right-0" />
+			<img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
+			<img src={auth_bg2} alt="auth_bg2" className="absolute z-10  bottom-10 right-0" />
 			<div className=" flex justify-center relative mt-10 w-full  sm:max-w-[80vw] md:w-[80vw]  md:max-w-[1000px] overflow-hidden rounded-md mx-2 sm:rounded-3xl bg-white shadow z-20 ">
 				<div className="px-2 gap-2 py-5 sm:py-6  w-full flex flex-col ">
 					{/* Header and toggle button */}
@@ -491,11 +514,22 @@ const Signup = () => {
 					</div>
 					{/* Signup form */}
 					<div className="scale-90 sm:scale-100  flex mt-2 flex-1 sm:mx-auto sm:w-[85%] ">
-						<SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} onFileUpload ={handleFileUpload} setCompanyName={setCompanyName} />
+						<SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} onFileUpload={handleFileUpload} setCompanyName={setCompanyName} />
 					</div>
 				</div>
 			</div>
-			{OpenReferralLoader &&< ReferralLoader step={currStep} />}
+			 {/* Show modal only when modalData is set */}
+				  {modalData && (
+					<MessageModal
+					  {...modalData}
+					  onClose={() => {
+						setModalData(null);
+					  }}
+					  showCloseButton={false}
+					/>
+				  )}
+				
+			{OpenReferralLoader && <ReferralLoader step={currStep} />}
 		</>
 	);
 };
