@@ -8,6 +8,7 @@ import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
 import Corporate from '@Pages/corporate/Corporate';
 import JobDescription from '@Pages/JobDescriptionPage';
+import CorporateDashboard from '@Components/Dashboard/CorporateDashboard';
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));
@@ -16,11 +17,12 @@ const Company = lazy(() => import('@Pages/company/Company'));
 const Employee = lazy(() => import('@Pages/employee/Employee'));
 const Guidance = lazy(() => import('@Pages/guidance/Guidance'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
+const DashboardRouter = lazy(() => import('@Pages/Dashboard/Dashboard.router'));
 const RequestReferral = lazy(() => import('@Pages/request-referral/RequestReferral'));
 const CorporateConnect = lazy(() => import('@Pages/corporate/corporateConnect/CorporateConnect'));
 const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
 
-const underConstructionPaths = ['faqs', 'blogs', 'privacy', 'contact', 'pricing', 'terms', 'employee/*', 'candidate/*', 'dashboard/*', 'profile/*', 'support'];
+const underConstructionPaths = ['faqs', 'blogs', 'privacy', 'contact', 'pricing', 'terms', 'employee/*', 'candidate/*', 'profile/*', 'support'];
 
 // Create routes for under construction pages
 const underConstructionRoutes = underConstructionPaths.map(path => ({
@@ -160,6 +162,14 @@ const AppRoutes = createBrowserRouter([
 		element: (
 			<Suspense fallback={<MainLoader />}>
 				<AuthRouter />
+			</Suspense>
+		),
+	},
+	{
+		path: 'dashboards/*',
+		element: (
+			<Suspense fallback={<MainLoader />}>
+				<DashboardRouter />
 			</Suspense>
 		),
 	},
