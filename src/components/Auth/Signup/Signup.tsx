@@ -181,12 +181,13 @@ const Signup = () => {
 			}
 		} catch (error) {
 				console.error('Error fetching user basic details:', error);
+				const params = import.meta.env.APP_WORKO_BASE_URL + '/jobs'
 				setModalData({
 					type: "error",
 					heading: { message: "Somthing Went Wrong", type: "error" },
 					message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
 					buttons: [
-					  { label: "Go To Dashboard", action: () => window.location.href = '/v1/candidate/dashboard' },
+					  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
 					],
 				  });
 				/* // Also retry on error
