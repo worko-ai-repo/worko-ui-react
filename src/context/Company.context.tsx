@@ -41,7 +41,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
     pageSize: 10,
     sortOrder: "descending",
-    
   });
 
   // Memoized default filters
@@ -158,7 +157,12 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
   const resetSearch = () => {
     setSearchText("");
-    setJobFilters((prev) => ({ ...prev, searchText: "" }));
+    setJobFilters((prev) => {
+      const updatedFilters = { ...prev };
+      // Delete searchText from filters
+      delete updatedFilters.searchText;
+      return updatedFilters;
+    });
     // Reset the filter options cache when resetting search
     invalidateFilterCache();
     queryClient.invalidateQueries({ queryKey: ["GET", companyPageMode] });
@@ -287,18 +291,20 @@ const fetchJobMatchingScores = useCallback(
               ...existingJobsMap[jobId],
               matchingScore,
               applyStatus: scoresMap[jobId] ? "APPLIED" : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
-              badJob: matchingScore !== undefined && matchingScore < 30, // Step 5 → Mark job as bad if score < 30%
+              badJob: matchingScore !== undefined && matchingScore < 30 && !location.search.includes("searchText"), // Step 5 → Mark job as bad if score < 30%
+              
             };
       
-            // Step 6 → If job score is below 30%, mark it for removal
-            if (matchingScore !== undefined && matchingScore < 30) {
+            // Step 6 → If job score is below 30%, mark it for removal and if we are not in search mode
+            if (matchingScore !== undefined && matchingScore < 30 && (!location.search.includes("searchText") // Changed
+          )) {
               jobsToRemove.push(jobId);
             }
           }
         });
       
         // Step 7 → Schedule removal of jobs with score < 30% after 5 seconds
-        if (jobsToRemove.length > 0) {
+        if (jobsToRemove.length > 0 && (!location.search.includes("searchText"))) { // Changed 
           setTimeout(() => {
             setCompanyJobData((prevJobs) =>
               prevJobs?.filter((job) => !jobsToRemove.includes(job.id)) // Remove marked jobs

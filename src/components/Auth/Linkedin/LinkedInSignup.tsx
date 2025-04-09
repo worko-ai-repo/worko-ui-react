@@ -22,8 +22,8 @@ const LinkedInSignup = () => {
 	const { isLoggedIn, setUpdateCheck } = useAppContext();
 	const [activeFrame, setActiveFrame] = useState<SignupMode>('CAND');
 	const [cv, setCv] = useState<any>();
-	let resumeUserFileName: string;
-	let resumeUserFileMimeType: string;
+	const [resumeUserFileName, setResumeUserFileName] = useState<string>('');
+	const [resumeUserFileMimeType, setResumeUserFileMimeType] = useState<string>('');
 	const [companySk, setCompanySk] = useState<string>('');
 	const [CompanyName, setCompanyName] = useState<string>('');
 
@@ -117,11 +117,15 @@ const LinkedInSignup = () => {
 		// Handle different cases for candidates and companies
 		if (activeFrame === 'CAND') {
 			let resumeFile = data.cv?.[0]; // Get the first uploaded file if exists
-			resumeUserFileName = resumeFile?.name ?? '';
-			resumeUserFileMimeType = resumeFile?.type ?? '';
+			setResumeUserFileName(resumeFile?.name ?? '');
+			setResumeUserFileMimeType(resumeFile?.type ?? '');
 			setCv(data.cv || null);
 		} else {
 			setCompanySk(data.company);
+			setFormData(prev => ({
+				...prev,
+				companyEmailId: data.companyEmailId,
+			}));
 		}
 	};
 
@@ -137,7 +141,7 @@ const LinkedInSignup = () => {
 			resumeFileMimeType: resumeUserFileMimeType,
 		};
 
-		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true, false);
+		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
 
 		if (error) {
 			throw error;
@@ -166,14 +170,14 @@ const LinkedInSignup = () => {
 				toast.success('CV uploaded successfully', getToastOptions());
 			}
 		}
-	}, [cv]);
+	}, [cv,resumeUserFileName, resumeUserFileMimeType]);
 
 	/**
 	 * mutateDatatoBackend
 	 *
 	 * @description This function is used to add the data to the backend
 	 */
-	const mutateDatatoBackend = useCallback(
+	const mutateDatatoBackend = /* useCallback( */
 		async (ClientId: string) => {
 			// Check the mode and add the data accordingly
 			// debugger;
@@ -246,9 +250,9 @@ const LinkedInSignup = () => {
 					}
 				}
 			}
-		},
-		[activeFrame, formData, companySk, CompanyName]
-	);
+		}
+		// [activeFrame, formData, companySk, CompanyName]
+	// );
 
 	/**
 	 * runCognitoBasicSignup

@@ -14,6 +14,7 @@ import MessageModal from '@Components/Modals/MessageModal';
 import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import CompanyPageFallback from '@Components/Fallback/CompanyPage.fallback';
+import { set } from 'react-hook-form';
 
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
@@ -22,11 +23,11 @@ const RequestCompany = lazy(() => import('./RequestCompany'));
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 	const { userDetails }: { userDetails: Partial<AuthLoginForGeneralUserDto> } = useAppContext();
-	const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
+	const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
 
 	const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
 	const searchInputRef = useRef<HTMLInputElement | null>(null);
-	const loadingRef = useRef(false);
+
 
 	// Debounced fetch function to prevent multiple rapid calls
 	// Intersection Observer for Infinite Scroll
@@ -44,8 +45,31 @@ const CompanyJobContent = () => {
 			searchInputRef.current.value = '';
 		}
 		resetSearch();
-	},[companyPageMode]);
+	}, [companyPageMode]);
 
+	// Set searchText from query param on mount
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const query = params.get('searchText') || '';
+		setSearchText(query);
+		setJobFilters(prev => ({ ...prev, searchText: query }));
+		if (searchInputRef.current) {
+			searchInputRef.current.value = query;
+		}
+	}, []);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		if (searchText) {
+			params.set('searchText', searchText);
+		} else {
+			params.delete('searchText');
+		}
+		const newUrl = `${window.location.pathname}?${params.toString()}`;
+		window.history.replaceState({}, '', newUrl);
+	}, [searchText]);
+
+	
 	return (
 		<div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}

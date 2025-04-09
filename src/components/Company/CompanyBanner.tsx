@@ -57,7 +57,7 @@ type FormValues = {
 };
 
 const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => {
-  const [activeCard, setActiveCard] = useState<"email" | "refer">("email");
+  const [activeCard, setActiveCard] = useState<"email" | "refer">("refer");
   const [isPaused, setIsPaused] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -95,7 +95,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
 
         intervalRef.current = setInterval(() => {
           if (!isPaused) {
-            setActiveCard(prev => prev === 'email' ? 'refer' : 'email');
+            // setActiveCard(prev => prev === 'email' ? 'refer' : 'email');     //@TODO: Uncomment this line to enable rotation and revert the email in the state as default val
           }
         }, 5000);
       };
