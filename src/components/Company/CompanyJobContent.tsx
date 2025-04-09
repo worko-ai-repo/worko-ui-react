@@ -39,6 +39,13 @@ const CompanyJobContent = () => {
 		},
 	});
 
+	useEffect(() => {
+		if (searchInputRef.current) {
+			searchInputRef.current.value = '';
+		}
+		resetSearch();
+	},[companyPageMode]);
+
 	return (
 		<div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}

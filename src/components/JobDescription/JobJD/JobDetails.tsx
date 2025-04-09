@@ -8,18 +8,18 @@ import styles from '../jobDescription.module.scss'
 import { toTitleCase } from '@Utils/Titlecase.utils';
 import { getToastOptions } from '@Utils/Toast.utils';
 interface JobRequirementsProps {
-  experience?: string;
+  jobDescription?: string;
   education?: string;
   skills?: string[];
 }
 
-export const JobRequirements: React.FC<JobRequirementsProps> = ({ experience = 'Not specified', education = 'Not specified', skills = [] }) => {
-  // const finaljobSummary = experience ? experience.replace(/\n/g, "<br><br>") : "";
+export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = 'Not specified' }) => {
+  
   return (
     <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
       <h2 className="text-xl font-semibold mb-4">Job description</h2>
       {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
-        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: experience }}></div>
+        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: jobDescription }}></div>
     </div>
   );
 };
@@ -116,11 +116,10 @@ interface JobDetailsProps {
 
 const JobDetails: React.FC<JobDetailsProps> = ({ 
   job, 
-  isApplying, 
   applicationStatus, 
   onApply 
 }) => {
-  const companyName = job.companyName || 'the company';
+
   // console.log(job);
 
   
@@ -148,9 +147,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         
         
         <JobRequirements 
-          experience={job.jobDescription} 
-        //  education={job.}  
-         // skills={job.coreSkills || []} 
+          jobDescription={job?.htmlJobDescription ? job.htmlJobDescription : job?.jobDescription} 
         />
         
         

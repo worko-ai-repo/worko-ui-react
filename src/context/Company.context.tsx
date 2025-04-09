@@ -350,7 +350,7 @@ const fetchJobMatchingScores = useCallback(
       // Step 6 → If searchText is present, remove jobTitle, experienceRange, and coreSkills
       if (filters.searchText) {
         delete updatedFilters.jobTitle;
-        delete updatedFilters.experienceRange;
+        delete updatedFilters.YOE;
         delete updatedFilters.coreSkills;
       }
 

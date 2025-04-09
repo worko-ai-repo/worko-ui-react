@@ -115,7 +115,7 @@ useEffect(() => {
       })
     }));
   }
-}, [/* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
+}, [companyPageMode/* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
     
 
 	return (
