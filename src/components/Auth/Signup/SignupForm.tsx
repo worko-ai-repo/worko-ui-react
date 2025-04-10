@@ -358,9 +358,9 @@ const SignupForm: React.FC<{
               Verify & Signup
             </button>
           )}
-          {import.meta.env.APP_NAME !== 'Worko (Prod)' && <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
+           <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
             <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
-          </button>}
+          </button>
         </div>
 
         {/* Already have an account? */}
