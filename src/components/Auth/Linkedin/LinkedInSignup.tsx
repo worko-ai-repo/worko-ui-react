@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { AuthSessionDto } from './LinkedInSignupForm';
 import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload, AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { toast } from 'react-toastify';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { auth_bg, auth_bg2 } from '@Assets';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ const LinkedInSignup = () => {
 
 	const { isLoggedIn, setUpdateCheck } = useAppContext();
 	const [activeFrame, setActiveFrame] = useState<SignupMode>('CAND');
-	const [cv, setCv] = useState<any>();
+	const [cv, setCv] = useState<File>();
 	const [resumeUserFileName, setResumeUserFileName] = useState<string>('');
 	const [resumeUserFileMimeType, setResumeUserFileMimeType] = useState<string>('');
 	const [companySk, setCompanySk] = useState<string>('');
@@ -119,7 +119,7 @@ const LinkedInSignup = () => {
 			let resumeFile = data.cv?.[0]; // Get the first uploaded file if exists
 			setResumeUserFileName(resumeFile?.name ?? '');
 			setResumeUserFileMimeType(resumeFile?.type ?? '');
-			setCv(data.cv || null);
+			setCv(data.cv[0] || null);
 		} else {
 			setCompanySk(data.company);
 			setFormData(prev => ({
@@ -128,7 +128,16 @@ const LinkedInSignup = () => {
 			}));
 		}
 	};
-
+	const cvS3Mutation = useMutation({
+		mutationFn: async (cvS3metaData: any) => {
+		  const {response,error} = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true, )
+		  if (error) {
+			throw new Error('Failed to allocate S3 memory');
+		  }
+		  return response;
+		},
+		retry: 3,
+	  });
 	/**
 	 * CvS3MemAllocation
 	 *
@@ -141,11 +150,8 @@ const LinkedInSignup = () => {
 			resumeFileMimeType: resumeUserFileMimeType,
 		};
 
-		const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
-
-		if (error) {
-			throw error;
-		}
+		// const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>('/file/gsu2u/USER_RESUME', cvS3metaData, true);
+		const response = await cvS3Mutation.mutateAsync(cvS3metaData);
 
 		// Upload to S3
 		const metaData: FileUpload = {
@@ -154,7 +160,6 @@ const LinkedInSignup = () => {
 		};
 
 		const signedUrl: string = response?.awsS3SignedUrl || '';
-		// debugger;
 		const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
 
 		if (fileUploadHandler.error) {

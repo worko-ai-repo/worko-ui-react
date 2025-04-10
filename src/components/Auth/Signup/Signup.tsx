@@ -184,7 +184,7 @@ const Signup = () => {
 				const params = import.meta.env.APP_WORKO_BASE_URL + '/jobs'
 				setModalData({
 					type: "error",
-					heading: { message: "Somthing Went Wrong", type: "error" },
+					heading: { message: "Something Went Wrong", type: "error" },
 					message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
 					buttons: [
 					  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
@@ -325,9 +325,9 @@ const Signup = () => {
 
 			const signedUrl: string = response?.awsS3SignedUrl || '';
 			// debugger;
-			console.log('signedUrl:', signedUrl);
+	/* 		console.log('signedUrl:', signedUrl);
 			console.log('metaData:', metaData);
-			console.log('cv:', uploadedFile);
+			console.log('cv:', uploadedFile); */
 			if (!metaData.file || metaData.file.size === 0) {
 				console.error('File is empty or undefined:', metaData.file);
 				return;

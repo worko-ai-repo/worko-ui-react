@@ -51,7 +51,7 @@ export interface continueReferralRequestDataDto {
 export async function fetchCompanyById(id: string): Promise<CompanyByIdDto> {
 	const { response, error } = await httpServiceObj.get<[CompanyByIdDto]>(`/company/${id}`, true);
 	if (!response?.length) {
-		throw new Error('Somthing went wrong! Please try again later.'); // Proper error handlin
+		throw new Error('Something went wrong! Please try again later.'); // Proper error handlin
 	}
 	if (error) {
 		throw error; // Throw instead of returning

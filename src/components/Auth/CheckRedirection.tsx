@@ -16,7 +16,7 @@ export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { setUpdateCheck, PendingApply, setPendingApply } = useAppContext();
-	let isCandidatePresent: any;
+	let isCandidateNotPresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
 	const [userEmail, setUserEmail] = useState<string>('');
 	const [userName, setUserName] = useState<string>('');
@@ -83,7 +83,7 @@ export default function CheckRedirection() {
 
 				const userType = secureStorage.getItem(SecureStorageKeyEnum.LINKEDINUSERTYPE);
 
-				isCandidatePresent = await getCandidateDetails();
+				isCandidateNotPresent = await getCandidateDetails();
 				// debugger;
 				if (userType === 'employeeSignUp') {
 					await employeeSignUp();
@@ -108,20 +108,20 @@ export default function CheckRedirection() {
 	};
 
 	const employeeSignUp = async () => {
-		if (isCandidatePresent) {
+		if (isCandidateNotPresent) {
 			navigate('/auth/linkedinSignup', { state: { formType: 'EMP' } });
 		}
 	};
 
 	const candidateSignUp = async () => {
-		if (isCandidatePresent) {
+		if (isCandidateNotPresent) {
 			navigate('/auth/linkedinSignup', { state: { formType: 'CAND' } });
 		}
 	};
 
 	const signIn = async () => {
 		// debugger;
-		if (isCandidatePresent) {
+		if (isCandidateNotPresent) {
 			setRegisterOptionScreen(true);
 			handleRegister();
 		}
@@ -174,12 +174,6 @@ export default function CheckRedirection() {
 				return false;
 			}
 
-			// Step 7: Redirect Admin Users to Switcher Page
-			// if (Array.isArray(groups) && groups.includes('admin')) { //commenting this for now
-			// 	navigate('/switcher');
-			// 	return false;
-			// }
-
 			// Step 8: Get Profile Completion Percentage
 			const { response: profileCompletion } = await httpServiceObj.get<ProfileCompletion>(
 				`/user/${email}/profilePercentage`,
@@ -227,11 +221,11 @@ export default function CheckRedirection() {
 					return false; // Stop further execution
 				}
 			}
-
+			navigate('/jobs');
 			return false;
 		} catch (error) {
 			console.error('Error getting candidate details:', error);
-			return true;
+			return false;
 		}
 	};
 
