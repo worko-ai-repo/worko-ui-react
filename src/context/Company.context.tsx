@@ -191,9 +191,9 @@ const pendingJobRetries = new Map<string, number>(); // Track retries per job
 const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // Persist missing job IDs
 
 const fetchJobMatchingScores = useCallback(
-  async (jobIds: string[]) => {
+  async (jobIds: string[],updatedFilters:JobFiltersDto) => {
     if (!jobIds.length) return;
-
+    console.log("Previous Filters",jobFilters);
     try {
       // Create a new updated set
       const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
@@ -272,7 +272,34 @@ const fetchJobMatchingScores = useCallback(
         }, {} as Record<string, JobDto>);
       
         const jobsToRemove: string[] = []; // Store jobs that need to be removed
+        const keysToCheck = [
+          // "coreSkills",
+          "searchText",
+          "minExperience",
+          "maxExperience",
+          "minSalary",
+          "maxSalary",
+          "workMode",
+          "typeofEmployment",
+          "companyName",
+          "technicalSkills",
+          "softSkills",
+          "location",
+        ];
+        
+        // Step 1 → Check for any present filter value
+        const presentFilters = Object.fromEntries(
+          keysToCheck
+            .filter((key) => updatedFilters[key as keyof JobFiltersDto] !== undefined && updatedFilters[key as keyof JobFiltersDto] !== null && updatedFilters[key as keyof JobFiltersDto] !== "")
+            .map((key) => [key, updatedFilters[key as keyof JobFiltersDto]])
+        );
       
+        const isFilterPresent = Object.keys(presentFilters).length > 0;
+      
+        // Step 3 → Console outputs
+        // console.log("Is filter present:", isFilterPresent);
+        // if (isFilterPresent) console.log("Present filter values:", presentFilters);
+
         jobIds.forEach((jobId) => {
           // Step 2 → Remove jobId from missingJobIdsSet since we got a response
           setMissingJobIdsSet((prevSet) => {
@@ -291,13 +318,13 @@ const fetchJobMatchingScores = useCallback(
               ...existingJobsMap[jobId],
               matchingScore,
               applyStatus: scoresMap[jobId] ? "APPLIED" : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
-              badJob: matchingScore !== undefined && matchingScore < 30 && !location.search.includes("searchText"), // Step 5 → Mark job as bad if score < 30%
+              badJob:( matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) , // Step 5 → Mark job as bad if score < 30%
               
             };
       
             // Step 6 → If job score is below 30%, mark it for removal and if we are not in search mode
-            if (matchingScore !== undefined && matchingScore < 30 && (!location.search.includes("searchText") // Changed
-          )) {
+            if ((matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) 
+          ) {
               jobsToRemove.push(jobId);
             }
           }
@@ -320,7 +347,7 @@ const fetchJobMatchingScores = useCallback(
 
       if (retryJobIds.length > 0) {
         // console.log("Retrying missing jobs:", retryJobIds);
-        setTimeout(() => fetchJobMatchingScores(retryJobIds), 5000); // Retry after 20 seconds
+        setTimeout(() => fetchJobMatchingScores(retryJobIds,updatedFilters), 5000); // Retry after 20 seconds
       }
     } catch (err) {
       console.error("Exception in fetchJobMatchingScores:", err);
@@ -345,7 +372,7 @@ const fetchJobMatchingScores = useCallback(
       const isFiltering = pageParam === null;
   
       // Create updated filters object
-      const updatedFilters = {
+      const updatedFilters:JobFiltersDto = {
         ...filters,
         lastKey: pageParam ?? undefined,
         ...(isJobPage && filters.sortOrder
@@ -417,7 +444,7 @@ const fetchJobMatchingScores = useCallback(
   
           // Fetch matching scores for new jobs if user is logged in
           if (response.data.length > 0 && isLoggedIn) {
-            fetchJobMatchingScores(response.data.map((job: { id: any }) => job.id));
+            fetchJobMatchingScores(response.data.map((job: { id: any }) => job.id),updatedFilters)
           }
         } else {
           setCompanyRefData((prevData) => {
