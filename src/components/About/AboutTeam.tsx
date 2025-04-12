@@ -4,7 +4,7 @@ import React from 'react'
 const AboutTeam = () => {
   const frame = [
     {icons:f1 , ref : {l:'in/kumarjeetesh/'}},
-    {icons: f3 , ref : {l:'in/parth-pradhan-66007b3a/'}},
+  /*   {icons: f3 , ref : {l:'in/parth-pradhan-66007b3a/'}}, */
     {icons: f2 , ref : {l:'company/worko'}},
 ]; // Fix: Change object to array
 
