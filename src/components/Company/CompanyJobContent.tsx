@@ -14,11 +14,10 @@ import MessageModal from '@Components/Modals/MessageModal';
 import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import CompanyPageFallback from '@Components/Fallback/CompanyPage.fallback';
-import { set } from 'react-hook-form';
 
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
-const RequestCompany = lazy(() => import('./RequestCompany'));
+
 
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -166,6 +165,7 @@ const CompanyJobContent = () => {
 												aboutcompany: job.companyDetails,
 												jobStatus: job.status,
 												badJob: job.badJob,
+												FullJob: job,
 											}}
 										/>
 									);
