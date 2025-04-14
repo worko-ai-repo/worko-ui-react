@@ -6,6 +6,7 @@ import RequestCompany from './RequestCompany';
 import { useAppContext } from '@Context/App.context';
 import { MultiSelect } from '@Components/Shared/MultiSelect';
 import { useSearchParams } from 'react-router-dom';
+import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender = [], resetFiltersValues } = useCompanyContext();
@@ -142,7 +143,7 @@ useEffect(() => {
 							</div>
 						))
 					) : (
-						<p className="text-gray-500 text-sm">Loading filters...</p>
+						companyPageMode === CompanyPageModeEnum.REFERRAL ? <ReferralPageFilterSkeleton /> : <JobFilterPanelSkeleton />
 					)}
 					<div className="resetFilters flex justify-end md:max-w-[90%] mx-auto">
 						<button onClick={resetFilters} className="btn_t1 logout text-xs text-red-500 font-semibold">

@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import CompanyBanner from '@Components/Company/CompanyBanner';
 import { CompanyProvider } from '../../context/Company.context';
 import JobRefButton from '@Components/Company/JobRefButton';
-import MainLoader from '@Components/Loader/Loader';
 
 const CompanyJobContent = lazy(() => import('@Components/Company/CompanyJobContent'));
 
@@ -19,7 +18,7 @@ const Company = () => {
 				</div>
 
 				{/* Lazy Loading with Suspense */}
-				<Suspense fallback={<MainLoader />}>
+				<Suspense>
 					<CompanyJobContent />
 				</Suspense>
 			</CompanyProvider>
