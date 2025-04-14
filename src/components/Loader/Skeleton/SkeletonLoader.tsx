@@ -1,5 +1,12 @@
-// JobFilterPanel Skeleton
-// JobFilterPanelSkeleton - Updated to match the filter panel designs
+
+/**
+ * Skeleton loader component for the Job Filter Panel.
+ * Displays a placeholder UI for filter dropdown buttons.
+ *
+ * @param {Object} props - Component props.
+ * @param {"job" | "referral"} [props.type="job"] - Type of filter panel, determines the number of filters.
+ * @returns {JSX.Element} The skeleton loader for the Job Filter Panel.
+ */
 export const JobFilterPanelSkeleton = ({ type = "job" }) => {
     // Determine number of filters based on type
     const filterCount = type === "job" ? 9 : 3;
@@ -18,17 +25,33 @@ export const JobFilterPanelSkeleton = ({ type = "job" }) => {
       </div>
     );
   };
-  
-  // JobFilterPanel for different pages
-  export const JobPageFilterSkeleton = () => {
+
+/**
+ * Skeleton loader component for the Job Page Filter Panel.
+ * Uses the `JobFilterPanelSkeleton` with type set to "job".
+ *
+ * @returns {JSX.Element} The skeleton loader for the Job Page Filter Panel.
+ */
+export const JobPageFilterSkeleton = () => {
     return <JobFilterPanelSkeleton type="job" />;
   };
-  
-  export const ReferralPageFilterSkeleton = () => {
+
+/**
+ * Skeleton loader component for the Referral Page Filter Panel.
+ * Uses the `JobFilterPanelSkeleton` with type set to "referral".
+ *
+ * @returns {JSX.Element} The skeleton loader for the Referral Page Filter Panel.
+ */
+export const ReferralPageFilterSkeleton = () => {
     return <JobFilterPanelSkeleton type="referral" />;
   };
 
-// JobCardSkeleton - Updated to match the job card design
+/**
+ * Skeleton loader component for a single Job Card.
+ * Displays a placeholder UI for the job card design.
+ *
+ * @returns {JSX.Element} The skeleton loader for a Job Card.
+ */
 export const JobCardSkeleton = () => {
     return (
       <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4 animate-pulse">
@@ -99,9 +122,16 @@ export const JobCardSkeleton = () => {
       </div>
     );
   };
-  
-  // JobCardList Skeleton - Uses the updated JobCardSkeleton
-  export const JobCardListSkeleton = ({ count = 3 }) => {
+
+/**
+ * Skeleton loader component for a list of Job Cards.
+ * Displays a specified number of `JobCardSkeleton` components.
+ *
+ * @param {Object} props - Component props.
+ * @param {number} [props.count=3] - Number of job card skeletons to display.
+ * @returns {JSX.Element} The skeleton loader for a list of Job Cards.
+ */
+export const JobCardListSkeleton = ({ count = 3 }) => {
     return (
       <div className="w-full space-y-4">
         {Array(count).fill(0).map((_, index) => (
@@ -111,7 +141,13 @@ export const JobCardSkeleton = () => {
     );
   };
 
-// CompanyCardSkeleton - Updated to match the company card design
+
+/**
+ * Skeleton loader component for a single Company Card.
+ * Displays a placeholder UI for the company card design.
+ *
+ * @returns {JSX.Element} The skeleton loader for a Company Card.
+ */
 export const CompanyCardSkeleton = () => {
     return (
       <>
@@ -148,9 +184,16 @@ export const CompanyCardSkeleton = () => {
       </>
     );
   };
-  
-  // CompanyCardList Skeleton - Uses the updated CompanyCardSkeleton
-  export const CompanyCardListSkeleton = ({ count = 12 }) => {
+
+/**
+ * Skeleton loader component for a list of Company Cards.
+ * Displays a specified number of `CompanyCardSkeleton` components.
+ *
+ * @param {Object} props - Component props.
+ * @param {number} [props.count=12] - Number of company card skeletons to display.
+ * @returns {JSX.Element} The skeleton loader for a list of Company Cards.
+ */
+export const CompanyCardListSkeleton = ({ count = 12 }) => {
     return (
       <>
         {Array(count).fill(0).map((_, index) => (

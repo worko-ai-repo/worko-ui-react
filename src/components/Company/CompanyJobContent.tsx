@@ -130,78 +130,82 @@ const CompanyJobContent = () => {
 
 				{/* Jobs/Referral Section */}
 				{companyPageMode === CompanyPageModeEnum.JOB ? (
-					<div className="w-full px-2 pt-4 sm:px-4 bg-[#F2F4F5] sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:pb-6 flex-wrap gap-2 mx-auto min-h-[350px]">
-						{isLoading ? (
-							<JobCardListSkeleton count={5} />
-						) : companyJobData && companyJobData.length > 0 ? (
-							<>
-								{companyJobData.map((job, index) => {
-									const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
-									const Finallocations = !job?.location?.fullLocation?.length ? 'Not Disclosed' : job?.location?.fullLocation.join(', ');
-									const finalLogoUrl = job?.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` : job?.companyDetails?.logoUrl;
+				<div className="w-full px-2 pt-4 sm:px-4 bg-[#F2F4F5] sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:pb-6 flex-wrap gap-2 mx-auto min-h-[350px]">
+					{isLoading ? (
+					<JobCardListSkeleton count={5} />
+					) : companyJobData && companyJobData.length > 0 ? (
+					<>
+						{companyJobData.map((job, index) => {
+						const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
+						const Finallocations = !job?.location?.fullLocation?.length ? 'Not Disclosed' : job?.location?.fullLocation.join(', ');
+						const finalLogoUrl = job?.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` : job?.companyDetails?.logoUrl;
 
-									const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
+						const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
 
-									const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== '';
-									
-									return (
-										<JobCard
-											key={job.id || index}
-											job={{
-												isLogoAvailable: isLogoAvailable,
-												companyLogo: companyLogoUrl,
-												title: job.jobTitle,
-												department: job.department,
-												salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
-												location: Finallocations || 'Not Disclosed',
-												employmentType: job.typeofEmployment || 'Not Disclosed',
-												createdAt: job.externalJobId ? job.jobPostedDate : job.createdAt,
-												matchPercentage: job.matchingScore || -1,
-												status: job.applyStatus || 'NOT_APPLIED',
-												jobId: job.id,
-												isExternalJob: job.externalJobId,
-												companyName: finalCompanyName,
-												jobdescription: job.jobDescription,
-												aboutcompany: job.companyDetails,
-												jobStatus: job.status,
-												badJob: job.badJob,
-											}}
-										/>
-									);
-								})}
-								{/* Loading indicator and intersection observer */}
-								<div ref={inViewRef} className="w-full min-h-20 flex items-center justify-center">
-									{isFetchingNextPage ? <JobCardSkeleton /> : companyJobData.length > 0 && <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>}
-								</div>
-							</>
-						) : isError ? (
-							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">"Something went wrong."</p>
-						) : (
-							<JobCardListSkeleton count={5} />
-						)}
-					</div>
+						const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== '';
+						
+						return (
+							<JobCard
+							key={job.id || index}
+							job={{
+								isLogoAvailable: isLogoAvailable,
+								companyLogo: companyLogoUrl,
+								title: job.jobTitle,
+								department: job.department,
+								salary: formatRange(job.salaryRange?.min, job.salaryRange?.max, 'salary'),
+								location: Finallocations || 'Not Disclosed',
+								employmentType: job.typeofEmployment || 'Not Disclosed',
+								createdAt: job.externalJobId ? job.jobPostedDate : job.createdAt,
+								matchPercentage: job.matchingScore || -1,
+								status: job.applyStatus || 'NOT_APPLIED',
+								jobId: job.id,
+								isExternalJob: job.externalJobId,
+								companyName: finalCompanyName,
+								jobdescription: job.jobDescription,
+								aboutcompany: job.companyDetails,
+								jobStatus: job.status,
+								badJob: job.badJob,
+							}}
+							/>
+						);
+						})}
+						{/* Loading indicator and intersection observer */}
+						<div ref={inViewRef} className="w-full min-h-20 flex items-center justify-center">
+						{isFetchingNextPage ? <JobCardSkeleton /> : companyJobData.length > 0 && <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>}
+						</div>
+					</>
+					) : isError ? (
+					<p className="text-2xl relative font-medium text-gray-500 top-[43%]">"Something went wrong."</p>
+					) : isLoading && companyJobData && companyJobData.length !== 0 ? (
+					<CompanyPageFallback mode="JOB" />
+					) : (
+					<JobCardListSkeleton count={5} />
+					)}
+				</div>
 				) : (
-					<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ${styles.Company_Content_Companies}`}>
-						{isLoading ? (
-							<CompanyCardListSkeleton count={12} />
-						) : companyRefData && companyRefData.length > 0 ? (
-							<>
-								{companyRefData.map((company, index) => (
-									<div key={company.SK || index} className="min-w-[310px] flex justify-center">
-										<CompanyCard companyData={company} />
-									</div>
-								))}
-								{/* Loading indicator and intersection observer */}
-								<div ref={inViewRef} className=" min-w-[310px] flex items-center justify-center">
-									{isFetchingNextPage && <CompanyCardSkeleton />}
-								</div>
-							</>
-						) : isError ? (
-							<p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">"Something went wrong."</p>
-						) : (
-							<CompanyCardListSkeleton count={12} />
-						)}
-					</div>
+				<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ${styles.Company_Content_Companies}`}>
+					{isLoading ? (
+					<CompanyCardListSkeleton count={12} />
+					) : companyRefData && companyRefData.length > 0 ? (
+					<>
+						{companyRefData.map((company, index) => (
+						<div key={company.SK || index} className="min-w-[310px] flex justify-center">
+							<CompanyCard companyData={company} />
+						</div>
+						))}
+						{/* Loading indicator and intersection observer */}
+						<div ref={inViewRef} className=" min-w-[310px] flex items-center justify-center">
+						{isFetchingNextPage && <CompanyCardSkeleton />}
+						</div>
+					</>
+					) : isError ? (
+					<p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">"Something went wrong."</p>
+					) : isLoading && companyRefData && companyRefData.length !== 0 ? (
+					<CompanyPageFallback mode="REFERRAL" />
+					) : (
+					<CompanyCardListSkeleton count={12} />
+					)}
+				</div>
 				)}
 			</div>
 
