@@ -61,7 +61,7 @@ const AppRoutes = createBrowserRouter([
 					{
 						index: true,
 						element: (
-							<Suspense fallback={<MainLoader />}>
+							<Suspense>
 								<Company />
 							</Suspense>
 						),
@@ -82,7 +82,7 @@ const AppRoutes = createBrowserRouter([
 					{
 						index: true,
 						element: (
-							<Suspense fallback={<MainLoader />}>
+							<Suspense>
 								<Company />
 							</Suspense>
 						),
