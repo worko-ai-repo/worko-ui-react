@@ -1,21 +1,24 @@
 import { useState, useMemo, useEffect } from "react";
-import { Star, MapPin, Clock, Building2 } from "lucide-react";
+import { Star, MapPin, Clock, Building2, ChevronDown } from "lucide-react";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
 import { AppContext, useAppContext } from "@Context/App.context";
 import { toast } from 'react-toastify';
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
+import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto } from "@Interfaces/JobsAndCompany.dto";
-
+import countryCodes from "@Utils/CountryCodes.utils";
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus,badJob,FullJob } = job;
+  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [imgError, setImgError] = useState(false);
+  const [countryCode, setCountryCode] = useState("+91");
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
   const {userDetails} = useAppContext()
   // const userId = userDetails?.id
@@ -24,13 +27,47 @@ export const JobCard = ({ job }: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const nav = useNavigate();
-
-  const handleSubmit = () => {
-    toast.success(`Job shared with: ${formData.phone}, ${formData.email}`);
-    setShowModal(false);
+  const handleCountryCodeSelect = (code: string) => {
+    setCountryCode(code);
+    setShowCountryDropdown(false);
   };
 
+  const nav = useNavigate();
+
+  const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    const requestData = {
+      recipientName: formData.fullName,
+      recipientEmail: formData.email,
+      recipientPhoneNumber: formData.phone,
+      jobId,
+      companyId: companyId,
+      recipientPhoneCountryCode: countryCode,
+    };
+  
+    try {
+      const { response, error, status } = await
+        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true)
+       
+      if (status === 409) {
+        toast.error('You have already referred this person for this job.');
+        return;
+      }
+      if (status === 201) {
+        toast.success('Referral applied successfully!');
+        return;
+      }
+  
+      setShowModal(false);
+    } catch (error: any) {
+      console.error('Error details:', error);
+      toast.error(error?.message || 'Failed to submit referral');
+    }
+  };
+   
+  
+  
 
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
@@ -61,6 +98,21 @@ export const JobCard = ({ job }: any) => {
       setStrengthLabel("Strong Match");
     }
   }, [matchPercentage]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.country-dropdown-container')) {
+        setShowCountryDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
@@ -161,14 +213,14 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {/* !isExternalJob && 
+            { !isExternalJob && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
-            </button> */
+            </button> 
             }
-            <button disabled={badJob} onClick={() => handleReferralNav()} className=" flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
+            <button onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               View Details
             </button>
           </div>
@@ -180,7 +232,7 @@ export const JobCard = ({ job }: any) => {
   <CustomModal 
     type="share" 
     title="Refer a Friend and Earn Rewards!" 
-    onSubmit={()=>{/* handleReferSubmit */}} // Pass function directly
+    onSubmit={()=>{}}// Pass function directly
     onClose={() => setShowModal(false)}
     hideDefaultButtons={true}
   >
@@ -189,7 +241,7 @@ export const JobCard = ({ job }: any) => {
         Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
       </p>
     </div>
-    <form className="space-y-4 px-4" onSubmit={()=>{}/* handleReferSubmit */}> 
+    <form className="space-y-4 px-4" onSubmit={handleReferSubmit}> 
       <div>
         <input 
           type="text" 
@@ -213,15 +265,46 @@ export const JobCard = ({ job }: any) => {
         />
       </div>
       <div>
-        <input 
-          type="tel" 
-          name="phone" 
-          value={formData.phone} 
-          onChange={handleChange} 
-          className="input_primary text-gray-500 w-full p-2 border rounded" 
-          placeholder="Contact Number / WhatsApp Number" 
-          required 
-        />
+        {/* Phone input with country code dropdown */}
+        <div className="flex items-center">
+          {/* Country code dropdown */}
+          <div className="relative country-dropdown-container">
+            <div 
+              className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
+              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+            >
+              <span>{countryCode}</span>
+              <ChevronDown size={14} />
+            </div>
+            
+            {/* Dropdown list */}
+            {showCountryDropdown && (
+              <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
+                {countryCodes.map((item) => (
+                  <div 
+                    key={item.code} 
+                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
+                    onClick={() => handleCountryCodeSelect(item.code)}
+                  >
+                    <span className="font-medium">{item.code}</span>
+                    <span className="text-gray-500">{item.country}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Phone input */}
+          <input 
+            type="tel" 
+            name="phone" 
+            value={formData.phone} 
+            onChange={handleChange} 
+            className="input_primary text-gray-500 flex-1 p-2 border rounded" 
+            placeholder="Contact Number" 
+            required 
+          />
+        </div>
       </div>
       <div className="text-center mt-4">
         <button 

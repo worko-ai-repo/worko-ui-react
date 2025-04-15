@@ -4,6 +4,8 @@ import { getToastOptions } from '@Utils/Toast.utils';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { ChevronDown } from 'lucide-react';
+import countryCodes from '@Utils/CountryCodes.utils';
 
 export enum UserCorporatePaymentPlanEnum {
   JOB_BOARD = "JOB_BOARD",
@@ -24,13 +26,6 @@ const planOptions = [
   { value: UserCorporatePaymentPlanEnum.CO_PILOT, label: "Co-Pilot" },
 ];
 
-// Country codes array (without country names)
-const countryCodes = [
-  "+1", "+44", "+91", "+61", "+86", "+49", "+33", "+81", 
-  "+7", "+55", "+52", "+27", "+82", "+971", "+65", "+852",
-  "+39", "+34", "+31", "+46", "+48", "+92", "+60", "+66"
-];
-
 const CorporateConnectForm = ({
   handleFormSubmit,
   selectedPlan = "",
@@ -43,6 +38,7 @@ const CorporateConnectForm = ({
   const [isEmailVerified, setEmailVerified] = useState(false);
   const [isVerifying, setVerifying] = useState(false);
   const [resendOtpVisible, setResendOtpVisible] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   
   const {
     register,
@@ -53,18 +49,18 @@ const CorporateConnectForm = ({
     formState: { errors },
   } = useForm({
     defaultValues: {
-		otp: '',
-		name: '',
-		phone: '',
-    countryCode: '+91', // Default country code
-		email: '',
-		company: '',
-		designation: '',
-		message: '',
-    pricingPlan: "",
+      otp: '',
+      name: '',
+      phone: '',
+      countryCode: '+91', // Default country code
+      email: '',
+      company: '',
+      designation: '',
+      message: '',
+      pricingPlan: "",
     },
     mode: 'onChange',
-	  criteriaMode: 'all',
+    criteriaMode: 'all',
   });
 
   // Set the selected plan when component mounts or selectedPlan changes
@@ -81,6 +77,27 @@ const CorporateConnectForm = ({
       setValue("pricingPlan", PLAN_NAME_MAP[planToUse]);
     }
   }, [selectedPlan, setValue]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.country-dropdown-container')) {
+        setShowCountryDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle country code selection
+  const handleCountryCodeSelect = (code: string) => {
+    setValue("countryCode", code);
+    setShowCountryDropdown(false);
+  };
 
   // Send OTP / Verify OTP function
   const handleEmailVerification = async (
@@ -207,17 +224,32 @@ const CorporateConnectForm = ({
           <div>
             <label className="block font-medium">Contact No</label>
             <div className="flex">
-              {/* Country Code Dropdown - Smaller with reduced padding */}
-              <select
-                className="input_primary auth_input !rounded-r-none !w-[67px] !p-1 !text-sm"
-                {...register("countryCode")}
-              >
-                {countryCodes.map((code) => (
-                  <option key={code} value={code}>
-                    {code}
-                  </option>
-                ))}
-              </select>
+              {/* Country Code Dropdown */}
+              <div className="relative country-dropdown-container">
+                <div
+                  className="input_primary auth_input !rounded-r-none !w-[80px] cursor-pointer flex items-center justify-between"
+                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                >
+                  <span>{watch("countryCode")}</span>
+                  <ChevronDown size={14} />
+                </div>
+                
+                {/* Dropdown list */}
+                {showCountryDropdown && (
+                  <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
+                    {countryCodes.map((item) => (
+                      <div 
+                        key={item.code} 
+                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
+                        onClick={() => handleCountryCodeSelect(item.code)}
+                      >
+                        <span className="font-medium">{item.code}</span>
+                        <span className="text-gray-500">{item.country}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               
               {/* Phone Number Input */}
               <input
