@@ -45,7 +45,9 @@ const JobDescription = () => {
 
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const { jobid } = useParams();
-  const [jobDataState, setJobDataState] = useState<JobDto | undefined>(undefined);
+  const [jobDataState, setJobDataState] = useState<JobDto | undefined>(() => {
+    return (location.state as any)?.FullJob;
+  });
   const [isApplying, setIsApplying] = useState(false);
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | 0>(0)
@@ -140,7 +142,7 @@ useEffect(() => {
 }, [jobDataState, isLoggedIn]);
 
 
-  useEffect(() => {
+/*   useEffect(() => {
 
       // Else , Check if the use has come from the page of auth or not by checking the secure storage for stale request data.
       // If the user is not logged in and the referral request is not present in the secure storage, redirect to login page
@@ -155,7 +157,7 @@ useEffect(() => {
           // handleApplyClick(); // Call submit function
       }
     }, [location.hash, nav, isLoggedIn, PendingApply]);
-
+ */
   // Function to show error modals
   const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant') => {
     switch (caseType) {
@@ -265,7 +267,7 @@ useEffect(() => {
       if (error) throw new Error(error.message);
       return response;
     },
-    enabled: !!jobid, // Enable the query when jobId exists
+    enabled: !!jobid && !jobDataState,
     retry: 0,
   });
 
