@@ -8,7 +8,7 @@ import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
 import Corporate from '@Pages/corporate/Corporate';
 import JobDescription from '@Pages/JobDescriptionPage';
-import CorporateDashboard from '@Components/Dashboard/CorporateDashboard';
+import CorporateDashboard from '@Components/Dashboard/Corporate/Job/Jobs';
 
 // Lazy Load Components
 const Hero = lazy(() => import('@Pages/hero/Hero'));

@@ -66,6 +66,15 @@ import shield from './svgs/shield.svg';
 import time from './svgs/time.svg';
 import Bubble from './svgs/bubble.svg';
 import WavyLine from './svgs/wavyline.svg';
+import Filter from './svgs/filter.svg';
+import User from './svgs/user.svg';
+import Home from './svgs/home.svg';
+import Job from './svgs/jobs.svg';
+import Applicants from './svgs/applicants.svg';
+import Bulk_CV from './svgs/bulk_cv.svg';
+import Invites from './svgs/invites.svg';
+import Referral from './svgs/referral.svg';
+import Support from './svgs/support.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -127,4 +136,13 @@ export {
     time,
     Bubble,
     WavyLine,
+    Filter,
+    User,
+    Home,
+    Job,
+    Applicants,
+    Bulk_CV,
+    Referral,
+    Invites,
+    Support,
 };

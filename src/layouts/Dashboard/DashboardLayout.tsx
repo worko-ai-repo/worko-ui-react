@@ -1,41 +1,33 @@
 import Header from '@Components/Dashboard/Header';
 import Sidebar from '@Components/Dashboard/Sidebar';
-import { Bell, ChevronRight, Menu, Star, UserCircle } from 'lucide-react';
+import { DashboardProvider } from '@Context/Dashboard.context';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-/**
- * @function DashboardLayout
- *
- * @description A DashboardLayout component for nested routes
- *
- * @returns {JSX.Element} The JSX code for the DashboardLayout component
- */
 function DashboardLayout(): JSX.Element {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
 
     return (
-        <div id="DashboardLayout">
-            <div className="min-h-screen grid grid-cols-[212px_1fr] max-sm:grid-cols-1">
-                {/* Sidebar */}
+        <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr]">
+            <DashboardProvider>
                 <Sidebar
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
+                    collapsed={collapsed}
+                    setCollapsed={setCollapsed}
                 />
-
-                {/* Main Content */}
-                <div className="flex flex-col">
-                    {/* Header */}
-                    <Header 
+                
+                <div className="grid grid-rows-[auto_1fr] h-screen">
+                    <Header
                         sidebarOpen={sidebarOpen}
                         setSidebarOpen={setSidebarOpen}
                     />
-                    {/* Page Content */}
-                    <main className="flex-1 p-4">
+                    <main className="overflow-auto p-8 pt-2">
                         <Outlet />
                     </main>
                 </div>
-            </div>
+            </DashboardProvider>
         </div>
     );
 }
