@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PlanFeature {
   text: string;
@@ -56,16 +57,22 @@ const plans: Plan[] = [
 ];
 
 function CorporatePlans() {
+  const navigate = useNavigate();
+
+  // Function to handle button click
+  const handleTryNowClick = (planName: string) => {
+    // Added the planName as query param.
+    navigate(`/for-corporate/connect-with-us?plan=${encodeURIComponent(planName)}`);
+  };
+
   return (
-    <section className=" py-16 px-4 sm:px-6 lg:px-8" id='corporatePlans'>
+    <section className="py-16 px-4 sm:px-6 lg:px-8" id='corporatePlans'>
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
-        Flexible Plans For All Your Needs and Budgets
+          Flexible Plans For All Your Needs and Budgets
         </h1>
-
         
-        
-        <div className="grid grid-cols-1  max-w-5xl mx-auto md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 max-w-5xl mx-auto md:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
             <div key={index} className="group cursor-pointer relative bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
               {plan.isRecommended && (
@@ -73,7 +80,7 @@ function CorporatePlans() {
                   RECOMMENDED
                 </div>
               )}
-              <div className="p-6 pt-8  border-2 border-gray-200 rounded-sm bg-white">
+              <div className="p-6 pt-8 border-2 border-gray-200 rounded-sm bg-white">
                 
                 <h2 className="text-xl font-medium text-gray-900 mt-2 text-left">{plan.name}</h2>
                 <div className="mb-8 text-left">
@@ -87,7 +94,7 @@ function CorporatePlans() {
                       ? 'bg-[#4B7EFF] text-white w-full rounded-lg py-1 group-hover:bg-[#3A6AE8]'
                       : 'bg-black text-gray-200 w-full rounded-lg py-1 group-hover:bg-[#316BFF]'
                   }`}
-                  onClick={() => window.location.href = '/for-corporate/connect-with-us '}
+                  onClick={() => handleTryNowClick(plan.name)}
                 >
                   Try now
                 </button>

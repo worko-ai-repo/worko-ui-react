@@ -99,6 +99,7 @@ export interface JobDto extends CompanyDto {
   isDeleted: boolean;
   updatedByUserId?: string;
   companyDetails?: CompanyDto;
+  htmlJobDescription?: string;
   jobPostedDate?: string;
   jobCreatedDate?: string;
   jobUrl?: string;

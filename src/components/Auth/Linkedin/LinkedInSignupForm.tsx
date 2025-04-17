@@ -76,7 +76,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 		reset,
 		formState: { errors },
 	} = useForm({
-		defaultValues: { name: '', phone: '', whatsappActive: false, company: undefined, cv: '', email: '', corporateEmail: '', department: '', termsAndConditions: false },
+		defaultValues: { name: '', phone: '', whatsappActive: false, company: undefined, cv: '', email: '', companyEmailId: '', department: '', termsAndConditions: false },
 		mode: 'onChange',
 	});
 
@@ -239,8 +239,8 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 						
 							<div className="relative">
 								<label className="hidden sm:block font-medium">Work Email</label>
-								<input placeholder="Enter Work Email" type="email" className={`input_primary auth_input  ${errors.corporateEmail && 'error'}`} {...register('corporateEmail', validationRules.corporateEmail)} />
-								{errors.corporateEmail && <p className="text-sm text-left text-red-500">{errors.corporateEmail.message?.toString()}</p>}
+								<input placeholder="Enter Work Email" type="email" className={`input_primary auth_input  ${errors.companyEmailId && 'error'}`} {...register('companyEmailId', validationRules.corporateEmail)} />
+								{errors.companyEmailId && <p className="text-sm text-left text-red-500">{errors.companyEmailId.message?.toString()}</p>}
 							</div>
 					)}
 					{/* department */}

@@ -6,7 +6,7 @@ import MainLoader from '@Components/Loader/Loader';
 import TestPage from '@Pages/JobDescriptionPage';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
-import Corporate from '@Pages/corporate/Corporate';
+
 import JobDescription from '@Pages/JobDescriptionPage';
 import CorporateDashboard from '@Components/Dashboard/Corporate/Job/Jobs';
 
@@ -17,6 +17,7 @@ const Company = lazy(() => import('@Pages/company/Company'));
 const Employee = lazy(() => import('@Pages/employee/Employee'));
 const Guidance = lazy(() => import('@Pages/guidance/Guidance'));
 const AuthRouter = lazy(() => import('@Pages/Auth/Auth.router'));
+const Corporate = lazy(() => import('@Pages/corporate/Corporate'));
 const DashboardRouter = lazy(() => import('@Pages/Dashboard/Dashboard.router'));
 const RequestReferral = lazy(() => import('@Pages/request-referral/RequestReferral'));
 const CorporateConnect = lazy(() => import('@Pages/corporate/corporateConnect/CorporateConnect'));
@@ -63,7 +64,7 @@ const AppRoutes = createBrowserRouter([
 					{
 						index: true,
 						element: (
-							<Suspense fallback={<MainLoader />}>
+							<Suspense>
 								<Company />
 							</Suspense>
 						),
@@ -84,7 +85,7 @@ const AppRoutes = createBrowserRouter([
 					{
 						index: true,
 						element: (
-							<Suspense fallback={<MainLoader />}>
+							<Suspense>
 								<Company />
 							</Suspense>
 						),

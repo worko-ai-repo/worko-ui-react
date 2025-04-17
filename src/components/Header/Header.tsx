@@ -73,14 +73,14 @@ const Header = () => {
 					<ul className={styles.navList}>
 						{navItems.map(item => (
 							<li key={item.label} className={styles.navItem} onMouseEnter={() => setActiveDropdown(item.label)} onMouseLeave={() => setActiveDropdown(null)}>
-								<a href={item.href} className={styles.navLink}>
+								<a onClick={() => navigateTo(item.href || '#')} className={styles.navLink}>
 									{item.label}
 									{item.subItems && <ChevronDown className={styles.chevron} />}
 								</a>
 								{item.subItems && activeDropdown === item.label && (
 									<div className={styles.dropdown}>
 										{item.subItems.map(subItem => (
-											<a key={subItem.label} href={subItem.href} className={styles.dropdownItem}>
+											<a key={subItem.label} onClick={() => navigateTo(subItem.href)} className={styles.dropdownItem}>
 												{subItem.label}
 											</a>
 										))}
@@ -246,16 +246,16 @@ const Header = () => {
 					<nav className="flex flex-col p-2 bg-white ">
 						{navItems.map(item => (
 							<div key={item.label} className={styles.mobileNavItem}>
-								<button onClick={() => {toggleDropdown(item.label); if (item.href) window.location.href = item.href}} className={styles.mobileNavLink}>
+								<button onClick={() => { toggleDropdown(item.label); if (item.href) navigateTo(item.href); }} className={styles.mobileNavLink}> 
 									{item.label}
 									{item.subItems && <ChevronDown className={`${styles.chevron} ${activeDropdown === item.label ? styles.rotate : ''}`} />}
 								</button>
 								{item.subItems && activeDropdown === item.label && (
 									<div className={styles.mobileDropdown}>
 										{item.subItems.map(subItem => (
-											<a key={subItem.label} href={subItem.href} className={styles.mobileDropdownItem}>
+											<button key={subItem.label} onClick={() => navigateTo(subItem.href)} className={styles.mobileDropdownItem}>
 												{subItem.label}
-											</a>
+											</button>
 										))}
 									</div>
 								)}

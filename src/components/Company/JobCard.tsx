@@ -6,10 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { AppContext, useAppContext } from "@Context/App.context";
 import { toast } from 'react-toastify';
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
-import httpServiceObj from "@Services/ApiHandler.service";
+import { JobDto } from "@Interfaces/JobsAndCompany.dto";
+
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus,badJob } = job;
+  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, jobStatus,badJob,FullJob } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
@@ -30,39 +31,6 @@ export const JobCard = ({ job }: any) => {
     setShowModal(false);
   };
 
-/*   const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    const requestData = {
-      fullName: formData.fullName,
-      email: formData.email,
-      phoneNumber: formData.phone,
-      jobId,
-      companyName,
-      // userId
-      
-    };
-  
-    try {
-      const { response, error, status } = await
-        httpServiceObj.post('http://localhost:3000/local/refer', requestData, true, {}, true)//@Todo vaibhav why are we using localhost here
-       
-      
-  
-      if (status === 409) {
-        toast.error('Referral already exists!');
-        return;
-      }
-  
-      setShowModal(false);
-    } catch (error: any) {
-      console.error('Error details:', error);
-      toast.error(error?.message || 'Failed to submit referral');
-    }
-  };
-   */
-  
-  
 
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
@@ -78,7 +46,7 @@ export const JobCard = ({ job }: any) => {
     // console.log(companyName);
     // Replace any whitespace special characters with underscore in company name
     const refinedCompanyName = companyName.replace(/\s/g, "_");
-    nav(`/jobs/${refinedCompanyName}/${jobId}`);
+    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
   };
 
   useEffect(() => {
@@ -120,12 +88,6 @@ export const JobCard = ({ job }: any) => {
             <div className="flex flex-row justify-between mt-2 md:mt-1">
               {/* Tags - Flex-wrap on mobile */}
               <div className="flex flex-wrap gap-1 overflow-hidden">
-                {/* <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
-                  16 candidates
-                </span>
-                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
-                  16 candidates
-                </span>  @TODO - Apply candidate count in new release. */}
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{timeAgo}</span>
                 {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
                 {!isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Posted Job by Worko</span>}

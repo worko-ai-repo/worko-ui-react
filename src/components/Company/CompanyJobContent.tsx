@@ -1,32 +1,31 @@
-import { lazy, Suspense, useEffect, useRef, useState, useCallback } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import styles from './company.module.scss';
 import { useCompanyContext } from '../../context/Company.context';
 import { formatRange } from '@Utils/RangeFormater.utils';
-import { Loader, X } from 'lucide-react';
-import MainLoader from '@Components/Loader/Loader';
+import { X } from 'lucide-react';
 import { CompanyPageModeEnum } from '@Interfaces/CompanyContext.dto';
 import { useInView } from 'react-intersection-observer';
 
 // Lazy load components
 import CompanyCard from './CompanyCard';
-import { isExternal } from 'util/types';
 import MessageModal from '@Components/Modals/MessageModal';
 import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import CompanyPageFallback from '@Components/Fallback/CompanyPage.fallback';
+import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
 
 const JobCard = lazy(() => import('@Components/Company/JobCard'));
 const JobFilterPanel = lazy(() => import('./JobFilterPanel'));
-const RequestCompany = lazy(() => import('./RequestCompany'));
+
 
 const CompanyJobContent = () => {
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 	const { userDetails }: { userDetails: Partial<AuthLoginForGeneralUserDto> } = useAppContext();
-	const { companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
+	const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
 
 	const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
 	const searchInputRef = useRef<HTMLInputElement | null>(null);
-	const loadingRef = useRef(false);
+
 
 	// Debounced fetch function to prevent multiple rapid calls
 	// Intersection Observer for Infinite Scroll
@@ -39,6 +38,36 @@ const CompanyJobContent = () => {
 		},
 	});
 
+	useEffect(() => {
+		if (searchInputRef.current) {
+			searchInputRef.current.value = '';
+		}
+		resetSearch();
+	}, [companyPageMode]);
+
+	// Set searchText from query param on mount
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const query = params.get('searchText') || '';
+		setSearchText(query);
+		setJobFilters(prev => ({ ...prev, searchText: query }));
+		if (searchInputRef.current) {
+			searchInputRef.current.value = query;
+		}
+	}, []);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		if (searchText) {
+			params.set('searchText', searchText);
+		} else {
+			params.delete('searchText');
+		}
+		const newUrl = `${window.location.pathname}?${params.toString()}`;
+		window.history.replaceState({}, '', newUrl);
+	}, [searchText]);
+
+	
 	return (
 		<div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
 			{/* Search Bar */}
@@ -90,11 +119,11 @@ const CompanyJobContent = () => {
 				<div
 					className={`absolute w-full top-0 bottom-0 max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
           ${isFiltersOpen ? 'left-0' : '-left-full'} md:left-0 ${styles.Company_Content_Filters}`}>
-					<Suspense fallback={<Loader className="relative left-[45%]" />}>
-						<div className="">
-							{isLoading && <Loader className="absolute left-[45%] top-1/2" />}
+					
+						
+						<Suspense fallback={<JobPageFilterSkeleton />}>
 							<JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
-						</div>
+						
 					</Suspense>
 				</div>
 
@@ -102,7 +131,7 @@ const CompanyJobContent = () => {
 				{companyPageMode === CompanyPageModeEnum.JOB ? (
 					<div className="w-full px-2 pt-4 sm:px-4 bg-[#F2F4F5] sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:pb-6 flex-wrap gap-2 mx-auto min-h-[350px]">
 						{isLoading ? (
-							<MainLoader />
+					<JobCardListSkeleton count={5} />
 						) : companyJobData && companyJobData.length > 0 ? (
 							<>
 								{companyJobData.map((job, index) => {
@@ -135,13 +164,14 @@ const CompanyJobContent = () => {
 												aboutcompany: job.companyDetails,
 												jobStatus: job.status,
 												badJob: job.badJob,
+												FullJob: job,
 											}}
 										/>
 									);
 								})}
 								{/* Loading indicator and intersection observer */}
-								<div ref={inViewRef} className="w-full h-20 flex items-center justify-center">
-									{isFetchingNextPage ? <Loader /> : companyJobData.length > 0 && <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>}
+						<div ref={inViewRef} className="w-full min-h-20 flex items-center justify-center">
+						{isFetchingNextPage ? <JobCardSkeleton /> : companyJobData.length > 0 && <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>}
 								</div>
 							</>
 						) : isError ? (
@@ -153,9 +183,7 @@ const CompanyJobContent = () => {
 				) : (
 					<div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ${styles.Company_Content_Companies}`}>
 						{isLoading ? (
-							<div className="absolute left-[40%]">
-								<MainLoader />
-							</div>
+					<CompanyCardListSkeleton count={12} />
 						) : companyRefData && companyRefData.length > 0 ? (
 							<>
 								{companyRefData.map((company, index) => (
@@ -164,8 +192,8 @@ const CompanyJobContent = () => {
 									</div>
 								))}
 								{/* Loading indicator and intersection observer */}
-								<div ref={inViewRef} className="w-full h-20 flex items-center justify-center col-span-full">
-									{isFetchingNextPage && <Loader />}
+						<div ref={inViewRef} className=" min-w-[310px] flex items-center justify-center">
+						{isFetchingNextPage && <CompanyCardSkeleton />}
 								</div>
 							</>
 						) : isError ? (
