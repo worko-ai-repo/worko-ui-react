@@ -4,6 +4,7 @@ import JobDetails from './JobDetails';
 import SimilarJobs from './SimilarJobs';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 import { JobDescriptionSubComponentDTO } from '../HeadBanner';
+import { SimilarJobsSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
 
 const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationStatus, handleApplyClick }) => {
   const [isApplying, setIsApplying] = useState(false);
@@ -73,9 +74,7 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
       </div>
       <div className="w-full md:w-[33%]">
         {isLoading ? (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-gray-500">Loading similar jobs...</p>
-          </div>
+             <SimilarJobsSkeleton />
         ) : (
           <SimilarJobs 
             similarJobs={displayedSimilarJobs}

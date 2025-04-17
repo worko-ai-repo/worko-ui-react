@@ -46,7 +46,14 @@ const JobDescription = () => {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const { jobid } = useParams();
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(() => {
-    return (location.state as any)?.FullJob;
+    const job = (location.state as any)?.FullJob;
+
+    // Clear location state after extracting the data
+    if (job) {
+      window.history.replaceState({}, document.title);
+    }
+  
+    return job;
   });
   const [isApplying, setIsApplying] = useState(false);
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
@@ -55,8 +62,17 @@ const JobDescription = () => {
   const [jobMatchDetails , setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
 
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
-  const APP_API_URI = import.meta.env.APP_API_URI
 
+  // This effect will run when the component mounts or when jobid changes
+  // It will set the jobDataState from location state if available
+  useEffect(() => {
+    const job = (location.state as any)?.FullJob;
+    if (job) {
+      setJobDataState(job);
+      window.history.replaceState({}, document.title); // Clean up state again
+      setApplicationStatus(false); // Reset application status
+    }
+  }, [location, jobid]); // Depends on jobid or location change
 
 // Add this new function to check application status
 const checkApplicationStatus = async (retryCount = 0) => {
