@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { Star, MapPin, Clock, Building2, ChevronDown } from "lucide-react";
+import { MapPin, Clock, ChevronDown } from "lucide-react";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
-import { AppContext, useAppContext } from "@Context/App.context";
+import { useAppContext } from "@Context/App.context";
 import { toast } from 'react-toastify';
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
@@ -43,7 +43,7 @@ export const JobCard = ({ job }: any) => {
       recipientPhoneNumber: formData.phone,
       jobId,
       companyId: companyId,
-      recipientPhoneCountryCode: countryCode,
+      recipientPhoneCountryCode: countryCode.replace('+',''),
     };
   
     try {
@@ -63,6 +63,10 @@ export const JobCard = ({ job }: any) => {
     } catch (error: any) {
       console.error('Error details:', error);
       toast.error(error?.message || 'Failed to submit referral');
+    }
+    finally{
+      setFormData({ fullName: "", phone: "", email: "" });
+      setShowModal(false);
     }
   };
    
