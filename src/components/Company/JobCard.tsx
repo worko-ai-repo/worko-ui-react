@@ -38,22 +38,22 @@ export const JobCard = ({ job }: any) => {
     e.preventDefault();
     
     const requestData = {
-  recipientDetails: {
-    name: formData.fullName,
-    email: formData.email,
-    phoneNumber: formData.phone,
-    phoneCountryCode: countryCode.replace('+','')
-  },
-  companyDetails: {
-    id: companyId,
-    name: companyName
-  },
-  jobDetails: {
-    id: jobId,
-    title: title,
-    url: jobUrl
-  }
-};
+      recipientDetails: {
+        name: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        phoneCountryCode: countryCode.replace('+','')
+      },
+      companyDetails: {
+        id: companyId,
+        name: companyName
+      },
+      jobDetails: {
+        id: jobId,
+        title: title,
+        url: jobUrl
+      }
+    };
   
     try {
       const { response, error, status } = await
