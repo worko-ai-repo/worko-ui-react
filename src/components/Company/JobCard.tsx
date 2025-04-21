@@ -9,6 +9,7 @@ import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto } from "@Interfaces/JobsAndCompany.dto";
 import countryCodes from "@Utils/CountryCodes.utils";
+import { getToastOptions } from "@Utils/Toast.utils";
 
 export const JobCard = ({ job }: any) => {
   const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
@@ -60,18 +61,18 @@ export const JobCard = ({ job }: any) => {
         httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true)
        
       if (status === 409) {
-        toast.error('You have already referred this person for this job.');
+        toast.error('You have already referred this person for this job.', getToastOptions());
         return;
-      }
-      if (status === 201) {
-        toast.success('Referral applied successfully!');
+      } else if (status === 201) {
+        toast.success('Referral applied successfully!', getToastOptions());
         return;
+      } else {
+        throw new Error(error?.message || 'Failed to submit referral');
       }
-  
-      setShowModal(false);
+
     } catch (error: any) {
-      console.error('Error details:', error);
-      toast.error(error?.message || 'Failed to submit referral');
+      console.error(error);
+      toast.error(error ?? 'Failed to submit referral', getToastOptions());
     }
     finally{
       setFormData({ fullName: "", phone: "", email: "" });

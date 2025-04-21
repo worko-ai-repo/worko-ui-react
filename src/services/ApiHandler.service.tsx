@@ -59,7 +59,8 @@ export class HttpService {
 
 			// Check if the response is not OK
 			if (!response.ok) {
-				const errorMessage = `HTTP error! status: ${response.status}, message: ${response.statusText}`;
+				let responseData = await response.json()
+				const errorMessage = responseData?.errorMsg || 'Something went wrong';
 				console.error(`HTTP error on POST ${path}:`, errorMessage);
 				return { response: null, error: new Error(errorMessage) ,status: response.status };
 			}
