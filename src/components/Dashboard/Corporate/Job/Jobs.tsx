@@ -5,7 +5,7 @@ import JobDescription from '../PostJob/JobDescription';
 import JobsTable from './JobTable';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { JobApiResponse, JobDetails } from '@Components/Dashboard/types';
-import Modal from '../PostJob/Modal';
+import Modal from '../../Modal';
 import FilterToggle from '../Filters';
 import BulkOption from '@Components/Dashboard/Bulk';
 

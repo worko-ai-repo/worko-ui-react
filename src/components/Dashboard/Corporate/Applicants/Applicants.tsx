@@ -1,7 +1,10 @@
 import { Filter } from '@Assets';
-import React from 'react';
+import React, { useState } from 'react';
 import FilterToggle from '../Filters';
 import BulkOption from '@Components/Dashboard/Bulk';
+import Modal from '../../Modal';
+import EvaluatorForm from './EvaluatorForm';
+import RejectionForm from './RejectForm';
 
 const stats = [
     { label: 'Total Applicants', value: 106 },
@@ -14,6 +17,10 @@ const stats = [
 const tabs = ["All", "Hired", "Joined"] as const;
 
 const Applicants = () => {
+
+    const [openEvaluationModal, setOpenEvaluationModal] = useState(false);
+    const [openRejectModal, setOpenRejectModal] = useState(false);
+
     return (
         <div>
             <div className='flex flex-col sm:flex-col gap-4 sm:gap-24 justify-between'>
@@ -28,7 +35,7 @@ const Applicants = () => {
                                 <p className="text-2xl font-extrabold text-gray-900">{stat.value}</p>
                             </div>
                         ))}
-                        <div className="bg-white shadow-md rounded-xl px-7 text-xs gap-2 py-4 text-center flex flex-col">
+                        <div onClick={() => setOpenRejectModal(true)} className="bg-white shadow-md rounded-xl px-7 text-xs gap-2 py-4 text-center flex flex-col">
                             <span className='text-sm text-[#64748B]'>
                                 Job Url
                             </span>
@@ -38,7 +45,7 @@ const Applicants = () => {
                                 className='px-3 py-1 rounded-lg text-[#C0B7B7] border'
                             />
                         </div>
-                        <div className='flex flex-col gap-2 bg-white rounded-xl px-7 py-4 shadow-md'>
+                        <div onClick={() => setOpenEvaluationModal(true)} className='flex cursor-pointer flex-col gap-2 bg-white rounded-xl px-7 py-4 shadow-md'>
                             <span className='text-sm text-[#64748B]'>Job Status</span>
                             <span className='text-2xl text-blue-500 font-semibold'>Hiring</span>
                         </div>
@@ -64,6 +71,19 @@ const Applicants = () => {
                     </div>
                 </div>
             </div>
+            <Modal
+                onClose={() => setOpenEvaluationModal(false)}
+                isOpen={openEvaluationModal}
+                title="Send for Evaluation"
+            >
+                <EvaluatorForm />
+            </Modal>
+            <Modal
+                onClose={() => setOpenRejectModal(false)}
+                isOpen={openRejectModal}
+            >
+                <RejectionForm />
+            </Modal>
         </div>
     )
 }

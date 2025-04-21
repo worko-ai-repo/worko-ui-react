@@ -27,7 +27,8 @@ const Modal = ({
     >
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`bg-white rounded-xl p-6 shadow-lg max-w-md md:max-w-5xl w-full relative animate-slide-in ${className}`}
+          className={`bg-white rounded-xl p-6 shadow-lg relative animate-slide-in ${className}`}
+          style={{ width: 'fit-content', maxWidth: '100%' }}
           onClick={(e) => e.stopPropagation()}
         >
           {showCloseButton && (

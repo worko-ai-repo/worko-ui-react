@@ -44,7 +44,7 @@ export default function JobDescription({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="mt-4 w-[80dvw] sm:w-[60dvw] flex flex-col gap-6">
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Side: Text Area */}
         <div className="flex-1 w-full">

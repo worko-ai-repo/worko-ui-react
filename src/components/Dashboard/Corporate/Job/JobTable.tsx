@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, Pencil, FileText, X, Save } from 'lucide-react';
 import { DynamicTable } from "../DynamicTable";
 import { JobApiResponse, JobData } from "@Components/Dashboard/types";
-import Modal from "../PostJob/Modal";
+import Modal from "../../Modal";
 import CloseJob from "./CloseJob";
 
 interface JobsTableProps {
@@ -21,12 +21,19 @@ const JobTableWrapper: React.FC<JobsTableProps> = ({
     const [isCloseJobModalOpen, setIsCloseJobModalOpen] = useState(false);
 
     const columns = [
+        {
+            key: "jobTitle",
+            label: "Job Title",
+            hideOnMobile: true,
+            render: (row: JobData) => <span className="font-bold w-full capitalize">{row.jobTitle}</span>,
+        },
         { key: "department", label: "Department", hideOnMobile: true },
         { key: "totalApplications", label: "Total Applications", hideOnMobile: true },
         ...(activeTab === "PUBLISHED"
             ? [{ key: "pending", label: "Pending", hideOnMobile: true }]
             : [{ key: "archivedBy", label: "Archived By", hideOnMobile: true }]),
         ...(activeTab === "CLOSED" ? [{ key: "status", label: "Status", hideOnMobile: true }] : []),
+        { key: "actions", label: "Actions", hideOnMobile: true },
     ];
 
     const toggleRow = (id: string) => {
@@ -76,7 +83,7 @@ const JobTableWrapper: React.FC<JobsTableProps> = ({
                 renderActions={(row) => {
                     if (activeTab === "PUBLISHED") {
                         return (
-                            <>
+                            <div className="flex gap-2 items-center justify-center">
                                 <button className="btn-view">
                                     <Eye className="w-4 h-4" />
                                 </button>
@@ -95,13 +102,14 @@ const JobTableWrapper: React.FC<JobsTableProps> = ({
                                 <button className="btn-save-open">
                                     <Save className='w-4 h-4' />
                                 </button>
-                            </>
+                            </div>
                         );
                     }
 
                     if (activeTab === "ARCHIVED") {
                         return (
-                            <>
+                            <div className="flex gap-2 items-center justify-center">
+
                                 <button className="btn-close">
                                     <X className='w-4 h-4' />
                                 </button>
@@ -111,14 +119,18 @@ const JobTableWrapper: React.FC<JobsTableProps> = ({
                                 <button className="btn-copy">
                                     <FileText className='w-4 h-4' />
                                 </button>
-                            </>
+                            </div>
                         );
                     }
 
                     if (activeTab === "CLOSED") {
-                        return <button className="btn-copy">
-                            <FileText className='w-4 h-4' />
-                        </button>;
+                        return (
+                            <div className="flex gap-2 items-center justify-center">
+                                <button className="btn-copy">
+                                    <FileText className='w-4 h-4' />
+                                </button>;
+                            </div>
+                        );
                     }
 
                     return null; // fallback
@@ -150,7 +162,7 @@ const JobTableWrapper: React.FC<JobsTableProps> = ({
             >
                 <CloseJob
                     onClose={() => setIsCloseJobModalOpen(false)}
-                    onSubmit={() => {}}
+                    onSubmit={() => { }}
                 />
             </Modal>
         </div>
