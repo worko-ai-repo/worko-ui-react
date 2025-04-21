@@ -50,10 +50,10 @@ const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
       workMode: ['WFH', 'WFO', 'HYBRID'].includes(response.workMode)
         ? response.workMode
         : undefined,
-      department: response.department,
-      coreSkills: response.coreSkills || [],
-      softSkills: response.softSkills || [],
-      technicalSkills: response.technicalSkills || [],
+        ...(response.department && { department: response.department }),
+        ...(response.coreSkills?.length && { coreSkills: response.coreSkills }),
+        ...(response.softSkills?.length && { softSkills: response.softSkills }),
+        ...(response.technicalSkills?.length && { technicalSkills: response.technicalSkills }),
     };
 
     // console.log('Formatted Payload:', requestPayload);

@@ -204,3 +204,39 @@ export const CompanyCardListSkeleton = ({ count = 12 }) => {
       </>
     );
   };
+
+  /**
+   * Similar Jobs Skeleton Loader
+   * Displays a placeholder UI for the similar jobs section.
+   */
+  export const SimilarJobsSkeleton: React.FC = () => {
+    return (
+      <div className="w-full">
+        <div className="p-3 sm:p-4 lg:p-6 lg:!pr-0 rounded-lg">
+          <div className="h-6 w-32 bg-gray-200 rounded-md mb-4 sm:mb-6 animate-pulse"></div>
+  
+          <div className="space-y-3 sm:space-y-4">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="w-full bg-white border border-black/5 rounded-xl shadow-md p-4 flex gap-4 items-center animate-pulse"
+              >
+                {/* Company Logo */}
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-200 rounded-md flex-shrink-0"></div>
+  
+                {/* Job Info */}
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+                  <div className="h-3 w-1/2 bg-gray-200 rounded"></div>
+                  <div className="h-3 w-1/3 bg-gray-200 rounded"></div>
+                </div>
+  
+                {/* Action button (if any) */}
+                <div className="hidden sm:block w-20 h-8 bg-gray-200 rounded-md"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };

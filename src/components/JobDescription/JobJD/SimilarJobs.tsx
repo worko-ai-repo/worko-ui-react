@@ -37,7 +37,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
   // Add the handleReferralNav function from your code
   const handleReferralNav = () => {
     const refinedCompanyName = companyName?.replace(/\s/g, "_"); // Replace spaces with underscores
-    nav(`/jobs/${refinedCompanyName}/${jobId}`);
+    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:job as JobDto}});
   };
 
   const finalLogoUrl = job?.companyDetails?.logoUrl 
