@@ -11,7 +11,7 @@ import { JobDto } from "@Interfaces/JobsAndCompany.dto";
 import countryCodes from "@Utils/CountryCodes.utils";
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId } = job;
+  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
@@ -38,13 +38,22 @@ export const JobCard = ({ job }: any) => {
     e.preventDefault();
     
     const requestData = {
-      recipientName: formData.fullName,
-      recipientEmail: formData.email,
-      recipientPhoneNumber: formData.phone,
-      jobId,
-      companyId: companyId,
-      recipientPhoneCountryCode: countryCode.replace('+',''),
-    };
+  recipientDetails: {
+    name: formData.fullName,
+    email: formData.email,
+    phoneNumber: formData.phone,
+    phoneCountryCode: countryCode.replace('+','')
+  },
+  companyDetails: {
+    id: companyId,
+    name: companyName
+  },
+  jobDetails: {
+    id: jobId,
+    title: title,
+    url: jobUrl
+  }
+};
   
     try {
       const { response, error, status } = await

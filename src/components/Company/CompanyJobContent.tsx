@@ -166,6 +166,7 @@ const CompanyJobContent = () => {
 												badJob: job.badJob,
 												FullJob: job,
 												companyId:job.companyId,
+												jobUrl: job.jobUrl
 											}}
 										/>
 									);
