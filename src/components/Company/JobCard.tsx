@@ -32,7 +32,7 @@ export const JobCard = ({ job }: any) => {
 
   const {userDetails} = useAppContext();
 
-  // Initialize react-hook-form
+  // Initialize react-hook-form.
   const {
     register,
     handleSubmit,
