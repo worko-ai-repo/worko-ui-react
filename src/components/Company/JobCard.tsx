@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { MapPin, Clock, ChevronDown } from "lucide-react";
+import { useForm } from "react-hook-form";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate } from "react-router-dom";
@@ -10,40 +11,61 @@ import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto } from "@Interfaces/JobsAndCompany.dto";
 import countryCodes from "@Utils/CountryCodes.utils";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { validationRules } from "@Utils/FormValidator.utils";
+import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
+
+// Define interface for referral form data
+interface ReferralFormDTO {
+  fullName: string;
+  email: string;
+  phone: number;
+  phoneCountryCode: string;
+}
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable,companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ fullName: "", phone: "", email: "" });
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [imgError, setImgError] = useState(false);
-  const [countryCode, setCountryCode] = useState("+91");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
-  const {userDetails} = useAppContext()
-  // const userId = userDetails?.id
+  const {userDetails} = useAppContext();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Initialize react-hook-form
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+    reset,
+    watch
+  } = useForm<ReferralFormDTO>({
+    mode: 'onChange',
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: undefined,
+      phoneCountryCode: "+91"
+    }
+  });
+
+  const phoneCountryCode = watch('phoneCountryCode');
 
   const handleCountryCodeSelect = (code: string) => {
-    setCountryCode(code);
+    setValue('phoneCountryCode', code);
     setShowCountryDropdown(false);
   };
 
   const nav = useNavigate();
 
-  const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
+  const onSubmit = async (formData: ReferralFormDTO) => {
     const requestData = {
       recipientDetails: {
         name: formData.fullName,
         email: formData.email,
-        phoneNumber: formData.phone,
-        phoneCountryCode: countryCode.replace('+','')
+        phoneNumber: Number(formData.phone),
+        phoneCountryCode: Number(formData.phoneCountryCode.slice(1))
       },
       companyDetails: {
         id: companyId,
@@ -57,32 +79,37 @@ export const JobCard = ({ job }: any) => {
     };
   
     try {
-      const { response, error, status } = await
-        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true)
-       
+      const result = await toast.promise(
+        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true),
+        {
+          pending: 'Sharing job...',
+        },
+        getToastOptions()
+      ) as ApiCallResponse;
+  
+      const { response, error, status } = result;
+  
       if (status === 409) {
         toast.error('You have already referred this person for this job.', getToastOptions());
         return;
-      } else if (status === 201) {
-        toast.success('Referral applied successfully!', getToastOptions());
-        return;
-      } else {
-        throw new Error(error?.message || 'Failed to submit referral');
       }
-
+  
+      if (error) {
+        console.error('Error details:', error);
+        throw new Error(error.message || 'Failed to submit referral');
+      }
+  
+      console.log('Referral submitted successfully:', response);
+      toast.success('Referral applied successfully!', getToastOptions());
     } catch (error: any) {
-      console.error(error);
-      toast.error(error ?? 'Failed to submit referral', getToastOptions());
-    }
-    finally{
-      setFormData({ fullName: "", phone: "", email: "" });
+      console.error('Error submitting referral:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to submit referral', getToastOptions());
+    } finally {
+      reset();
       setShowModal(false);
     }
   };
-   
   
-  
-
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
     const threeDaysAgo = new Date();
@@ -92,10 +119,7 @@ export const JobCard = ({ job }: any) => {
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
   
-
   const handleReferralNav = () => {
-    // console.log(companyName);
-    // Replace any whitespace special characters with underscore in company name
     const refinedCompanyName = companyName.replace(/\s/g, "_");
     nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
   };
@@ -128,6 +152,13 @@ export const JobCard = ({ job }: any) => {
     };
   }, []);
 
+  // Reset form when modal is closed
+  useEffect(() => {
+    if (!showModal) {
+      reset();
+    }
+  }, [showModal, reset]);
+
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -142,7 +173,14 @@ export const JobCard = ({ job }: any) => {
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
+              <a
+                href={jobUrl} // <-- make sure this points to the correct URL
+                
+                rel="noopener noreferrer"
+                className="block"
+              >
                 <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
+                </a>
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
 
                 {/* Salary */}
@@ -157,7 +195,6 @@ export const JobCard = ({ job }: any) => {
                 <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{timeAgo}</span>
                 {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
                 {!isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Posted Job by Worko</span>}
-                {/* {<span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{jobStatus}</span>} */}
                 {badJob && <span className="px-3 py-1 max-h-[25px] bg-red-400 rounded-full text-xs md:text-[10.5px]  whitespace-nowrap animate-pulse text-white ">Removing irrelevant job...</span>}
               </div>
 
@@ -241,100 +278,103 @@ export const JobCard = ({ job }: any) => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal with useForm integration */}
       {showModal && (
-  <CustomModal 
-    type="share" 
-    title="Refer a Friend and Earn Rewards!" 
-    onSubmit={()=>{}}// Pass function directly
-    onClose={() => setShowModal(false)}
-    hideDefaultButtons={true}
-  >
-    <div className="text-center px-4">
-      <p className="text-gray-600 text-sm mb-4">
-        Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
-      </p>
-    </div>
-    <form className="space-y-4 px-4" onSubmit={handleReferSubmit}> 
-      <div>
-        <input 
-          type="text" 
-          name="fullName" 
-          value={formData.fullName} 
-          onChange={handleChange} 
-          className="input_primary text-gray-500 w-full p-2 border rounded" 
-          placeholder="Full Name" 
-          required 
-        />
-      </div>
-      <div>
-        <input 
-          type="email" 
-          name="email" 
-          value={formData.email} 
-          onChange={handleChange} 
-          className="input_primary text-gray-500 w-full p-2 border rounded" 
-          placeholder="E-Mail ID" 
-          required 
-        />
-      </div>
-      <div>
-        {/* Phone input with country code dropdown */}
-        <div className="flex items-center">
-          {/* Country code dropdown */}
-          <div className="relative country-dropdown-container">
-            <div 
-              className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
-              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-            >
-              <span>{countryCode}</span>
-              <ChevronDown size={14} />
-            </div>
-            
-            {/* Dropdown list */}
-            {showCountryDropdown && (
-              <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
-                {countryCodes.map((item) => (
-                  <div 
-                    key={item.code} 
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
-                    onClick={() => handleCountryCodeSelect(item.code)}
-                  >
-                    <span className="font-medium">{item.code}</span>
-                    <span className="text-gray-500">{item.country}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Phone input */}
-          <input 
-            type="tel" 
-            name="phone" 
-            value={formData.phone} 
-            onChange={handleChange} 
-            className="input_primary text-gray-500 flex-1 p-2 border rounded" 
-            placeholder="Contact Number" 
-            required 
-          />
-        </div>
-      </div>
-      <div className="text-center mt-4">
-        <button 
-          type="submit" 
-          className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full"
+        <CustomModal 
+          type="share" 
+          title="Refer a Friend and Earn Rewards!" 
+          onSubmit={()=>{}} // Will use handleSubmit from useForm instead
+          onClose={() => setShowModal(false)}
+          hideDefaultButtons={true}
         >
-          Submit Referral
-        </button>
-      </div>
-    </form>
-    <p className="text-gray-400 text-xs text-center mt-4 px-4">
-      Your information is secure and will only be used to process your referral and communicate about the program.
-    </p>
-  </CustomModal>
-)}
-
+          <div className="text-center px-4">
+            <p className="text-gray-600 text-sm mb-4">
+              Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
+            </p>
+          </div>
+          <form className="space-y-4 px-4" onSubmit={handleSubmit(onSubmit)}> 
+            <div>
+              <input 
+                type="text" 
+                {...register('fullName', { 
+                  required: 'Full name is required',
+                  minLength: { value: 3, message: 'Name must be at least 3 characters' } 
+                })} 
+                className="input_primary text-gray-500 w-full p-2 border rounded" 
+                placeholder="Full Name" 
+              />
+              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
+            </div>
+            <div>
+              <input 
+                type="email" 
+                {...register('email', validationRules.email)} 
+                className="input_primary text-gray-500 w-full p-2 border rounded" 
+                placeholder="E-Mail ID" 
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+            </div>
+            <div>
+              {/* Phone input with country code dropdown */}
+              <div className="flex items-center">
+                {/* Country code dropdown */}
+                <div className="relative country-dropdown-container">
+                  <div 
+                    className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
+                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                  >
+                    <span>{phoneCountryCode}</span>
+                    <ChevronDown size={14} />
+                  </div>
+                  
+                  {/* Dropdown list */}
+                  {showCountryDropdown && (
+                    <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
+                      {countryCodes.map((item) => (
+                        <div 
+                          key={item.code} 
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
+                          onClick={() => handleCountryCodeSelect(item.code)}
+                        >
+                          <span className="font-medium">{item.code}</span>
+                          <span className="text-gray-500">{item.country}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Phone input */}
+                <input 
+                  type="tel" 
+                  {...register('phone', { 
+                    required: 'Phone number is required',
+                    pattern: { 
+                      value: /^[0-9]{10}$/, 
+                      message: 'Please enter a valid 10-digit phone number'
+                    }
+                  })}
+                  className="input_primary text-gray-500 flex-1 p-2 border rounded" 
+                  placeholder="Contact Number" 
+                />
+              </div>
+              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message as string}</p>}
+            </div>
+            <div className="text-center mt-4">
+              <button 
+                type="submit" 
+                className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Referral'}
+              </button>
+            </div>
+          </form>
+          <p className="text-gray-400 text-xs text-center mt-4 px-4">
+            Your information is secure and will only be used to process your referral and communicate about the program.
+          </p>
+        </CustomModal>
+      )}
     </div>
   );
 };

@@ -15,7 +15,17 @@ import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import { toast } from "react-toastify";
 import CustomModal from "@Components/Modals/FormModal";
 import countryCodes from "@Utils/CountryCodes.utils";
+import { getToastOptions } from "@Utils/Toast.utils";
+import { useForm } from "react-hook-form";
+import { validationRules } from "@Utils/FormValidator.utils";
+import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 
+interface ReferralFormData {
+  fullName: string;
+  email: string;
+  phone: number;
+  phoneCountryCode: string;
+}
 interface JobCardProps {
   jobData: JobDto;
   isApplying?: boolean;
@@ -104,13 +114,27 @@ const JobCard: React.FC<JobCardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-  });
-  const [countryCode, setCountryCode] = useState("+91");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+
+  // Initialize react-hook-form
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+    reset,
+    watch
+  } = useForm<ReferralFormData>({
+    mode: "onChange",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: undefined,
+      phoneCountryCode: "+91"
+    }
+  });
+
+  const phoneCountryCode = watch("phoneCountryCode");
 
   // Reset match score when login status changes
   useEffect(() => {
@@ -139,56 +163,83 @@ const JobCard: React.FC<JobCardProps> = ({
   }, [matchScore, isLoggedIn]);
 
   const handleCountryCodeSelect = (code: string) => {
-    setCountryCode(code);
+    setValue("phoneCountryCode", code);
     setShowCountryDropdown(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.country-dropdown-container')) {
+        setShowCountryDropdown(false);
+      }
+    };
 
-  const handleReferSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
+  // Reset form when modal is closed
+  useEffect(() => {
+    if (!showModal) {
+      reset();
+    }
+  }, [showModal, reset]);
+
+  const onSubmit = async (formData: ReferralFormData) => {
     const requestData = {
-      recipientName: formData.fullName,
-      recipientEmail: formData.email,
-      recipientPhoneNumber: formData.phone,
-      jobId: jobid,
-      companyId: jobData.companyId,
-      recipientPhoneCountryCode: countryCode.replace("+", ""),
+      recipientDetails: {
+        name: formData.fullName,
+        email: formData.email,
+        phoneNumber: Number(formData.phone),
+        phoneCountryCode: Number(formData.phoneCountryCode.slice(1)),
+      }, companyDetails:{
+        id: jobData.companyId,
+        name: companyName
+      },
+      jobDetails: {
+        id: jobid,
+        title: jobData.jobTitle,
+        url: jobData.jobUrl,
+      },
     };
 
     try {
-      const { response, error, status } = await httpServiceObj.post(
-        "https://jobs.dev.worko.work/refer-and-earn",
-        requestData,
-        true,
-        {},
-        true
-      );
-
+      const result = await toast.promise(
+        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true),
+        {
+          pending: 'Sharing job...',
+        },
+        getToastOptions()
+      ) as ApiCallResponse;
+  
+      const { response, error, status } = result;
+  
       if (status === 409) {
-        toast.error("You have already referred this person for this job.");
+        toast.error('You have already referred this person for this job.', getToastOptions());
         return;
       }
-      if (status === 201) {
-        toast.success("Referral applied successfully!");
-        return;
+  
+      if (error) {
+        console.error('Error details:', error);
+        throw new Error(error.message || 'Failed to submit referral');
       }
-
-      setShowModal(false);
+  
+      console.log('Referral submitted successfully:', response);
+      toast.success('Referral applied successfully!', getToastOptions());
     } catch (error: any) {
-      console.error("Error details:", error);
-      toast.error(error?.message || "Failed to submit referral");
+      console.error('Error submitting referral:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to submit referral', getToastOptions());
     } finally {
-      setFormData({ fullName: "", phone: "", email: "" });
+      reset();
       setShowModal(false);
     }
   };
 
   // Get company name based on job type
-
   const companyName = jobData.externalJobId
     ? jobData.companyName
     : jobData?.companyDetails?.name;
@@ -447,7 +498,7 @@ const JobCard: React.FC<JobCardProps> = ({
         <CustomModal
           type="share"
           title="Refer a Friend and Earn Rewards!"
-          onSubmit={() => {}} // Pass function directly
+          onSubmit={() => {}} // We'll use handleSubmit from useForm
           onClose={() => setShowModal(false)}
           hideDefaultButtons={true}
         >
@@ -458,28 +509,31 @@ const JobCard: React.FC<JobCardProps> = ({
               reward as a bonus!
             </p>
           </div>
-          <form className="space-y-4 px-4" onSubmit={handleReferSubmit}>
+          <form className="space-y-4 px-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <input
                 type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
+                {...register("fullName", { 
+                  required: "Full name is required",
+                  minLength: { value: 3, message: "Name must be at least 3 characters" } 
+                })}
                 className="input_primary text-gray-500 w-full p-2 border rounded"
                 placeholder="Full Name"
-                required
               />
+              {errors.fullName && (
+                <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>
+              )}
             </div>
             <div>
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                {...register("email", validationRules.email)}
                 className="input_primary text-gray-500 w-full p-2 border rounded"
                 placeholder="E-Mail ID"
-                required
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>
+              )}
             </div>
             <div>
               {/* Phone input with country code dropdown */}
@@ -490,7 +544,7 @@ const JobCard: React.FC<JobCardProps> = ({
                     className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
                     onClick={() => setShowCountryDropdown(!showCountryDropdown)}
                   >
-                    <span>{countryCode}</span>
+                    <span>{phoneCountryCode}</span>
                     <ChevronDown size={14} />
                   </div>
 
@@ -514,21 +568,28 @@ const JobCard: React.FC<JobCardProps> = ({
                 {/* Phone input */}
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
+                  {...register("phone", { 
+                    required: "Phone number is required",
+                    pattern: { 
+                      value: /^[0-9]{10}$/, 
+                      message: "Please enter a valid 10-digit phone number"
+                    }
+                  })}
                   className="input_primary text-gray-500 flex-1 p-2 border rounded"
                   placeholder="Contact Number"
-                  required
                 />
               </div>
+              {errors.phone && (
+                <p className="text-red-500 text-xs mt-1">{errors.phone.message as string}</p>
+              )}
             </div>
             <div className="text-center mt-4">
               <button
                 type="submit"
-                className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full"
+                className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300"
+                disabled={isSubmitting}
               >
-                Submit Referral
+                {isSubmitting ? "Submitting..." : "Submit Referral"}
               </button>
             </div>
           </form>
