@@ -180,6 +180,7 @@ export interface JobMatchingScoreDto {
 
 export interface UserBasicDetailsDto {
   CTC: number;
+  cvExtract?: string;
   ECTC: number;
   candidateExperience?: {
     department: string;

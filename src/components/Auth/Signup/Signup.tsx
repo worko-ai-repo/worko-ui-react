@@ -142,7 +142,7 @@ const Signup = () => {
 	 */
 	const checkBasicDetails = async () => {
 		let retryCount = 0;
-		const maxRetries = 2;
+		const maxRetries = 3;
 
 		const attemptCheck = async () => {
 			try {
@@ -161,7 +161,7 @@ const Signup = () => {
 				const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
 
 				// If either designation or coreSkills exist, update filters
-				if (designation || coreSkills?.length || response?.YOE) {
+				if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
 					setOpenReferralLoader(false);
 					initiateFinalRedirection();
 				} else {
@@ -190,12 +190,6 @@ const Signup = () => {
 					  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
 					],
 				  });
-				/* // Also retry on error
-				if (retryCount < maxRetries) {
-					retryCount++;
-					console.log(`Retrying after error (${retryCount}/${maxRetries})...`);
-					setTimeout(attemptCheck, 5000);
-				} */
 			}
 		};
 

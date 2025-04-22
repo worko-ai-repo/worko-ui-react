@@ -412,37 +412,32 @@ const JobCard: React.FC<JobCardProps> = ({
           {/* Button container with responsive layout */}
 <div className="flex items-center justify-end gap-2 w-full md:w-auto">
   {/* Refer A Friend button */}
-  <button
+  {(!jobData.externalJobId && isLoggedIn)  && <button
     onClick={() => setShowModal(true)}
     className="w-full md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center"
   >
     Refer A Friend
-  </button>
+  </button>}
   
   {/* Apply button */}
   <button
-    className={`w-full md:w-auto ${
-      applicationStatus ||
-      jobData.status === "ARCHIVED" ||
-      jobData.status === "CLOSED"
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-blue-500 hover:bg-blue-600"
-    } 
-      text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`}
+    className={`w-full md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`}
     onClick={onApply}
     disabled={
       applicationStatus ||
       jobData.status === "ARCHIVED" ||
-      jobData.status === "CLOSED"
+      jobData.status === "CLOSED" ||
+      (displayMatchScore < 1 )
     }
+    data-tooltip-id="my-tooltip" data-tooltip-content={(displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
   >
-    {isLoggedIn
-      ? applicationStatus
-        ? "Already Applied"
-        : jobData.status === "ARCHIVED" || jobData.status === "CLOSED"
-        ? `${jobData.status}`
+    {isLoggedIn /* Check if the user is Logged in or not  */
+      ? applicationStatus /* If the user user is Logged In then check if the user has already applied the job or not */
+        ? "Already Applied" /* Already Applied  */
+        : jobData.status === "ARCHIVED" || jobData.status === "CLOSED"  || (displayMatchScore < 1)/* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */
+        ? `${(displayMatchScore < 1 ) ? 'Apply Now' : jobData.status}`
         : "Apply Now"
-      : "Login to Apply"}
+      : "Login to Apply"} {/* If not then Ask them */}
   </button>
 </div>
         </div>

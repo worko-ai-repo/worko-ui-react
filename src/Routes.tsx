@@ -47,14 +47,6 @@ const AppRoutes = createBrowserRouter([
 					</Suspense>
 				),
 			},
-			/* {
-				path: 'test',
-				element: (
-					<Suspense fallback={<MainLoader />}>
-						<TestPage />
-					</Suspense>
-				),
-			}, */
 			{
 				path: 'jobs/',
 				children: [

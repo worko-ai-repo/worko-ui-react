@@ -227,7 +227,7 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            { !isExternalJob && 
+            { (!isExternalJob && isLoggedIn) && 
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">

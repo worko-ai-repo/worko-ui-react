@@ -6,7 +6,7 @@ import { JobDto } from '@Interfaces/JobsAndCompany.dto';
 import { JobDescriptionSubComponentDTO } from '../HeadBanner';
 import { SimilarJobsSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
 
-const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationStatus, handleApplyClick }) => {
+const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationStatus, handleApplyClick ,jobMatchDetails}) => {
   const [isApplying, setIsApplying] = useState(false);
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +70,7 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
           isApplying={isApplying}
           applicationStatus={applicationStatus}
           onApply={handleApplyClick}
+          jobMatchDetails={jobMatchDetails}
         />
       </div>
       <div className="w-full md:w-[33%]">

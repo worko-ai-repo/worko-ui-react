@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Share2 } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
-import { JobDto } from '@Interfaces/JobsAndCompany.dto';
+import { JobDto, JobMatchingScoreDto } from '@Interfaces/JobsAndCompany.dto';
 import { toast } from 'react-toastify';
 import { useAppContext } from '@Context/App.context';
 import styles from '../jobDescription.module.scss'
@@ -112,16 +112,18 @@ interface JobDetailsProps {
   isApplying: boolean;
   applicationStatus:boolean;
   onApply: () => void;
+  jobMatchDetails: JobMatchingScoreDto | undefined;
 }
 
 const JobDetails: React.FC<JobDetailsProps> = ({ 
   job, 
   applicationStatus, 
-  onApply 
+  onApply, 
+  jobMatchDetails 
 }) => {
 
   // console.log(job);
-
+const [matchScore, setMatchScore] = useState<number | undefined>(0);
   
     const {isLoggedIn} = useAppContext();
     
@@ -140,6 +142,19 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         toast.error("Sharing not supported, try another method.",getToastOptions());
       }
     };
+   // Reset match score when login status changes
+    useEffect(() => {
+      if (!isLoggedIn) {
+        setMatchScore(0);
+      }
+    }, [isLoggedIn]);
+  
+    useEffect(() => {
+      setMatchScore(jobMatchDetails?.matchingScore);
+    }, [jobMatchDetails]);
+
+  // Calculate the effective match score to display (0 if not logged in)
+  const displayMatchScore = isLoggedIn ? matchScore || 0 : 0;
 
   return (
     <div className="w-full min-h-full space-y-6">
@@ -153,25 +168,21 @@ const JobDetails: React.FC<JobDetailsProps> = ({
         
         <div className="flex justify-center items-center gap-2 mt-6">
         <button 
-            className={`${applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-500 hover:bg-blue-600'} 
+            className={` disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 
               text-white font-bold px-4 py-2 rounded-lg transition-colors`}
             onClick={onApply}
-            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED'}
+            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED' || (displayMatchScore < 1 )}
+            data-tooltip-id="my-tooltip" data-tooltip-content={(displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
           >
              {isLoggedIn 
               ? applicationStatus 
                 ? 'Already Applied'
-                : job.status === 'ARCHIVED' || job.status === 'CLOSED'
-                  ? `${job.status}` 
+                : job.status === 'ARCHIVED' || job.status === 'CLOSED'|| (displayMatchScore < 1)/* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */
+                  ? `${(displayMatchScore < 1 ) ? 'Apply Now' : job.status}` 
                   : 'Apply Now' 
               : 'Login to Apply'}
             </button>
-
-          {/* <button className="text-black border font-bold border-black px-4 py-2 rounded-lg transition-colors">
-            Refer a Friend
-          </button> */}
+            
           <button onClick={handleShare}  className="p-2 border border-gray-300 rounded-full">
             <Share2 className="w-5 h-5" />
           </button>

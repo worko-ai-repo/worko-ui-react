@@ -175,7 +175,7 @@ useEffect(() => {
     }, [location.hash, nav, isLoggedIn, PendingApply]);
  */
   // Function to show error modals
-  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant') => {
+  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant' | 'badScore') => {
     switch (caseType) {
       case "isExternalJobApplied":
         setModalData({
@@ -253,6 +253,20 @@ useEffect(() => {
           }],
         });
         break;
+      case "badScore":
+        setModalData({
+          type: "error",
+          heading: { message: "Failed to apply", type: "error" },
+          message: "It looks like you've managed to submit an application before the matching scores were fully processed. While your score generation is in process, please note that bypassing standard checks won’t affect the evaluation process. Matching insights will be available shortly. Kindly try again in a few minutes.",
+          buttons: [{ 
+            label: "OK", 
+            type: "danger", 
+            action: () => {
+              setModalData(null);
+            } 
+          }],
+        });
+        break;
       default:
         setModalData({
           type: "error",
@@ -262,6 +276,43 @@ useEffect(() => {
         });
     }
   };
+/**
+ * Modal to handle promise for low score
+ * @description - It will handle the promise for low score modal.
+ * @param type 
+ * @returns 
+ */
+  const showModalPromise = (type: 'lowScore'): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (type === 'lowScore') {
+        setModalData({
+          type: "warning",
+          heading: { message: "Low Score Detected!", type: "warning" },
+          message:
+            "Your matching score is low. We recommend improving your profile before applying. If you still want to apply, please click on the button below.",
+          buttons: [
+            {
+              label: "Apply Anyway",
+              type: "danger",
+              action: () => {
+                setModalData(null);
+                resolve(true); // Proceed
+              },
+            },
+            {
+              label: "Cancel",
+              type: "primary",
+              action: () => {
+                setModalData(null);
+                resolve(false); // Break the flow
+              },
+            },
+          ],
+        });
+      }
+    });
+  };
+  
 
   /**
    * Use Query to fetch job data
@@ -427,8 +478,20 @@ useEffect(() => {
       // Show the confirmation modal
       setShowApplyModal(true);
       showModalsError('isExternalJobApplied')
-    } else {
-		//  Step 1: Check Profile Completion
+    }
+    else {
+    // If the scores are very Low then warn the user
+    if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
+      if(jobMatchDetails.matchingScore < 1){
+        setShowApplyModal(true);
+        showModalsError('badScore');
+        return;
+      }else{
+      setShowApplyModal(true);
+      const proceed = await showModalPromise('lowScore');
+      if (!proceed) return; // User cancelled, break the flow
+      }
+    }
 		setCurrStep(0);
 		const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
 		if (profilePer) {
@@ -468,7 +531,7 @@ useEffect(() => {
      {jobDataState && (
   <Suspense fallback={<MainLoader />}>
     <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails}/>
-    <JobJD jobData={jobDataState} applicationStatus={applicationStatus } handleApplyClick={handleApplyClick} />
+    <JobJD jobData={jobDataState} applicationStatus={applicationStatus } handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails} />
   </Suspense>
 )}
 
