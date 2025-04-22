@@ -26,6 +26,7 @@ interface ReferralFormData {
   phone: number;
   phoneCountryCode: string;
 }
+
 interface JobCardProps {
   jobData: JobDto;
   isApplying?: boolean;
