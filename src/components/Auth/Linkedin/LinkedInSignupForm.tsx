@@ -11,6 +11,9 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import secureStorage from '@Utils/SecureStorage.utils';
 import { useAppContext } from '@Context/App.context';
 import { getToastOptions } from '@Utils/Toast.utils';
+import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
+import httpServiceObj from '@Services/ApiHandler.service';
+import { UserBasicDetailsDto } from '@Interfaces/JobsAndCompany.dto';
 
 const MessageModal = React.lazy(() => import('@Components/Modals/MessageModal'));
 
@@ -47,6 +50,15 @@ interface LinkedInSignupForm {
 const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleDataMutationtoDb, setCompanyName, fetchLinkedinSessionData }) => {
 	const [ViewTerms, setViewTerms] = useState(false);
 	const [isSigningUp, setIsSigningUp] = useState(false);
+	const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
+	const [OpenReferralLoader, setOpenReferralLoader] = useState<boolean>(false);
+	const [modalData, setModalData] = useState<{
+		type: "none" | "error" | "warning" | "success" | "info";
+		heading?: { message: string; type: "error" | "warning" | "success" | "info" };
+		message: string;
+		buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
+	  } | null>(null);
+
 	const navigate = useNavigate();
 	const { PendingApply, setPendingApply } =  useAppContext();
 	// An effect that will run on component mount it will check for the values like name email phone cognito ID that got stored while redirection of the linkedin.
@@ -95,7 +107,67 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 		//Reset the form state when the active frame changes
 		reset(undefined, { keepValues: false });
 	}, [activeFrame, setValue, unregister]);
-
+		/**
+	 * checkBasicDetails
+	 *
+	 * @description This function is used to check if the user has completed the basic details or not
+	 */
+		const checkBasicDetails = async () => {
+			let retryCount = 0;
+			const maxRetries = 3;
+	
+			const attemptCheck = async () => {
+				try {
+					
+					if(activeFrame === 'EMP') {
+						return;
+					}
+					else{
+					setOpenReferralLoader(true);
+					const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
+	
+					if (error) throw error;
+	
+					const designation = response?.candidateExperience?.designation;
+					const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
+	
+					// If either designation or coreSkills exist, update filters
+					if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
+						setOpenReferralLoader(false);
+						return;
+					} else {
+						setOpenReferralLoader(false);
+						// Check if we should retry
+						if (retryCount < maxRetries) {
+							retryCount++;
+							setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
+							console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
+							setTimeout(attemptCheck, 5000); // Retry after 5 seconds
+						} else {
+							console.log('Max retries reached for checkBasicDetails');
+							// Optional: Show a message to the user that we couldn't get their details
+							toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
+						}
+					}
+				}
+			} catch (error) {
+					console.error('Error fetching user basic details:', error);
+					const params = import.meta.env.APP_WORKO_BASE_URL + '/jobs'
+					setModalData({
+						type: "error",
+						heading: { message: "Something Went Wrong", type: "error" },
+						message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
+						buttons: [
+						  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
+						],
+					  });
+				}
+			};
+	
+			// Start the first attempt
+			await attemptCheck();
+		};
+	
 	/**
 	 * onSubmit
 	 *
@@ -128,6 +200,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 			const success = await handleDataMutationtoDb(data);
 			if (success) {
 				toast.success('Account created successfully', getToastOptions());
+				await checkBasicDetails();
 				// Redirect to referral page if pending referral found or pending Apply job found
 				let pendingReferral =
 						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
@@ -299,6 +372,17 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 					</button>
 				</div>
 			</form>
+			{/* Show modal only when modalData is set */}
+							  {modalData && (
+								<MessageModal
+								  {...modalData}
+								  onClose={() => {
+									setModalData(null);
+								  }}
+								  showCloseButton={false}
+								/>
+							  )}
+			{OpenReferralLoader && <ReferralLoader step={currStep} />}
 		</div>
 	);
 };
