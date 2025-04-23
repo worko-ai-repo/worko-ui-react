@@ -388,6 +388,8 @@ useEffect(() => {
     try {
       setIsApplying(true);
       setApplicationStatus(false);
+      const urlParams = new URLSearchParams(window.location.search);
+      const referAndEarnId = urlParams.get("referAndEarnId");
       let payload;
       if(jobDataState?.externalJobId) {
         // debugger;
@@ -403,7 +405,8 @@ useEffect(() => {
           jobId: jobDataState?.id,
           companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
           jobPortal: 'worko',
-          matchingScore: jobDataState?.matchingScore || undefined,
+          matchingScore: globalMatchingScore || 0,
+          ...(referAndEarnId ? {referAndEarnId} : {}) //conditionally check if referAndEarnId exists.
         };
       }
 
