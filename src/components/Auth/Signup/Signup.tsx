@@ -78,13 +78,23 @@ const Signup = () => {
 		if (isLoggedIn) {
 			navigateTo('/');
 		}
-	}, [isLoggedIn]);
+	}, []);
 
 	/**
 	 * metaDataFilter
 	 *
 	 * @description This function is used to filter the meta data according to the frame we are in
 	 *
+	 * [Error] An error occurred:
+TypeError: undefined is not an object (evaluating 'o.name')
+W — Signup-BwkRK2K6.js:1:2661
+(anonymous function) — Signup-BwkRK2K6.js:1:7207
+Z — Signup-BwkRK2K6.js:1:7879
+(anonymous function) — SignupForm-BfrptH4Q.js:205
+	(anonymous function) (Signup-BwkRK2K6.js:1:7814)
+	Z (Signup-BwkRK2K6.js:1:7879)
+	(anonymous function) (SignupForm-BfrptH4Q.js:42:1646)
+
 	 * @param data
 	 */
 	const metaDataFilter = (data: AuthFormDto) => {
@@ -97,9 +107,14 @@ const Signup = () => {
 		formData.acceptedTermsAndConditions = data.termsAndConditions;
 
 		if (activeFrame === 'CAND') {
-			let resumeFile = data.cv[0];
-			resumeUserFileName = resumeFile.name;
-			resumeUserFileMimeType = resumeFile.type;
+			let resumeFile: File | null = null;
+			if(data.cv && data.cv.length > 0) {
+				resumeFile = data.cv[0] as File;
+			}
+			if (resumeFile) {
+				resumeUserFileName = resumeFile.name;
+				resumeUserFileMimeType = resumeFile.type;
+			}
 			//store it in local also
 			localStorage.setItem('resumeUserFileName', resumeUserFileName);
 			localStorage.setItem('resumeUserFileMimeType', resumeUserFileMimeType);
@@ -132,7 +147,7 @@ const Signup = () => {
 			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
 			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
 			// prefer local over state
-			finalActiveFrame === 'CAND' ? (window.location.href = '/jobs') : (window.location.href = '/v1/employee/Dashboard'); // Redirect to the home page
+			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (window.location.href = '/v1/employee/Dashboard'); // Redirect to the home page
 		}
 	};
 	/**
@@ -176,6 +191,7 @@ const Signup = () => {
 						console.log('Max retries reached for checkBasicDetails');
 						// Optional: Show a message to the user that we couldn't get their details
 						toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
+						setTimeout(() => {navigateTo('/jobs', { replace: true })}, 5000); // Redirect to the jobs page after 5 seconds
 					}
 				}
 			}
@@ -458,9 +474,10 @@ const Signup = () => {
 			}
 
 			return false; // If `response?.userId` is not present, return false
-		} catch (err) {
-			console.error('An error occurred:', err);
-			toast.error('Something went wrong', getToastOptions());
+		} catch (err:any) {
+			// debugger;
+			console.log('An error occurred:', err);
+			toast.error('Something went wrong'+ err, getToastOptions());
 			return false; // Explicitly return false on general error
 		}
 	};

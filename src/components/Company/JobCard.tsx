@@ -90,7 +90,7 @@ export const JobCard = ({ job }: any) => {
       const { response, error, status } = result;
   
       if (status === 409) {
-        toast.error('You have already referred this person for this job.', getToastOptions());
+        toast.error(error.message, getToastOptions());
         return;
       }
   

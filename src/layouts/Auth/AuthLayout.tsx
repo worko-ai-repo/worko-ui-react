@@ -9,10 +9,10 @@ import ErrorBoundary from '../../error-boundary/ErrorBoundary';
  *
  * @returns {JSX.Element} The JSX code for the Layout component
  */
-function AuthLayout(): JSX.Element {
+function AuthLayout({ headerIncluded = true }: { headerIncluded?: boolean }): JSX.Element {
 	return (
 		<div id="Authlayout" className=" relative bg-gradient-to-t from-blue-700 via-blue-500 to-slate-50 ">
-			<Header />
+			{headerIncluded && <Header />}
 			<main className={`flex items-center ${styles.main}`} id="main_container">
 				<Outlet />
 			</main>

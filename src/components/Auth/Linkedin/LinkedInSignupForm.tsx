@@ -147,6 +147,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 							console.log('Max retries reached for checkBasicDetails');
 							// Optional: Show a message to the user that we couldn't get their details
 							toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
+							setTimeout(() => {navigate('/jobs', { replace: true })}, 5000); // Redirect to the jobs page after 5 seconds
 						}
 					}
 				}
@@ -214,7 +215,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 						window.location.href = pendingReferral.url; // Redirect if referral found in storage
 					}
 					else{
-					navigate('/');
+						activeFrame === 'EMP' ? window.location.href = '/v1/employee/Dashboard' :navigate('/jobs', { replace: true });
 				}
 			}
 		} catch (error) {

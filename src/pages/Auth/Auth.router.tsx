@@ -21,7 +21,9 @@ const Auth = () => {
 					<Route path="/login" element={<Login />} />
 					<Route path="/signup" element={<Signup />} />
 					<Route path="/resetpassword" element={<ForgotPassword />} />
-					<Route path="/checkRedirection*" element={<CheckRedirection />} />
+				</Route>
+				<Route element={<AuthLayout headerIncluded={false} />}>
+					<Route path="/checkRedirection*" element={<CheckRedirection />} />	
 					<Route path = "/linkedinSignup" element = {<LinkedInSignup />} />
 				</Route>
 				{/* <Route path="/corporate/signup/:id" element={<CorporateSignup />} />

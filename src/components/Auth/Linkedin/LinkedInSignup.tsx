@@ -84,7 +84,7 @@ const LinkedInSignup = () => {
 	useLayoutEffect(() => {
 		// debugger;
 		// console.log('Linkedin location State is >>', location.state);
-		if (!location.state) {
+		if (!location.state) { 
 			navigateTo('/');
 		}
 		if (location.state.formType === 'CAND') {
@@ -93,7 +93,7 @@ const LinkedInSignup = () => {
 		if (location.state.formType === 'EMP') {
 			setActiveFrame('EMP');
 		}
-	}, [isLoggedIn, location.state]);
+	}, [/* isLoggedIn, location.state */]);
 
 	/**
 	 * metaDataFilter
@@ -116,9 +116,14 @@ const LinkedInSignup = () => {
 
 		// Handle different cases for candidates and companies
 		if (activeFrame === 'CAND') {
-			let resumeFile = data.cv?.[0]; // Get the first uploaded file if exists
+			let resumeFile: File | null = null;
+			if(data.cv && data.cv.length > 0) {
+				resumeFile = data.cv[0] as File;
+			}
+			if (resumeFile) {
 			setResumeUserFileName(resumeFile?.name ?? '');
-			setResumeUserFileMimeType(resumeFile?.type ?? '');
+			setResumeUserFileMimeType(resumeFile?.type ?? 'application/pdf');
+			}	
 			setCv(data.cv[0] || null);
 		} else {
 			setCompanySk(data.company);
