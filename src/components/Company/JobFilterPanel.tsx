@@ -22,7 +22,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
 
   const handleFilterChange = (key: string, values: string[], filter: any) => {
     // if(!searchParams) return;
-    console.log(`key: ${key}, values: ${values}, filter: ${JSON.stringify(filter)}`);
+    // console.log(`key: ${key}, values: ${values}, filter: ${JSON.stringify(filter)}`);
     setSelectedValues(prev => ({ ...prev, [key]: values }));
   
     setJobFilters(prev => {

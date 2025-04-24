@@ -165,7 +165,7 @@ const Guidance = () => {
 			// Safely patch form data if it exists
 			if (savedGuidance.data) {
 				setValue('guidanceRequestType', savedGuidance.data.guidanceRequestType || '');
-				console.log(savedGuidance.data.guidanceRequestType);
+				// console.log(savedGuidance.data.guidanceRequestType);
 				setValue('guidanceRequestDeadline', savedGuidance.data.guidanceRequestDeadline || new Date().toISOString().split('T')[0]);
 				setValue('companyName', savedGuidance.data.companyName || '');
 				setValue('jobUrl', savedGuidance.data.jobUrl || '');
@@ -248,7 +248,7 @@ const Guidance = () => {
 				throw new Error(error.message || 'Failed to submit guidance request');
 			}
 
-			console.log('Guidance request submitted successfully:', response);
+			// console.log('Guidance request submitted successfully:', response);
 			showModalMessage('success');
 		} catch (error) {
 			console.error('Error submitting guidance request:', error);

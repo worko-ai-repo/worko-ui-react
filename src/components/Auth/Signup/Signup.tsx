@@ -185,7 +185,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 					if (retryCount < maxRetries) {
 						retryCount++;
 						setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-						console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
+						// console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
 						setTimeout(attemptCheck, 5000); // Retry after 5 seconds
 					} else {
 						console.log('Max retries reached for checkBasicDetails');

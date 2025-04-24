@@ -29,7 +29,7 @@ const RequestCompany = ({userType}: {userType: Partial<AuthLoginForGeneralUserDt
     watch,
     reset,
   } = useForm<RequestCompanyFormData>();
-  console.log(userType)
+  // console.log(userType)
 
   const email = watch('userEmail');
 

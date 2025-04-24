@@ -229,7 +229,7 @@ const JobCard: React.FC<JobCardProps> = ({
         throw new Error(error.message || 'Failed to submit referral');
       }
   
-      console.log('Referral submitted successfully:', response);
+      // console.log('Referral submitted successfully:', response);
       toast.success('Referral applied successfully!', getToastOptions());
     } catch (error: any) {
       console.error('Error submitting referral:', error);

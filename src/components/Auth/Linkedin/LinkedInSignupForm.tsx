@@ -141,10 +141,10 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 						if (retryCount < maxRetries) {
 							retryCount++;
 							setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-							console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
+							// console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
 							setTimeout(attemptCheck, 5000); // Retry after 5 seconds
 						} else {
-							console.log('Max retries reached for checkBasicDetails');
+							// console.log('Max retries reached for checkBasicDetails');
 							// Optional: Show a message to the user that we couldn't get their details
 							toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
 							setTimeout(() => {navigate('/jobs', { replace: true })}, 5000); // Redirect to the jobs page after 5 seconds

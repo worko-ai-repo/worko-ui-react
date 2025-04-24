@@ -117,7 +117,7 @@ export const generateFilterForRender = (
 
         // Step 7: Merge and update UI
         const finalFilters = [...dynamicFilters, ...staticFilters];
-        console.log('Updated Filter Options:', finalFilters);
+        // console.log('Updated Filter Options:', finalFilters);
         setJobFilterForRender([...finalFilters]); // Ensure UI gets updated
 
     } catch (error) {
