@@ -377,7 +377,7 @@ const JobCard: React.FC<JobCardProps> = ({
                     data-tooltip-content="Please login to view scores"
                   >
                     <small className="text-[8px] sm:text-xs">
-                      Account Required
+                    Login to fetch your score
                     </small>
                   </div>
                 )}
@@ -415,7 +415,7 @@ const JobCard: React.FC<JobCardProps> = ({
                 data-tooltip-content="Please login to view scores"
               >
                 <small className="text-[8px] sm:text-xs">
-                  Account Required
+                Login to fetch your score
                 </small>
               </div>
             )}
@@ -479,9 +479,10 @@ const JobCard: React.FC<JobCardProps> = ({
       applicationStatus ||
       jobData.status === "ARCHIVED" ||
       jobData.status === "CLOSED" ||
-      (displayMatchScore < 1 )
+      (isLoggedIn && displayMatchScore < 1 )
     }
-    data-tooltip-id="my-tooltip" data-tooltip-content={(displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
+    
+    data-tooltip-id="my-tooltip" data-tooltip-content={(isLoggedIn && displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
   >
     {isLoggedIn /* Check if the user is Logged in or not  */
       ? applicationStatus /* If the user user is Logged In then check if the user has already applied the job or not */
