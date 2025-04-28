@@ -78,3 +78,25 @@
 .btn_secondary:hover {
   @apply bg-blue-600;
 }
+
+/* View, Edit, Copy Button (Open) */
+.btn-view,
+.btn-edit,
+.btn-repost,
+.btn-copy {
+  @apply p-3 text-white rounded-[10px] bg-[#57E1E1] bg-[linear-gradient(0deg,_rgba(49,_107,_255,_0.3)_0%,_rgba(56,_161,_214,_0.3)_100%)];
+}
+
+/* Close Button (Open, Archived) */
+.btn-close {
+  @apply p-3 text-white rounded-[10px] bg-[#98B5FF] bg-[linear-gradient(0deg,_#316BFF_0%,_#38A1D6_100%)];
+}
+
+/* Save Button (Open, Archived) */
+.btn-save-open {
+  @apply p-3 text-white rounded-[10px] bg-[#98B5FF] bg-[linear-gradient(0deg,_#316BFF_0%,_#38A1D6_100%)];
+}
+
+.btn-save-archived {
+  @apply p-3 text-white rounded-[10px] bg-[#57E1E1] bg-[linear-gradient(0deg,_rgba(49,_107,_255,_0.3)_0%,_rgba(56,_161,_214,_0.3)_100%)];
+}
