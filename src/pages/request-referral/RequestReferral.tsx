@@ -135,7 +135,7 @@ const RequestReferral = () => {
 		// Else , Check if the use has come from the page of auth or not by checking the secure storage for stale request data.
 		// If the user is not logged in and the referral request is not present in the secure storage, redirect to login page
 		// Retrieve any pending referral data from context or secure storage
-		const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+		const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 		if (pendingReferral && isLoggedIn) {
 			// Patch the form data safely
@@ -145,7 +145,7 @@ const RequestReferral = () => {
 
 			// Remove from storage *after* submitting
 				setPendingApply(null);
-				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null); 
+				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null); 
 
 			handleSubmit(onSubmit)(); // Call submit function
 		}
@@ -166,7 +166,7 @@ const RequestReferral = () => {
 				data,
 			};
 			setPendingApply(continueReferralRequestData);
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, continueReferralRequestData);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferralRequestData);
 			localStorage.setItem('continueReferralRequestData', JSON.stringify(continueReferralRequestData));
 			nav('/auth/login');
 			return;

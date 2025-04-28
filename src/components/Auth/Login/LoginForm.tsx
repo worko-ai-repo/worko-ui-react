@@ -181,7 +181,7 @@ const LoginForm = () => {
 						setTimeout(() => {
 							// Construct the referral object
 							const pendingReferral =
-								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 							if (pendingReferral) {
 								window.location.href = pendingReferral.url; // Redirect to the referral page

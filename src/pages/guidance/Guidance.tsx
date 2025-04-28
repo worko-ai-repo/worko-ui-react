@@ -159,7 +159,7 @@ const Guidance = () => {
 	// useEffect to check login status and restore form data
 	useEffect(() => {
 		// First check from state, then fallback to secure storage
-		const savedGuidance = pendingGuidance || secureStorage.getItem<ContinueGuidanceRequestData>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+		const savedGuidance = pendingGuidance || secureStorage.getItem<ContinueGuidanceRequestData>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 		if (savedGuidance?.type === 'guidance' && isLoggedIn) {
 			// Safely patch form data if it exists
@@ -173,14 +173,14 @@ const Guidance = () => {
 
 				// Clear stored data
 				setPendingGuidance(null);
-				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null);
+				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
 
 				// Auto-submit if data exists
 				handleSubmit(onSubmit)();
 			} else {
 				reset();
 				toast.error('Something went wrong!',getToastOptions());
-				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null);
+				secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
 			}
 		}
 	}, [isLoggedIn, pendingGuidance]);
@@ -219,7 +219,7 @@ const Guidance = () => {
 
 			// Save to state and secure storage
 			setPendingGuidance(continueGuidanceRequestData);
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, continueGuidanceRequestData);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueGuidanceRequestData);
 
 			// Redirect to login
 			nav('/auth/login');

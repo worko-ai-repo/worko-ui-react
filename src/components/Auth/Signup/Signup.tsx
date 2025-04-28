@@ -131,17 +131,17 @@ Z — Signup-BwkRK2K6.js:1:7879
 	 */
 	const initiateFinalRedirection = () => {
 		// Retrieve pending referral data from context and secure storage
-		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 		// Sync PendingApply and secureStorage
-		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
 			setPendingApply(pendingReferral);
 		}
 
 		if (PendingApply) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 			window.location.href = PendingApply.url; // Redirect to the referral page
 		} else {
 			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');

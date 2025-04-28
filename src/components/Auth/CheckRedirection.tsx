@@ -199,11 +199,11 @@ export default function CheckRedirection() {
 				if (totalPercentage >= 60) {
 					// Step 11: Check Pending Application
 					let pendingReferral =
-						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 					// Sync PendingApply and SecureStorage
 					if (PendingApply) {
-						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 						window.location.href = PendingApply.url; // Redirect to referral page
 						return false; // Stop further execution
 					} else if (pendingReferral) {

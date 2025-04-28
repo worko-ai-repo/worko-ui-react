@@ -204,11 +204,11 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 				await checkBasicDetails();
 				// Redirect to referral page if pending referral found or pending Apply job found
 				let pendingReferral =
-						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 	
 					// Sync PendingApply and SecureStorage
 					if (PendingApply) {
-						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 						window.location.href = PendingApply.url; // Redirect to referral page
 					} else if (pendingReferral) {
 						setPendingApply(pendingReferral);
