@@ -123,7 +123,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 						return;
 					}
 					else{
-					setOpenReferralLoader(true);
+					if (retryCount === 0){setOpenReferralLoader(true);}
 					const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
 	
 					if (error) throw error;
@@ -136,7 +136,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 						setOpenReferralLoader(false);
 						return;
 					} else {
-						setOpenReferralLoader(false);
+						
 						// Check if we should retry
 						if (retryCount < maxRetries) {
 							retryCount++;
@@ -144,7 +144,8 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 							// console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
 							setTimeout(attemptCheck, 5000); // Retry after 5 seconds
 						} else {
-							// console.log('Max retries reached for checkBasicDetails');
+							setOpenReferralLoader(false);
+							console.log('Max retries reached for checkBasicDetails');
 							// Optional: Show a message to the user that we couldn't get their details
 							toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
 							setTimeout(() => {navigate('/jobs', { replace: true })}, 5000); // Redirect to the jobs page after 5 seconds
@@ -204,11 +205,11 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 				await checkBasicDetails();
 				// Redirect to referral page if pending referral found or pending Apply job found
 				let pendingReferral =
-						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+						PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 	
 					// Sync PendingApply and SecureStorage
 					if (PendingApply) {
-						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+						secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 						window.location.href = PendingApply.url; // Redirect to referral page
 					} else if (pendingReferral) {
 						setPendingApply(pendingReferral);

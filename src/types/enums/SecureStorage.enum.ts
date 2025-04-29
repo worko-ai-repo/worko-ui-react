@@ -21,7 +21,7 @@ export enum SecureStorageKeyEnum {
 	LASTACCESSED_DASH = 'lastAccessedDash',
 	IS_COMPANY_LISTING_ROUTE = 'isCompanyListingRoute',
 	DYNAMIC_ROUTE = 'dynamicRoute',
-	CONTINUEREFERRALREQUESTDATA = 'continueReferralRequestData',
+	CONTINUEPENDINGPRESIGNEDPROCESS = 'continuePendingPresignedProcess',
 	AUTHACTIVEFORMDATA = 'AuthActiveFormData',
 	AUTHEMPSELECTEDCOMPANY = 'AuthEmpSelectedCompany',
 }

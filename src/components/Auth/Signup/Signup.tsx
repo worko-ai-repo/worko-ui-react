@@ -131,17 +131,17 @@ Z — Signup-BwkRK2K6.js:1:7879
 	 */
 	const initiateFinalRedirection = () => {
 		// Retrieve pending referral data from context and secure storage
-		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 		// Sync PendingApply and secureStorage
-		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
 			setPendingApply(pendingReferral);
 		}
 
 		if (PendingApply) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 			window.location.href = PendingApply.url; // Redirect to the referral page
 		} else {
 			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
@@ -167,7 +167,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 					initiateFinalRedirection();
 				}
 				else{
-				setOpenReferralLoader(true);
+				if (retryCount === 0){setOpenReferralLoader(true);}
 				const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
 
 				if (error) throw error;
@@ -180,14 +180,14 @@ Z — Signup-BwkRK2K6.js:1:7879
 					setOpenReferralLoader(false);
 					initiateFinalRedirection();
 				} else {
-					setOpenReferralLoader(false);
+					// setOpenReferralLoader(false);
 					// Check if we should retry
 					if (retryCount < maxRetries) {
 						retryCount++;
 						setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-						// console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
 						setTimeout(attemptCheck, 5000); // Retry after 5 seconds
 					} else {
+						setOpenReferralLoader(false);
 						console.log('Max retries reached for checkBasicDetails');
 						// Optional: Show a message to the user that we couldn't get their details
 						toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());

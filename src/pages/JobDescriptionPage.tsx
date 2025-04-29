@@ -392,11 +392,11 @@ useEffect(() => {
       const referAndEarnId = urlParams.get("referAndEarnId");
       let payload;
       if(jobDataState?.externalJobId) {
-        // debugger;
         payload = {
           jobId: jobDataState?.id,
           jobPortal: jobDataState?.jobUrl || undefined,
           jobUrl: window.location.href,
+          // companyName:  jobDataState?.companyName,
           matchingScore:globalMatchingScore || 0,
         };
       }
@@ -410,7 +410,7 @@ useEffect(() => {
         };
       }
 
-      const constructUrl = jobData?.externalJobId
+      const constructUrl = jobDataState?.externalJobId
         ? `${APP_JOBS_API_URI}/external-job-application/`
         : `${APP_JOBS_API_URI}/job-application/`;
 
@@ -469,15 +469,15 @@ useEffect(() => {
 				data:null,
 			};
 			setPendingApply(continueReferralRequestData);
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, continueReferralRequestData);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferralRequestData);
 			localStorage.setItem('continueReferralRequestData', JSON.stringify(continueReferralRequestData));
 			nav('/auth/login');
 			return;
 		}
     else{
     // Open the job URL in a new tab if available
-    if (jobData?.externalJobId && jobData?.jobUrl) {
-      window.open(jobData.jobUrl, "_blank");
+    if (jobDataState?.externalJobId && jobDataState?.jobUrl) {
+      window.open(jobDataState.jobUrl, "_blank");
       // Show the confirmation modal
       setShowApplyModal(true);
       showModalsError('isExternalJobApplied')

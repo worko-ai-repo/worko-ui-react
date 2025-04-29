@@ -6,7 +6,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import GaugeComponent from "@Components/Company/Gauge";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto, JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
 import { useAppContext } from "@Context/App.context";
@@ -19,6 +19,17 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import { useForm } from "react-hook-form";
 import { validationRules } from "@Utils/FormValidator.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
+import secureStorage from "@Utils/SecureStorage.utils";
+import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+
+interface ReferralFormDTO {
+  phoneNumber: number;
+  name: string;
+  fullName: string;
+  email: string;
+  phone: number;
+  phoneCountryCode: string;
+}
 
 interface ReferralFormData {
   fullName: string;
@@ -116,6 +127,8 @@ const JobCard: React.FC<JobCardProps> = ({
   const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const nav = useNavigate();
+  const locationHook = useLocation(); // Using location hook for checking URL changes
 
   // Initialize react-hook-form
   const {
@@ -190,6 +203,39 @@ const JobCard: React.FC<JobCardProps> = ({
     }
   }, [showModal, reset]);
 
+  useEffect(() => {
+    // Check if user just logged in and has pending data
+    if (isLoggedIn) {
+      
+        let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+      
+      // If we have pending data and it's for refer and earn
+      if (pendingData && typeof pendingData === 'object' && 'data' in pendingData) {
+        try {
+          // Populate form with saved data
+          const savedData = (pendingData as { data: { recipientDetails: ReferralFormDTO } }).data.recipientDetails;
+          console.log("Saved Data:", pendingData);
+          if (savedData) {
+            setValue('fullName', savedData.name || '');
+            setValue('email', savedData.email || '');
+            setValue('phone', savedData.phoneNumber || 0);
+            setValue('phoneCountryCode', `+${savedData.phoneCountryCode}` || '+91');
+            
+            // Submit form after a brief delay to ensure values are set
+              handleSubmit(onSubmit)();
+            
+          }
+          
+          // Clear the pending data
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
+          localStorage.removeItem('continueReferAndEarnRequestData');
+        } catch (error) {
+          console.error("Error processing pending referral data:", error);
+        }
+      }
+    }
+  }, [isLoggedIn, locationHook.pathname]); // Run when login status or location changes
+
   const onSubmit = async (formData: ReferralFormData) => {
     const requestData = {
       recipientDetails: {
@@ -207,6 +253,23 @@ const JobCard: React.FC<JobCardProps> = ({
         url: jobData.jobUrl,
       },
     };
+
+    if (!isLoggedIn) {
+      // Store data for after login
+      const continueReferAndEarnRequestData = {
+        type: "continueReferAndEarn",
+        data: requestData,
+        url: window.location.href
+      };
+
+      // Store in both secure storage and localStorage
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
+      localStorage.setItem('continueReferAndEarnRequestData', JSON.stringify(continueReferAndEarnRequestData));
+      
+      // Navigate to login
+      nav('/auth/login');
+      return;
+    }
 
     try {
       const result = await toast.promise(
@@ -464,7 +527,7 @@ const JobCard: React.FC<JobCardProps> = ({
           {/* Button container with responsive layout */}
 <div className="flex items-center justify-end gap-2 w-full md:w-auto">
   {/* Refer A Friend button */}
-  {(!jobData.externalJobId && isLoggedIn)  && <button
+  {(!jobData.externalJobId)  && <button
     onClick={() => setShowModal(true)}
     className="w-full md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center"
   >
