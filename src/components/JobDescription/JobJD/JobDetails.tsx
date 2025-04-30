@@ -12,14 +12,34 @@ interface JobRequirementsProps {
   education?: string;
   skills?: string[];
 }
+/**
+ * Decodes an HTML-encoded string into a plain HTML string.
+ *
+ * This function uses the browser's DOMParser to convert entities like
+ * `&lt;`, `&gt;`, `&amp;`, etc., back to their actual characters.
+ *
+ * @param {string} html - The HTML-encoded string to decode.
+ * @returns {string} - The decoded HTML string.
+ *
+ * @example
+ * decodeHTML('&lt;div&gt;Hello&lt;/div&gt;');
+ * // Returns: "<div>Hello</div>"
+ */
+
+const decodeHTML = (html: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  return doc.documentElement.textContent || '';
+};
+
 
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = 'Not specified' }) => {
-  
+  const decodedHTML = decodeHTML(jobDescription);
   return (
     <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
       <h2 className="text-xl font-semibold mb-4">Job description</h2>
       {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
-        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: jobDescription }}></div>
+        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: decodedHTML  }}></div>
     </div>
   );
 };
