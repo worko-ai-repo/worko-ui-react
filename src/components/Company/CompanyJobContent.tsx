@@ -38,6 +38,7 @@ const CompanyJobContent = () => {
 		},
 	});
 
+
 	useEffect(() => {
 		if (searchInputRef.current) {
 			searchInputRef.current.value = '';
@@ -172,9 +173,22 @@ const CompanyJobContent = () => {
 									);
 								})}
 								{/* Loading indicator and intersection observer */}
-						<div ref={inViewRef} className="w-full min-h-20 flex items-center justify-center">
-						{isFetchingNextPage ? <JobCardSkeleton /> : companyJobData.length > 0 && <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>}
-								</div>
+								<div className="w-full min-h-20 flex gap-5 items-center justify-center">
+									{isFetchingNextPage ? (
+										<JobCardSkeleton />
+									) : hasNextPage ? (
+										<div
+										className="NextPage btn_secondary cursor-pointer animate-pulse active:scale-95"
+										onClick={() => fetchNextPage()}
+										>
+										Find More Jobs
+										</div>
+									) : companyJobData.length > 0 ? (
+										<p className="text-lg font-medium text-gray-500">
+										You've reached the end. No more jobs available for now. Check back later!
+										</p>
+									) : null}
+									</div>
 							</>
 						) : isError ? (
 							<p className="text-2xl relative font-medium text-gray-500 top-[43%]">"Something went wrong."</p>
