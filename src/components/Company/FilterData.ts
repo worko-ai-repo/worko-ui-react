@@ -96,6 +96,13 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       selectType: 'multiselect',
       options: [], // This can be populated with suggested industries
       value: []
+    },
+    {
+      placeholder: 'Job Type',
+      paramKey: 'dashboard',
+      selectType: 'normal',
+      options: ['Posted By Worko'],
+      value: [ 'USER'],
     }
   ],    
   referralFilter: [

@@ -71,7 +71,7 @@ const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () 
         } else if (key === 'industry') {
           newFilters['industry'] = values[0];
           updatedParams.set('industry', values[0]);
-        } else if (key === 'workMode') {
+        } else if (key === 'workMode' || key === 'dashboard') {
           newFilters[key] = values.join(',');
           updatedParams.set(key, values.join(','));
         } else {

@@ -5,8 +5,9 @@ import { useCompanyContext } from "../../context/Company.context";
 import { useForm } from "react-hook-form";
 import { validationRules } from "@Utils/FormValidator.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { useLocation } from "react-router-dom";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
@@ -62,6 +63,8 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const location = useLocation();
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const {
     register,
@@ -142,26 +145,27 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     },
   };
 
-  const onSubmit = async(data: FormValues) => {
-    
-    const {response, error, status} = await httpServiceObj.post('/user/settings', {
-      subscribedEmailId:data.email
-    } , true)
+  const onSubmit = async (data: FormValues) => {
+    const { response, error, status } = await httpServiceObj.post(
+      "/user/settings",
+      {
+        subscribedEmailId: data.email,
+      },
+      true
+    );
 
-    if(status===409) {
-      toast.error('Already Registered!',getToastOptions())
+    if (status === 409) {
+      toast.error("Already Registered!", getToastOptions());
     }
 
-    if(response) {
+    if (response) {
       // Set subscription status to true
-    setIsSubscribed(true);
-    // No need to pause rotation anymore as we're showing success card
-    setIsPaused(false);
-
+      setIsSubscribed(true);
+      // No need to pause rotation anymore as we're showing success card
+      setIsPaused(false);
     } else {
-      setIsSubscribed(false)
+      setIsSubscribed(false);
     }
-
   };
 
   let currentData: CompanyData = { title: "", description: "" };
@@ -172,6 +176,17 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   } else {
     currentData = companyStaticData[BannerMode] || {};
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isDashboardUser = params.get("dashboard") === "USER";
+    setIsDisabled(isDashboardUser);
+  }, [location]);
+
+  const handleClick = () => {
+    const params = new URLSearchParams(location.search);
+    params.set("dashboard", "USER");
+  };
 
   return (
     <div className="sm:px-5 py-10 sm:px-auto relative w-full min-h-[200px] bg-blue-600 text-white flex">
@@ -208,23 +223,30 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
 
               {/* ReferCard - shown when activeCard is 'refer' */}
               <div className={`transition-opacity duration-500  ${activeCard === "refer" ? "opacity-100" : "opacity-0 hidden"}`}>
-                <div className="bg-white text-gray-800 shadow-lg rounded-2xl p-4 min-h-36 flex flex-col">
+                <div className="bg-white text-gray-800 shadow-lg rounded-2xl px-4 pt-4 pb-1.5 min-h-36 flex flex-col">
                   <div className="flex items-center justify-center mb-3">
                     <span className="text-lg">🤝</span>
                     <h3 className="text-xs font-bold ml-2">Refer a Friend, Earn Rewards!</h3>
                   </div>
-
                   <ul className="space-y-0">
                     {referDetails.map((item, index) => (
                       <li key={index} className="flex items-center gap-3">
                         <span className="text-xs align-bottom ">{item.icon}</span>
-                        <div className="text-left  "> 
+                        <div className="text-left  ">
                           <small className=" text-xs font-semibold ">{item.title}: </small>
-                          <small className=" text-xs " >{item.description}</small>
+                          <small className=" text-xs ">{item.description}</small>
                         </div>
                       </li>
                     ))}
                   </ul>
+                  <button
+                    onClick={handleClick}
+                    disabled={isDisabled}
+                    data-tooltip-id="my-tooltip"
+                    data-tooltip-content={isDisabled ? "You are already viewing jobs posted by Worko" : "Click to view jobs posted by Worko and share with your friends to earn rewards!"}
+                    className={`btn_primary text-xs mt-3  mx-auto ${!isDisabled ? "animate-pulse cursor-pointer" : "cursor-not-allowed pointer-events-all disabled !text-white !bg-gray-400 "}`}>
+                    Refer a Friend
+                  </button>
                 </div>
               </div>
             </>
