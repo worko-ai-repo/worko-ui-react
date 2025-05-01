@@ -326,11 +326,13 @@ export const JobCard = ({ job }: any) => {
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
             { (!isExternalJob) && 
+            <div data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
             <button
               onClick={() => setShowModal(true)}
               className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
               Refer A Friend
             </button> 
+            </div>
             }
              <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details

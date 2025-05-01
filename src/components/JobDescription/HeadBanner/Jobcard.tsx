@@ -527,12 +527,15 @@ const JobCard: React.FC<JobCardProps> = ({
           {/* Button container with responsive layout */}
 <div className="flex items-center justify-end gap-2 w-full md:w-auto">
   {/* Refer A Friend button */}
-  {(!jobData.externalJobId)  && <button
+  {(!jobData.externalJobId)  &&
+   <div data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
+   <button
     onClick={() => setShowModal(true)}
     className="w-full md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center"
   >
     Refer A Friend
-  </button>}
+  </button>
+  </div>}
   
   {/* Apply button */}
   <button
