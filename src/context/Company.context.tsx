@@ -271,30 +271,30 @@ const fetchJobMatchingScores = useCallback(
           return acc;
         }, {} as Record<string, JobDto>);
       
-        const jobsToRemove: string[] = []; // Store jobs that need to be removed
-        const keysToCheck = [
-          // "coreSkills",
-          "searchText",
-          "minExperience",
-          "maxExperience",
-          "minSalary",
-          "maxSalary",
-          "workMode",
-          "typeofEmployment",
-          "companyName",
-          "technicalSkills",
-          "softSkills",
-          "location",
-        ];
+        // const jobsToRemove: string[] = []; // Store jobs that need to be removed
+        // const keysToCheck = [
+        //   // "coreSkills",
+        //   "searchText",
+        //   "minExperience",
+        //   "maxExperience",
+        //   "minSalary",
+        //   "maxSalary",
+        //   "workMode",
+        //   "typeofEmployment",
+        //   "companyName",
+        //   "technicalSkills",
+        //   "softSkills",
+        //   "location",
+        // ];
         
-        // Step 1 → Check for any present filter value
-        const presentFilters = Object.fromEntries(
-          keysToCheck
-            .filter((key) => updatedFilters[key as keyof JobFiltersDto] !== undefined && updatedFilters[key as keyof JobFiltersDto] !== null && updatedFilters[key as keyof JobFiltersDto] !== "")
-            .map((key) => [key, updatedFilters[key as keyof JobFiltersDto]])
-        );
+        // // Step 1 → Check for any present filter value
+        // const presentFilters = Object.fromEntries(
+        //   keysToCheck
+        //     .filter((key) => updatedFilters[key as keyof JobFiltersDto] !== undefined && updatedFilters[key as keyof JobFiltersDto] !== null && updatedFilters[key as keyof JobFiltersDto] !== "")
+        //     .map((key) => [key, updatedFilters[key as keyof JobFiltersDto]])
+        // );
       
-        const isFilterPresent = Object.keys(presentFilters).length > 0;
+        // const isFilterPresent = Object.keys(presentFilters).length > 0;
       
         // Step 3 → Console outputs
         // console.log("Is filter present:", isFilterPresent);
@@ -307,30 +307,27 @@ const fetchJobMatchingScores = useCallback(
             newSet.delete(jobId);
             return newSet;
           });
-      
+
           if (existingJobsMap[jobId]) {
             // Step 3 → Retrieve or maintain the job's matching score
-            const matchingScore =
-              scoresMap[jobId]?.matchingScore ?? existingJobsMap[jobId].matchingScore;
-      
+            const matchingScore = scoresMap[jobId]?.matchingScore ?? existingJobsMap[jobId].matchingScore;
+
             // Step 4 → Update job details including applyStatus and badJob flag
             existingJobsMap[jobId] = {
               ...existingJobsMap[jobId],
               matchingScore,
               applyStatus: scoresMap[jobId] ? "APPLIED" : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
-              badJob:( matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) , // Step 5 → Mark job as bad if score < 30%
-              
+              // badJob:( matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) , // Step 5 → Mark job as bad if score < 30%
             };
-      
+
             // Step 6 → If job score is below 30%, mark it for removal and if we are not in search mode
-            if ((matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) 
-          ) {
+/*             if (matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) {
               jobsToRemove.push(jobId);
-            }
+            } */
           }
         });
       
-        // Step 7 → Schedule removal of jobs with score < 30% after 5 seconds
+       /*  // Step 7 → Schedule removal of jobs with score < 30% after 5 seconds
         if (jobsToRemove.length > 0 && (!location.search.includes("searchText"))) { // Changed 
           setTimeout(() => {
             setCompanyJobData((prevJobs) =>
@@ -338,7 +335,7 @@ const fetchJobMatchingScores = useCallback(
             );
             toast.success("Filtered out jobs with low scores.", getToastOptions({autoClose: 1000 ,theme:"light",position:'bottom-center'}, "glass")); // Glass style applied
           }, 2000);
-        }
+        } */
       
         // Step 8 → Return the updated job list
         return prev.map((job) => existingJobsMap[job.id] || job);
@@ -374,6 +371,7 @@ const fetchJobMatchingScores = useCallback(
       // Create updated filters object
       const updatedFilters:JobFiltersDto = {
         ...filters,
+        pageSize: 25,
         lastKey: pageParam ?? undefined,
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
