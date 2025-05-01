@@ -58,6 +58,7 @@ type FormValues = {
 
 const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => {
   const [activeCard, setActiveCard] = useState<"email" | "refer">("refer");
+  const [activeFrame, setActiveFrame]= useState<'card'|'description'>('description');
   const [isPaused, setIsPaused] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -95,9 +96,10 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
 
         intervalRef.current = setInterval(() => {
           if (!isPaused) {
+            setActiveFrame(prev => prev === 'card' ? 'description' : 'card');
             // setActiveCard(prev => prev === 'email' ? 'refer' : 'email');     //@TODO: Uncomment this line to enable rotation and revert the email in the state as default val
           }
-        }, 5000);
+        }, 3000);
       };
 
       // Start the rotation initially
@@ -174,14 +176,14 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   }
 
   return (
-    <div className="sm:px-5 py-10 sm:px-auto relative w-full min-h-[200px] bg-blue-600 text-white flex">
+    <div className="sm:px-5 py-10 sm:px-auto relative w-full max-sm:h-[250px] md:min-h-[200px] bg-blue-600 text-white flex">
       <div className="mx-auto max-w-[1280px] md:p-4 flex items-center justify-between w-full">
-        <div className={`min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-justify ${styles.banner_content}`}>
-          <p className="w-full text-xl sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
-          <small className="text-[10px] sm:text-xs" dangerouslySetInnerHTML={{ __html: currentData.description }}></small>
+        <div className={`${activeFrame === 'description' ? '' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-left ${styles.banner_content}`}>
+          <p className="w-full text-[14px] sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
+          <small className="text-[9px] text-justify sm:text-xs" dangerouslySetInnerHTML={{ __html: currentData.description }}></small>
         </div>
 
-        <div className="hidden md:block w-full h-[155px] md:max-w-[460px]">
+        <div className={`${activeFrame=== 'card' ? 'max-md:w-full max-sm:scale-75 max-sm:mb-8' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out md:block h-[155px] md:max-w-[460px]`}>
           {/* Show success popup if subscribed */}
           {isSubscribed ? (
             <EmailSuccessPopup email={submittedEmail} />
