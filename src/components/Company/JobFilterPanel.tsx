@@ -7,87 +7,14 @@ import { useAppContext } from '@Context/App.context';
 import { MultiSelect } from '@Components/Shared/MultiSelect';
 import { useSearchParams } from 'react-router-dom';
 import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
+import { useJobFilters } from '@Hooks/useJobFilter.hook';
 
-const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
+export const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender = [], resetFiltersValues } = useCompanyContext();
 	const { isLoggedIn, userDetails } = useAppContext();
-	const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
 	const [searchParams, setSearchParams] = useSearchParams();
-	const resetFilters = () => {
-		resetFiltersValues();
-		setSelectedValues({});
-		invalidateFilterCache();
-		setSearchParams({}); // Reset URL
-	};
-
-  const handleFilterChange = (key: string, values: string[], filter: any) => {
-    // if(!searchParams) return;
-    // console.log(`key: ${key}, values: ${values}, filter: ${JSON.stringify(filter)}`);
-    setSelectedValues(prev => ({ ...prev, [key]: values }));
+  const { handleFilterChange, resetFilters, selectedValues,setSelectedValues } = useJobFilters();
   
-    setJobFilters(prev => {
-      const newFilters: any = { ...prev };
-      const updatedParams = new URLSearchParams(searchParams);
-    
-      if (values.length === 0) {
-        delete newFilters[key];
-        updatedParams.delete(key);
-    
-        if (key === 'salaryRange') {
-          delete newFilters['minSalary'];
-          delete newFilters['maxSalary'];
-          updatedParams.delete('minSalary');
-          updatedParams.delete('maxSalary');
-        } else if (key === 'experienceRange') {
-          delete newFilters['minExperience'];
-          delete newFilters['maxExperience'];
-          updatedParams.delete('minExperience');
-          updatedParams.delete('maxExperience');
-        }
-      } else {
-        if (key.includes('Skills') || key === 'location' || key === 'typeofEmployment' || key === 'teamSize' || key === 'companyName') {
-          newFilters[key] = values.join(',');
-          updatedParams.set(key, newFilters[key]);
-        } else if (key.includes('Range') && values.length > 0) {
-          const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
-          if (selectedOptionIndex !== -1) {
-            const [min, max] = filter.value[selectedOptionIndex].split('-').map(Number);
-            if (key === 'salaryRange') {
-              newFilters['minSalary'] = min;
-              newFilters['maxSalary'] = max;
-              newFilters[key] = values[0];
-              updatedParams.set('minSalary', min.toString());
-              updatedParams.set('maxSalary', max.toString());
-              updatedParams.set(key, values[0]);
-            } else {
-              newFilters['minExperience'] = min;
-              newFilters['maxExperience'] = max;
-              newFilters[key] = values[0];
-              updatedParams.set('minExperience', min.toString());
-              updatedParams.set('maxExperience', max.toString());
-              updatedParams.set(key, values[0]);
-            }
-          }
-        } else if (key === 'industry') {
-          newFilters['industry'] = values[0];
-          updatedParams.set('industry', values[0]);
-        } else if (key === 'workMode' || key === 'dashboard') {
-          newFilters[key] = values.join(',');
-          updatedParams.set(key, values.join(','));
-        } else {
-          const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
-          newFilters[key] = filter.options[selectedOptionIndex] || values[0];
-          updatedParams.set(key, newFilters[key]);
-        }
-      }
-    
-      setSearchParams(updatedParams);
-      return newFilters;
-    });
-    
-  };
-  
-
     /**
    * 1. Get the selected values from the URL
    */
@@ -116,7 +43,7 @@ useEffect(() => {
       })
     }));
   }
-}, [companyPageMode/* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
+}, [companyPageMode ,searchParams /* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
     
 
 	return (

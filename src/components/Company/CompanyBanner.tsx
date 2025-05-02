@@ -7,7 +7,8 @@ import { validationRules } from "@Utils/FormValidator.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useJobFilters } from "@Hooks/useJobFilter.hook";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
@@ -63,9 +64,11 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const location = useLocation();
+  /* const location = useLocation();
   const [isDisabled, setIsDisabled] = useState(false);
+  const { handleFilterChange, resetFilters, selectedValues } = useJobFilters();
 
+  const { jobFilterForRender} = useCompanyContext(); */
   const {
     register,
     handleSubmit,
@@ -177,16 +180,18 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     currentData = companyStaticData[BannerMode] || {};
   }
 
-  useEffect(() => {
+/*   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isDashboardUser = params.get("dashboard") === "USER";
     setIsDisabled(isDashboardUser);
   }, [location]);
-
+  
   const handleClick = () => {
-    const params = new URLSearchParams(location.search);
-    params.set("dashboard", "USER");
-  };
+
+  const lastFilter = jobFilterForRender[jobFilterForRender.length - 1];
+
+  handleFilterChange(lastFilter.paramKey, lastFilter.value, lastFilter);
+  }; */
 
   return (
     <div className="sm:px-5 py-10 sm:px-auto relative w-full min-h-[200px] bg-blue-600 text-white flex">
@@ -239,14 +244,14 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
                       </li>
                     ))}
                   </ul>
-                  <button
+{/*                   <button
                     onClick={handleClick}
                     disabled={isDisabled}
                     data-tooltip-id="my-tooltip"
                     data-tooltip-content={isDisabled ? "You are already viewing jobs posted by Worko" : "Click to view jobs posted by Worko and share with your friends to earn rewards!"}
                     className={`btn_primary text-xs mt-3  mx-auto ${!isDisabled ? "animate-pulse cursor-pointer" : "cursor-not-allowed pointer-events-all disabled !text-white !bg-gray-400 "}`}>
                     Refer a Friend
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </>
