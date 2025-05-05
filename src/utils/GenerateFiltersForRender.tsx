@@ -78,13 +78,18 @@ export const generateFilterForRender = (
                     newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
                 }
             } else if (companyPageMode === CompanyPageModeEnum.REFERRAL) {
-                if (paramKey === 'teamSize' || paramKey === 'industry') {
-                    newOptions = Array.from(new Set(
-                        data.map((company: CompanyShortDto) => 
-                            paramKey === 'teamSize' ? String(company[paramKey]) : company[paramKey]
-                        ).filter(Boolean)
-                    ));
-                }
+                if (paramKey === 'teamSize') {
+                    // Don't extract teamSize from data since we have predefined options (at FilterData.ts)
+                    const metaTeamSize = filterMetaData.find(m => m.paramKey === 'teamSize');
+                    if (metaTeamSize && Array.isArray(metaTeamSize.options)) {
+                      newOptions = [...metaTeamSize.options];
+                    }
+                  }
+                  else if (paramKey === 'industry') {
+                    newOptions = Array.from(new Set(data
+                      .map((company: CompanyShortDto) => company[paramKey] as string)
+                      .filter(Boolean)));
+                  }
                 else if (paramKey === 'companyName') {
                     newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company.name).filter(Boolean)));
                 }

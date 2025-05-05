@@ -178,8 +178,8 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   return (
     <div className="sm:px-5 py-10 sm:px-auto relative w-full max-sm:h-[250px] md:min-h-[200px] bg-blue-600 text-white flex">
       <div className="mx-auto max-w-[1280px] md:p-4 flex items-center justify-between w-full">
-        <div className={`${activeFrame === 'description' ? '' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-left ${styles.banner_content}`}>
-          <p className="w-full text-[14px] sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
+        <div className={`${activeFrame === 'description' ? 'w-full' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-left ${styles.banner_content}`}>
+          <p className="w-full text-[12px] sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
           <small className="text-[9px] text-justify sm:text-xs" dangerouslySetInnerHTML={{ __html: currentData.description }}></small>
         </div>
 
