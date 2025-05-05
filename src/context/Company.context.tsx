@@ -8,9 +8,8 @@ import { CompanyContextType, CompanyPageModeEnum } from "@Interfaces/CompanyCont
 import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
-import { BaseApiFiltersDto, CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { toast } from "react-toastify";
-import { getToastOptions } from "@Utils/Toast.utils";
+import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);

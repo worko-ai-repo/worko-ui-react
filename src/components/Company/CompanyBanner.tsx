@@ -65,11 +65,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  /* const location = useLocation();
-  const [isDisabled, setIsDisabled] = useState(false);
-  const { handleFilterChange, resetFilters, selectedValues } = useJobFilters();
 
-  const { jobFilterForRender} = useCompanyContext(); */
   const {
     register,
     handleSubmit,
@@ -182,18 +178,7 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     currentData = companyStaticData[BannerMode] || {};
   }
 
-/*   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isDashboardUser = params.get("dashboard") === "USER";
-    setIsDisabled(isDashboardUser);
-  }, [location]);
-  
-  const handleClick = () => {
 
-  const lastFilter = jobFilterForRender[jobFilterForRender.length - 1];
-
-  handleFilterChange(lastFilter.paramKey, lastFilter.value, lastFilter);
-  }; */
 
   return (
     <div className="sm:px-5 py-10 sm:px-auto relative w-full max-sm:h-[250px] md:min-h-[200px] bg-blue-600 text-white flex">
@@ -246,14 +231,6 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
                       </li>
                     ))}
                   </ul>
-{/*                   <button
-                    onClick={handleClick}
-                    disabled={isDisabled}
-                    data-tooltip-id="my-tooltip"
-                    data-tooltip-content={isDisabled ? "You are already viewing jobs posted by Worko" : "Click to view jobs posted by Worko and share with your friends to earn rewards!"}
-                    className={`btn_primary text-xs mt-3  mx-auto ${!isDisabled ? "animate-pulse cursor-pointer" : "cursor-not-allowed pointer-events-all disabled !text-white !bg-gray-400 "}`}>
-                    Refer a Friend
-                  </button> */}
                 </div>
               </div>
             </>
