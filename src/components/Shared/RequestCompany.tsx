@@ -1,3 +1,4 @@
+import { RequestCompanyFormData } from '@Components/Company/RequestCompany';
 import CustomModal from '@Components/Modals/FormModal';
 import httpServiceObj from '@Services/ApiHandler.service';
 import { useMutation } from '@tanstack/react-query';
@@ -8,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
 const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setShowModal }) => {
-    const { register, handleSubmit, formState: { errors, isValid } } = useForm({
+    const { register, handleSubmit, formState: { errors, isValid } } = useForm<RequestCompanyFormData>({
         defaultValues: {
             companyDetail: {
                 industry: 'Industry',
@@ -16,7 +17,11 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
                 carrierPage: '',
                 name: '',
             },
+            userName: '',
+            userEmail: '',
             userType: 'EMP',
+            userContactNumber: '',
+            referral_role:'',
         },
         mode: 'onChange',
     });
@@ -57,6 +62,25 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
             isdisabled={!isValid}
             onClose={() => setShowModal(false)}>
             <form className="space-y-4">
+
+                <div>
+                    <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Name :</label>
+                    <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Your Name" {...register('userName', validationRules.name)} />
+                    {errors.userName && <p className="text-red-500 text-xs italic">{errors.userName?.message}</p>}
+                </div>
+
+                <div>
+                    <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Contact Number :</label>
+                    <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Your Contact Number" {...register('userContactNumber', validationRules.phone)} />
+                    {errors.userContactNumber && <p className="text-red-500 text-xs italic">{errors.userContactNumber?.message}</p>}
+                </div>
+
+                <div>
+                    <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Email :</label>
+                    <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Your Email" {...register('userEmail', validationRules.email)} />
+                    {errors.userEmail && <p className="text-red-500 text-xs italic">{errors.userEmail?.message}</p>}
+                </div>
+                
                 <div>
                     <label className="pl-1 mb-1 block text-gray-500 font-semibold text-left">Company :</label>
                     <input type="text" className="input_primary text-semibold text-gray-500" placeholder="Enter Company Name" {...register('companyDetail.name', validationRules.companyName)} />

@@ -8,15 +8,17 @@ import secureStorage from '@Utils/SecureStorage.utils';
 import { getToastOptions } from '@Utils/Toast.utils';
 
 
-interface RequestCompanyFormData {
+export interface RequestCompanyFormData {
   userType: string;
   userEmail: string;
   userContactNumber: string;
+  userName: string;
+  referral_role?: string;
   companyDetail: {
     name: string;
     industry: string;
-    carrierPage?: string;
-    linkedIn?: string;
+    carrierPage: string;
+    linkedIn: string;
   };
 }
 
@@ -30,8 +32,6 @@ const RequestCompany = ({userType}: {userType: Partial<AuthLoginForGeneralUserDt
     reset,
   } = useForm<RequestCompanyFormData>();
   // console.log(userType)
-
-  const email = watch('userEmail');
 
   const onSubmit = async (data: RequestCompanyFormData) => {
     if (!emailDomainDenyListValidator(data.userEmail)) {
