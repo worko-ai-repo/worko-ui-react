@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
 		],
 	},
 	{ label: 'For Employee', href: '/for-employee' },
-	{ label: 'For Corporate', href: '/for-corporate' },
+	{ label: 'For Corporate', href: '/corporate' },
 	//{ label: 'Blog', href: '/blogs' },
 	{ label: 'About Us', href: '/about' },
 ];

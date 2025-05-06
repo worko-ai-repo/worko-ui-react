@@ -179,9 +179,8 @@ export const JobCard = ({ job }: any) => {
   }, [createdAt]);
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
-  
+  const refinedCompanyName = (companyName ?? "comp").replace(/\s/g, "_");
   const handleReferralNav = () => {
-    const refinedCompanyName = companyName.replace(/\s/g, "_");
     nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
   };
 
@@ -235,7 +234,7 @@ export const JobCard = ({ job }: any) => {
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
               <a
-                href={jobUrl} // <-- make sure this points to the correct URL
+                href={`/jobs/${refinedCompanyName}/${jobId}`} 
                 
                 rel="noopener noreferrer"
                 className="block"

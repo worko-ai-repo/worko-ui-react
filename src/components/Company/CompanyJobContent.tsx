@@ -11,7 +11,7 @@ const JobFilterPanel = lazy(() => import("./JobFilterPanel"));
 
 // Lazy load components
 import CompanyCard from "./CompanyCard";
-import { job_listing_promo } from "@Assets";
+import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
 import { useLocation } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
 import { useJobFilters } from "@Hooks/useJobFilter.hook";
@@ -83,6 +83,12 @@ const CompanyJobContent = () => {
 
     handleFilterChange(lastFilter.paramKey, lastFilter.value, lastFilter);
   };
+  const promoImages = [
+    job_listing_promo,
+    job_listing_promo_1,
+    job_listing_promo_2,
+    job_listing_promo_3,
+  ];
 
   return (
     <div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
@@ -183,9 +189,28 @@ const CompanyJobContent = () => {
                     />
                   );
 
-                  /* if (((index + 1) % 6 === 0) && isLoggedIn) {
-                    return [jobCard, <img src={job_listing_promo} alt="" key={`random-break-$}`} onClick={handleClick} data-tooltip-id="my-tooltip" data-tooltip-content={isDisabled ? "You are already viewing jobs posted by Worko" : "Click to view jobs posted by Worko and share with your friends to earn rewards!"} className={`${isDisabled ? "hidden" : "block"} w-full rounded-[20px] md:rounded-[15px] md:h-[250px]  cursor-pointer active:scale-95   `} />];
-                  } */
+                  if (((index + 1) % 8 === 0) && isLoggedIn) {
+                    const promoIndex = Math.floor(index / 8) % promoImages.length;
+                    const promoImage = promoImages[promoIndex];
+                  
+                    return [
+                      jobCard,
+                      <img
+                        src={promoImage}
+                        alt={promoImage}
+                        id={promoImage}
+                        key={`promo-${index}`}
+                        onClick={handleClick}
+                        data-tooltip-id="my-tooltip"
+                        data-tooltip-content={
+                          isDisabled
+                            ? "You are already viewing jobs posted by Worko"
+                            : "Click to view jobs posted by Worko and share with your friends to earn rewards!"
+                        }
+                        className={`${isDisabled ? "hidden" : "block"} w-full rounded-[20px] md:rounded-[15px] md:h-[250px] cursor-pointer active:scale-95`}
+                      />,
+                    ];
+                  }
                   return [jobCard];
                 })}
 

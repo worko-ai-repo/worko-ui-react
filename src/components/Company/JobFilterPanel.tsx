@@ -47,7 +47,7 @@ useEffect(() => {
     
 
 	return (
-		<div className="sticky top-[100px]">
+		<div className="sticky top-[20px]">
 			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold">Filters</h3>

@@ -157,7 +157,7 @@ const checkApplicationStatus = async (retryCount = 0) => {
 
       for (let i = 0; i < response.data.length; i++) {
         if (response.data[i].status) {
-          console.log(response.data[i]?.status);
+          // console.log(response.data[i]?.status);
           setApplicationStatus(true);
           break;
         }

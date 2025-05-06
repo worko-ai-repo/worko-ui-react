@@ -192,7 +192,7 @@ const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // 
 const fetchJobMatchingScores = useCallback(
   async (jobIds: string[],updatedFilters:JobFiltersDto) => {
     if (!jobIds.length) return;
-    console.log("Previous Filters",jobFilters);
+    // console.log("Previous Filters",jobFilters);
     try {
       // Create a new updated set
       const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
