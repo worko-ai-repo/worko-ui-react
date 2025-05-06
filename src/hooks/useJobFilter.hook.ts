@@ -60,11 +60,11 @@ export const useJobFilters = () => {
       // Handle range filters (salary, experience) that have min-max values
       else if (key.includes('Range') && values.length > 0) {
         // Find the selected option in the filter values
-        const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
+        const selectedOptionIndex = filter?.value?.findIndex?.((v: string) => v === values[0]);
         
         if (selectedOptionIndex !== -1) {
           // Extract min and max values from the range (format: "min-max")
-          const [min, max] = filter.value[selectedOptionIndex].split('-').map(Number);
+          const [min, max] = filter?.value?.[selectedOptionIndex]?.split('-')?.map(Number) || [];
           
           if (key === 'salaryRange') {
             // Update salary range values
@@ -102,9 +102,9 @@ export const useJobFilters = () => {
       // Handle all other filter types
       else {
         // Find the display text for the selected value
-        const selectedOptionIndex = filter.value.findIndex((v: string) => v === values[0]);
+        const selectedOptionIndex = filter?.value?.findIndex?.((v: string) => v === values[0]);
         // Use the option text if available, otherwise use the raw value
-        newFilters[key] = filter.options[selectedOptionIndex] || values[0];
+        newFilters[key] = filter?.options?.[selectedOptionIndex] || values[0];
         updatedParams.set(key, newFilters[key]);
       }
     }
