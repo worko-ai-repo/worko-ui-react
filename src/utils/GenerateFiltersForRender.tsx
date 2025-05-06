@@ -50,7 +50,7 @@ export const generateFilterForRender = (
         // Step 2: Define relevant filter parameters
         const filterParams = companyPageMode === CompanyPageModeEnum.JOB
             ? ['location', 'coreSkills', 'softSkills', 'technicalSkills','companyName'] 
-            : ['teamSize', 'industry','companyName'];
+            : ['industry','companyName'];
 
         // Step 3: Ensure cache exists for each parameter
         filterParams.forEach(param => {
@@ -78,13 +78,13 @@ export const generateFilterForRender = (
                     newOptions = Array.from(new Set(data.map((job: any) => job[paramKey]).filter(Boolean)));
                 }
             } else if (companyPageMode === CompanyPageModeEnum.REFERRAL) {
-                if (paramKey === 'teamSize' || paramKey === 'industry') {
+                if (paramKey === 'industry') {
                     newOptions = Array.from(new Set(
                         data.map((company: CompanyShortDto) => 
-                            paramKey === 'teamSize' ? String(company[paramKey]) : company[paramKey]
+                            company[paramKey]
                         ).filter(Boolean)
                     ));
-                }
+                  }
                 else if (paramKey === 'companyName') {
                     newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company.name).filter(Boolean)));
                 }
@@ -109,12 +109,10 @@ export const generateFilterForRender = (
 
         // Step 6: Preserve static filters (only for JOB mode)
         let staticFilters: FilterOptionForRender[] = [];
-        if (companyPageMode === CompanyPageModeEnum.JOB) {
             staticFilters = filterMetaData.filter(meta => 
                 !dynamicFilters.some(filter => filter.paramKey === meta.paramKey)
             ) as FilterOptionForRender[];
-        }
-
+        
         // Step 7: Merge and update UI
         const finalFilters = [...dynamicFilters, ...staticFilters];
         // console.log('Updated Filter Options:', finalFilters);
