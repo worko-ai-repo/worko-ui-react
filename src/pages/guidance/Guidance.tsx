@@ -283,9 +283,7 @@ const Guidance = () => {
 						{/* Date */}
 						<div className="flex flex-col items-start justify-start">
 							<label className="my-3 block text-sm font-semibold text-black"
-							data-tooltip-id='my-tooltip'
-							data-tooltip-content='Please select a date from the calendar for scheduling the guidance session.'
-							>Deadline Date <i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"></i></label>
+							>Deadline date (By When you need the Guidance) </label>
 							<div className="flex justify-start w-full sm:max-w-[300px] text-left">
 								<DropdownCalendar onSelectDate={(date: any) => {setValue('guidanceRequestDeadline', date);
         trigger('guidanceRequestDeadline'); clearErrors('guidanceRequestDeadline');}} Cname="select_primary sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm text-left" />
@@ -302,7 +300,7 @@ const Guidance = () => {
 						<div className="flex flex-col items-start justify-start">
 							<label
 							data-tooltip-id='my-tooltip'
-							data-tooltip-content='Please enter the job URL for which you need guidance.'
+							data-tooltip-content='Is there any specific role for which you need the guidance'
 							className="my-3 block text-sm font-semibold text-black">Job URL <i 
                   className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"
                 ></i> </label>
