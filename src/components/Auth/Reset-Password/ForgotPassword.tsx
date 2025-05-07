@@ -55,7 +55,6 @@ const ForgotPassword = () => {
        setIsStepOne(false);
    
        // Code Delivery Details
-	   debugger;
        const { nextStep } = output;
        if(nextStep.resetPasswordStep === 'CONFIRM_RESET_PASSWORD_WITH_CODE'){
            nextStep.codeDeliveryDetails;

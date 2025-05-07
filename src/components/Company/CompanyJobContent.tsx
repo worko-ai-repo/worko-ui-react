@@ -75,6 +75,9 @@ const CompanyJobContent = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isDashboardUser = params.get("dashboard") === "USER";
+    if(isDashboardUser && searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
     setIsDisabled(isDashboardUser);
   }, [location]);
 
