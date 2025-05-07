@@ -383,7 +383,7 @@ const fetchJobMatchingScores = useCallback(
         delete updatedFilters.YOE;
         delete updatedFilters.coreSkills;
       }
-
+      
       // Step 7 → If any filter includes 'experience Range' in its key, remove YOE
       if (filters.experienceRange) {
         delete updatedFilters.YOE;

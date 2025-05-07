@@ -5,7 +5,7 @@ import { set } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 
 export const useJobFilters = () => {
-    const { setJobFilters, resetFiltersValues } = useCompanyContext();
+    const { setJobFilters, resetFiltersValues,resetSearch } = useCompanyContext();
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
     const resetFilters = () => {
@@ -95,10 +95,29 @@ export const useJobFilters = () => {
         updatedParams.set('industry', values[0]);
       } 
       // Handle work mode or dashboard filters (comma-separated)
-      else if (key === 'workMode' || key === 'dashboard') {
+      else if (key === 'workMode') {
         newFilters[key] = values.join(',');
         updatedParams.set(key, values.join(','));
-      } 
+      }
+      else if (key === 'dashboard') {
+        // Clear all other filters from both state and URL, except for the dashboard filter
+        for (const paramKey of Array.from(updatedParams.keys())) {
+          if (paramKey !== 'dashboard') {
+            updatedParams.delete(paramKey);
+          }
+        }
+      
+        resetSearch();
+        for (const stateKey in newFilters) {
+          if (stateKey !== 'dashboard') {
+            delete newFilters[stateKey];
+          }
+        }
+      
+        // Set the new dashboard filter value
+        newFilters[key] = values.join(',');
+        updatedParams.set(key, values.join(','));
+      }
       // Handle all other filter types
       else {
         // Find the display text for the selected value

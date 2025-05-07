@@ -273,7 +273,7 @@ const JobCard: React.FC<JobCardProps> = ({
 
     try {
       const result = await toast.promise(
-        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true),
+        httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, requestData, true, {}, true),
         {
           pending: 'Sharing job...',
         },
