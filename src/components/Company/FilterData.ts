@@ -101,7 +101,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       placeholder: 'Job Type',
       paramKey: 'dashboard',
       selectType: 'normal',
-      options: ['Posted By Worko'],
+      options: ['Refer a friend jobs'],
       value: [ 'USER'],
     }
   ],    

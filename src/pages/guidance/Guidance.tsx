@@ -282,7 +282,10 @@ const Guidance = () => {
 
 						{/* Date */}
 						<div className="flex flex-col items-start justify-start">
-							<label className="my-3 block text-sm font-semibold text-black">Deadline Date</label>
+							<label className="my-3 block text-sm font-semibold text-black"
+							data-tooltip-id='my-tooltip'
+							data-tooltip-content='Please select a date from the calendar for scheduling the guidance session.'
+							>Deadline Date <i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"></i></label>
 							<div className="flex justify-start w-full sm:max-w-[300px] text-left">
 								<DropdownCalendar onSelectDate={(date: any) => {setValue('guidanceRequestDeadline', date);
         trigger('guidanceRequestDeadline'); clearErrors('guidanceRequestDeadline');}} Cname="select_primary sm:max-w-[300px] w-full p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm text-left" />
@@ -297,7 +300,12 @@ const Guidance = () => {
 
 						{/* Job URL */}
 						<div className="flex flex-col items-start justify-start">
-							<label className="my-3 block text-sm font-semibold text-black">Job URL</label>
+							<label
+							data-tooltip-id='my-tooltip'
+							data-tooltip-content='Please enter the job URL for which you need guidance.'
+							className="my-3 block text-sm font-semibold text-black">Job URL <i 
+                  className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"
+                ></i> </label>
 							<input {...register('jobUrl', validationRules.url)} className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" placeholder="Enter the job URL" />
 							{errors.jobUrl && <p className="text-red-500 text-xs">{errors.jobUrl.message as string}</p>}
 						</div>
