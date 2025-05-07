@@ -137,7 +137,7 @@ export const JobCard = ({ job }: any) => {
     
     try {
       const result = await toast.promise(
-        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', payload, true, {}, true),
+        httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, payload, true, {}, true),
         {
           pending: 'Sharing job...',
         },
@@ -179,9 +179,8 @@ export const JobCard = ({ job }: any) => {
   }, [createdAt]);
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
-  
+  const refinedCompanyName = (companyName ?? "comp").replace(/\s/g, "_");
   const handleReferralNav = () => {
-    const refinedCompanyName = companyName.replace(/\s/g, "_");
     nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
   };
 
@@ -235,7 +234,7 @@ export const JobCard = ({ job }: any) => {
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
               <a
-                href={jobUrl} // <-- make sure this points to the correct URL
+                href={`/jobs/${refinedCompanyName}/${jobId}`} 
                 
                 rel="noopener noreferrer"
                 className="block"
@@ -279,7 +278,7 @@ export const JobCard = ({ job }: any) => {
 </p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
-                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Account Required</small>
+                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Login to fetch your score</small>
                   </div>
                 )}
               </div>
@@ -326,15 +325,15 @@ export const JobCard = ({ job }: any) => {
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
             { (!isExternalJob) && 
-            <div data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
+            <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
             <button
               onClick={() => setShowModal(true)}
-              className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+              >
               Refer A Friend
             </button> 
             </div>
             }
-             <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
+             <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details
             </button>
           </div>

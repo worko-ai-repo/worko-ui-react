@@ -273,7 +273,7 @@ const JobCard: React.FC<JobCardProps> = ({
 
     try {
       const result = await toast.promise(
-        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true),
+        httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, requestData, true, {}, true),
         {
           pending: 'Sharing job...',
         },
@@ -528,10 +528,9 @@ const JobCard: React.FC<JobCardProps> = ({
 <div className="flex items-center justify-end gap-2 w-full md:w-auto">
   {/* Refer A Friend button */}
   {(!jobData.externalJobId)  &&
-   <div data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
+   <div className="w-full max-sm:px-0 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0  md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center" data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
    <button
     onClick={() => setShowModal(true)}
-    className="w-full md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center"
   >
     Refer A Friend
   </button>
@@ -539,7 +538,7 @@ const JobCard: React.FC<JobCardProps> = ({
   
   {/* Apply button */}
   <button
-    className={`w-full md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`}
+    className={`w-full max-sm:px-0 max-sm:text-xs md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`}
     onClick={onApply}
     disabled={
       applicationStatus ||

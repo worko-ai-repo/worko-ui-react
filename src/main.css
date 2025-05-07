@@ -224,7 +224,12 @@ label {
 	.section-wrapper {
 		padding: 5rem 0.5em;
 	}
-
+	#my-tooltip {
+		font-size: var(--text-xxs);
+		width: 80%;
+		text-align: left;
+		text-wrap: break-word;
+	};
 	h1 {
 		font-size: var(--text-md);
 	}

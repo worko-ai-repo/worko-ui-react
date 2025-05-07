@@ -31,10 +31,10 @@ export function validateCV(value: string) {
   if (!fileList || fileList.length === 0) return "CV file is required";
 
   const file = fileList[0];
-  const validTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+  const validTypes = ["application/pdf"];
 
   if (!validTypes.includes(file.type)) {
-    return "Only PDF, DOC, and DOCX files are allowed";
+    return "Only PDF files are allowed";
   }
   if (file.size > 2 * 1024 * 1024) {
     // 2MB limit
@@ -246,7 +246,15 @@ const SignupForm: React.FC<{
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
             <div className="relative ">
-              <label className="hidden sm:block font-medium">Upload Cv</label>
+              <label className="hidden sm:block cursor-pointer font-medium"
+               data-tooltip-id="my-tooltip" 
+               data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported." >
+                Upload CV 
+                (<i 
+                  className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"
+                ></i> 
+                &nbsp; View file requirements)
+              </label>              
               <input
                 disabled={isOtpSent}
                 type="file"
@@ -259,6 +267,8 @@ const SignupForm: React.FC<{
                 onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()} // Trigger input click
                 className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1"
               />
+              <p className="sm:hidden text-left text-xs text-gray-500">Note: Click <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" 
+               data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported."  >Here</u> Before Uploading Any File</p>
               {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
             </div>
           ) : (

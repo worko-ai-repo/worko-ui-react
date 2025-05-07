@@ -26,23 +26,32 @@ interface JobRequirementsProps {
  * // Returns: "<div>Hello</div>"
  */
 
-const decodeHTML = (html: string) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  return doc.documentElement.textContent || '';
+const isFullyEscapedHTML = (html: string) => {
+  return /&lt;[^&]*&gt;/.test(html); // matches patterns like &lt;p&gt;
 };
 
+const getHTML = (html: string) => {
+  if (isFullyEscapedHTML(html)) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    return doc.documentElement.textContent || '';
+  }
+  return html;
+};
 
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = 'Not specified' }) => {
-  const decodedHTML = decodeHTML(jobDescription);
+  const decode = getHTML(jobDescription);
   return (
     <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
       <h2 className="text-xl font-semibold mb-4">Job description</h2>
-      {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
-        <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: decodedHTML  }}></div>
+      <div
+        className={`space-y-4 mb-4 ${styles.job_description}`}
+        dangerouslySetInnerHTML={{ __html: decode }}
+      ></div>
     </div>
   );
 };
+
 
 
 interface AboutCompanyProps {

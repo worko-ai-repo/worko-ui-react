@@ -8,9 +8,8 @@ import { CompanyContextType, CompanyPageModeEnum } from "@Interfaces/CompanyCont
 import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
-import { BaseApiFiltersDto, CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { toast } from "react-toastify";
-import { getToastOptions } from "@Utils/Toast.utils";
+import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -193,7 +192,7 @@ const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // 
 const fetchJobMatchingScores = useCallback(
   async (jobIds: string[],updatedFilters:JobFiltersDto) => {
     if (!jobIds.length) return;
-    console.log("Previous Filters",jobFilters);
+    // console.log("Previous Filters",jobFilters);
     try {
       // Create a new updated set
       const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
@@ -384,7 +383,7 @@ const fetchJobMatchingScores = useCallback(
         delete updatedFilters.YOE;
         delete updatedFilters.coreSkills;
       }
-
+      
       // Step 7 → If any filter includes 'experience Range' in its key, remove YOE
       if (filters.experienceRange) {
         delete updatedFilters.YOE;

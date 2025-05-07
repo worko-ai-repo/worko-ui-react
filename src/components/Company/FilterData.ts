@@ -96,15 +96,22 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       selectType: 'multiselect',
       options: [], // This can be populated with suggested industries
       value: []
+    },
+    {
+      placeholder: 'Job Type',
+      paramKey: 'dashboard',
+      selectType: 'normal',
+      options: ['Refer a friend jobs'],
+      value: [ 'USER'],
     }
   ],    
   referralFilter: [
     {
       placeholder: 'Team Size',
       paramKey: 'teamSize',
-      selectType: 'multiselect',
-      options: [], // This can be populated with suggested team sizes
-      value: []
+      selectType: 'normal',
+      options: ['1-10', '10-50', '50-100', '100-500', '500-1000', '1000-5000', '5000+'], // Added team size ranges
+      value: ['1-10', '10-50', '50-100', '100-500', '500-1000', '1000-5000', '5000+']
     },
     {
       placeholder: 'Industry',
