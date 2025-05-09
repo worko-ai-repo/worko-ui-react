@@ -261,7 +261,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
 						await currentSession();
-						setUpdateCheck(true);
+						setUpdateCheck(prev => !prev);
 						toast.success('Successfully signed in', getToastOptions());
 						checkBasicDetails();
 					}
