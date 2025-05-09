@@ -5,8 +5,10 @@ import { useCompanyContext } from "../../context/Company.context";
 import { useForm } from "react-hook-form";
 import { validationRules } from "@Utils/FormValidator.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useJobFilters } from "@Hooks/useJobFilter.hook";
 
 const companyStaticData = {
   [CompanyPageModeEnum.JOB]: {
@@ -144,26 +146,27 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     },
   };
 
-  const onSubmit = async(data: FormValues) => {
-    
-    const {response, error, status} = await httpServiceObj.post('/user/settings', {
-      subscribedEmailId:data.email
-    } , true)
+  const onSubmit = async (data: FormValues) => {
+    const { response, error, status } = await httpServiceObj.post(
+      "/user/settings",
+      {
+        subscribedEmailId: data.email,
+      },
+      true
+    );
 
-    if(status===409) {
-      toast.error('Already Registered!',getToastOptions())
+    if (status === 409) {
+      toast.error("Already Registered!", getToastOptions());
     }
 
-    if(response) {
+    if (response) {
       // Set subscription status to true
-    setIsSubscribed(true);
-    // No need to pause rotation anymore as we're showing success card
-    setIsPaused(false);
-
+      setIsSubscribed(true);
+      // No need to pause rotation anymore as we're showing success card
+      setIsPaused(false);
     } else {
-      setIsSubscribed(false)
+      setIsSubscribed(false);
     }
-
   };
 
   let currentData: CompanyData = { title: "", description: "" };
@@ -175,11 +178,13 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
     currentData = companyStaticData[BannerMode] || {};
   }
 
+
+
   return (
     <div className="sm:px-5 py-10 sm:px-auto relative w-full max-sm:h-[250px] md:min-h-[200px] bg-blue-600 text-white flex">
       <div className="mx-auto max-w-[1280px] md:p-4 flex items-center justify-between w-full">
-        <div className={`${activeFrame === 'description' ? '' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-left ${styles.banner_content}`}>
-          <p className="w-full text-[14px] sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
+        <div className={`${activeFrame === 'description' ? 'w-full' : 'max-md:hidden'} transition delay-200 duration-300 ease-in-out min-w-[300px] max-w-[600px] mx-auto md:mx-0 text-wrap p-2 text-left ${styles.banner_content}`}>
+          <p className="w-full text-[12px] sm:text-2xl font-bold mb-2" dangerouslySetInnerHTML={{ __html: currentData.title }}></p>
           <small className="text-[9px] text-justify sm:text-xs" dangerouslySetInnerHTML={{ __html: currentData.description }}></small>
         </div>
 
@@ -210,19 +215,18 @@ const CompanyBanner = ({ BannerMode }: { BannerMode?: CompanyPageModeEnum }) => 
 
               {/* ReferCard - shown when activeCard is 'refer' */}
               <div className={`transition-opacity duration-500  ${activeCard === "refer" ? "opacity-100" : "opacity-0 hidden"}`}>
-                <div className="bg-white text-gray-800 shadow-lg rounded-2xl p-4 min-h-36 flex flex-col">
+                <div className="bg-white text-gray-800 shadow-lg rounded-2xl px-4 pt-4 pb-1.5 min-h-36 flex flex-col">
                   <div className="flex items-center justify-center mb-3">
                     <span className="text-lg">🤝</span>
                     <h3 className="text-xs font-bold ml-2">Refer a Friend, Earn Rewards!</h3>
                   </div>
-
                   <ul className="space-y-0">
                     {referDetails.map((item, index) => (
                       <li key={index} className="flex items-center gap-3">
                         <span className="text-xs align-bottom ">{item.icon}</span>
-                        <div className="text-left  "> 
+                        <div className="text-left  ">
                           <small className=" text-xs font-semibold ">{item.title}: </small>
-                          <small className=" text-xs " >{item.description}</small>
+                          <small className=" text-xs ">{item.description}</small>
                         </div>
                       </li>
                     ))}

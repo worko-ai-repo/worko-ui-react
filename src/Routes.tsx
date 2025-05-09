@@ -115,7 +115,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'for-corporate',
+				path: 'corporate',
 				children: [
 					{
 						index: true,

@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
 		],
 	},
 	{ label: 'For Employee', href: '/for-employee' },
-	{ label: 'For Corporate', href: '/for-corporate' },
+	{ label: 'For Corporate', href: '/corporate' },
 	//{ label: 'Blog', href: '/blogs' },
 	{ label: 'About Us', href: '/about' },
 ];
@@ -160,12 +160,12 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"} className="block py-0.5 w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</a>
 									</li>
 									<li>
-										<a href={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<a href={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className=" block  py-0.5  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</a>
 									</li>
@@ -185,7 +185,7 @@ const Header = () => {
 												CognitoServiceObj.handleSignOut();
 												setUpdateCheck(prev => !prev);
 											}}
-											className="text-sm font-medium text-gray-800 hover:text-blue-600">
+											className=" py-0.5 block  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Logout
 										</a>
 									</li>

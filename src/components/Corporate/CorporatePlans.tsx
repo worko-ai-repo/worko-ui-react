@@ -62,7 +62,7 @@ function CorporatePlans() {
   // Function to handle button click
   const handleTryNowClick = (planName: string) => {
     // Added the planName as query param.
-    navigate(`/for-corporate/connect-with-us?plan=${encodeURIComponent(planName)}`);
+    navigate(`/corporate/connect-with-us?plan=${encodeURIComponent(planName)}`);
   };
 
   return (

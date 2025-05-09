@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import httpServiceObj from "@Services/ApiHandler.service";
 import MainLoader from "@Components/Loader/Loader";
-import { CompanyDto, JobDto, JobMatchingScoreDto } from "@Interfaces/JobsAndCompany.dto";
+import { CompanyDto, JobDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
 import { MessagePopupProps } from "@Components/Modals/MessageModal";
 import RequestReferralMessage from "@Components/ReferralRequest/RequestReferralMessage";
@@ -22,6 +22,17 @@ import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
+
+const fetchUserBasicDetails = async () => {
+  const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+    `${import.meta.env.APP_API_URI}/user/basic-details`,
+    true,
+    {},
+    true
+  );
+  if (error) throw error;
+  return response;
+};
 
 const JobDescription = () => {
 	// check if the use is logged in
@@ -62,6 +73,28 @@ const JobDescription = () => {
   const [jobMatchDetails , setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
 
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
+  
+  const { data } = useQuery({
+    queryKey: ["userBasicDetails"],
+    queryFn: fetchUserBasicDetails,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+   if (data) {
+      const designation = data?.candidateExperience?.designation;
+      const coreSkills = data?.coreSkills?.map((s) => s.skillName);
+      const yoe = data?.YOE;
+
+      const isProfileComplete = designation || (coreSkills?.length > 0) || yoe;
+
+      if (!isProfileComplete) {
+        setShowApplyModal(true);
+        showModalsError("NoBasicDetails");
+      }
+    }
+  }, [data]);
+
 
   // This effect will run when the component mounts or when jobid changes
   // It will set the jobDataState from location state if available
@@ -124,7 +157,7 @@ const checkApplicationStatus = async (retryCount = 0) => {
 
       for (let i = 0; i < response.data.length; i++) {
         if (response.data[i].status) {
-          console.log(response.data[i]?.status);
+          // console.log(response.data[i]?.status);
           setApplicationStatus(true);
           break;
         }
@@ -175,7 +208,7 @@ useEffect(() => {
     }, [location.hash, nav, isLoggedIn, PendingApply]);
  */
   // Function to show error modals
-  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant' | 'badScore') => {
+  const showModalsError = (caseType: 'isExternalJobApplied' | 'expired_in' | 'application_success' | 'application_failure' | 'redundant' | 'badScore' | 'NoBasicDetails') => {
     switch (caseType) {
       case "isExternalJobApplied":
         setModalData({
@@ -267,6 +300,21 @@ useEffect(() => {
           }],
         });
         break;
+      case "NoBasicDetails":
+        setModalData({
+          type: "error",
+          heading: { message: "Profile Incomplete", type: "error" },
+          message: "It looks like your profile is incomplete. Please complete your profile by updating your details from your dashboard and uploading your latest resume.",
+          buttons: [
+            {
+              label: "Complete Profile",
+              action: () => nav("/v1/candidate/edit-profile"),
+              type: "primary",
+            },
+          ],
+        });
+        break;
+      
       default:
         setModalData({
           type: "error",
