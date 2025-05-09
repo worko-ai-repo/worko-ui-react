@@ -39,10 +39,10 @@ interface ReferralRequestFormDto {
 /**
  * continueReferralRequestDataDto - This interface is used to define the structure of continueReferralRequestDataDto
  */
-export interface continueReferralRequestDataDto {
+export interface continueReferralRequestDataDto<T = ReferralRequestFormDto> {
 	type: string;
 	url: string;
-	data: ReferralRequestFormDto | null;
+	data: T | null;
 }
 
 /**

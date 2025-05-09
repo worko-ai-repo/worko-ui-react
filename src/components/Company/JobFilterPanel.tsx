@@ -10,7 +10,7 @@ import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/
 
 const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender = [], resetFiltersValues } = useCompanyContext();
-	const { isLoggedIn, userDetails } = useAppContext();
+	const { userDetails } = useAppContext();
 	const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({});
 	const [searchParams, setSearchParams] = useSearchParams();
 	const resetFilters = () => {
@@ -120,7 +120,7 @@ useEffect(() => {
     
 
 	return (
-		<div className="sticky top-[100px]">
+		<div className="">
 			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold">Filters</h3>
@@ -128,7 +128,7 @@ useEffect(() => {
 						&times;
 					</button>
 				</div>
-				<div className="space-y-2">
+				<div className="space-y-4">
 					{jobFilterForRender.length > 0 ? (
 						jobFilterForRender.map(filter => (
 							<div key={filter.paramKey} /* className="flex flex-col mx-auto gap-3" */>
@@ -152,7 +152,7 @@ useEffect(() => {
 					</div>
 				</div>
 			</div>
-			{isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={userDetails.lastAccessedDash} /> : null}
+			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={userDetails?.lastAccessedDash} /> : null}
 		</div>
 	);
 };

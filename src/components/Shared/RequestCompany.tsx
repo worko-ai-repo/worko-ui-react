@@ -21,7 +21,7 @@ const RequestCompany: React.FC<{ setShowModal: React.Dispatch<React.SetStateActi
             userEmail: '',
             userType: 'EMP',
             userContactNumber: '',
-            referral_role:'',
+            referralRequestUrl:'',
         },
         mode: 'onChange',
     });
