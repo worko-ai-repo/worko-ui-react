@@ -87,24 +87,27 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({
   }
 
   return (
-    <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 flex-wrap">
+    <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 pb-0 flex-wrap">
       <div className="flex justify-between text-blue-600 flex-wrap gap-4">
-        <MetricGauge value={experienceMatch} label="Experience" />
-        <MetricGauge value={skillsMatch} label="Skills" />
-        <MetricGauge value={responsibilityMatch} label="Responsibility" />
-        <MetricGauge value={industryMatch} label="Industry" />
-        <MetricGauge value={achievementMatch} label="Education" />
+        <MetricGauge value={experienceMatch} label="Experience" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={skillsMatch} label="Skills" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={responsibilityMatch} label="Responsibility" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={industryMatch} label="Industry" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={achievementMatch} label="Education" isLoggedIn={isLoggedIn} />
       </div>
     </div>
   );
 };
 
-const MetricGauge = ({ value, label }: { value: number; label: string }) => {
+const MetricGauge = ({ value, label, isLoggedIn }: { value: number; label: string; isLoggedIn: boolean }) => {
   return (
     <div className="flex flex-col items-center">
       <div className="w-16 h-16 relative mb-2">
-        <div className="w-full h-full text-blue-600 rounded-full flex items-center justify-center text-sm">
+        <div className={`w-full ${isLoggedIn === true ? '' : 'border border-blue-600'} h-full text-blue-600 rounded-full flex items-center justify-center text-sm`}>
+          <div data-tooltip-id="my-tooltip"
+                    data-tooltip-content="Please login to view scores">
           <GaugeComponent score={value} color={"black"} />
+          </div>
         </div>
       </div>
       <p className="text-sm font-medium text-black">{label}</p>
@@ -452,11 +455,11 @@ const JobCard: React.FC<JobCardProps> = ({
           <div
             className="hidden md:flex py-4 box-content ml-auto rounded-xl w-[91.5px] h-[75px] sm:w-[122px] sm:h-[100px] 
             flex-shrink-0 bg-gradient-to-b from-blue-500 to-blue-600
-            overflow-hidden text-white p-3 sm:p-4 flex flex-col items-center justify-end scale-90"
+            overflow-hidden text-white p-3 sm:pb-4 sm:p-4 flex flex-col items-center justify-end scale-90"
           >
             {/* Gauge Component */}
             <div
-              className="w-full pt-2 h-full border-3 border-[#6DE5E5] 
+              className="w-full pt-4 h-full border-3 border-[#6DE5E5] 
               flex items-center justify-center sm:scale-90"
             >
               {isLoading ? (
@@ -473,7 +476,7 @@ const JobCard: React.FC<JobCardProps> = ({
               </p>
             ) : (
               <div
-                className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer "
+                className="flex items-end w-[120%] justify-end gap-2 text-center cursor-pointer "
                 data-tooltip-id="my-tooltip"
                 data-tooltip-content="Please login to view scores"
               >
@@ -485,12 +488,11 @@ const JobCard: React.FC<JobCardProps> = ({
           </div>
         </div>
         {/* Pass the matchPercentage to MatchMetrics */}
-        {isLoggedIn && (
           <MatchMetrics
             jobMatchDetails={jobMatchDetails}
             isLoggedIn={isLoggedIn}
           />
-        )}
+     
         <div
           style={{
             width: "100%",
