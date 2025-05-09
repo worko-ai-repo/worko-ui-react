@@ -101,6 +101,7 @@ export interface JobDto extends CompanyDto {
   companyDetails?: CompanyDto;
   htmlJobDescription?: string;
   jobPostedDate?: string;
+  displaySalaryRange?: boolean;
   jobCreatedDate?: string;
   jobUrl?: string;
   companyName?: string;

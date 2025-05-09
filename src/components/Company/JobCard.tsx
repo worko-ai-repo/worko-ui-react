@@ -27,7 +27,7 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -218,7 +218,6 @@ export const JobCard = ({ job }: any) => {
       reset();
     }
   }, [showModal, reset]);
-
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -244,7 +243,7 @@ export const JobCard = ({ job }: any) => {
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
 
                 {/* Salary */}
-                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">₹ {salary}</div>
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">{showSalary ? `₹${salary}` : "Not Disclosed"}</div>
               </div>
             </div>
 

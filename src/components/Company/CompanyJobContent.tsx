@@ -163,7 +163,6 @@ const CompanyJobContent = () => {
 
                   const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
                   const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
-
                   const jobCard = (
                     <JobCard
                       key={job.id || index}
@@ -188,6 +187,7 @@ const CompanyJobContent = () => {
                         FullJob: job,
                         companyId: job.companyId,
                         jobUrl: job.jobUrl,
+                        showSalary:job?.displaySalaryRange ?? true,
                       }}
                     />
                   );
