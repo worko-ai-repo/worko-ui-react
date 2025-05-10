@@ -19,12 +19,14 @@ import MessageModal from "@Components/Modals/MessageModal";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
 import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
+import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 
 const CompanyJobContent = () => {
   const location = useLocation();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [uploadResume, setUploadResume] = useState(false);
   const { userDetails, isLoggedIn }: { userDetails: Partial<AuthLoginForGeneralUserDto>; isLoggedIn: boolean } = useAppContext();
-  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
+  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -260,20 +262,28 @@ const CompanyJobContent = () => {
           </div>
         )}
       </div>
+      {
+        uploadResume && ( 
+          <UpdateResumeModal
+            onClose={() =>setUploadResume(false)}
+            />
+        )
 
+      }
       {isProfileInclomplete && (
         <MessageModal
           type="error"
           size="lg"
           heading={{ type: "error", message: "Profile Incomplete" }}
-          message="It looks like your profile is incomplete. Please complete your profile by updating your details from your dashboard and uploading your latest resume."
+          message="It looks like your profile is incomplete. Please click the button below to update your resume."
           onClose={() => {}}
           showCloseButton={false}
           buttons={[
             {
-              label: "Complete Profile",
+              label: "Update Resume",
               action: () => {
-                handleEditProfileRedirection((userDetails?.lastAccessedDash as "CAND" | "EMP") || "CAND");
+                setIsProfileInclomplete(false);
+                setUploadResume(true);
               },
               type: "primary",
             },

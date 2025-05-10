@@ -519,8 +519,9 @@ const fetchJobMatchingScores = useCallback(
       fetchUserBasicDetails,
 	  resetFiltersValues,
     isProfileInclomplete,
+    setIsProfileInclomplete,
     }),
-    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete]
+    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete,setIsProfileInclomplete]
   );
 
   return (

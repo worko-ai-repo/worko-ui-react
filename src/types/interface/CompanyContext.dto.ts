@@ -37,6 +37,8 @@ export type CompanyContextType = {
     isFetchingNextPage: boolean;
 
     isProfileInclomplete: boolean;
+    
+    setIsProfileInclomplete: React.Dispatch<React.SetStateAction<boolean>>;
 
     fetchNextPage: () => void;
     handleSearch: () => void;

@@ -16,9 +16,10 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import { toast } from "react-toastify";
-import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
+import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
+import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
@@ -67,6 +68,7 @@ const JobDescription = () => {
     return job;
   });
   const [isApplying, setIsApplying] = useState(false);
+  const [updateResume, setUpdateResume] = useState(false);
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | 0>(0)
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
@@ -304,11 +306,11 @@ useEffect(() => {
         setModalData({
           type: "error",
           heading: { message: "Profile Incomplete", type: "error" },
-          message: "It looks like your profile is incomplete. Please complete your profile by updating your details from your dashboard and uploading your latest resume.",
+          message: "It looks like your profile is incomplete. Please click the button below to update your resume.",
           buttons: [
             {
-              label: "Complete Profile",
-              action: () => nav("/v1/candidate/edit-profile"),
+              label: "Update Resume",
+              action: () => {setUpdateResume(true); setModalData(null); setShowApplyModal(false);},
               type: "primary",
             },
           ],
@@ -602,6 +604,14 @@ useEffect(() => {
 
       {/* Will show modal after clicking apply on external job. */}
       {showApplyModal && modalData && <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />}
+      {
+        updateResume && ( 
+          <UpdateResumeModal
+            onClose={() =>setUpdateResume(false)}
+            />
+        )
+
+      }
     </div>
   );
 };
