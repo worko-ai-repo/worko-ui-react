@@ -151,7 +151,7 @@ const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUse
 
         {/* Company Website */}
         <label htmlFor="carrierPage" className="font-medium text-sm text-gray-700">
-          Company website:
+          Career Page Url:
         </label>
         <input type="url" id="carrierPage" {...register("companyDetail.carrierPage", validationRules.url)} placeholder="Company Website" className="text-sm input_primary my-0 mb-1" />
         {errors.companyDetail?.carrierPage && <p className="text-red-500 text-left   text-xs">{errors.companyDetail.carrierPage.message}</p>}
