@@ -17,7 +17,7 @@ export interface RequestCompanyFormData {
   userEmail: string;
   userContactNumber: string;
   userName: string;
-  referralRequestUrl?: string;
+  jobUrl?: string;
   companyDetail: {
     name: string;
     industry: string;
@@ -35,53 +35,51 @@ interface RequestCompanyDto {
 
 const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUserDto> }) => {
   const navigateTo = useNavigate();
-  const { userDetails, isLoggedIn ,PendingApply,setPendingApply}:RequestCompanyDto = useAppContext();
+  const { userDetails, isLoggedIn, PendingApply, setPendingApply }: RequestCompanyDto = useAppContext();
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
     reset,
-  } = useForm<RequestCompanyFormData>({mode: "onChange"});
+  } = useForm<RequestCompanyFormData>({ mode: "onChange" });
   // console.log(userType)
 
   useEffect(() => {
-     
-      const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto<RequestCompanyFormData>>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
-  
-      if (pendingReferral && isLoggedIn && pendingReferral.data) {
-        // Patch the form data safely
-        
-        reset(pendingReferral.data);
-  
-        // Remove from storage *after* submitting
-          setPendingApply(null);
-          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null); 
-  
-        handleSubmit(onSubmit)(); // Call submit function
-      }
-    }, [isLoggedIn, PendingApply]);
+    const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto<RequestCompanyFormData>>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
+    if (pendingReferral && isLoggedIn && pendingReferral.data) {
+      // Patch the form data safely
+
+      reset(pendingReferral.data);
+
+      // Remove from storage *after* submitting
+      setPendingApply(null);
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
+
+      handleSubmit(onSubmit)(); // Call submit function
+    }
+  }, [isLoggedIn, PendingApply]);
 
   const onSubmit = async (data: RequestCompanyFormData) => {
     if (!isLoggedIn) {
-			const continueReferralRequestData:continueReferralRequestDataDto<RequestCompanyFormData> = {
-				type: 'filter',
-				url: window.location.href,
-				data,
-			};
-			setPendingApply(continueReferralRequestData);
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferralRequestData);
-			localStorage.setItem('continueReferralRequestData', JSON.stringify(continueReferralRequestData));
-			navigateTo('/auth/login');
-			return;
-		}
+      const continueReferralRequestData: continueReferralRequestDataDto<RequestCompanyFormData> = {
+        type: "filter",
+        url: window.location.href,
+        data,
+      };
+      setPendingApply(continueReferralRequestData);
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferralRequestData);
+      localStorage.setItem("continueReferralRequestData", JSON.stringify(continueReferralRequestData));
+      navigateTo("/auth/login");
+      return;
+    }
 
     const requestData = { ...data, userType: userType || "" };
 
     try {
       // Populate additional user details from context
-      requestData.companyDetail.industry = 'Industry';
+      requestData.companyDetail.industry = "Industry";
       if (userDetails) {
         const { name: userName = "", email: userEmail = "", lastAccessedDash: userType = "" } = userDetails;
         Object.assign(requestData, { userName, userEmail, userType });
@@ -96,19 +94,18 @@ const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUse
       toast.error("Failed to submit request. Please try again.", getToastOptions());
     } finally {
       reset({
-        userType: '',
-        userEmail: '',
-        userContactNumber: '',
-        userName: '',
-        referralRequestUrl: '',
+        userType: "",
+        userEmail: "",
+        userContactNumber: "",
+        userName: "",
+        jobUrl: "",
         companyDetail: {
-          name: '',
-          industry: '',
-          carrierPage: '',
-          linkedIn: '',
+          name: "",
+          industry: "",
+          carrierPage: "",
+          linkedIn: "",
         },
       });
-      
     }
   };
 
@@ -167,10 +164,10 @@ const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUse
         {errors.companyDetail?.linkedIn && <p className="text-red-500 text-left   text-xs">{errors.companyDetail.linkedIn.message}</p>}
 
         {/* Referral URL */}
-        <label htmlFor="referralRequestUrl" className="font-medium text-sm text-gray-700">
+        <label htmlFor="jobUrl" className="font-medium text-sm text-gray-700">
           Referral role URL:
         </label>
-        <input type="url" id="referralRequestUrl" {...register("referralRequestUrl")} placeholder="Job URL for referral (if any)" className="text-sm input_primary my-0 mb-1" />
+        <input type="url" id="jobUrl" {...register("jobUrl")} placeholder="Job URL for referral (if any)" className="text-sm input_primary my-0 mb-1" />
 
         {/* Submit */}
         <div className="flex justify-center mt-2">
