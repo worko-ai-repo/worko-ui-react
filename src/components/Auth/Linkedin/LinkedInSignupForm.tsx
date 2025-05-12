@@ -143,13 +143,12 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
               // console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
               setTimeout(attemptCheck, 5000); // Retry after 5 seconds
             } else {
-			  const params = import.meta.env.APP_WORKO_BASE_URL + '/jobs'
               setOpenReferralLoader(false);
               console.log("Max retries reached for checkBasicDetails");
               // Optional: Show a message to the user that we couldn't get their details
               toast.warning("Could not retrieve user details after multiple attempts", getToastOptions());
               setTimeout(() => {
-                navigate(`/v1/candidate/edit-profile?returnUrl=${params}`, { replace: true });
+                navigate(`/jobs`, { replace: true });
               }, 5000); // Redirect to the jobs page after 5 seconds
             }
           }

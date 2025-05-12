@@ -14,6 +14,7 @@ import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { useNavigate } from "react-router-dom";
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
 
 /**
@@ -51,6 +52,7 @@ const SignupForm: React.FC<{
   onFileUpload: (file: File) => void;
   setCompanyName: React.Dispatch<React.SetStateAction<string>>;
 }> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName,onFileUpload  }) => {
+  const navTo = useNavigate();
   const signUpWithLinkedIn = useLinkedInSignup();
   const [otpError, setOtpError] = useState(false); // Use lowercase for setter
   const [ViewTerms, setViewTerms] = useState(false);
@@ -369,16 +371,16 @@ const SignupForm: React.FC<{
             </button>
           )}
            <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
-            <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
+            <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign up with Linkedin
           </button>
         </div>
 
         {/* Already have an account? */}
         <p className="text-center sm:mt-4">
           Already have an account?{" "}
-          <a href="login" className="text-blue-500">
+          <div  onClick={()=>navTo('/auth/login')} className="inline cursor-pointer text-blue-500">
             Sign In
-          </a>
+          </div>
         </p>
       </form>
     </div>

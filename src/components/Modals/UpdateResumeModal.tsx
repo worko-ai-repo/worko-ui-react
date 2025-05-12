@@ -98,7 +98,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
       const designation = response?.candidateExperience?.designation;
       const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
-      const hasRelevantData = response?.cvExtract && (designation || coreSkills?.length || response?.YOE);
+      const hasRelevantData = response?.cvExtract
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());
@@ -109,7 +109,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
         if (retryCountRef.current < maxRetries) {
           retryCountRef.current += 1;
           setCurrentStep((prev) => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-          setTimeout(attemptCheck, 5000);
+          setTimeout(attemptCheck, 8000);
         } else {
           toast.warning("Could not retrieve user details after multiple attempts. Please write to us at support@worko.ai", getToastOptions());
           setShowFinalTick(true);
