@@ -71,7 +71,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 	resetFiltersValues();
     // Reset the filter options cache when mode changes
     invalidateFilterCache();
-  }, [location.pathname]);
+  }, [location.pathname, companyPageMode]);
 
     /**
    * resetFiltersValues

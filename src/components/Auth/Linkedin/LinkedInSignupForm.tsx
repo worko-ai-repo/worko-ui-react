@@ -89,7 +89,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     formState: { errors },
   } = useForm({
     defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false },
-    mode: "onChange",
+    mode: "all",
   });
 
   /**
@@ -255,7 +255,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           {/* Name */}
           <div>
             <label className="hidden sm:block font-medium">Name</label>
-            <input placeholder="Enter Name" disabled type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
+            <input placeholder="Enter Name" type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
             {errors.name && <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>}
           </div>
 
