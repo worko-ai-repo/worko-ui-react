@@ -9,13 +9,14 @@ import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { set } from "react-hook-form";
+import ResumeDropzone from "@Components/Shared/ResumeDropZone";
 
 const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showFinaltick, setShowFinalTick] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | undefined>(undefined);
+  const [fileError, setFileError] = useState<string | undefined>(undefined);
   const [secondStepEnabled, setSecondStepEnabled] = useState(false);
   const [retrySteps, setRetrySteps] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -29,29 +30,19 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     4: "Finalizing the setup...",
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => setDragOver(false);
-
-  const handleFile = (file: File) => {
-    if (file && file.type === "application/pdf") {
-      setFileError(null);
-      setFileName(file.name);
-      setSelectedFile(file); // save the file object
-    } else {
+  const handleFileSelect = (file: File) => {
+    if (file.type !== "application/pdf") {
       setFileError("Only PDF files are allowed.");
-      setFileName(null);
-      setSelectedFile(null);
+      setFileName("");
+      setSelectedFile(null); // reset
+    } else if (file.size > 2 * 1024 * 1024) {
+      setFileError("File must be less than 2MB.");
+      setFileName("");
+      setSelectedFile(null); // reset
+    } else {
+      setFileError("");
+      setFileName(file.name);
+      setSelectedFile(file); // set the selected file
     }
   };
 
@@ -73,15 +64,6 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     }, 1000); // show each step for 1s
   };
 
-  /**
-   * handleFileSelect - Handles the file selection from the file input.
-   * * @param {React.ChangeEvent<HTMLInputElement>} e - The event object from the file input change event.
-   * * @returns {void}
-   */
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-  };
 
   const retryCountRef = useRef(0); // Persist retry count across function calls
 
@@ -115,8 +97,8 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
           setShowFinalTick(true);
           setRetrySteps(true);
           // reset all fields
-          setFileName(null);
-          setFileError(null);
+          setFileName(undefined);
+          setFileError(undefined);
           setSelectedFile(null);
           setCurrentStep(0);
           retryCountRef.current = 0;
@@ -237,23 +219,12 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
         {!secondStepEnabled && (
           <div className="uploadCvBox w-11/12 mx-auto mt-8 mb-8">
             <h2 className="text-xl font-semibold text-blue-300 mb-5">Update Your Resume</h2>
-            <div className={`cursor-pointer border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragOver ? "border-blue-500 bg-blue-50" : "border-gray-400 bg-gray-100"}`} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onClick={() => fileInputRef.current?.click()}>
-              <p className="text-gray-600">Drag & drop your resume here (PDF only &gt;2mb)</p>
-              <p className="text-sm text-gray-400 mt-2">or click to upload</p>
-              {fileName && <p className="text-green-600 mt-2">{fileName}</p>}
-              {fileName && !fileError && (
-                <button
-                  className="btn_primary mt-2 text-xs "
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleUpdateResume();
-                  }}>
-                  Update Resume
-                </button>
-              )}
-              <input type="file" accept="application/pdf" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-              {fileError && <p className="text-red-500 mt-2">{fileError}</p>}
-            </div>
+            <ResumeDropzone
+      fileName={fileName}
+      fileError={fileError}
+      onFileSelect={handleFileSelect}
+      onUpdateResume={handleUpdateResume}
+    />
             <small className="flex mt-2  gap-1 text-left text-xs text-gray-500  ">
               <TriangleAlert className="text-yellow-500 inline text-xs w-5 " /> Your Cv must be in readable format and should not contain any scanned document
             </small>
