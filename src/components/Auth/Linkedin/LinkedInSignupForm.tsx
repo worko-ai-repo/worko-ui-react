@@ -138,7 +138,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
       } else {
         if (retryCount < maxRetries) {
           setCurrStep((prev) => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-          await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait before retrying
+          await new Promise((resolve) => setTimeout(resolve, 8000)); // Wait before retrying
           return checkBasicDetails(retryCount + 1); // Recursive retry
         } else {
           setOpenReferralLoader(false);
