@@ -103,7 +103,7 @@ export const generateFilterForRender = (
 
     // Step 7: Merge and update UI
     const finalFilters = [...dynamicFilters, ...staticFilters];
-    console.log("Updated Filter Options:", finalFilters);
+    // console.log("Updated Filter Options:", finalFilters);
     // Step 7: Merge and update UI with custom order
     const customOrder = [
       "location",

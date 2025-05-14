@@ -20,6 +20,7 @@ import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
 import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 
 const CompanyJobContent = () => {
   const location = useLocation();
@@ -297,6 +298,7 @@ const CompanyJobContent = () => {
 export default CompanyJobContent;
 
 export function handleEditProfileRedirection(userDetails: "CAND" | "EMP") {
+  const appHref = useCrossAppAuth();
   const params = encodeURIComponent(window.location.href);
-  window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}`;
+  appHref(`/v1/candidate/edit-profile?returnUrl=${params}`);
 }

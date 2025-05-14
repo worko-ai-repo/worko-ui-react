@@ -14,6 +14,7 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
 
@@ -48,6 +49,7 @@ interface LinkedInSignupForm {
 }
 
 const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleDataMutationtoDb, setCompanyName, fetchLinkedinSessionData }) => {
+  const appHref = useCrossAppAuth();
   const [ViewTerms, setViewTerms] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
@@ -154,7 +156,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
         heading: { message: "Something Went Wrong", type: "error" },
         message: "We encountered some issue while analysing your CV. Please enter a few details manually in your profile.",
         buttons: [
-          { label: "Go To Dashboard", action: () => (window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}`) },
+          { label: "Go To Dashboard", action: () => (appHref(`/v1/candidate/edit-profile?returnUrl=${params}`)) },
         ],
       });
       return false;
@@ -206,7 +208,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-          activeFrame === "EMP" ? (window.location.href = "/v1/employee/Dashboard") : navigate("/jobs", { replace: true });
+          activeFrame === "EMP" ? (appHref("/v1/employee/Dashboard")) : navigate("/jobs", { replace: true });
         }
       }
     } catch (error) {
