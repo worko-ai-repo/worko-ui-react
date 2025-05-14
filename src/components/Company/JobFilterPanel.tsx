@@ -18,13 +18,29 @@ export const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilte
     /**
    * 1. Get the selected values from the URL
    */
+	const allowedKeys = new Set([
+		'salaryRange',
+		'experienceRange',
+		'technicalSkills',
+		'softSkills',
+		'coreSkills',
+		'location',
+		'typeofEmployment',
+		'companyName',
+		'industry',
+		'workMode',
+		'dashboard',
+		'teamSize',
+		'department'
+	  ]);
+
 useEffect(() => {
   const filtersFromUrl: Record<string, string[]> = {};
 
   searchParams.forEach((value, key) => {
-    if (!key.startsWith('min') && !key.startsWith('max')) {
-      filtersFromUrl[key] = value.split(',');
-    }
+	if (allowedKeys.has(key)) {
+		filtersFromUrl[key] = value.split(',');
+	  }
   });
 
   if (JSON.stringify(filtersFromUrl) !== JSON.stringify(selectedValues)) {
@@ -50,7 +66,10 @@ useEffect(() => {
 		<div className="">
 			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
-					<h3 className="text-lg font-semibold">Filters</h3>
+					<h3 className="text-lg font-semibold"
+					data-tooltip-id='my-tooltip'
+					data-tooltip-content="Filters are pre-filled based on your profile. You can also enter any keyword of your choice and apply it to refine the job list."
+					>Filters &nbsp; <i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"></i></h3>
 					<button onClick={toggleFilters} className="text-xl font-bold text-red-500 sm:hidden">
 						&times;
 					</button>

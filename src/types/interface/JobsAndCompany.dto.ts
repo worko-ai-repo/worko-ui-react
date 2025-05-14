@@ -131,6 +131,7 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   YOE?: number;
   industry?: string;
   industryName?: string;
+  status?: string;
 }
 
 /**

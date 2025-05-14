@@ -269,35 +269,6 @@ const fetchJobMatchingScores = useCallback(
           acc[job.id] = job;
           return acc;
         }, {} as Record<string, JobDto>);
-      
-        // const jobsToRemove: string[] = []; // Store jobs that need to be removed
-        // const keysToCheck = [
-        //   // "coreSkills",
-        //   "searchText",
-        //   "minExperience",
-        //   "maxExperience",
-        //   "minSalary",
-        //   "maxSalary",
-        //   "workMode",
-        //   "typeofEmployment",
-        //   "companyName",
-        //   "technicalSkills",
-        //   "softSkills",
-        //   "location",
-        // ];
-        
-        // // Step 1 → Check for any present filter value
-        // const presentFilters = Object.fromEntries(
-        //   keysToCheck
-        //     .filter((key) => updatedFilters[key as keyof JobFiltersDto] !== undefined && updatedFilters[key as keyof JobFiltersDto] !== null && updatedFilters[key as keyof JobFiltersDto] !== "")
-        //     .map((key) => [key, updatedFilters[key as keyof JobFiltersDto]])
-        // );
-      
-        // const isFilterPresent = Object.keys(presentFilters).length > 0;
-      
-        // Step 3 → Console outputs
-        // console.log("Is filter present:", isFilterPresent);
-        // if (isFilterPresent) console.log("Present filter values:", presentFilters);
 
         jobIds.forEach((jobId) => {
           // Step 2 → Remove jobId from missingJobIdsSet since we got a response
@@ -371,7 +342,7 @@ const fetchJobMatchingScores = useCallback(
       const updatedFilters:JobFiltersDto = {
         ...filters,
         pageSize: 25,
-        lastKey: pageParam ?? undefined,
+        ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {})
@@ -399,6 +370,9 @@ const fetchJobMatchingScores = useCallback(
       if(updatedFilters?.industry){
         updatedFilters.industryName =  updatedFilters.industry;
         delete updatedFilters.industry;
+      }
+      if(isJobPage){
+        updatedFilters.status = "PUBLISHED";
       }
 
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
