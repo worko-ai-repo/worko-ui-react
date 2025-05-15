@@ -166,13 +166,7 @@ export interface JobMatchingScoreDto {
   jdMatchErrorCode: number;
   jdMatchErrorDesc: string;
   matchingScore: number;
-  scoreDetails:any, /* {
-    skill: number;
-    experience: number;
-    roleAndResponsibilities: number;
-    industryExperience: number;
-    education: number;
-  }; */
+  scoreDetails:any, 
   createdAt: string;
   updatedAt: string;
   isTriggered: boolean;
@@ -217,4 +211,13 @@ export interface UserBasicDetailsDto {
     };
     issuedInstitution: string;
   }>;
+}
+
+export interface GlobalApiQueryResponseDto<T>{
+  data:[T];
+  pagination:{
+    count:number;
+    pageSize:number;
+    lastKey:string;
+  }
 }

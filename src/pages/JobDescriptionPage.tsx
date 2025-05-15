@@ -20,6 +20,7 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
+import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
@@ -58,7 +59,7 @@ const JobDescription = () => {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const { jobid } = useParams();
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(() => {
-    const job = (location.state as any)?.FullJob;
+  const job = (location.state as any)?.FullJob;
 
     // Clear location state after extracting the data
     if (job) {
@@ -73,7 +74,6 @@ const JobDescription = () => {
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | 0>(0)
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
   const [jobMatchDetails , setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
-
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
   
   const { data } = useQuery({
@@ -87,7 +87,34 @@ const JobDescription = () => {
       const designation = data?.candidateExperience?.designation;
       const coreSkills = data?.coreSkills?.map((s) => s.skillName);
       const yoe = data?.YOE;
-
+      if(data?.cvExtract) {
+        // Extract the scores
+        const jobDescription = jobDataState?.jobDescription ?? jobData?.jobDescription ?? null;
+        const cvExtract = data?.cvExtract || null; // Ensure cvExtract is defined
+        if(cvExtract && jobDescription) {
+        const matchingScore = compareResumeWithJD(jobDescription, cvExtract);
+        setJobMatchDetails({
+          ...jobMatchDetails,
+          id: jobMatchDetails?.id || "", // Ensure 'id' is defined
+          userId: jobMatchDetails?.userId || "",
+          jobId: jobMatchDetails?.jobId || "",
+          jdMatchErrorCode: jobMatchDetails?.jdMatchErrorCode || 0,
+          jdMatchErrorDesc: jobMatchDetails?.jdMatchErrorDesc || "",
+          matchingScore: matchingScore,
+          scoreDetails: jobMatchDetails?.scoreDetails || {
+            skill: 0,
+            experience: 0,
+            roleAndResponsibilities: 0,
+            industryExperience: 0,
+            education: 0,
+          },
+          createdAt: jobMatchDetails?.createdAt || "",
+          updatedAt: jobMatchDetails?.updatedAt || "",
+          isTriggered: jobMatchDetails?.isTriggered || false,
+        }); // Set the matching score in state
+        console.log("Matching Score:", matchingScore); // Use matchingScore meaningfully
+        }
+      };
       const isProfileComplete = designation || (coreSkills?.length > 0) || yoe;
 
       if (!isProfileComplete) {
@@ -154,7 +181,8 @@ const checkApplicationStatus = async (retryCount = 0) => {
     if (response?.data && response.data.length > 0) {
       response.data = response.data.map(item => ({
         ...item,
-        scoreDetails: item.scoreDetails // Ensure scoreDetails is parsed correctly
+        
+        // scoreDetails: item.scoreDetails // Ensure scoreDetails is parsed correctly
       }));
 
       for (let i = 0; i < response.data.length; i++) {

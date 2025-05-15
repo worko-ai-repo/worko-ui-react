@@ -8,7 +8,8 @@ import { CompanyContextType, CompanyPageModeEnum } from "@Interfaces/CompanyCont
 import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
-import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 
 
 // Create the context object
@@ -26,6 +27,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
   // States
   const [companyPageMode, setCompanyPageMode] = useState<CompanyPageModeEnum>(initialMode);
+  const [cvExtract, setCvExtract] = useState<string>("");
   const [companyJobData, setCompanyJobData] = useState<JobDto[] | undefined>();
   const [companyRefData, setCompanyRefData] = useState<CompanyShortDto[] | undefined>();
   const [searchText, setSearchText] = useState<string>("");
@@ -110,7 +112,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       
       const designation = response?.candidateExperience?.designation;
       const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
-      
+      setCvExtract(response?.cvExtract || "");
+
       // If either designation or coreSkills exist, update filters
       if (designation || coreSkills?.length || response?.YOE) {
         setDefaultFiltersState({
@@ -185,173 +188,102 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
  * Handle unexpected errors gracefully with try-catch.
 
  */
-  const MAX_RETRIES = 5; // Limit the number of retries per job
-const pendingJobRetries = new Map<string, number>(); // Track retries per job
+
 const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // Persist missing job IDs
 
+/**
+ * Custom hook callback to calculate and update matching scores between resumes and job descriptions
+ * This function processes jobs in batches to avoid UI blocking and calculates how well a resume
+ * matches with each job description.
+ * 
+ * @param {Array<Object>} jobs - Array of job objects, each with id and jobDescription
+ * @returns {Promise<void>}
+ */
 const fetchJobMatchingScores = useCallback(
-  async (jobIds: string[],updatedFilters:JobFiltersDto) => {
-    if (!jobIds.length) return;
-    // console.log("Previous Filters",jobFilters);
+  async (jobs: { id: string; jobDescription: string }[]) => {
+    // Exit early if there are no jobs to process
+    if (!jobs.length) return;
+    // console.log("Jobs to fetch matching scores for:", jobs);
+    
     try {
-      // Create a new updated set
+      // Create a copy of the missing job IDs set to track which jobs still need processing
       const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
-      jobIds.forEach((jobId) => updatedMissingJobIdsSet.add(jobId));
 
-      // Update state asynchronously
-      setMissingJobIdsSet(updatedMissingJobIdsSet);
+      // Configuration for batch processing to prevent UI freezing
+      const BATCH_SIZE = 25;   // Process 25 jobs at a time
+      const BATCH_DELAY = 50;  // Wait 50ms between batches
 
-      // Use updatedMissingJobIdsSet for API call
-      const { response, error } = await httpServiceObj.put<{
-        data: JobMatchingScoreDto[];
-        pagination: object;
-      }>(
-        `${APP_JOBS_API_URI}/user-matching-score-job/`,
-        { jobIds: Array.from(updatedMissingJobIdsSet) }, // Use updated set
-        true,
-        {},
-        true
-      );
+      // Object to store calculated scores for each job ID
+      const scoresMap: Record<string, any> = {};
 
+      // Process jobs in batches to avoid blocking the UI
+      for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+        const batch = jobs.slice(i, i + BATCH_SIZE);
 
-      if (error) {
-        console.error("Error fetching job matching scores:", error);
-        return;
+        // Process each job in the current batch
+        batch.forEach((job) => {
+          // Mark this job as needing processing
+          updatedMissingJobIdsSet.add(job.id);
+          
+          // Calculate matching score between resume and job description
+          if(!cvExtract) return;
+          const matchingScore = compareResumeWithJD(job.jobDescription, cvExtract);
+
+          // Store the result in our scores map
+          scoresMap[job.id] = {
+            id: job.id,
+            scores: matchingScore,
+          };
+          // console.log("Job ID:", job.id, "Matching Score:", matchingScore);
+        });
+
+        // Add a small delay between batches to keep the UI responsive
+        await new Promise((res) => setTimeout(res, BATCH_DELAY));
       }
 
-      const scoresMap: Record<string, JobMatchingScoreDto> = {};
-      const receivedJobIds = new Set<string>();
-      const alreadyTriggeredJobIds = new Set<string>();
+      // Update the set of jobs that still need processing
+      setMissingJobIdsSet(updatedMissingJobIdsSet);
 
-      response?.data?.forEach((score) => {
-        scoresMap[score.jobId] = score;
-        receivedJobIds.add(score.jobId);
-
-        if (score.isTriggered && !score.matchingScore) {
-          alreadyTriggeredJobIds.add(score.jobId);
-        }
-      });
-
-        const currentMissingJobIds = jobIds.filter(
-          (jobId) =>
-            !receivedJobIds.has(jobId) || // If we never got the job back
-            (alreadyTriggeredJobIds.has(jobId) && !scoresMap[jobId]?.matchingScore) // If job was triggered but score is still missing
-        );
-        setMissingJobIdsSet((prevSet) => {
-          const newSet = new Set(prevSet);
-          currentMissingJobIds.forEach((jobId) => newSet.add(jobId));
-          return newSet;
-        });
-      
-      // Increment retry count for missing jobs
-      const retryJobIds = currentMissingJobIds.filter((jobId) => {
-        const retries = pendingJobRetries.get(jobId) || 0;
-        if (retries >= MAX_RETRIES) {
-          console.warn(`Max retries reached for job ${jobId}, skipping.`);
-          setMissingJobIdsSet((prevSet) => {
-            const newSet = new Set(prevSet);
-            newSet.delete(jobId);
-            return newSet;
-          });
-         
-          pendingJobRetries.delete(jobId); // Clean up the retry counter
-          return false;
-        }
-        pendingJobRetries.set(jobId, retries + 1);
-        return true;
-      });
-
+      // Update the company job data with the new matching scores
       setCompanyJobData((prev) => {
+        // Handle case where previous data doesn't exist
         if (!prev) return undefined;
-      
-        // Step 1 → Create a map of existing jobs for quick lookup
+        
+        // Create a map of existing jobs for easy lookup
         const existingJobsMap = prev.reduce((acc, job) => {
           acc[job.id] = job;
           return acc;
         }, {} as Record<string, JobDto>);
-      
-        // const jobsToRemove: string[] = []; // Store jobs that need to be removed
-        // const keysToCheck = [
-        //   // "coreSkills",
-        //   "searchText",
-        //   "minExperience",
-        //   "maxExperience",
-        //   "minSalary",
-        //   "maxSalary",
-        //   "workMode",
-        //   "typeofEmployment",
-        //   "companyName",
-        //   "technicalSkills",
-        //   "softSkills",
-        //   "location",
-        // ];
-        
-        // // Step 1 → Check for any present filter value
-        // const presentFilters = Object.fromEntries(
-        //   keysToCheck
-        //     .filter((key) => updatedFilters[key as keyof JobFiltersDto] !== undefined && updatedFilters[key as keyof JobFiltersDto] !== null && updatedFilters[key as keyof JobFiltersDto] !== "")
-        //     .map((key) => [key, updatedFilters[key as keyof JobFiltersDto]])
-        // );
-      
-        // const isFilterPresent = Object.keys(presentFilters).length > 0;
-      
-        // Step 3 → Console outputs
-        // console.log("Is filter present:", isFilterPresent);
-        // if (isFilterPresent) console.log("Present filter values:", presentFilters);
 
-        jobIds.forEach((jobId) => {
-          // Step 2 → Remove jobId from missingJobIdsSet since we got a response
+        // Update each job with its new matching score
+        Object.keys(scoresMap).forEach((jobId) => {
+          // Use new matching score if available, otherwise keep existing one
+          const matchingScore = scoresMap[jobId]?.scores ?? existingJobsMap[jobId].matchingScore; // ↑ Change to 'scores' to match what you stored
+
+          // Update job data with new score and apply status
+          existingJobsMap[jobId] = {
+            ...existingJobsMap[jobId],
+            matchingScore,
+          };
+
+          // Remove this job from the missing jobs set since it's been processed
           setMissingJobIdsSet((prevSet) => {
             const newSet = new Set(prevSet);
             newSet.delete(jobId);
             return newSet;
           });
-
-          if (existingJobsMap[jobId]) {
-            // Step 3 → Retrieve or maintain the job's matching score
-            const matchingScore = scoresMap[jobId]?.matchingScore ?? existingJobsMap[jobId].matchingScore;
-
-            // Step 4 → Update job details including applyStatus and badJob flag
-            existingJobsMap[jobId] = {
-              ...existingJobsMap[jobId],
-              matchingScore,
-              applyStatus: scoresMap[jobId] ? "APPLIED" : existingJobsMap[jobId].applyStatus || "NOT_APPLIED",
-              // badJob:( matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) , // Step 5 → Mark job as bad if score < 30%
-            };
-
-            // Step 6 → If job score is below 30%, mark it for removal and if we are not in search mode
-/*             if (matchingScore !== undefined && matchingScore < 30 && !isFilterPresent) {
-              jobsToRemove.push(jobId);
-            } */
-          }
         });
-      
-       /*  // Step 7 → Schedule removal of jobs with score < 30% after 5 seconds
-        if (jobsToRemove.length > 0 && (!location.search.includes("searchText"))) { // Changed 
-          setTimeout(() => {
-            setCompanyJobData((prevJobs) =>
-              prevJobs?.filter((job) => !jobsToRemove.includes(job.id)) // Remove marked jobs
-            );
-            toast.success("Filtered out jobs with low scores.", getToastOptions({autoClose: 1000 ,theme:"light",position:'bottom-center'}, "glass")); // Glass style applied
-          }, 2000);
-        } */
-      
-        // Step 8 → Return the updated job list
+
+        // Reconstruct the array with updated job information
         return prev.map((job) => existingJobsMap[job.id] || job);
       });
-      
-
-      if (retryJobIds.length > 0) {
-        // console.log("Retrying missing jobs:", retryJobIds);
-        setTimeout(() => fetchJobMatchingScores(retryJobIds,updatedFilters), 5000); // Retry after 20 seconds
-      }
     } catch (err) {
       console.error("Exception in fetchJobMatchingScores:", err);
     }
   },
-  [setCompanyJobData, missingJobIdsSet]
+  // Dependencies for this callback
+  [setCompanyJobData, missingJobIdsSet, cvExtract]
 );
-  
 
 
   /**
@@ -402,15 +334,16 @@ const fetchJobMatchingScores = useCallback(
       }
 
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
-  
+      
       try {
-        const { response, error } = await httpServiceObj.get<any>(
+        const { response, error } = await httpServiceObj.get<
+          typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any
+        >(
           apiUrl,
           true,
           updatedFilters,
           isJobPage
         );
-  
         if (error) throw error;
   
         // Decide the filterMetaData based on the page mode
@@ -431,6 +364,7 @@ const fetchJobMatchingScores = useCallback(
         setApiHasData(response.data.length > 0);
   
         if (isJobPage) {
+          response.data as JobDto[];
           setCompanyJobData((prevData) => {
             // If filtering, return new data
             if (isFiltering) return response.data;
@@ -441,7 +375,13 @@ const fetchJobMatchingScores = useCallback(
   
           // Fetch matching scores for new jobs if user is logged in
           if (response.data.length > 0 && isLoggedIn) {
-            fetchJobMatchingScores(response.data.map((job: { id: any }) => job.id),updatedFilters)
+            fetchJobMatchingScores(
+              response.data.map((job: JobDto) => ({
+                id: job.id,
+                jobDescription: job.jobDescription ?? "",
+              }))
+            );
+            
           }
         } else {
           setCompanyRefData((prevData) => {

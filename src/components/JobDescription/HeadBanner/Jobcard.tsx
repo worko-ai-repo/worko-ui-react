@@ -47,7 +47,7 @@ interface JobCardProps {
 }
 
 interface MatchMetricsProps {
-  jobMatchDetails: JobMatchingScoreDto | undefined;
+  displayMatchScore: any;
   isLoggedIn: boolean;
 }
 interface finalScoreDetails {
@@ -58,33 +58,29 @@ interface finalScoreDetails {
   education: number;
 }
 const MatchMetrics: React.FC<MatchMetricsProps> = ({
-  jobMatchDetails,
+  displayMatchScore,
   isLoggedIn,
 }) => {
   // Calculate individual metrics based on the overall matching percentage
-  /*   const getMetricValue = (baseValue: number, multiplier: number) => {
+    const getMetricValue = (baseValue: number, multiplier: number) => {
     // Return 0 if not logged in, otherwise calculate the metric
     if (!isLoggedIn) return 0;
     return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
-  }; */
+  };
 
   // Derive individual metrics from the overall match percentage
 
-  let experienceMatch = 0;
-  let skillsMatch = 0;
-  let responsibilityMatch = 0;
-  let industryMatch = 0;
-  let achievementMatch = 0;
+ 
 
-  if (jobMatchDetails !== undefined) {
-    const finalScoreDetails: finalScoreDetails = jobMatchDetails?.scoreDetails;
-    experienceMatch = Math.floor(finalScoreDetails?.experience) ?? -1;
-    skillsMatch = Math.floor(finalScoreDetails?.skill) ?? -1;
-    responsibilityMatch =
-      Math.floor(finalScoreDetails?.roleAndResponsibilities) ?? -1;
-    industryMatch = Math.floor(finalScoreDetails?.industryExperience) ?? -1;
-    achievementMatch = Math.floor(finalScoreDetails?.education) ?? -1;
-  }
+  
+  // Derive individual metrics from the overall match percentage
+  const experienceMatch = getMetricValue(displayMatchScore, 0.9);
+  const skillsMatch = getMetricValue(displayMatchScore, 1.1);
+  const responsibilityMatch = getMetricValue(displayMatchScore, 0.8);
+  const industryMatch = getMetricValue(displayMatchScore, 1.2);
+  const achievementMatch = getMetricValue(displayMatchScore, 0.95); 
+  
+
 
   return (
     <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 pb-0 flex-wrap">
@@ -489,7 +485,7 @@ const JobCard: React.FC<JobCardProps> = ({
         </div>
         {/* Pass the matchPercentage to MatchMetrics */}
           <MatchMetrics
-            jobMatchDetails={jobMatchDetails}
+            displayMatchScore={displayMatchScore}
             isLoggedIn={isLoggedIn}
           />
      
