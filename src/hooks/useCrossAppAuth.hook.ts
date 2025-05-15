@@ -10,7 +10,7 @@ export const useCrossAppAuth = () => {
     // Add logic to check if user is allowed
     if (!isLoggedIn) {
         // reload the curernt page
-        toast.error("Access Denied : It looks like your session is expired and the page you are trying to access is not available anymore. Please login again to access the page.", getToastOptions());
+        toast.error("Access Denied: Your session has expired. Please log in again to continue.", getToastOptions());
         setTimeout(() => {
             window.location.reload();
         }

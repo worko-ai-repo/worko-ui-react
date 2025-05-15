@@ -61,6 +61,10 @@ const Header = () => {
 		};
 	}, [isOpen]);
 
+	const profilePath = userDetails?.lastAccessedDash === 'CAND' 
+  ? "/v1/candidate/edit-profile" 
+  : "/v1/employee/edit-profile";
+  const dashPath = `/v1/${userDetails?.lastAccessedDash === 'CAND' ? 'candidate/d' : 'employee/D'}ashboard`;  
 	return (
 		<header className={styles.header} id="header_main_body" ref={headerRef}>
 			<div className={styles.container}>
@@ -96,7 +100,7 @@ const Header = () => {
 					{isLoggedIn ? (
 						<div className="group relative">
 							<div className="flex items-center justify-start gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-[55px] group-hover:bg-[#79bff848]">
-								<div className={styles.userDetails} onClick={()=>appHref(userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile")}>
+								<div className={styles.userDetails} onClick={()=>appHref(profilePath)}>
 									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
 										<img
 											onError={() => setImgError(true)}
@@ -161,12 +165,12 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<div onClick={()=>appHref(userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile")} className="block py-0.5 w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
+										<div onClick={()=>appHref(profilePath)} className="block py-0.5 w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
 										</div>
 									</li>
 									<li>
-										<div onClick={()=>appHref(`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`)} className=" block  py-0.5  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
+										<div onClick={()=>appHref(dashPath)} className=" block  py-0.5  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
 										</div>
 									</li>
@@ -217,7 +221,7 @@ const Header = () => {
 					{isLoggedIn && (
 						<div className="flex flex-col items-start justify-start gap-4 p-2">
 							<div className="flex font-bold justify-between items-center w-full">
-								<span className="flex-1 flex items-center" onClick={()=>{appHref( userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile")}}>
+								<span className="flex-1 flex items-center" onClick={()=>{appHref(profilePath)}}>
 									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" onError={()=>setImgError(true)}  src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : userDetails?.name ? (
 													<span className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full flex items-center justify-center">
 														{userDetails.name.charAt(0).toUpperCase()}
@@ -239,7 +243,7 @@ const Header = () => {
 								<img src={coin} className="inline mr-1 object-contain" />
 								{userDetails?.referralCount || 0} Referrals Left
 							</span>
-							<a className="dashboard" onClick ={()=>appHref(`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`)}>
+							<a className="dashboard" onClick ={()=>appHref(dashPath)}>
 								Dashboard
 							</a>
 						</div>
