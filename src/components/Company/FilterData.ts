@@ -103,6 +103,13 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       selectType: 'normal',
       options: ['Refer a friend jobs'],
       value: [ 'USER'],
+    },
+    {
+      placeholder: 'Department',
+      paramKey: 'department',
+      selectType: 'multiselect',
+      options: [], // This can be populated with suggested industries
+      value: []
     }
   ],    
   referralFilter: [

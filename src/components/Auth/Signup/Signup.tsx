@@ -13,12 +13,11 @@ import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 import { currentSession } from '../Login/LoginForm';
-import { useAuthContext } from '@Context/Auth.context';
 import { CompanyShortDto, UserBasicDetailsDto } from '@Interfaces/JobsAndCompany.dto';
 import { getToastOptions } from '@Utils/Toast.utils';
 import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
-import { set } from 'react-hook-form';
 import MessageModal from '@Components/Modals/MessageModal';
+import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
 
 export type SignupMode = 'EMP' | 'CAND';
 interface ToggleOptionsDto {
@@ -29,7 +28,7 @@ interface ToggleOptionsDto {
 const Signup = () => {
 	const navigateTo = useNavigate();
 	const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck } = useAppContext();
-	const { authContextActiveFrame } = useAuthContext();
+	const appHref = useCrossAppAuth();
 	const location = useLocation(); // Get location object
 	let initialFrame: SignupMode = 'CAND'; // Default to 'CAND'
 	const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
@@ -147,7 +146,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
 			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
 			// prefer local over state
-			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (window.location.href = '/v1/employee/Dashboard'); // Redirect to the home page
+			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (appHref('/v1/employee/Dashboard')); // Redirect to the home page
 		}
 	};
 	/**
@@ -203,7 +202,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 					heading: { message: "Something Went Wrong", type: "error" },
 					message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
 					buttons: [
-					  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
+					  { label: "Go To Dashboard", action: () => appHref(`/v1/candidate/edit-profile?returnUrl=${params}`) },
 					],
 				  });
 			}

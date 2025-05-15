@@ -303,7 +303,7 @@ const fetchJobMatchingScores = useCallback(
       const updatedFilters:JobFiltersDto = {
         ...filters,
         pageSize: 25,
-        lastKey: pageParam ?? undefined,
+        ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {})
@@ -331,6 +331,9 @@ const fetchJobMatchingScores = useCallback(
       if(updatedFilters?.industry){
         updatedFilters.industryName =  updatedFilters.industry;
         delete updatedFilters.industry;
+      }
+      if(isJobPage){
+        updatedFilters.status = "PUBLISHED";
       }
 
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
