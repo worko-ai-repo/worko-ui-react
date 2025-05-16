@@ -33,6 +33,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any,YOE?:any}>();
+  const [isInitialFilterSet, setIsInitialFilterSet] = useState<boolean>(false);
 
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
   const APP_API_URI = import.meta.env.APP_API_URI
@@ -443,6 +444,7 @@ const fetchJobMatchingScores = useCallback(
     // @Todo- fix this
      if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
     if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
+    if(!isInitialFilterSet && companyPageMode === CompanyPageModeEnum.JOB) return false
     return true;
     // enabled:!!companyPageMode && jobFilters.pageSize! > 0 &&
     // (companyPageMode === CompanyPageModeEnum.REFERRAL || companyPageMode === CompanyPageModeEnum.JOB) &&
@@ -494,8 +496,9 @@ const fetchJobMatchingScores = useCallback(
 	  resetFiltersValues,
     isProfileInclomplete,
     setIsProfileInclomplete,
+    setIsInitialFilterSet,
     }),
-    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete,setIsProfileInclomplete]
+    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete,setIsProfileInclomplete,setIsInitialFilterSet]
   );
 
   return (

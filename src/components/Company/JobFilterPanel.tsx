@@ -10,7 +10,7 @@ import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/
 import { useJobFilters } from '@Hooks/useJobFilter.hook';
 
 export const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
-	const { setJobFilters, jobFilterForRender = [], resetFiltersValues } = useCompanyContext();
+	const { setJobFilters, jobFilterForRender = [], resetFiltersValues,setIsInitialFilterSet } = useCompanyContext();
 	const { userDetails } = useAppContext();
 	const [searchParams, setSearchParams] = useSearchParams();
   const { handleFilterChange, resetFilters, selectedValues,setSelectedValues } = useJobFilters();
@@ -59,6 +59,7 @@ useEffect(() => {
       })
     }));
   }
+  setIsInitialFilterSet(true);
 }, [companyPageMode ,searchParams /* searchParams, selectedValues, setSelectedValues, setJobFilters */]);
     
 
