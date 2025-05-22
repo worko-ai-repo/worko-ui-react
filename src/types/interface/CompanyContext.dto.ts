@@ -44,4 +44,5 @@ export type CompanyContextType = {
     handleSearch: () => void;
     resetSearch: () => void;
     resetFiltersValues : () => void;
+    setIsInitialFilterSet : React.Dispatch<React.SetStateAction<boolean>>;
 }

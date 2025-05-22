@@ -56,12 +56,12 @@ const CompanyJobContent = () => {
   // Set searchText from query param on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const query = params.get("searchText") || "";
-    setSearchText(query);
+    const query = params.get("searchText");
+    if (query){ setSearchText(query);
     setJobFilters((prev) => ({ ...prev, searchText: query }));
     if (searchInputRef.current) {
       searchInputRef.current.value = query;
-    }
+    }}
   }, []);
 
   useEffect(() => {
