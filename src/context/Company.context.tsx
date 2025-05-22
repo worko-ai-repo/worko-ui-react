@@ -9,7 +9,7 @@ import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateF
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
 import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
+import { compareResumeWithJD, defaultScoreWeights, ScoreWeightsDto } from "@Utils/CompareResumeWithJD.utils";
 
 
 // Create the context object
@@ -27,7 +27,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
   // States
   const [companyPageMode, setCompanyPageMode] = useState<CompanyPageModeEnum>(initialMode);
-  const [cvExtract, setCvExtract] = useState<string>("");
+  const [userBasicDetails, setUserBasicDetails] = useState<UserBasicDetailsDto>();
   const [companyJobData, setCompanyJobData] = useState<JobDto[] | undefined>();
   const [companyRefData, setCompanyRefData] = useState<CompanyShortDto[] | undefined>();
   const [searchText, setSearchText] = useState<string>("");
@@ -112,7 +112,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       
       const designation = response?.candidateExperience?.designation;
       const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
-      setCvExtract(response?.cvExtract || "");
+      if(response)setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
       if (designation || coreSkills?.length || response?.YOE) {
@@ -200,7 +200,7 @@ const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // 
  * @returns {Promise<void>}
  */
 const fetchJobMatchingScores = useCallback(
-  async (jobs: { id: string; jobDescription: string }[]) => {
+  async (jobs:JobDto[]) => {
     // Exit early if there are no jobs to process
     if (!jobs.length) return;
     // console.log("Jobs to fetch matching scores for:", jobs);
@@ -226,8 +226,8 @@ const fetchJobMatchingScores = useCallback(
           updatedMissingJobIdsSet.add(job.id);
           
           // Calculate matching score between resume and job description
-          if(!cvExtract) return;
-          const matchingScore = compareResumeWithJD(job.jobDescription, cvExtract);
+          if(!userBasicDetails) return;
+          const matchingScore = compareResumeWithJD(job,userBasicDetails );
 
           // Store the result in our scores map
           scoresMap[job.id] = {
@@ -282,7 +282,7 @@ const fetchJobMatchingScores = useCallback(
     }
   },
   // Dependencies for this callback
-  [setCompanyJobData, missingJobIdsSet, cvExtract]
+  [setCompanyJobData, missingJobIdsSet, userBasicDetails]
 );
 
 
@@ -379,10 +379,7 @@ const fetchJobMatchingScores = useCallback(
           // Fetch matching scores for new jobs if user is logged in
           if (response.data.length > 0 && isLoggedIn) {
             fetchJobMatchingScores(
-              response.data.map((job: JobDto) => ({
-                id: job.id,
-                jobDescription: job.jobDescription ?? "",
-              }))
+              response.data.map((job: JobDto) => (job))
             );
             
           }

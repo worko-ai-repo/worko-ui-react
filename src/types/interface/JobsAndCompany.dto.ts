@@ -160,6 +160,69 @@ export interface BaseApiFiltersDto {
   searchText?: string;
 }
 
+export interface JobApplicationExternalDto {
+  id: string;
+  applicantUserId: string;
+  jobId: string;
+  companyName: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  jobPortal: string;
+  statusTracker?: Array<{
+    userType: string;
+    newStatus: string;
+    oldStatus: string;
+    actionDate: string;
+    userId: string;
+  }>;
+  PK?: string; // User ID
+  SK?: string; // Job ID
+  GSI1PK?: string; // Job Application ID
+  GSI1SK?: string; // Job Application ID
+}
+
+export interface JobApplicationInternalDto {
+  PK: string;
+  SK: string;
+  companyId: string;
+  companyName: string;
+  createdAt: number;
+  followUpRequest?: {
+    actionDate: string;
+  }[];
+  GSI1PK: string;
+  GSI1SK: string;
+  GSI2PK: string;
+  GSI2SK: string;
+  id: string;
+  jdMatchErrorCode: number;
+  jdMatchErrorDesc: string;
+  jobId: string;
+  jobPortal: string;
+  matchingScore: number;
+  rejectedByUserId?: {
+    actionDate: string;
+    reason: string;
+    userComment: string;
+    userId: string;
+  };
+  rejectionFeedbackBySystem?: string;
+  scoreDetails: string;
+  scoreFetchedDate: string;
+  status: string;
+  statusTracker: {
+    actionDate: string;
+    newStatus: string;
+    oldStatus: string;
+    userId: string;
+    userType: string;
+  }[];
+  updatedAt: number;
+}
+
+
+
 export interface JobMatchingScoreDto {
   id: string;
   userId: string;
@@ -174,15 +237,39 @@ export interface JobMatchingScoreDto {
   status?: string;
 }
 
+export interface cvExtractParsed {
+    personalDetails?: {
+      name: string;
+      phone: string;
+      email: string;
+    };
+    roleAndResponsibilities?: Array<{
+      role: string;
+      responsibilities: string[];
+      achievements?: string[];
+      teamLeadership?: string[];
+    }>;
+    industryExperience?: Array<{
+      industryType: string;
+      industryDomain: string;
+      details: string[];
+    }>;
+    education?: Array<{
+      degree: string;
+      institution: string;
+      year: string;
+      certifications?: string[];
+    }>;
+    professionalExperience?: Array<{
+      company: string;
+      period: string;
+      role: string;
+      workExperience: string[];
+    }>;
+  };
 export interface UserBasicDetailsDto {
   CTC: number;
-  cvExtract?: string;
   ECTC: number;
-  candidateExperience?: {
-    department: string;
-    companyName: string;
-    designation: string;
-  };
   location: string;
   userType: string[];
   noticePeriod: number;
@@ -190,6 +277,13 @@ export interface UserBasicDetailsDto {
   PK: string;
   country: string;
   YOE: number;
+  candidateExperience?: {
+    department: string;
+    companyName: string;
+    designation: string;
+  };
+  cvExtract?: string;
+  cvExtractParsed?: cvExtractParsed;
   coreSkills: Array<{
     skillName: string;
     years: number;
@@ -204,15 +298,16 @@ export interface UserBasicDetailsDto {
       createdAt: string;
     };
   }>;
-  certifications: Array<{
+  certifications?: Array<{
     completionDate: string;
     certName: string;
+    issuedInstitution: string;
     timestamps: {
       createdAt: string;
     };
-    issuedInstitution: string;
   }>;
 }
+
 
 export interface GlobalApiQueryResponseDto<T>{
   data:[T];

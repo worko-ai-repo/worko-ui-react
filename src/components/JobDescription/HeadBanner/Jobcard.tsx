@@ -65,7 +65,7 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({
     const getMetricValue = (baseValue: number, multiplier: number) => {
     // Return 0 if not logged in, otherwise calculate the metric
     if (!isLoggedIn) return 0;
-    return Math.min(100, Math.max(0, Math.round(baseValue * multiplier)));
+    return Math.min(100, Math.max(0, Math.round(baseValue * multiplier))) || -1;
   };
 
   // Derive individual metrics from the overall match percentage
@@ -73,23 +73,21 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({
  
 
   
-  // Derive individual metrics from the overall match percentage
-  const experienceMatch = getMetricValue(displayMatchScore, 0.9);
-  const skillsMatch = getMetricValue(displayMatchScore, 1.1);
-  const responsibilityMatch = getMetricValue(displayMatchScore, 0.8);
-  const industryMatch = getMetricValue(displayMatchScore, 1.2);
-  const achievementMatch = getMetricValue(displayMatchScore, 0.95); 
-  
-
+ // Assume these metric functions return values normalized between 0–100
+ const coreSkillsMatch = getMetricValue(displayMatchScore, 0.6); // 60% weight
+ const softSkillsMatch = getMetricValue(displayMatchScore, 0.1); // 10% weight
+ const experienceMatch = getMetricValue(displayMatchScore, 0.3); // 30% weight
+ 
+ // Optional industry score – you can define logic or keep a placeholder
+ const responsibilities = getMetricValue(displayMatchScore, 0.2); // Not part of scoreWeights, for display
 
   return (
     <div className="hidden lg:block w-full  max-h-[150px] rounded-[20px] p-2 pb-0 flex-wrap">
       <div className="flex justify-between text-blue-600 flex-wrap gap-4">
+        <MetricGauge value={coreSkillsMatch} label="Core Skills" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={softSkillsMatch} label="Soft Skills" isLoggedIn={isLoggedIn} />
         <MetricGauge value={experienceMatch} label="Experience" isLoggedIn={isLoggedIn} />
-        <MetricGauge value={skillsMatch} label="Skills" isLoggedIn={isLoggedIn} />
-        <MetricGauge value={responsibilityMatch} label="Responsibility" isLoggedIn={isLoggedIn} />
-        <MetricGauge value={industryMatch} label="Industry" isLoggedIn={isLoggedIn} />
-        <MetricGauge value={achievementMatch} label="Education" isLoggedIn={isLoggedIn} />
+        <MetricGauge value={responsibilities} label="Responsibilities" isLoggedIn={isLoggedIn} />
       </div>
     </div>
   );
@@ -97,11 +95,13 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({
 
 const MetricGauge = ({ value, label, isLoggedIn }: { value: number; label: string; isLoggedIn: boolean }) => {
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-16 h-16 relative mb-2">
+    <div className="flex flex-col items-center ">
+      <div
+        className="w-16 h-16 relative mb-2 cursor-pointer"
+        {...(!isLoggedIn && { "data-tooltip-id": "my-tooltip", "data-tooltip-content": "Please login to view scores" })}
+      >
         <div className={`w-full ${isLoggedIn === true ? '' : 'border border-blue-600'} h-full text-blue-600 rounded-full flex items-center justify-center text-sm`}>
-          <div data-tooltip-id="my-tooltip"
-                    data-tooltip-content="Please login to view scores">
+          <div>
           <GaugeComponent score={value} color={"black"} />
           </div>
         </div>
@@ -113,7 +113,6 @@ const MetricGauge = ({ value, label, isLoggedIn }: { value: number; label: strin
 
 const JobCard: React.FC<JobCardProps> = ({
   jobData,
-  isApplying = false,
   onApply,
   applicationStatus,
   jobMatchDetails,
@@ -166,9 +165,9 @@ const JobCard: React.FC<JobCardProps> = ({
       setStrengthLabel("Account Required");
     } else if (matchScore !== undefined && matchScore < 40) {
       setStrengthLabel("Poor Match");
-    } else if ((matchScore ?? 0) < 60) {
+    } else if ((matchScore ?? -1) < 60) {
       setStrengthLabel("Moderate Match");
-    } else if ((matchScore ?? 0) < 80) {
+    } else if ((matchScore ?? -1) < 80) {
       setStrengthLabel("Good Match");
     } else {
       setStrengthLabel("Strong Match");
@@ -354,7 +353,7 @@ const JobCard: React.FC<JobCardProps> = ({
   }
 
   // Calculate the effective match score to display (0 if not logged in)
-  const displayMatchScore = isLoggedIn ? matchScore || 0 : 0;
+  const displayMatchScore = isLoggedIn ? (matchScore ?? -1) : 0;
 
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] pl-6 pb-6 md:p-4">
