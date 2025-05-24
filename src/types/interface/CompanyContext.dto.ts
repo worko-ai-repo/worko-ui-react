@@ -1,3 +1,4 @@
+import { ScoreWeightsDto } from "@Utils/CompareResumeWithJD.utils";
 import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from "./JobsAndCompany.dto";
 
 /**
