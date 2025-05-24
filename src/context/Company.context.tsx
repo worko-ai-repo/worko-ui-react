@@ -228,12 +228,12 @@ const fetchJobMatchingScores = useCallback(
           
           // Calculate matching score between resume and job description
           if(!userBasicDetails) return;
-          const matchingScore = compareResumeWithJD(job,userBasicDetails );
+          const {totalScore} = compareResumeWithJD(job,userBasicDetails );
 
           // Store the result in our scores map
           scoresMap[job.id] = {
             id: job.id,
-            scores: matchingScore,
+            scores: totalScore,
           };
           // console.log("Job ID:", job.id, "Matching Score:", matchingScore);
         });
@@ -303,18 +303,23 @@ const fetchJobMatchingScores = useCallback(
       // Create updated filters object
       const updatedFilters:JobFiltersDto = {
         ...filters,
-        pageSize: 25,
+        pageSize: 100,
         ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {})
       };
+      const { jobTitle, YOE, coreSkills,pageSize,sortOrder,status,lastKey, ...rest } = filters;
 
-      // Step 6 → If searchText is present, remove jobTitle, experienceRange, and coreSkills
-      if (filters.searchText) {
+      // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
+      const hasAnyOtherFilter = Object.values(rest).some(value => value !== undefined && value !== null);
+      
+      if (hasAnyOtherFilter) {
         delete updatedFilters.jobTitle;
         delete updatedFilters.YOE;
         delete updatedFilters.coreSkills;
+      
+        console.info("Removed default filters because at least one other filter is present.");
       }
       
       // Step 7 → If any filter includes 'experience Range' in its key, remove YOE

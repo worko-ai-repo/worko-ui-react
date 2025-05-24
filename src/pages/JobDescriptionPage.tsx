@@ -68,7 +68,23 @@ const JobDescription = () => {
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | -1>(-1);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
-  const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto | undefined>(undefined);
+  const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto >({
+    id: "",
+    userId: "",
+    jobId: "",
+    jdMatchErrorCode: 0,
+    jdMatchErrorDesc: "",
+    matchingScore: -1,
+    scoreDetails: {
+      coreSkills: -1,
+      experience: -1,
+      roleAndResponsibilities: -1,
+      softSkills: -1,
+    },
+    createdAt: "",
+    updatedAt: "",
+    isTriggered: false,
+  });
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI;
 
   const { data, isSuccess } = useQuery({
@@ -91,7 +107,7 @@ const JobDescription = () => {
       const cvExtract = data?.cvExtract || null;
   
       if (cvExtract && jobDescription) {
-        const matchingScore = compareResumeWithJD(jobDescription, data);
+        const {totalScore , coreSkillsScore , softSkillsScore , experienceScore , responsibilitiesScore } = compareResumeWithJD(jobDescription, data);
         // console.log("Matching Score:", matchingScore);
   
         setJobMatchDetails((prev) => ({
@@ -101,13 +117,12 @@ const JobDescription = () => {
           jobId: prev?.jobId || "",
           jdMatchErrorCode: prev?.jdMatchErrorCode || 0,
           jdMatchErrorDesc: prev?.jdMatchErrorDesc || "",
-          matchingScore: matchingScore || -1,
-          scoreDetails: prev?.scoreDetails || {
-            skill: -1,
-            experience: -1,
-            roleAndResponsibilities: -1,
-            industryExperience: -1,
-            education: -1,
+          matchingScore: totalScore,
+          scoreDetails: {
+            coreSkills: coreSkillsScore,
+            experience: experienceScore,
+            roleAndResponsibilities: responsibilitiesScore,
+            softSkills: softSkillsScore,
           },
           createdAt: prev?.createdAt || "",
           updatedAt: prev?.updatedAt || "",

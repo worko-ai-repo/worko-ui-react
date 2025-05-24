@@ -64,7 +64,7 @@ useEffect(() => {
     
 
 	return (
-		<div className="">
+		<div className="sticky top-0">
 			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold"

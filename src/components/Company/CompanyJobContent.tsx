@@ -21,14 +21,13 @@ import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
 import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
-import WeightTuner from "@Components/Shared/WeightTuner";
 
 const CompanyJobContent = () => {
   const location = useLocation();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [uploadResume, setUploadResume] = useState(false);
   const { userDetails, isLoggedIn }: { userDetails: Partial<AuthLoginForGeneralUserDto>; isLoggedIn: boolean } = useAppContext();
-  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete ,setScoreWeights,fetchJobMatchingScores} = useCompanyContext();
+  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -179,7 +178,7 @@ const CompanyJobContent = () => {
                         location: Finallocations || "Not Disclosed",
                         employmentType: job.typeofEmployment || "Not Disclosed",
                         createdAt: job.externalJobId ? job.jobPostedDate : job.createdAt,
-                        matchPercentage: job.matchingScore || -1,
+                        matchPercentage: job.matchingScore !== undefined ? job.matchingScore : -1,
                         status: job.applyStatus || "NOT_APPLIED",
                         jobId: job.id,
                         isExternalJob: job.externalJobId,
@@ -292,7 +291,6 @@ const CompanyJobContent = () => {
           ]}
         />
       )}
-    <WeightTuner onWeightsChange={(weights) => {setScoreWeights(weights);fetchJobMatchingScores(companyJobData!)}} />
     </div>
   );
 };

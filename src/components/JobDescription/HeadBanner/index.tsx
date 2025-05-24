@@ -11,7 +11,7 @@ export interface JobDescriptionSubComponentDTO {
   jobData: JobDto;
   applicationStatus: boolean;
   handleApplyClick: () => void;
-  jobMatchDetails?:JobMatchingScoreDto;
+  jobMatchDetails:JobMatchingScoreDto;
 }
 
 const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {

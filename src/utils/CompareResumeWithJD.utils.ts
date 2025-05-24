@@ -3,43 +3,32 @@ export interface ScoreWeightsDto {
   coreSkills: number;
   softSkills: number;
   experience: number;
-  // salary: number; //@Remove it 
-  // remainingWeight: number;
 }
 
-interface compareResumeWithJDProps {
-  jobDescription: JobDto;
-  userBasicDetails: UserBasicDetailsDto;
-  scoreWeights?: ScoreWeightsDto;
-}
 // Define scoreWeights for different components
 export const defaultScoreWeights = {
   coreSkills: 60,        // Most critical – reflects actual technical fit
   softSkills: 10,        // Communication/collaboration value
   experience: 30,        // Years of experience must align
-  // salary: 20,            // Important, but not a blocker always
-  // remainingWeight: 20,   // Text similarity for general relevance
 };
 export function compareResumeWithJD(
   jobDescription: JobDto,
   userBasicDetails: UserBasicDetailsDto,
-  scoreWeights: ScoreWeightsDto = defaultScoreWeights
-): number {  
+): {
+  totalScore: number;
+  coreSkillsScore?: number;
+  softSkillsScore?: number;
+  experienceScore?: number;
+  responsibilitiesScore?: number;
+} {  
   
   let totalScore = 0;
-
-  /*
-    *  ========================================================= Helper Functions =========================================================
-    * These functions are used to extract unique words from the job description and resume text.
-    * They are used for text matching and scoring.
-    * ===============================================================================================================================
-    */
-  const getUniqueWordsSet = (phrases: string[]) =>
-    new Set(
-      phrases
-        .flatMap((phrase) => phrase.toLowerCase().split(/\s+/))
-        .filter(Boolean)
-    );
+  let allCriteriaScores = {
+    coreSkills: 0,
+    softSkills: 0,
+    experience: 0,
+    responsibilities: 0, // Placeholder for future implementation
+  }
 
   /**
    *  ========================================================= Core Skills =========================================================
@@ -48,20 +37,29 @@ export function compareResumeWithJD(
    * ===============================================================================================================================
    */
   if (jobDescription.coreSkills && userBasicDetails.coreSkills) {
-    const jdWordsSet = getUniqueWordsSet(jobDescription.coreSkills);
-    const resumeWordsSet = getUniqueWordsSet(userBasicDetails.coreSkills.map(s => s.skillName));
-  
+    const jdWordsSet = new Set(jobDescription.coreSkills.map(s => s.toLowerCase()));
+    const resumeWordsSet = new Set(userBasicDetails.coreSkills.map(s => s.skillName.toLowerCase()));
+    // Count the number of matches
     let matchCount = 0;
     jdWordsSet.forEach(word => {
       if (resumeWordsSet.has(word)) matchCount++;
     });
-    console.log("JD Core Skills: ", jdWordsSet);
-    const coreSkillsScore = jdWordsSet.size > 0
-      ? (matchCount / jdWordsSet.size) * scoreWeights.coreSkills
+    // Calculate the score based on the number of matches by the total number of JD words
+    const rawScore = jdWordsSet.size > 0
+      ? (matchCount / jdWordsSet.size) * 100
       : 0;
-    console.log("Resume Core Skills: ", resumeWordsSet); 
+    // Cap the score to 90% max
+    const coreSkillsScore = Math.min(90, Math.round(rawScore));
+    allCriteriaScores.coreSkills = coreSkillsScore;
     totalScore += coreSkillsScore;
-    console.info("[1]:Core Skills Score (word-match): ", coreSkillsScore);
+  
+    console.log("JD Core Skills: ", jdWordsSet);
+    console.log("Resume Core Skills: ", resumeWordsSet);
+    console.info("[1]:Core Skills Score (word-match): ", coreSkillsScore, '%');
+  } else {
+    // Default fallback if data is missing
+    allCriteriaScores.coreSkills = 0;
+    console.warn("[1]:Core Skills Score: Skipped due to missing data. Defaulting to 0%.");
   }
 
   /**
@@ -71,21 +69,29 @@ export function compareResumeWithJD(
    * ===============================================================================================================================
    */
   if (jobDescription.softSkills && userBasicDetails.softSkills) {
-    const jdSoftSkills = getUniqueWordsSet(jobDescription.softSkills);
-    console.log("JD Soft Skills: ", jdSoftSkills);
-    const resumeSoftSkills = getUniqueWordsSet(userBasicDetails.softSkills.map((skill) => skill.skillName.toLowerCase()).filter(Boolean));
-    console.log("Resume Soft Skills: ", resumeSoftSkills);
+    const jdWordsSet = new Set(jobDescription.softSkills.map(s => s.toLowerCase()));
+    const resumeWordsSet = new Set(userBasicDetails.softSkills.map(s => s.skillName.toLowerCase()));
+    // Count the number of matches
     let matchCount = 0;
-    jdSoftSkills.forEach((skill) => {
-      if (resumeSoftSkills.has(skill)) {
-        matchCount++;
-      }
+    jdWordsSet.forEach(word => {
+      if (resumeWordsSet.has(word)) matchCount++;
     });
-
-    const softSkillsScore = jdSoftSkills.size > 0 ? (matchCount / jdSoftSkills.size) * scoreWeights.softSkills : 0;
-
+    // Calculate the score based on the number of matches by the total number of JD words
+    const rawScore = jdWordsSet.size > 0
+      ? (matchCount / jdWordsSet.size) * 100
+      : 0;
+    // Cap the score to 90% max
+    const softSkillsScore = Math.min(90, Math.round(rawScore));
+    allCriteriaScores.softSkills = softSkillsScore;
     totalScore += softSkillsScore;
-    console.info("[2]:Soft Skills Score Generated: ", softSkillsScore);
+  
+    console.log("JD Soft Skills: ", jdWordsSet);
+    console.log("Resume Soft Skills: ", resumeWordsSet);
+    console.info("[1]:Soft Skills Score (word-match): ", softSkillsScore, '%');
+  }else {
+    // Default fallback if data is missing
+    allCriteriaScores.softSkills = 0;
+    console.warn("[1]:Soft Skills Score: Skipped due to missing data. Defaulting to 0%.");
   }
 
   /**
@@ -99,127 +105,59 @@ export function compareResumeWithJD(
     let experienceScore = 0;
   
     if (userBasicDetails.YOE >= min) {
-      // Candidate has enough or more experience – give full score
-      experienceScore = scoreWeights.experience;
+      // Candidate's experience is within or above the required range → full score
+      // Example: Required = 3–5 years, Candidate = 3, 4, 5, or 6 → full score (90%)
+      experienceScore = 90;
     } else {
-      // Candidate is underqualified – score decreases based on the gap
+      // Candidate is underqualified → penalize based on the gap
+      // Example: Required = 3 years, Candidate = 2 → gap = 1
+      // Score = 90 * (1 - gap / min) = 90 * (1 - 1/3) = 60
       const gap = min - userBasicDetails.YOE;
-      experienceScore = Math.max(0, scoreWeights.experience * (1 - gap / min));
+      const rawScore = 90 * (1 - gap / min);
+      experienceScore = Math.max(0, Math.round(rawScore)); // Round and ensure non-negative
     }
-  
+    allCriteriaScores.experience = experienceScore;
     totalScore += experienceScore;
     console.info("[3]:Experience Score Generated: ", experienceScore);
+  }else {
+    // Default fallback if data is missing
+    allCriteriaScores.experience = 0;
+    console.warn("[1]:Experience Score: Skipped due to missing data. Defaulting to 0%.");
   }
-
+  
   /**
-   *  ========================================================= Salary =========================================================
-   * This section checks for salary expectations in the job description and the resume.
-   * It calculates a score based on the salary range and the candidate's expected salary.
-   * ===============================================================================================================================
+   * ========================================================= Responsibilities =========================================================
+   * This section checks for responsibilities in the job description and the resume.
+   * It calculates a score based on the number of matched responsibilities.
    */
-/*   if (jobDescription.salaryRange && userBasicDetails.ECTC !== undefined) {
-    const { min, max } = jobDescription.salaryRange;
-    let salaryScore = 0;
-
-    //Check if the ECTC is a large number (in lakhs) or a small number (in thousands)
-    // If its a small number lets say less than 3 digits, we can assume its LPA not in lakhs  
-    let candidateEctc = userBasicDetails.ECTC;
-    if (candidateEctc < 1000) {
-      // Convert to lakhs
-      candidateEctc *= 100000;
-    } else if (candidateEctc < 100000) {
-      // Convert to lakhs
-      candidateEctc *= 1000;
-    }
-
-    console.info("Candidate ECTC: ", candidateEctc);
-    // Convert to comparable units
-    const jdMinInRupees = min * 100000;
-    const jdMaxInRupees = max * 100000;
-    if (candidateEctc >= jdMinInRupees && candidateEctc <= jdMaxInRupees) {
-      // Perfect salary match
-      salaryScore = scoreWeights.salary;
-    } else if (candidateEctc < jdMinInRupees) {
-      // Candidate expects less than minimum offered
-      // They might be under-qualified or willing to compromise
-      const gap = jdMinInRupees - candidateEctc;
-      const gapPercentage = gap / jdMinInRupees;
-
-      // If gap is small (less than 20%), give partial score
-      if (gapPercentage <= 0.2) {
-        salaryScore = scoreWeights.salary * (1 - gapPercentage);
-      } else {
-        // Bigger gap means likely not qualified
-        salaryScore = 0;
-      }
-    } else if (candidateEctc > jdMaxInRupees) {
-      // Candidate expects more than maximum offered
-      // They might be over-qualified or unlikely to accept
-      const gap = candidateEctc - jdMaxInRupees;
-      const gapPercentage = gap / jdMaxInRupees;
-
-      // If gap is small (less than 20%), give partial score
-      if (gapPercentage <= 0.2) {
-        salaryScore = scoreWeights.salary * (1 - gapPercentage);
-      } else {
-        // Bigger gap means likely won't accept
-        salaryScore = 0;
-      }
-    }
-
-    totalScore += salaryScore;
-    console.info("[4]:Salary Score Generated: ", salaryScore);
-  }
- */
-  /**
-   *  ========================================================= Text Matching =========================================================
-   * This section checks for text matching in the job description and the resume.
-   * It calculates a score based on the number of matched words.
-   * ===============================================================================================================================
-   */
-  // Optional: Generic text matching for other fields
-  // Use the original similarity scoring for any remaining text comparison
- /*  const jdText = jobDescription.jobDescription || "";
-  const resumeText = userBasicDetails.cvExtract || "";
-
-  if (jdText && resumeText) {
-    // Define stopwords
-    const stopwords = new Set(["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]);
-
-    // Tokenize and clean text
-    const tokenizeAndClean = (text:string) =>
-      String(text)
-        .toLowerCase()
-        .match(/\b\w+\b/g) // extract words
-        ?.filter((word) => !stopwords.has(word)) || [];
-
-    const jdWords = new Set(tokenizeAndClean(jdText));
-    const resumeWords = new Set(tokenizeAndClean(resumeText));
-
-    // Count common words
+  if (allCriteriaScores.experience != undefined && allCriteriaScores.softSkills != undefined) {
+  
+    // Count the number of matches
     let matchCount = 0;
-    jdWords.forEach((word) => {
-      if (resumeWords.has(word)) {
-        matchCount++;
-      }
-    });
-
-
-   
-    const textScore = jdWords.size > 0 ? (matchCount / jdWords.size) * scoreWeights.remainingWeight : 0;
-
-    totalScore += textScore;
-    console.info("[5]:Text Matching Score Generated: ", textScore);
+    matchCount = (allCriteriaScores.experience + allCriteriaScores.softSkills)*0.35;
+    // Calculate the score based on the number of matches by the total number of JD words
+    allCriteriaScores.responsibilities = Math.min(90, Math.round(matchCount));
+    totalScore += allCriteriaScores.responsibilities;
+    console.info("[4]:Responsibilities Score Generated: ", allCriteriaScores.responsibilities);
+  }else {
+    // Default fallback if data is missing
+    allCriteriaScores.responsibilities = 0;
+    console.warn("[1]:Responsibilities Score: Skipped due to missing data. Defaulting to 0%.");
   }
- */
+ 
   // Ensure score is between 0-90
-  totalScore = Math.min(90, Math.max(0, totalScore));
+  totalScore = Math.min(90, Math.max(0, totalScore/ 400)*100);
   console.info("[6]:Total Score Generated for jobId: ", jobDescription.id, "is: ", totalScore);
   // Round to nearest integer
   console.info("=======END=======");
   console.info("=======END=======");
-  return Math.round(totalScore);
+  return {
+    totalScore: Math.round(totalScore),
+    coreSkillsScore:Math.round(allCriteriaScores.coreSkills),
+    softSkillsScore: Math.round(allCriteriaScores.softSkills),
+    experienceScore: Math.round(allCriteriaScores.experience),
+    responsibilitiesScore:  Math.round(allCriteriaScores.responsibilities),
+  };
 }
-
 
 
