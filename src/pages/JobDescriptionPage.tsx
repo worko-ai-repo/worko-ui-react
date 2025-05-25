@@ -155,12 +155,10 @@ const JobDescription = () => {
       const userEmail = secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
       const { response ,status} = await httpServiceObj.get<{ data: (JobApplicationExternalDto[] | JobApplicationInternalDto[]) ; pagination: object }>(
         `${APP_JOBS_API_URI}/${jobData?.externalJobId ? 'external-' : "" }job-application/${jobid}/${userEmail}`,true, {}, true);
-        
-        if (response?.data && response.data.length > 0) {
-         setApplicationStatus(true); // Set application status to true if data is present
+        if (status === 404) {
+         setApplicationStatus(false); // Set application status to true if data is present
       } else {
-        // No data case
-        setApplicationStatus(false);
+        setApplicationStatus(true);
       }
     } catch (error) {
       console.error("Error checking application status:", error);
@@ -422,14 +420,14 @@ const JobDescription = () => {
           jobPortal: jobDataState?.jobUrl || undefined,
           jobUrl: window.location.href,
           // companyName:  jobDataState?.companyName,
-          matchingScore: globalMatchingScore || 0,
+          matchingScore: jobMatchDetails.matchingScore || 0,
         };
       } else {
         payload = {
           jobId: jobDataState?.id,
           companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
           jobPortal: "worko",
-          matchingScore: globalMatchingScore || 0,
+          matchingScore: jobMatchDetails.matchingScore || 0,
           ...(referAndEarnId ? { referAndEarnId } : {}), //conditionally check if referAndEarnId exists.
         };
       }

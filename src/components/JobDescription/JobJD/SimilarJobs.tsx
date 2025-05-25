@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Share2, Briefcase, Clock, MapPin, Building2 } from 'lucide-react';
 import MessageModal from '@Components/Modals/MessageModal';
 import { JobDto } from '@Interfaces/JobsAndCompany.dto';
-import { useNavigate } from 'react-router-dom';
+import { replace, useNavigate } from 'react-router-dom';
 import { toTitleCase } from '@Utils/Titlecase.utils';
+import { formatRange } from '@Utils/RangeFormater.utils';
+import { generateJobSlug } from '@Utils/JobUriSlug.utils';
 
 interface JobCardProps {
   job: JobDto;
@@ -34,11 +36,31 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     return job.experienceRange || 'Not specified';
   };
   
-  // Add the handleReferralNav function from your code
+  const toSlug = (text: string) =>
+    encodeURIComponent(text.trim().replace(/\s+/g, "-"));
+  
+  const exp = formatRange(
+    job.experienceRange?.min ?? 0,
+    job.experienceRange?.max ?? 0,
+    "experience"
+  );
+  
+  const jobLocation = job?.location?.fullLocation?.join("-") || "location";
+  
   const handleReferralNav = () => {
-    const refinedCompanyName = companyName?.replace(/\s/g, "_"); // Replace spaces with underscores
-    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:job as JobDto}});
+    const slug = generateJobSlug({
+      title: jobTitle,
+      company: companyName ?? "comp",
+      location: jobLocation,
+      experience: exp,
+      jobId: jobId,
+    });
+  
+    nav(slug, {
+      state: { FullJob: job as JobDto },
+    });
   };
+  
 
   const finalLogoUrl = job?.companyDetails?.logoUrl 
   ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logoUrl}` 

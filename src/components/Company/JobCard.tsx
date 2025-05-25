@@ -15,6 +15,7 @@ import { validationRules } from "@Utils/FormValidator.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { generateJobSlug } from "@Utils/JobUriSlug.utils";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
@@ -27,7 +28,7 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary } = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience} = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -179,9 +180,20 @@ export const JobCard = ({ job }: any) => {
   }, [createdAt]);
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
-  const refinedCompanyName = (companyName ?? "comp").replace(/\s/g, "_");
+
+  const refinedCompanyName= (url:string)=>{ return(url).replace(/\s/g, "-")};
   const handleReferralNav = () => {
-    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
+    const slug = generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  
+    nav(slug, {
+      state: { FullJob: FullJob as JobDto },
+    });
   };
 
   useEffect(() => {

@@ -191,6 +191,11 @@ const CompanyJobContent = () => {
                         companyId: job.companyId,
                         jobUrl: job.jobUrl,
                         showSalary:job?.displaySalaryRange ?? true,
+                        experience:  formatRange(
+                              job.experienceRange?.min ?? 0,
+                              job.experienceRange?.max ?? 0,
+                              "experience"
+                            )
                       }}
                     />
                   );
@@ -229,7 +234,7 @@ const CompanyJobContent = () => {
                       Find More Jobs
                     </div>
                   ) : companyJobData.length > 0 ? (
-                    <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>
+                    <p className="text-lg font-medium text-gray-500">Looks like we hit a dead end. Try changing the filters and searching again.</p>
                   ) : null}
                 </div>
               </>

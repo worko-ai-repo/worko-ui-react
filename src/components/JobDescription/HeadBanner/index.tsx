@@ -121,7 +121,6 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   
     if (missingFields.length) {
       // console.log('Missing fields:', missingFields.join(', '));
-  
       const newJobData = await CheckCSpresence(jobData);
       if (newJobData) {
         jobData = newJobData;
@@ -131,7 +130,9 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   
 
   useEffect(() => {
-    checkSkillsPresence();
+    if(jobData?.externalJobId){
+      checkSkillsPresence(); //@Dont call parseJD API for external jobs
+    }
   }, []);
   
   // Process company name with proper capitalization

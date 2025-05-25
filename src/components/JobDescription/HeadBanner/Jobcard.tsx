@@ -318,7 +318,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
                 <h2 className="text-md text-left sm:text-lg md:text-[24px] font-poppins font-semibold text-[#0D0D0D] mb-1">
-                  {titleCasedCompanyName} - {jobTitle || "Job Title"}
+                   {jobTitle || "Job Title"}
                 </h2>
                 <p className="text-xs text-left md:text-[12px] text-[#313131] mb-1">{titleCaseDepartment}</p>
               </div>

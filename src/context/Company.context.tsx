@@ -9,7 +9,7 @@ import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateF
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
 import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { compareResumeWithJD, defaultScoreWeights, ScoreWeightsDto } from "@Utils/CompareResumeWithJD.utils";
+import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 
 
 // Create the context object
@@ -201,8 +201,8 @@ const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // 
  * @returns {Promise<void>}
  */
 const fetchJobMatchingScores = useCallback(
-  async (jobs:JobDto[]) => {
-    // Exit early if there are no jobs to process
+  async (jobs: JobDto[]) => {
+    // Exit early if no jobs to process
     if (!jobs.length) return;
     // console.log("Jobs to fetch matching scores for:", jobs);
     
@@ -210,27 +210,30 @@ const fetchJobMatchingScores = useCallback(
       // Create a copy of the missing job IDs set to track which jobs still need processing
       const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
 
-      // Configuration for batch processing to prevent UI freezing
-      const BATCH_SIZE = 25;   // Process 25 jobs at a time
-      const BATCH_DELAY = 50;  // Wait 50ms between batches
+      // Set batch size to process 25 jobs at a time
+      const BATCH_SIZE = 25;
+      // Set delay between batches to 50ms for UI responsiveness
+      const BATCH_DELAY = 50;
 
-      // Object to store calculated scores for each job ID
+      // Initialize object to store calculated scores for each job ID
       const scoresMap: Record<string, any> = {};
 
-      // Process jobs in batches to avoid blocking the UI
+      // Loop through jobs in batches to avoid blocking UI
       for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+        // Get current batch of jobs using slice
         const batch = jobs.slice(i, i + BATCH_SIZE);
 
         // Process each job in the current batch
         batch.forEach((job) => {
-          // Mark this job as needing processing
+          // Add job ID to the set of jobs being processed
           updatedMissingJobIdsSet.add(job.id);
           
-          // Calculate matching score between resume and job description
+          // Check if user basic details exist before calculating score
           if(!userBasicDetails) return;
+          // Calculate matching score between job and user resume
           const {totalScore} = compareResumeWithJD(job,userBasicDetails );
 
-          // Store the result in our scores map
+          // Store the calculated score in the scores map
           scoresMap[job.id] = {
             id: job.id,
             scores: totalScore,
@@ -238,51 +241,77 @@ const fetchJobMatchingScores = useCallback(
           // console.log("Job ID:", job.id, "Matching Score:", matchingScore);
         });
 
-        // Add a small delay between batches to keep the UI responsive
+        // Wait for specified delay before processing next batch
         await new Promise((res) => setTimeout(res, BATCH_DELAY));
       }
 
-      // Update the set of jobs that still need processing
+      // Update the missing job IDs set state
       setMissingJobIdsSet(updatedMissingJobIdsSet);
 
-      // Update the company job data with the new matching scores
+      // Update company job data with new matching scores
       setCompanyJobData((prev) => {
-        // Handle case where previous data doesn't exist
+        // Return undefined if previous data doesn't exist
         if (!prev) return undefined;
         
-        // Create a map of existing jobs for easy lookup
+        // Create a map of existing jobs for efficient lookup by ID
         const existingJobsMap = prev.reduce((acc, job) => {
+          // Add each job to the accumulator object with job ID as key
           acc[job.id] = job;
           return acc;
         }, {} as Record<string, JobDto>);
 
-        // Update each job with its new matching score
+        // Loop through all calculated scores to update jobs
         Object.keys(scoresMap).forEach((jobId) => {
-          // Use new matching score if available, otherwise keep existing one
-          const matchingScore = scoresMap[jobId]?.scores ?? existingJobsMap[jobId].matchingScore; // ↑ Change to 'scores' to match what you stored
+          // Get new matching score or fallback to existing score
+          const matchingScore = scoresMap[jobId]?.scores ?? existingJobsMap[jobId].matchingScore;
 
-          // Update job data with new score and apply status
+          // Update job object with new matching score
           existingJobsMap[jobId] = {
             ...existingJobsMap[jobId],
             matchingScore,
           };
 
-          // Remove this job from the missing jobs set since it's been processed
+          // Remove processed job ID from missing jobs set
           setMissingJobIdsSet((prevSet) => {
+            // Create new Set instance to avoid mutation
             const newSet = new Set(prevSet);
+            // Remove the job ID from the set
             newSet.delete(jobId);
             return newSet;
           });
         });
 
-        // Reconstruct the array with updated job information
-        return prev.map((job) => existingJobsMap[job.id] || job);
+        // Map original jobs array to updated jobs with new scores
+        const updatedJobs = prev.map((job) => existingJobsMap[job.id] || job);
+
+        // Sort jobs with custom sorting logic
+        updatedJobs.sort((a, b) => {
+          // Check if job 'a' is internal with high matching score (>=10)
+          const aInternalHigh = !a.externalJobId && (a.matchingScore ?? 0) >= 50;
+          // Check if job 'b' is internal with high matching score (>=10)
+          const bInternalHigh = !b.externalJobId && (b.matchingScore ?? 0) >= 50;
+
+          // Prioritize internal high-scoring job 'a' over others
+          if (aInternalHigh && !bInternalHigh) return -1;
+          // Prioritize internal high-scoring job 'b' over others
+          if (!aInternalHigh && bInternalHigh) return 1;
+
+          // Sort remaining jobs by matching score in descending order
+          return (b.matchingScore ?? 0) - (a.matchingScore ?? 0);
+        });
+
+        // Return the sorted and updated jobs array
+        return updatedJobs;
+
+       /*  // Alternative: Simple reconstruction without custom sorting
+        return prev.map((job) => existingJobsMap[job.id] || job); */
       });
     } catch (err) {
+      // Log any errors that occur during the process
       console.error("Exception in fetchJobMatchingScores:", err);
     }
   },
-  // Dependencies for this callback
+  // Dependencies array for useCallback hook
   [setCompanyJobData, missingJobIdsSet, userBasicDetails]
 );
 

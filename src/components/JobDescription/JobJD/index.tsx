@@ -24,6 +24,7 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({ jobData, applicationSt
             true,
             {
               jobTitle: jobData.jobTitle,
+              status:"PUBLISHED",
               pageSize:10
             },
             true
