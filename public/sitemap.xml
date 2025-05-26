@@ -41,4 +41,19 @@
 		<lastmod>2025-03-26T15:04:13+01:00</lastmod>
 		<priority>1.0</priority>
 	</url>
+	<url>
+	   <loc>https://worko.ai/terms</loc>
+	   <lastmod>2025-05-23T15:04:13+01:00</lastmod>
+	   <priority>0.8</priority>
+    </url>
+    <url>
+	   <loc>https://worko.ai/privacy-policy</loc>
+	   <lastmod>2025-05-23T15:04:13+01:00</lastmod>
+	   <priority>0.8</priority>
+    </url>
+    <url>
+	   <loc>https://worko.ai/contact-us</loc>
+	   <lastmod>2025-05-23T15:04:13+01:00</lastmod>
+	   <priority>0.8</priority>
+    </url>
 </urlset>
