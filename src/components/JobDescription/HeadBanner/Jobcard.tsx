@@ -383,12 +383,12 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
         {/* Pass the matchPercentage to MatchMetrics */}
         <MatchMetrics displayMatchScore={displayMatchScore} miscScore={miscScoreValue} isLoggedIn={isLoggedIn} />
 
-        <div
+        <hr
+        className="max-sm:w-[93%] max-md:w-[95%] w-full"
           style={{
-            width: "100%",
-            height: "100%",
+           
             border: "0.50px #454545 solid",
-          }}></div>
+          }}/>
 
         {/* Location, Job Type, and Buttons */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
