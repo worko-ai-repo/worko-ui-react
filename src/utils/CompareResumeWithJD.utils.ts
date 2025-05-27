@@ -1,4 +1,5 @@
 import { JobDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+
 export interface ScoreWeightsDto {
   coreSkills: number;
   softSkills: number;
@@ -16,150 +17,217 @@ export function compareResumeWithJD(
   responsibilitiesScore?: number;
 } {  
   
+  // Guard against null/undefined inputs
+  if (!jobDescription || !userBasicDetails) {
+    console.warn("Missing jobDescription or userBasicDetails");
+    return {
+      totalScore: 0,
+      coreSkillsScore: 0,
+      softSkillsScore: 0,
+      experienceScore: 0,
+      responsibilitiesScore: 0,
+    };
+  }
+  
   let totalScore = 0;
   let allCriteriaScores = {
     coreSkills: 0,
     softSkills: 0,
     experience: 0,
-    responsibilities: 0, // Placeholder for future implementation
+    responsibilities: 0,
   }
 
   /**
-   *  ========================================================= Core Skills =========================================================
-   * This section checks for core skills in the job description and the resume.
-   * It calculates a score based on the number of matched core skills.
-   * ===============================================================================================================================
+   * ========================================================= Core Skills =========================================================
    */
-  if (jobDescription.coreSkills && userBasicDetails.coreSkills) {
-    const jdWordsSet = new Set(jobDescription.coreSkills.map(s => s.toLowerCase()));
-    const resumeWordsSet = new Set(userBasicDetails.coreSkills.map(s => s.skillName.toLowerCase()));
-    // Count the number of matches
-    let matchCount = 0;
-    jdWordsSet.forEach(word => {
-      if (resumeWordsSet.has(word)) matchCount++;
-    });
-    // Calculate the score based on the number of matches by the total number of JD words
-    const rawScore = jdWordsSet.size > 0
-      ? (matchCount / jdWordsSet.size) * 100
-      : 0;
-    // Cap the score to 90% max
-    const coreSkillsScore = Math.min(90, Math.round(rawScore));
-    allCriteriaScores.coreSkills = coreSkillsScore;
-    totalScore += coreSkillsScore;
-  
-    // console.log("JD Core Skills: ", jdWordsSet);
-    // console.log("Resume Core Skills: ", resumeWordsSet);
-    // console.info("[1]:Core Skills Score (word-match): ", coreSkillsScore, '%');
-  } else {
-    // Default fallback if data is missing
-    allCriteriaScores.coreSkills = 0;
-    // console.warn("[1]:Core Skills Score: Skipped due to missing data. Defaulting to 0%.");
-  }
-
-  /**
-   *  ========================================================= Soft Skills =========================================================
-   * This section checks for soft skills in the job description and the resume.
-   * It calculates a score based on the number of matched soft skills.
-   * ===============================================================================================================================
-   */
-  if (jobDescription.softSkills && userBasicDetails.softSkills) {
-    const jdWordsSet = new Set(jobDescription.softSkills.map(s => s.toLowerCase()));
-    const resumeWordsSet = new Set(userBasicDetails.softSkills.map(s => s.skillName.toLowerCase()));
-    // Count the number of matches
-    let matchCount = 0;
-    jdWordsSet.forEach(word => {
-      if (resumeWordsSet.has(word)) matchCount++;
-    });
-    // Calculate the score based on the number of matches by the total number of JD words
-    const rawScore = jdWordsSet.size > 0
-      ? (matchCount / jdWordsSet.size) * 100
-      : 0;
-    // Cap the score to 90% max
-    const softSkillsScore = Math.min(90, Math.round(rawScore));
-    allCriteriaScores.softSkills = softSkillsScore;
-    totalScore += softSkillsScore;
-  
-    // console.log("JD Soft Skills: ", jdWordsSet);
-    // console.log("Resume Soft Skills: ", resumeWordsSet);
-    // console.info("[1]:Soft Skills Score (word-match): ", softSkillsScore, '%');
-  }else {
-    // Default fallback if data is missing
-    allCriteriaScores.softSkills = 0;
-    // console.warn("[1]:Soft Skills Score: Skipped due to missing data. Defaulting to 0%.");
-  }
-
-  /**
-   *  ========================================================= Experience =========================================================
-   * This section checks for experience in the job description and the resume.
-   * It calculates a score based on the years of experience.
-   * ===============================================================================================================================
-   */
-  if (jobDescription.experienceRange && userBasicDetails.YOE !== undefined) {
-    const { min, max } = jobDescription.experienceRange;
-    let experienceScore = 0;
-  
-    if (userBasicDetails.YOE >= min) {
-      // Candidate's experience is within or above the required range → full score
-      // Example: Required = 3–5 years, Candidate = 3, 4, 5, or 6 → full score (90%)
-      experienceScore = 90;
-    } else {
-      // Candidate is underqualified → penalize based on the gap
-      // Example: Required = 3 years, Candidate = 2 → gap = 1
-      // Score = 90 * (1 - gap / min) = 90 * (1 - 1/3) = 60
-      const gap = min - userBasicDetails.YOE;
-      const rawScore = 90 * (1 - gap / min);
-      experienceScore = Math.max(0, Math.round(rawScore)); // Round and ensure non-negative
+  if (Array.isArray(jobDescription.coreSkills) && 
+      Array.isArray(userBasicDetails.coreSkills) && 
+      jobDescription.coreSkills.length > 0 && 
+      userBasicDetails.coreSkills.length > 0) {
+    
+    try {
+      // Filter out null/undefined values and convert to lowercase
+      const jdWordsSet = new Set(
+        jobDescription.coreSkills
+          .filter(s => s != null && typeof s === 'string' && s.trim().length > 0)
+          .map(s => s.toLowerCase().trim())
+      );
+      
+      const resumeWordsSet = new Set(
+        userBasicDetails.coreSkills
+          .filter(s => s && 
+                      typeof s === 'object' && 
+                      s.skillName != null && 
+                      typeof s.skillName === 'string' && 
+                      s.skillName.trim().length > 0)
+          .map(s => s.skillName.toLowerCase().trim())
+      );
+      
+      // Count the number of matches
+      let matchCount = 0;
+      jdWordsSet.forEach(word => {
+        if (resumeWordsSet.has(word)) matchCount++;
+      });
+      
+      // Calculate the score based on the number of matches by the total number of JD words
+      const rawScore = jdWordsSet.size > 0
+        ? (matchCount / jdWordsSet.size) * 100
+        : 0;
+      
+      // Cap the score to 90% max
+      const coreSkillsScore = Math.min(90, Math.round(rawScore));
+      allCriteriaScores.coreSkills = coreSkillsScore;
+      totalScore += coreSkillsScore;
+    } catch (error) {
+      console.error("Error processing core skills:", error);
+      allCriteriaScores.coreSkills = 0;
     }
-    allCriteriaScores.experience = experienceScore;
-    totalScore += experienceScore;
-    // console.info("[3]:Experience Score Generated: ", experienceScore);
-  }else {
-    // Default fallback if data is missing
+  } else {
+    allCriteriaScores.coreSkills = 0;
+  }
+
+  /**
+   * ========================================================= Soft Skills =========================================================
+   */
+  if (Array.isArray(jobDescription.softSkills) && 
+      Array.isArray(userBasicDetails.softSkills) && 
+      jobDescription.softSkills.length > 0 && 
+      userBasicDetails.softSkills.length > 0) {
+    
+    try {
+      // Filter out null/undefined values and convert to lowercase
+      const jdWordsSet = new Set(
+        jobDescription.softSkills
+          .filter(s => s != null && typeof s === 'string' && s.trim().length > 0)
+          .map(s => s.toLowerCase().trim())
+      );
+      
+      const resumeWordsSet = new Set(
+        userBasicDetails.softSkills
+          .filter(s => s && 
+                      typeof s === 'object' && 
+                      s.skillName != null && 
+                      typeof s.skillName === 'string' && 
+                      s.skillName.trim().length > 0)
+          .map(s => s.skillName.toLowerCase().trim())
+      );
+      
+      // Count the number of matches
+      let matchCount = 0;
+      jdWordsSet.forEach(word => {
+        if (resumeWordsSet.has(word)) matchCount++;
+      });
+      
+      // Calculate the score based on the number of matches by the total number of JD words
+      const rawScore = jdWordsSet.size > 0
+        ? (matchCount / jdWordsSet.size) * 100
+        : 0;
+      
+      // Cap the score to 90% max
+      const softSkillsScore = Math.min(90, Math.round(rawScore));
+      allCriteriaScores.softSkills = softSkillsScore;
+      totalScore += softSkillsScore;
+    } catch (error) {
+      console.error("Error processing soft skills:", error);
+      allCriteriaScores.softSkills = 0;
+    }
+  } else {
+    allCriteriaScores.softSkills = 0;
+  }
+  
+  /**
+   * ========================================================= Experience =========================================================
+   */
+  if (jobDescription.experienceRange && 
+      typeof jobDescription.experienceRange === 'object' &&
+      typeof jobDescription.experienceRange.min === 'number' &&
+      typeof jobDescription.experienceRange.max === 'number' &&
+      typeof userBasicDetails.YOE === 'number' &&
+      !isNaN(userBasicDetails.YOE)) {
+    
+    try {
+      const { min, max } = jobDescription.experienceRange;
+      let experienceScore = 0;
+    
+      // Validate min/max values
+      if (min < 0 || max < 0 || min > max) {
+        console.warn("Invalid experience range:", { min, max });
+        allCriteriaScores.experience = 0;
+      } else if (userBasicDetails.YOE >= min) {
+        experienceScore = 90;
+        allCriteriaScores.experience = experienceScore;
+        totalScore += experienceScore;
+      } else {
+        const gap = min - userBasicDetails.YOE;
+        const rawScore = 90 * (1 - gap / min);
+        experienceScore = Math.max(0, Math.round(rawScore));
+        allCriteriaScores.experience = experienceScore;
+        totalScore += experienceScore;
+      }
+    } catch (error) {
+      console.error("Error processing experience:", error);
+      allCriteriaScores.experience = 0;
+    }
+  } else {
     allCriteriaScores.experience = 0;
-    // console.warn("[1]:Experience Score: Skipped due to missing data. Defaulting to 0%.");
   }
   
   /**
    * ========================================================= Responsibilities =========================================================
-   * This section checks for responsibilities in the job description and the resume.
-   * It calculates a score based on the number of matched responsibilities.
    */
-  if (allCriteriaScores.experience != undefined && allCriteriaScores.softSkills != undefined) {
-
-    // Count the number of matches
-    let matchCount = (allCriteriaScores.experience + allCriteriaScores.softSkills) * 0.35;
-  
-    // Calculate the base responsibilities score
-    let responsibilitiesScore = Math.min(90, Math.round(matchCount));
-  
-    // @TODO: Cap responsibilities score to 10 if coreSkills is less than 20
-    if (allCriteriaScores.coreSkills != undefined && allCriteriaScores.coreSkills < 20) {
-      responsibilitiesScore = Math.min(responsibilitiesScore, 10);
+  if (typeof allCriteriaScores.experience === 'number' && 
+      typeof allCriteriaScores.softSkills === 'number' &&
+      !isNaN(allCriteriaScores.experience) &&
+      !isNaN(allCriteriaScores.softSkills)) {
+    
+    try {
+      // Count the number of matches
+      let matchCount = (allCriteriaScores.experience + allCriteriaScores.softSkills) * 0.35;
+    
+      // Calculate the base responsibilities score
+      let responsibilitiesScore = Math.min(90, Math.round(matchCount));
+    
+      // Cap responsibilities score to 10 if coreSkills is less than 20
+      if (typeof allCriteriaScores.coreSkills === 'number' && 
+          !isNaN(allCriteriaScores.coreSkills) && 
+          allCriteriaScores.coreSkills < 20) {
+        responsibilitiesScore = Math.min(responsibilitiesScore, 10);
+      }
+    
+      allCriteriaScores.responsibilities = responsibilitiesScore;
+      totalScore += allCriteriaScores.responsibilities;
+    } catch (error) {
+      console.error("Error processing responsibilities:", error);
+      allCriteriaScores.responsibilities = 0;
     }
-  
-    allCriteriaScores.responsibilities = responsibilitiesScore;
-    totalScore += allCriteriaScores.responsibilities;
-    // console.info("[4]:Responsibilities Score Generated: ", allCriteriaScores.responsibilities);
-  
-  }else {
-    // Default fallback if data is missing
+  } else {
     allCriteriaScores.responsibilities = 0;
-    // console.warn("[1]:Responsibilities Score: Skipped due to missing data. Defaulting to 0%.");
   }
  
-  // Ensure score is between 0-90
-  totalScore = Math.min(90, Math.max(0, totalScore/ 400)*100);
-  // console.info("[6]:Total Score Generated for jobId: ", jobDescription.id, "is: ", totalScore);
-  // Round to nearest integer
-  // console.info("=======END=======");
-  // console.info("=======END=======");
+  // Ensure totalScore calculation is safe
+  try {
+    // Validate totalScore before final calculation
+    if (typeof totalScore !== 'number' || isNaN(totalScore)) {
+      totalScore = 0;
+    }
+    
+    // Ensure score is between 0-90
+    totalScore = Math.min(90, Math.max(0, (totalScore / 400) * 100));
+    
+    // Validate final score
+    if (typeof totalScore !== 'number' || isNaN(totalScore)) {
+      totalScore = 0;
+    }
+  } catch (error) {
+    console.error("Error calculating total score:", error);
+    totalScore = 0;
+  }
+
   return {
     totalScore: Math.round(totalScore),
-    coreSkillsScore:Math.round(allCriteriaScores.coreSkills),
+    coreSkillsScore: Math.round(allCriteriaScores.coreSkills),
     softSkillsScore: Math.round(allCriteriaScores.softSkills),
     experienceScore: Math.round(allCriteriaScores.experience),
-    responsibilitiesScore:  Math.round(allCriteriaScores.responsibilities),
+    responsibilitiesScore: Math.round(allCriteriaScores.responsibilities),
   };
 }
-
-
