@@ -154,7 +154,7 @@ const JobDescription = () => {
     try {
       const userEmail = secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
       const { response ,status} = await httpServiceObj.get<{ data: (JobApplicationExternalDto[] | JobApplicationInternalDto[]) ; pagination: object }>(
-        `${APP_JOBS_API_URI}/${jobData?.externalJobId ? 'external-' : "" }job-application/${jobid}/${userEmail}`,true, {}, true);
+        `${APP_JOBS_API_URI}/${jobDataState?.externalJobId ? 'external-' : "" }job-application/${jobid}/${userEmail}`,true, {}, true);
         if (status === 404) {
          setApplicationStatus(false); // Set application status to true if data is present
       } else {
@@ -425,7 +425,7 @@ const JobDescription = () => {
       } else {
         payload = {
           jobId: jobDataState?.id,
-          companyName: jobData?.companyName || jobDataState?.companyDetails?.name,
+          companyName: jobDataState?.companyName || jobDataState?.companyDetails?.name,
           jobPortal: "worko",
           matchingScore: jobMatchDetails.matchingScore || 0,
           ...(referAndEarnId ? { referAndEarnId } : {}), //conditionally check if referAndEarnId exists.

@@ -130,7 +130,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   
 
   useEffect(() => {
-    if(jobData?.externalJobId){
+    if(!jobData?.externalJobId){
       checkSkillsPresence(); //@Dont call parseJD API for external jobs
     }
   }, []);

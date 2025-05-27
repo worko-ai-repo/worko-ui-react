@@ -11,7 +11,6 @@ import { createContext, useState, useContext, useCallback, useLayoutEffect, useM
 import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 
-
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
 const queryClient = new QueryClient();
@@ -21,7 +20,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   // Init useLocations to get the current path
   const { isLoggedIn } = useAppContext();
   const location = useLocation();
- 
 
   const initialMode = location.pathname.includes("job") ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
 
@@ -34,11 +32,12 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
-  const [defaultFiltersState, setDefaultFiltersState] = useState<{userDesignation:string,coreSkills?:any,YOE?:any}>();
+  const [defaultFiltersState, setDefaultFiltersState] = useState<{ userDesignation: string; coreSkills?: any; YOE?: any }>();
   const [isInitialFilterSet, setIsInitialFilterSet] = useState<boolean>(false);
+  const [defaultCoreSkills, setDefaultCoreSkills] = useState<string[] | undefined>([]);
 
-  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI
-  const APP_API_URI = import.meta.env.APP_API_URI
+  const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI;
+  const APP_API_URI = import.meta.env.APP_API_URI;
 
   const [jobFilters, setJobFilters] = useState<JobFiltersDto>({
     pageSize: 10,
@@ -47,14 +46,14 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
   // Memoized default filters
   const defaultFilters: JobFiltersDto = useMemo(() => {
-	return {
-	  pageSize: 10,
-	  sortOrder: "descending",
-	  
-    ...(defaultFiltersState?.userDesignation && { jobTitle: defaultFiltersState.userDesignation }),
-    ...(defaultFiltersState?.coreSkills && { coreSkills: defaultFiltersState.coreSkills }),
-    ...(defaultFiltersState?.YOE !== undefined && { YOE: defaultFiltersState.YOE })
-	};
+    return {
+      pageSize: 10,
+      sortOrder: "descending",
+
+      ...(defaultFiltersState?.userDesignation && { jobTitle: defaultFiltersState.userDesignation }),
+      ...(defaultFiltersState?.coreSkills && { coreSkills: defaultFiltersState.coreSkills }),
+      ...(defaultFiltersState?.YOE !== undefined && { YOE: defaultFiltersState.YOE }),
+    };
   }, [defaultFiltersState]);
 
   const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
@@ -71,28 +70,28 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     //Reset data on mode change
     setCompanyJobData([]);
     setCompanyRefData([]);
-	resetFiltersValues();
+    resetFiltersValues();
     // Reset the filter options cache when mode changes
     invalidateFilterCache();
   }, [location.pathname, companyPageMode]);
 
-    /**
+  /**
    * resetFiltersValues
-   * 
+   *
    * @description - This function is used to reset the filter values
    */
-	const resetFiltersValues = () => {
-		if (isLoggedIn && defaultFiltersState && location.pathname.includes("job")	) {
-		  setJobFilters({
-			...defaultFilters, // Ensures default user filters persist
-		  });
-		} else {
-		  setJobFilters({
-			pageSize: 10,
-			sortOrder: "descending",
-		  });
-		}
-	  };
+  const resetFiltersValues = () => {
+    if (isLoggedIn && defaultFiltersState && location.pathname.includes("job")) {
+      setJobFilters({
+        ...defaultFilters, // Ensures default user filters persist
+      });
+    } else {
+      setJobFilters({
+        pageSize: 10,
+        sortOrder: "descending",
+      });
+    }
+  };
 
   // useEffect to reset the queryClient when the component unmounts
   useEffect(() => {
@@ -110,10 +109,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
 
       if (error) throw error;
-      
+
       const designation = response?.candidateExperience?.designation;
-      const coreSkills = response?.coreSkills?.map(skill => skill.skillName);
-      if(response)setUserBasicDetails(response);
+      const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
+      setDefaultCoreSkills(coreSkills);
+      if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
       if (designation || coreSkills?.length || response?.YOE) {
@@ -122,7 +122,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           ...(coreSkills?.length && { coreSkills }),
           ...(response?.YOE && { YOE: response.YOE }), // Ensure YOE is always a string
         });
-      
+
         setJobFilters((prev) => ({
           ...prev,
           ...(designation && { jobTitle: designation }),
@@ -133,18 +133,15 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         setIsProfileInclomplete(true);
         setDefaultFiltersState({
           userDesignation: "", // Ensure userDesignation is always a string
-          ...({ coreSkills }),
-
+          ...{ coreSkills },
         });
       }
-
     } catch (err) {
       console.error("Exception in fetchUserBasicDetails:", err);
     } finally {
       setIsUserDetailsLoading(false);
     }
   }, [companyPageMode, setDefaultFiltersState]);
-
 
   /**
    * handleSearch
@@ -190,217 +187,216 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
  */
 
-const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // Persist missing job IDs
+  const [missingJobIdsSet, setMissingJobIdsSet] = useState(new Set<string>()); // Persist missing job IDs
 
-/**
- * Custom hook callback to calculate and update matching scores between resumes and job descriptions
- * This function processes jobs in batches to avoid UI blocking and calculates how well a resume
- * matches with each job description.
- * 
- * @param {Array<Object>} jobs - Array of job objects, each with id and jobDescription
- * @returns {Promise<void>}
- */
-const fetchJobMatchingScores = useCallback(
-  async (jobs: JobDto[]) => {
-    // Exit early if no jobs to process
-    if (!jobs.length) return;
-    // console.log("Jobs to fetch matching scores for:", jobs);
-    
-    try {
-      // Create a copy of the missing job IDs set to track which jobs still need processing
-      const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
+  /**
+   * Custom hook callback to calculate and update matching scores between resumes and job descriptions
+   * This function processes jobs in batches to avoid UI blocking and calculates how well a resume
+   * matches with each job description.
+   *
+   * @param {Array<Object>} jobs - Array of job objects, each with id and jobDescription
+   * @returns {Promise<void>}
+   */
+  const fetchJobMatchingScores = useCallback(
+    async (jobs: JobDto[]) => {
+      // Exit early if no jobs to process
+      if (!jobs.length) return;
+      // console.log("Jobs to fetch matching scores for:", jobs);
 
-      // Set batch size to process 25 jobs at a time
-      const BATCH_SIZE = 25;
-      // Set delay between batches to 50ms for UI responsiveness
-      const BATCH_DELAY = 50;
+      try {
+        // Create a copy of the missing job IDs set to track which jobs still need processing
+        const updatedMissingJobIdsSet = new Set(missingJobIdsSet);
 
-      // Initialize object to store calculated scores for each job ID
-      const scoresMap: Record<string, any> = {};
+        // Set batch size to process 25 jobs at a time
+        const BATCH_SIZE = 25;
+        // Set delay between batches to 50ms for UI responsiveness
+        const BATCH_DELAY = 50;
 
-      // Loop through jobs in batches to avoid blocking UI
-      for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
-        // Get current batch of jobs using slice
-        const batch = jobs.slice(i, i + BATCH_SIZE);
+        // Initialize object to store calculated scores for each job ID
+        const scoresMap: Record<string, any> = {};
 
-        // Process each job in the current batch
-        batch.forEach((job) => {
-          // Add job ID to the set of jobs being processed
-          updatedMissingJobIdsSet.add(job.id);
-          
-          // Check if user basic details exist before calculating score
-          if(!userBasicDetails) return;
-          // Calculate matching score between job and user resume
-          const {totalScore} = compareResumeWithJD(job,userBasicDetails );
+        // Loop through jobs in batches to avoid blocking UI
+        for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+          // Get current batch of jobs using slice
+          const batch = jobs.slice(i, i + BATCH_SIZE);
 
-          // Store the calculated score in the scores map
-          scoresMap[job.id] = {
-            id: job.id,
-            scores: totalScore,
-          };
-          // console.log("Job ID:", job.id, "Matching Score:", matchingScore);
-        });
+          // Process each job in the current batch
+          batch.forEach((job) => {
+            // Add job ID to the set of jobs being processed
+            updatedMissingJobIdsSet.add(job.id);
 
-        // Wait for specified delay before processing next batch
-        await new Promise((res) => setTimeout(res, BATCH_DELAY));
-      }
+            // Check if user basic details exist before calculating score
+            if (!userBasicDetails) return;
+            // Calculate matching score between job and user resume
+            const { totalScore } = compareResumeWithJD(job, userBasicDetails);
 
-      // Update the missing job IDs set state
-      setMissingJobIdsSet(updatedMissingJobIdsSet);
-
-      // Update company job data with new matching scores
-      setCompanyJobData((prev) => {
-        // Return undefined if previous data doesn't exist
-        if (!prev) return undefined;
-        
-        // Create a map of existing jobs for efficient lookup by ID
-        const existingJobsMap = prev.reduce((acc, job) => {
-          // Add each job to the accumulator object with job ID as key
-          acc[job.id] = job;
-          return acc;
-        }, {} as Record<string, JobDto>);
-
-        // Loop through all calculated scores to update jobs
-        Object.keys(scoresMap).forEach((jobId) => {
-          // Get new matching score or fallback to existing score
-          const matchingScore = scoresMap[jobId]?.scores ?? existingJobsMap[jobId].matchingScore;
-
-          // Update job object with new matching score
-          existingJobsMap[jobId] = {
-            ...existingJobsMap[jobId],
-            matchingScore,
-          };
-
-          // Remove processed job ID from missing jobs set
-          setMissingJobIdsSet((prevSet) => {
-            // Create new Set instance to avoid mutation
-            const newSet = new Set(prevSet);
-            // Remove the job ID from the set
-            newSet.delete(jobId);
-            return newSet;
+            // Store the calculated score in the scores map
+            scoresMap[job.id] = {
+              id: job.id,
+              scores: totalScore,
+            };
+            // console.log("Job ID:", job.id, "Matching Score:", matchingScore);
           });
-        });
 
-        // Map original jobs array to updated jobs with new scores
-        const updatedJobs = prev.map((job) => existingJobsMap[job.id] || job);
+          // Wait for specified delay before processing next batch
+          await new Promise((res) => setTimeout(res, BATCH_DELAY));
+        }
 
-        // Sort jobs with custom sorting logic
-        updatedJobs.sort((a, b) => {
-          // Check if job 'a' is internal with high matching score (>=10)
-          const aInternalHigh = !a.externalJobId && (a.matchingScore ?? 0) >= 50;
-          // Check if job 'b' is internal with high matching score (>=10)
-          const bInternalHigh = !b.externalJobId && (b.matchingScore ?? 0) >= 50;
+        // Update the missing job IDs set state
+        setMissingJobIdsSet(updatedMissingJobIdsSet);
 
-          // Prioritize internal high-scoring job 'a' over others
-          if (aInternalHigh && !bInternalHigh) return -1;
-          // Prioritize internal high-scoring job 'b' over others
-          if (!aInternalHigh && bInternalHigh) return 1;
+        // Update company job data with new matching scores
+        setCompanyJobData((prev) => {
+          // Return undefined if previous data doesn't exist
+          if (!prev) return undefined;
 
-          // Sort remaining jobs by matching score in descending order
-          return (b.matchingScore ?? 0) - (a.matchingScore ?? 0);
-        });
+          // Create a map of existing jobs for efficient lookup by ID
+          const existingJobsMap = prev.reduce((acc, job) => {
+            // Add each job to the accumulator object with job ID as key
+            acc[job.id] = job;
+            return acc;
+          }, {} as Record<string, JobDto>);
 
-        // Return the sorted and updated jobs array
-        return updatedJobs;
+          // Loop through all calculated scores to update jobs
+          Object.keys(scoresMap).forEach((jobId) => {
+            // Get new matching score or fallback to existing score
+            const matchingScore = scoresMap[jobId]?.scores ?? existingJobsMap[jobId].matchingScore;
 
-       /*  // Alternative: Simple reconstruction without custom sorting
+            // Update job object with new matching score
+            existingJobsMap[jobId] = {
+              ...existingJobsMap[jobId],
+              matchingScore,
+            };
+
+            // Remove processed job ID from missing jobs set
+            setMissingJobIdsSet((prevSet) => {
+              // Create new Set instance to avoid mutation
+              const newSet = new Set(prevSet);
+              // Remove the job ID from the set
+              newSet.delete(jobId);
+              return newSet;
+            });
+          });
+
+          // Map original jobs array to updated jobs with new scores
+          const updatedJobs = prev.map((job) => existingJobsMap[job.id] || job);
+
+          // Sort jobs with custom sorting logic
+          updatedJobs.sort((a, b) => {
+            // Check if job 'a' is internal with high matching score (>=10)
+            const aInternalHigh = !a.externalJobId && (a.matchingScore ?? 0) >= 50;
+            // Check if job 'b' is internal with high matching score (>=10)
+            const bInternalHigh = !b.externalJobId && (b.matchingScore ?? 0) >= 50;
+
+            // Prioritize internal high-scoring job 'a' over others
+            if (aInternalHigh && !bInternalHigh) return -1;
+            // Prioritize internal high-scoring job 'b' over others
+            if (!aInternalHigh && bInternalHigh) return 1;
+
+            // Sort remaining jobs by matching score in descending order
+            return (b.matchingScore ?? 0) - (a.matchingScore ?? 0);
+          });
+
+          // Return the sorted and updated jobs array
+          return updatedJobs;
+
+          /*  // Alternative: Simple reconstruction without custom sorting
         return prev.map((job) => existingJobsMap[job.id] || job); */
-      });
-    } catch (err) {
-      // Log any errors that occur during the process
-      console.error("Exception in fetchJobMatchingScores:", err);
-    }
-  },
-  // Dependencies array for useCallback hook
-  [setCompanyJobData, missingJobIdsSet, userBasicDetails]
-);
+        });
+      } catch (err) {
+        // Log any errors that occur during the process
+        console.error("Exception in fetchJobMatchingScores:", err);
+      }
+    },
+    // Dependencies array for useCallback hook
+    [setCompanyJobData, missingJobIdsSet, userBasicDetails]
+  );
 
-
+  /*   useEffect(() => {
+    const coreSkillsFromParams = urlParams.get("coreSkills")?.split(",");
+    setJobFilters((prev) => ({
+      ...prev,
+      coreSkills: coreSkillsFromParams ?? defaultCoreSkills ?? [], // Use coreSkills from URL params or defaultCoreSkills if not available
+    }));
+    console.info("CoreSkills from URL params used:", coreSkillsFromParams);
+  }, []); */
   /**
    * Handle Query Function
    *
    * @description - This function is used to handle the query function for fetching data from the API
-   */  
-  
+   */
+
   const CompanyQueryHandler = useCallback(
     async ({ pageParam = null, filters }: { pageParam?: string | null; filters: JobFiltersDto }) => {
       // Check if we are on the job page
       const isJobPage = location.pathname.includes("job");
       // If pageParam is null, it's a new filter request
       const isFiltering = pageParam === null;
-  
+
       // Create updated filters object
-      const updatedFilters:JobFiltersDto = {
+      const updatedFilters: JobFiltersDto = {
         ...filters,
         pageSize: 100,
         ...(pageParam && { lastKey: pageParam }),
-        ...(isJobPage && filters.sortOrder
-          ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
-          : {})
+        ...(isJobPage && filters.sortOrder ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" } : {}),
       };
-      const { jobTitle, YOE, coreSkills,pageSize,sortOrder,status,lastKey, ...rest } = filters;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const coreSkillsFromParams = urlParams.get("coreSkills")?.split(",");
+      updatedFilters.coreSkills = coreSkillsFromParams ?? defaultCoreSkills ?? []; // Use coreSkills from URL params or defaultCoreSkills if not available
+      console.info("CoreSkills from URL params used:", coreSkillsFromParams);
+
+      const { jobTitle, YOE, pageSize, sortOrder, status, lastKey, ...rest } = filters;
 
       // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
-      const hasAnyOtherFilter = Object.values(rest).some(value => value !== undefined && value !== null);
-      
+      const hasAnyOtherFilter = Object.values(rest).some((value) => value !== undefined && value !== null);
+
       if (hasAnyOtherFilter) {
         delete updatedFilters.jobTitle;
         delete updatedFilters.YOE;
-        delete updatedFilters.coreSkills;
-      
+        if (defaultCoreSkills === filters.coreSkills || !filters.coreSkills) {
+          delete updatedFilters.coreSkills;
+        }
+
         console.info("Removed default filters because at least one other filter is present.");
       }
-      
+
       // Step 7 → If any filter includes 'experience Range' in its key, remove YOE
       if (filters.experienceRange) {
         delete updatedFilters.YOE;
       }
 
-      // if updatedFilters has salaryRange or experienceRange, then exclude those values 
-      if(updatedFilters.salaryRange){
+      // if updatedFilters has salaryRange or experienceRange, then exclude those values
+      if (updatedFilters.salaryRange) {
         delete updatedFilters.salaryRange;
       }
-      if(updatedFilters.experienceRange){
+      if (updatedFilters.experienceRange) {
         delete updatedFilters.experienceRange;
       }
-      if(updatedFilters?.industry){
-        updatedFilters.industryName =  updatedFilters.industry;
+      if (updatedFilters?.industry) {
+        updatedFilters.industryName = updatedFilters.industry;
         delete updatedFilters.industry;
       }
-      if(isJobPage){
+      if (isJobPage) {
         updatedFilters.status = "PUBLISHED";
+        updatedFilters.sortOrder = "desc";
       }
 
-      const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : '/company';
-      
+      const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
+
       try {
-        const { response, error } = await httpServiceObj.get<
-          typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any
-        >(
-          apiUrl,
-          true,
-          updatedFilters,
-          isJobPage
-        );
+        const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
         if (error) throw error;
-  
+
         // Decide the filterMetaData based on the page mode
-        const finalFilterMetaData = isJobPage 
-          ? filterMetaData.jobFilter 
-          : filterMetaData.referralFilter;
-  
+        const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
+
         // Generate filters for rendering
-        generateFilterForRender(
-          response.data,
-          companyPageMode,
-          finalFilterMetaData,
-          setJobFilterForRender,
-          isFiltering
-        );
-  
+        generateFilterForRender(response.data, companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
+
         // Update API data status
         setApiHasData(response.data.length > 0);
-  
+
         if (isJobPage) {
           response.data as JobDto[];
           setCompanyJobData((prevData) => {
@@ -410,13 +406,10 @@ const fetchJobMatchingScores = useCallback(
             const existingData = prevData || [];
             return [...existingData, ...response.data];
           });
-  
+
           // Fetch matching scores for new jobs if user is logged in
           if (response.data.length > 0 && isLoggedIn) {
-            fetchJobMatchingScores(
-              response.data.map((job: JobDto) => (job))
-            );
-            
+            fetchJobMatchingScores(response.data.map((job: JobDto) => job));
           }
         } else {
           setCompanyRefData((prevData) => {
@@ -425,7 +418,7 @@ const fetchJobMatchingScores = useCallback(
             return [...existingData, ...response.data];
           });
         }
-  
+
         return {
           data: response,
           nextPage: response.pagination?.lastKey,
@@ -442,15 +435,16 @@ const fetchJobMatchingScores = useCallback(
     if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
     // if(!hasNextPage) return false;
     // @Todo- fix this
-     if(isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {return true}
+    if (isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {
+      return true;
+    }
     if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
-    if(!isInitialFilterSet && companyPageMode === CompanyPageModeEnum.JOB) return false
+    if (!isInitialFilterSet && companyPageMode === CompanyPageModeEnum.JOB) return false;
     return true;
     // enabled:!!companyPageMode && jobFilters.pageSize! > 0 &&
     // (companyPageMode === CompanyPageModeEnum.REFERRAL || companyPageMode === CompanyPageModeEnum.JOB) &&
     // Object.keys(jobFilters).length > 0 ,// Ensure filters are fully set,
-    };
-  
+  };
 
   /**
    * useInfiniteQuery
@@ -462,7 +456,7 @@ const fetchJobMatchingScores = useCallback(
     queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
     getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
     initialPageParam: null,
-     enabled: shouldEnableQuery(),
+    enabled: shouldEnableQuery(),
     retry: 0,
     // Removed keepPreviousData as it is not supported in useInfiniteQuery
     // staleTime: 1000 * 60 , // 5 seconds
@@ -493,12 +487,12 @@ const fetchJobMatchingScores = useCallback(
       isFetchingNextPage,
       fetchNextPage,
       fetchUserBasicDetails,
-	  resetFiltersValues,
-    isProfileInclomplete,
-    setIsProfileInclomplete,
-    setIsInitialFilterSet,
+      resetFiltersValues,
+      isProfileInclomplete,
+      setIsProfileInclomplete,
+      setIsInitialFilterSet,
     }),
-    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage,resetFiltersValues,isProfileInclomplete,setIsProfileInclomplete,setIsInitialFilterSet]
+    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage, resetFiltersValues, isProfileInclomplete, setIsProfileInclomplete, setIsInitialFilterSet]
   );
 
   return (
