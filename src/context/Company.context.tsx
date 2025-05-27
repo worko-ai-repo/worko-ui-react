@@ -353,7 +353,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       if (hasAnyOtherFilter) {
         delete updatedFilters.jobTitle;
         delete updatedFilters.YOE;
-        if (defaultCoreSkills === coreSkillsFromParams || !filters.coreSkills) {
+        if (updatedFilters.coreSkills != coreSkillsFromParams) {
           delete updatedFilters.coreSkills;
         }
 
