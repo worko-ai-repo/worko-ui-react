@@ -350,11 +350,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
       // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
       const hasAnyOtherFilter = Object.values(rest).some((value) => value !== undefined && value !== null);
-
       if (hasAnyOtherFilter) {
         delete updatedFilters.jobTitle;
         delete updatedFilters.YOE;
-        if (defaultCoreSkills === filters.coreSkills || !filters.coreSkills) {
+        if (defaultCoreSkills === coreSkillsFromParams || !filters.coreSkills) {
           delete updatedFilters.coreSkills;
         }
 
