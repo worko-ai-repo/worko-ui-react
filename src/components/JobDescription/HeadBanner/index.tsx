@@ -176,6 +176,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
                     "salary"
                   )
               }
+              showSalary={jobData?.displaySalaryRange ?? true}
               coreSkills={jobData?.coreSkills}
               experience={jobData?.experienceRange
                 ? formatRange(

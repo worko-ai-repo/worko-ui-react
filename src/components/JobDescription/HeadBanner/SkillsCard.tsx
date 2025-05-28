@@ -5,6 +5,7 @@ interface SkillsCardProps {
   department?: string;
   employmentType?: string;
   salary?: string;
+  showSalary?: boolean;
   coreSkills?: string[];
   experience?: string;
 }
@@ -68,7 +69,8 @@ const MoreSkillsTag: React.FC<MoreSkillsTagProps> = ({ remainingSkills }) => {
 const SkillsCard: React.FC<SkillsCardProps> = ({ 
   department, 
   employmentType, 
-  salary, 
+  salary,
+  showSalary, 
   coreSkills, 
   experience 
 }) => {
@@ -96,7 +98,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
     return employmentType.includes("Senior") ? "3-4 Years" : "1-2 Years";
   };
   
-  const formattedSalary = salary || "Not Disclosed";
+  const formattedSalary = (showSalary ? salary :"Not Disclosed" ) ?? "Not Disclosed";
   
   // Get the skills to display
   const skills = displaySkills();

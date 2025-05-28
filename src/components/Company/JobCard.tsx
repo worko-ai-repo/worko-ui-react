@@ -16,6 +16,7 @@ import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { generateJobSlug } from "@Utils/JobUriSlug.utils";
+import { get } from "http";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
@@ -181,7 +182,6 @@ export const JobCard = ({ job }: any) => {
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
 
-  const refinedCompanyName= (url:string)=>{ return(url).replace(/\s/g, "-")};
   const handleReferralNav = () => {
     const slug = generateJobSlug({
       title: title,
@@ -230,6 +230,16 @@ export const JobCard = ({ job }: any) => {
       reset();
     }
   }, [showModal, reset]);
+
+ const getJobUrl = () => {
+    return generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  }
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -245,7 +255,7 @@ export const JobCard = ({ job }: any) => {
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
               <a
-                href={`/jobs/${refinedCompanyName}/${jobId}`} 
+                href={getJobUrl()} 
                 
                 rel="noopener noreferrer"
                 className="block"
