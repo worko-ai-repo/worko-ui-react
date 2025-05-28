@@ -52,7 +52,7 @@ const DropdownCalendar: React.FC<DropdownCalendarProps> = ({
 
       {isOpen && (
         <div
-          className="absolute z-10 bg-opacity-20 backdrop-blur-lg border border-gray-200 rounded-md shadow-lg mt-2 p-4"
+          className="absolute z-10 bg-opacity-20 backdrop-blur-3xl border border-gray-200 rounded-md shadow-lg mt-2 p-4"
           ref={calendarRef}
         >
           <Calendar
@@ -67,7 +67,7 @@ const DropdownCalendar: React.FC<DropdownCalendarProps> = ({
               const isSelected = selectedDate?.toDateString() === date.toDateString();
               return `p-1 flex items-center justify-center rounded-full ${
                 view === 'month' && (
-                  isToday ? '!bg-gray-200 text-black' : 'hover:bg-blue-200 text-black'
+                  isToday ? '!bg-gray-300 text-black' : 'hover:bg-blue-200 text-black'
                 ) + (
                   isSelected ? ' bg-blue-600 text-white hover:bg-blue-800' : ''
                 )

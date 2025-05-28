@@ -53,7 +53,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       value: [] // This can be populated with suggested skills
     },
     {
-      options: ['0-5L', '5-10L', '10-15L', '15-20L', '20-25L', '25-30L', '30-35L', '35-40L', '40-45L', '45-50L', '50-70L', '70-1Cr', '1Cr+'],
+      options: ['0-5L', '5-10L', '10-15L', '15-20L', '20-25L', '25-30L', '30-35L', '35-40L', '40-45L', '45-50L', '50-70L', '70-1Cr', '1-5Cr','5-10Cr+'],
       value: [
         '0-5',
         '5-10',
@@ -67,7 +67,8 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
         '45-50',
         '50-70',
         '70-100',
-        '100-200',
+        '100-500',
+        '500-1000',
       ],
       paramKey: 'salaryRange',
       placeholder: 'Salary Range',
@@ -96,15 +97,29 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       selectType: 'multiselect',
       options: [], // This can be populated with suggested industries
       value: []
+    },
+    {
+      placeholder: 'Job Type',
+      paramKey: 'dashboard',
+      selectType: 'normal',
+      options: ['Refer a friend jobs'],
+      value: [ 'USER'],
+    },
+    {
+      placeholder: 'Department',
+      paramKey: 'department',
+      selectType: 'multiselect',
+      options: [], // This can be populated with suggested industries
+      value: []
     }
   ],    
   referralFilter: [
     {
       placeholder: 'Team Size',
       paramKey: 'teamSize',
-      selectType: 'multiselect',
-      options: [], // This can be populated with suggested team sizes
-      value: []
+      selectType: 'normal',
+      options: ['1-10', '10-50', '50-100', '100-500', '500-1000', '1000-5000', '5000+'], // Added team size ranges
+      value: ['1-10', '10-50', '50-100', '100-500', '500-1000', '1000-5000', '5000+']
     },
     {
       placeholder: 'Industry',

@@ -26,6 +26,10 @@ import vector_1 from './backgrounds/vector_1.webp'
 import mag_glass from './backgrounds/mag_glass.webp'
 import check from './backgrounds/check.webp'
 import worko_new from './worko-assets/Worko_new_logo.webp'
+import job_listing_promo from './backgrounds/Job_listing_promo.webp'
+import job_listing_promo_1 from './backgrounds/Job_listing_promo_1.webp'
+import job_listing_promo_2 from './backgrounds/Job_listing_promo_2.webp'
+import job_listing_promo_3 from './backgrounds/Job_listing_promo_3.webp'
 
 import auth_bg from './backgrounds/auth_bg.webp'
 import auth_bg2 from './backgrounds/auth_bg2.webp'
@@ -84,6 +88,10 @@ export {
     vector_1,
     mag_glass,
     check,
+    job_listing_promo,
+    job_listing_promo_1,
+    job_listing_promo_2,
+    job_listing_promo_3,
 
     employee_hero,
     employee_hero_mobile,

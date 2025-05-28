@@ -3,7 +3,7 @@ import { MapPin, Clock, ChevronDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 import { useAppContext } from "@Context/App.context";
 import { toast } from 'react-toastify';
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
@@ -13,9 +13,15 @@ import countryCodes from "@Utils/CountryCodes.utils";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { validationRules } from "@Utils/FormValidator.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
+import secureStorage from "@Utils/SecureStorage.utils";
+import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { generateJobSlug } from "@Utils/JobUriSlug.utils";
+import { get } from "http";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
+  phoneNumber: number;
+  name: string;
   fullName: string;
   email: string;
   phone: number;
@@ -23,16 +29,16 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience} = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [imgError, setImgError] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const nav = useNavigate();
+  const locationHook = useLocation(); // Using location hook for checking URL changes
 
-  const {userDetails} = useAppContext();
-
-  // Initialize react-hook-form.
+  // Initialize react-hook-form
   const {
     register,
     handleSubmit,
@@ -57,10 +63,9 @@ export const JobCard = ({ job }: any) => {
     setShowCountryDropdown(false);
   };
 
-  const nav = useNavigate();
-
-  const onSubmit = async (formData: ReferralFormDTO) => {
-    const requestData = {
+  // Function to create payload from form data
+  const createPayload = (formData: ReferralFormDTO) => {
+    return {
       recipientDetails: {
         name: formData.fullName,
         email: formData.email,
@@ -77,10 +82,64 @@ export const JobCard = ({ job }: any) => {
         url: jobUrl
       }
     };
+  };
+
+  useEffect(() => {
+    // Check if user just logged in and has pending data
+    if (isLoggedIn) {
+      
+        let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+      
+      // If we have pending data and it's for refer and earn
+      if (pendingData && typeof pendingData === 'object' && 'data' in pendingData) {
+        try {
+          // Populate form with saved data
+          const savedData = (pendingData as { data: { recipientDetails: ReferralFormDTO } }).data.recipientDetails;
+          // console.log("Saved Data:", pendingData);
+          if (savedData) {
+            setValue('fullName', savedData.name || '');
+            setValue('email', savedData.email || '');
+            setValue('phone', savedData.phoneNumber || 0);
+            setValue('phoneCountryCode', `+${savedData.phoneCountryCode}` || '+91');
+            
+            // Submit form after a brief delay to ensure values are set
+              handleSubmit(onSubmit)();
+            
+          }
+          
+          // Clear the pending data
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
+          localStorage.removeItem('continueReferAndEarnRequestData');
+        } catch (error) {
+          console.error("Error processing pending referral data:", error);
+        }
+      }
+    }
+  }, [isLoggedIn, locationHook.pathname]); // Run when login status or location changes
+
+  const onSubmit = async (formData:ReferralFormDTO) => {
+    const payload = createPayload(formData);
   
+    if (!isLoggedIn) {
+      // Store data for after login
+      const continueReferAndEarnRequestData = {
+        type: "continueReferAndEarn",
+        data: payload,
+        url: window.location.href
+      };
+
+      // Store in both secure storage and localStorage
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
+      localStorage.setItem('continueReferAndEarnRequestData', JSON.stringify(continueReferAndEarnRequestData));
+      
+      // Navigate to login
+      nav('/auth/login');
+      return;
+    }
+    
     try {
       const result = await toast.promise(
-        httpServiceObj.post('https://jobs.dev.worko.work/refer-and-earn', requestData, true, {}, true),
+        httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, payload, true, {}, true),
         {
           pending: 'Sharing job...',
         },
@@ -99,7 +158,6 @@ export const JobCard = ({ job }: any) => {
         throw new Error(error.message || 'Failed to submit referral');
       }
   
-      // console.log('Referral submitted successfully:', response);
       toast.success('Referral applied successfully!', getToastOptions());
     } catch (error: any) {
       console.error('Error submitting referral:', error);
@@ -110,6 +168,11 @@ export const JobCard = ({ job }: any) => {
     }
   };
   
+  // Rest of the component remains the same...
+  
+  // Just showing the relevant parts for brevity
+  // Return JSX remains the same
+  
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
     const threeDaysAgo = new Date();
@@ -118,10 +181,19 @@ export const JobCard = ({ job }: any) => {
   }, [createdAt]);
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
-  
+
   const handleReferralNav = () => {
-    const refinedCompanyName = companyName.replace(/\s/g, "_");
-    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
+    const slug = generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  
+    nav(slug, {
+      state: { FullJob: FullJob as JobDto },
+    });
   };
 
   useEffect(() => {
@@ -159,6 +231,15 @@ export const JobCard = ({ job }: any) => {
     }
   }, [showModal, reset]);
 
+ const getJobUrl = () => {
+    return generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  }
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -174,7 +255,7 @@ export const JobCard = ({ job }: any) => {
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
               <a
-                href={jobUrl} // <-- make sure this points to the correct URL
+                href={getJobUrl()} 
                 
                 rel="noopener noreferrer"
                 className="block"
@@ -184,7 +265,7 @@ export const JobCard = ({ job }: any) => {
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
 
                 {/* Salary */}
-                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">₹ {salary}</div>
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">{showSalary ? `₹${salary}` : "Not Disclosed"}</div>
               </div>
             </div>
 
@@ -218,7 +299,7 @@ export const JobCard = ({ job }: any) => {
 </p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
-                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Account Required</small>
+                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Login to fetch your score</small>
                   </div>
                 )}
               </div>
@@ -242,7 +323,7 @@ export const JobCard = ({ job }: any) => {
               <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <>
-                <small  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Account Required</small>
+                <small  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"> Login to fetch your score</small>
               </>
             )}
           </div>
@@ -264,14 +345,16 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            { (!isExternalJob && isLoggedIn) && 
+            { (!isExternalJob) && 
+            <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
             <button
               onClick={() => setShowModal(true)}
-              className="flex-1 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9">
+              >
               Refer A Friend
             </button> 
+            </div>
             }
-             <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
+             <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details
             </button>
           </div>

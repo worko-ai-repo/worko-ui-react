@@ -6,7 +6,6 @@ import MainLoader from '@Components/Loader/Loader';
 import TestPage from '@Pages/JobDescriptionPage';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 import FAQ from '@Pages/faq/Faq';
-
 import JobDescription from '@Pages/JobDescriptionPage';
 import CorporateDashboard from '@Components/Dashboard/Corporate/Job/Jobs';
 
@@ -21,9 +20,11 @@ const Corporate = lazy(() => import('@Pages/corporate/Corporate'));
 const DashboardRouter = lazy(() => import('@Pages/Dashboard/Dashboard.router'));
 const RequestReferral = lazy(() => import('@Pages/request-referral/RequestReferral'));
 const CorporateConnect = lazy(() => import('@Pages/corporate/corporateConnect/CorporateConnect'));
+const TermsOfUse = lazy(() => import('@Pages/terms/TermsOfUse'));
+const PrivacyPolicy = lazy(() => import('@Pages/privacy-policy/PrivacyPolicy'));
+const ContactUs = lazy(() => import('@Pages/contact-us/ContactUs'));
 const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
-
-const underConstructionPaths = ['faqs', 'blogs', 'privacy', 'contact', 'pricing', 'terms', 'employee/*', 'candidate/*', 'profile/*', 'support'];
+const underConstructionPaths = ['faqs', 'blogs', 'pricing', 'employee/*', 'candidate/*', 'profile/*', 'support'];
 
 // Create routes for under construction pages
 const underConstructionRoutes = underConstructionPaths.map(path => ({
@@ -110,6 +111,30 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
+				path: 'terms',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<TermsOfUse />
+					</Suspense>
+				),
+			},
+			{
+				path: 'privacy-policy',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<PrivacyPolicy />
+					</Suspense>
+				),
+			},
+			{
+				path: 'contact-us',
+				element: (
+					<Suspense fallback={<MainLoader />}>
+						<ContactUs />
+					</Suspense>
+				),
+			},
+			{
 				path: 'about',
 				element: (
 					<Suspense fallback={<MainLoader />}>
@@ -118,7 +143,7 @@ const AppRoutes = createBrowserRouter([
 				),
 			},
 			{
-				path: 'for-corporate',
+				path: 'corporate',
 				children: [
 					{
 						index: true,
@@ -138,7 +163,7 @@ const AppRoutes = createBrowserRouter([
 					},
 				],
 			},
- 
+
 			{
 				path: 'guidance*',
 				element: (

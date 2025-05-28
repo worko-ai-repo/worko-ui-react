@@ -23,7 +23,7 @@ const Footer = () => {
 
 							<div className={styles.label_and_buttons}>
 								<p className="mb-0">Discover Top Talent For Your Team</p>
-								<button onClick={()=>{NavTo('/for-corporate')}} className="btn_hire_talent mt-0">Hire Candidate</button>
+								<button onClick={()=>{NavTo('/corporate')}} className="btn_hire_talent mt-0">Hire Candidate</button>
 							</div>
 
 							<div className="flex space-x-8 mt-4">
@@ -44,9 +44,9 @@ const Footer = () => {
 							<div>
 								<h3 className="font-semibold mb-4">For Companies</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list}>
-									<li onClick={()=>{NavTo('/for-corporate')}}>Hire Talent</li>
-									{/* <li onClick={() => NavTo('/for-corporate#corporate-communication')} >AI Resume Screening</li>						 */}
-									<li onClick={()=>{NavTo('/for-corporate#corporatePlans')}}>Pricing</li>
+									<li onClick={()=>{NavTo('/corporate')}}>Hire Talent</li>
+									{/* <li onClick={() => NavTo('/corporate#corporate-communication')} >AI Resume Screening</li>						 */}
+									<li onClick={()=>{NavTo('/corporate#corporatePlans')}}>Pricing</li>
 								</ul>
 							</div>
 							<div>
@@ -60,8 +60,8 @@ const Footer = () => {
 							<div className="grow ">
 							<ul className={'space-y-2 text-gray-400 ' + styles.footer_list}>
 									<li onClick={()=>{NavTo('/about')}}>Our story</li>
-									<li onClick={()=>{NavTo('/contact')}}>Contact us</li>
-									<li onClick={()=>{NavTo('/privacy')}}>Privacy policy</li>
+									<li onClick={()=>{NavTo('/contact-us')}}>Contact us</li>
+									<li onClick={()=>{NavTo('/privacy-policy')}}>Privacy policy</li>
 									<li onClick={()=>{NavTo('/terms')}}>Terms of use</li>
 									<li onClick={()=>{NavTo('/faq')}}>FAQ</li>  
 								</ul>

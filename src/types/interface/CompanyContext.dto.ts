@@ -1,3 +1,4 @@
+import { ScoreWeightsDto } from "@Utils/CompareResumeWithJD.utils";
 import { CompanyShortDto, FilterOptionForRender, JobDto, JobFiltersDto } from "./JobsAndCompany.dto";
 
 /**
@@ -37,9 +38,12 @@ export type CompanyContextType = {
     isFetchingNextPage: boolean;
 
     isProfileInclomplete: boolean;
+    
+    setIsProfileInclomplete: React.Dispatch<React.SetStateAction<boolean>>;
 
     fetchNextPage: () => void;
     handleSearch: () => void;
     resetSearch: () => void;
     resetFiltersValues : () => void;
+    setIsInitialFilterSet : React.Dispatch<React.SetStateAction<boolean>>;
 }

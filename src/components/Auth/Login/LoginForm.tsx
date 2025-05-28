@@ -181,7 +181,7 @@ const LoginForm = () => {
 						setTimeout(() => {
 							// Construct the referral object
 							const pendingReferral =
-								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 							if (pendingReferral) {
 								window.location.href = pendingReferral.url; // Redirect to the referral page
@@ -288,9 +288,9 @@ const LoginForm = () => {
 					<div className="w-full ">
 						<p className="text-center text-sm mt-3 ">
 							Don't have an account? &nbsp;
-							<a href="signup" className="cursor-pointer text-blue-500 ">
+							<div  onClick={()=>navigate('/auth/signup')} className="inline cursor-pointer text-blue-500 ">
 								Sign up now
-							</a>
+							</div>
 						</p>
 					</div>
 				</div>

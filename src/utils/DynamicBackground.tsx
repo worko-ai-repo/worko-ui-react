@@ -20,7 +20,7 @@ interface pageBackgroundsDto {
 const pageBackgrounds: Record<string, string> = {
   "/": "#3c92eb", 
   '/for-employee': '#316bff',
-  "/for-corporate/connect-with-us": "#2053db", // Gradient
+  "/corporate/connect-with-us": "#2053db", // Gradient
   "/contact": "url('/assets/bg-contact.jpg') center/cover no-repeat", // Background image
 };
 

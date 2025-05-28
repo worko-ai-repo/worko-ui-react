@@ -319,7 +319,7 @@ function CorporateTable() {
           />
            {/* Call to action buttons */}
             <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
-                <button className="bg-blue-500 text-white rounded-md px-6 py-2 font-medium" onClick={() => window.location.href = '/for-corporate/connect-with-us'}>
+                <button className="bg-blue-500 text-white rounded-md px-6 py-2 font-medium" onClick={() => window.location.href = '/corporate/connect-with-us'}>
                 Start Efficient Hiring Now
                 </button>
                 {/* <button className="bg-transparent text-black border border-black rounded-md px-6 py-2 font-medium">

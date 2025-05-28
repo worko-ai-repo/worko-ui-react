@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '@Context/App.context';
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
+import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
 
 interface NavItem {
 	label: string;
@@ -23,13 +24,13 @@ const navItems: NavItem[] = [
 		],
 	},
 	{ label: 'For Employee', href: '/for-employee' },
-	{ label: 'For Corporate', href: '/for-corporate' },
+	{ label: 'For Corporate', href: '/corporate' },
 	//{ label: 'Blog', href: '/blogs' },
 	{ label: 'About Us', href: '/about' },
 ];
 
 const Header = () => {
-	
+	const appHref = useCrossAppAuth();
 	const navigateTo = useNavigate();
 	const { isLoggedIn, userDetails, setUpdateCheck } = useAppContext() as { isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto>; setUpdateCheck: React.Dispatch<React.SetStateAction<boolean>> };
 	const [isOpen, setIsOpen] = useState(false);
@@ -60,6 +61,10 @@ const Header = () => {
 		};
 	}, [isOpen]);
 
+	const profilePath = userDetails?.lastAccessedDash === 'CAND' 
+  ? "/v1/candidate/edit-profile" 
+  : "/v1/employee/edit-profile";
+  const dashPath = `/v1/${userDetails?.lastAccessedDash === 'CAND' ? 'candidate/d' : 'employee/D'}ashboard`;  
 	return (
 		<header className={styles.header} id="header_main_body" ref={headerRef}>
 			<div className={styles.container}>
@@ -95,7 +100,7 @@ const Header = () => {
 					{isLoggedIn ? (
 						<div className="group relative">
 							<div className="flex items-center justify-start gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-[55px] group-hover:bg-[#79bff848]">
-								<a className={styles.userDetails} href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile"}>
+								<div className={styles.userDetails} onClick={()=>appHref(profilePath)}>
 									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
 										<img
 											onError={() => setImgError(true)}
@@ -109,7 +114,7 @@ const Header = () => {
 									) : (
 										<User className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full" />
 									)}
-								</a>
+								</div>
 								<i className="fa-solid fa-chevron-down cursor-pointer" onClick={() => CognitoServiceObj.handleSignOut()}></i>
 							</div>
 
@@ -145,9 +150,9 @@ const Header = () => {
 														{userDetails?.referralCount || 0}
 													</span>
 													{/* Change Link */}
-													<a className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " href="/v1/candidate/subscription">
+													<span className="cursor-pointer self-end font-medium text-sm text-blue-500 hover:underline " onClick={()=>appHref("/v1/candidate/subscription")} >
 														+ Referrals
-													</a>
+													</span>
 												</div>
 											</div>
 										</div>
@@ -160,14 +165,14 @@ const Header = () => {
 										<span className="text-sm font-semibold text-gray-400 text-left cursor-default  ">Personal</span>
 									</li>
 									<li>
-										<a href={userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile":"/v1/employee/Edit-profile"} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<div onClick={()=>appHref(profilePath)} className="block py-0.5 w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Edit Profile
-										</a>
+										</div>
 									</li>
 									<li>
-										<a href={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`} className="text-sm font-medium text-gray-800 hover:text-blue-600">
+										<div onClick={()=>appHref(dashPath)} className=" block  py-0.5  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Dashboard
-										</a>
+										</div>
 									</li>
 									<hr className="mt-2" />
 									{/* Basic Edits */}
@@ -185,7 +190,7 @@ const Header = () => {
 												CognitoServiceObj.handleSignOut();
 												setUpdateCheck(prev => !prev);
 											}}
-											className="text-sm font-medium text-gray-800 hover:text-blue-600">
+											className=" py-0.5 block  w-full h-full text-sm font-medium text-gray-800 hover:text-blue-600">
 											Logout
 										</a>
 									</li>
@@ -216,7 +221,7 @@ const Header = () => {
 					{isLoggedIn && (
 						<div className="flex flex-col items-start justify-start gap-4 p-2">
 							<div className="flex font-bold justify-between items-center w-full">
-								<span className="flex-1 flex items-center" onClick={()=>{window.location.href = userDetails?.lastAccessedDash === 'CAND' ? "/v1/candidate/edit-profile" : "/v1/employee/Edit-profile"}}>
+								<span className="flex-1 flex items-center" onClick={()=>{appHref(profilePath)}}>
 									{userDetails?.profileImageAwsS3SignedUrl && !imgError ? <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" onError={()=>setImgError(true)}  src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" /> : userDetails?.name ? (
 													<span className="text-gray-400 border-[1px] border-gray-400 p-0.2 w-[35px] h-[35px] object-cover rounded-full flex items-center justify-center">
 														{userDetails.name.charAt(0).toUpperCase()}
@@ -238,7 +243,7 @@ const Header = () => {
 								<img src={coin} className="inline mr-1 object-contain" />
 								{userDetails?.referralCount || 0} Referrals Left
 							</span>
-							<a className="dashboard" href ={`/v1/${userDetails?.lastAccessedDash === 'CAND'?'candidate/d' : 'employee/D'}ashboard`}>
+							<a className="dashboard" onClick ={()=>appHref(dashPath)}>
 								Dashboard
 							</a>
 						</div>

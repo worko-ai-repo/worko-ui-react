@@ -13,12 +13,11 @@ import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 import { currentSession } from '../Login/LoginForm';
-import { useAuthContext } from '@Context/Auth.context';
 import { CompanyShortDto, UserBasicDetailsDto } from '@Interfaces/JobsAndCompany.dto';
 import { getToastOptions } from '@Utils/Toast.utils';
 import ReferralLoader from '@Components/ReferralRequest/ReferralLoader';
-import { set } from 'react-hook-form';
 import MessageModal from '@Components/Modals/MessageModal';
+import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
 
 export type SignupMode = 'EMP' | 'CAND';
 interface ToggleOptionsDto {
@@ -29,7 +28,7 @@ interface ToggleOptionsDto {
 const Signup = () => {
 	const navigateTo = useNavigate();
 	const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck } = useAppContext();
-	const { authContextActiveFrame } = useAuthContext();
+	const appHref = useCrossAppAuth();
 	const location = useLocation(); // Get location object
 	let initialFrame: SignupMode = 'CAND'; // Default to 'CAND'
 	const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
@@ -131,23 +130,23 @@ Z — Signup-BwkRK2K6.js:1:7879
 	 */
 	const initiateFinalRedirection = () => {
 		// Retrieve pending referral data from context and secure storage
-		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
+		let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
 		// Sync PendingApply and secureStorage
-		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
-		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA)) {
+		if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+		} else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
 			setPendingApply(pendingReferral);
 		}
 
 		if (PendingApply) {
-			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, PendingApply);
+			secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
 			window.location.href = PendingApply.url; // Redirect to the referral page
 		} else {
 			const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
 			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
 			// prefer local over state
-			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (window.location.href = '/v1/employee/Dashboard'); // Redirect to the home page
+			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (appHref('/v1/employee/Dashboard')); // Redirect to the home page
 		}
 	};
 	/**
@@ -167,7 +166,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 					initiateFinalRedirection();
 				}
 				else{
-				setOpenReferralLoader(true);
+				if (retryCount === 0){setOpenReferralLoader(true);}
 				const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
 
 				if (error) throw error;
@@ -180,18 +179,18 @@ Z — Signup-BwkRK2K6.js:1:7879
 					setOpenReferralLoader(false);
 					initiateFinalRedirection();
 				} else {
-					setOpenReferralLoader(false);
+					// setOpenReferralLoader(false);
 					// Check if we should retry
 					if (retryCount < maxRetries) {
 						retryCount++;
 						setCurrStep(prev => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-						// console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
 						setTimeout(attemptCheck, 5000); // Retry after 5 seconds
 					} else {
+						setOpenReferralLoader(false);
 						console.log('Max retries reached for checkBasicDetails');
 						// Optional: Show a message to the user that we couldn't get their details
 						toast.warning('Could not retrieve user details after multiple attempts', getToastOptions());
-						setTimeout(() => {navigateTo('/jobs', { replace: true })}, 5000); // Redirect to the jobs page after 5 seconds
+						setTimeout(() => {window.location.href =`/jobs`, { replace: true }}, 5000); // Redirect to the jobs page after 5 seconds
 					}
 				}
 			}
@@ -203,7 +202,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 					heading: { message: "Something Went Wrong", type: "error" },
 					message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
 					buttons: [
-					  { label: "Go To Dashboard", action: () => window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}` },
+					  { label: "Go To Dashboard", action: () => appHref(`/v1/candidate/edit-profile?returnUrl=${params}`) },
 					],
 				  });
 			}
@@ -260,7 +259,7 @@ Z — Signup-BwkRK2K6.js:1:7879
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 
 						await currentSession();
-						setUpdateCheck(true);
+						setUpdateCheck(prev => !prev);
 						toast.success('Successfully signed in', getToastOptions());
 						checkBasicDetails();
 					}
