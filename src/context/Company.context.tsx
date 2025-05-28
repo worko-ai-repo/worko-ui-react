@@ -343,7 +343,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
       const urlParams = new URLSearchParams(window.location.search);
       const coreSkillsFromParams = urlParams.get("coreSkills")?.split(",");
-      if(isLoggedIn) updatedFilters.coreSkills = coreSkillsFromParams ?? defaultCoreSkills; // Use coreSkills from URL params or defaultCoreSkills if not available
+      if(isLoggedIn && isJobPage) updatedFilters.coreSkills = coreSkillsFromParams ?? defaultCoreSkills; // Use coreSkills from URL params or defaultCoreSkills if not available
 
       const { jobTitle, YOE, coreSkills,pageSize, sortOrder, status, lastKey, ...rest } = filters;
       
