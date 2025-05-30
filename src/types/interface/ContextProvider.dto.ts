@@ -19,4 +19,5 @@ export interface AppContextType {
   setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null >>;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  checkUserLoggedIn: () => Promise<void>;
 }

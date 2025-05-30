@@ -49,7 +49,7 @@ const LoginForm = () => {
 	const signUpWithLinkedIn = useLinkedInSignup();
 
 	// Update Check from App Context to broadcast the changes
-	const { PendingApply, setUpdateCheck } = useAppContext();
+	const { PendingApply, setUpdateCheck, checkUserLoggedIn } = useAppContext();
 
 	// States
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -63,7 +63,7 @@ const LoginForm = () => {
 		handleSubmit,
 		reset,
 		getValues,
-		formState: { errors, isValid,isSubmitting },
+		formState: { errors, isValid, isSubmitting },
 	} = useForm({
 		defaultValues: {
 			email: '',
@@ -94,7 +94,6 @@ const LoginForm = () => {
 	 * @returns void
 	 */
 	const onSubmit = async (data: any): Promise<void> => {
-		
 		const loginData = {
 			email: data.email,
 			password: data.password,
@@ -105,7 +104,7 @@ const LoginForm = () => {
 			const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
 			// If error occurs, show the error message and reset the form
 			if (error) {
-				toast.error(error.message, getToastOptions({autoClose: false}));
+				toast.error(error.message, getToastOptions({ autoClose: false }));
 				reset(undefined, { keepValues: false });
 				throw new Error(error.message);
 			} else {
@@ -116,20 +115,20 @@ const LoginForm = () => {
 				 * After successful sign-in, check if the user account is a corporate account.
 				 * If corporate, show a popup and log out the user.
 				 */
-				if (userType === 'Corporate') {
+				/* if (userType === 'Corporate') {
 					toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.",getToastOptions({autoClose: false}));
 					CognitoServiceObj.handleSignOut();
 					return;
 				}
-
+ */
 				/**
 				 * If the account is not confirmed, prompt the user to confirm the email.
 				 */
 				if (response?.nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
-					toast.error('Please confirm your email address before signing in.',getToastOptions({autoClose: false}));
+					toast.error('Please confirm your email address before signing in.', getToastOptions({ autoClose: false }));
 					const { response, error } = await CognitoServiceObj.resendOtp({ username: data.email });
 					if (error) {
-						toast.error(error.message,getToastOptions({autoClose: false}));
+						toast.error(error.message, getToastOptions({ autoClose: false }));
 						reset(undefined, { keepValues: false });
 					}
 					setConfEmail(data.email);
@@ -140,60 +139,32 @@ const LoginForm = () => {
 				 * If the account is confirmed, proceed with the sign-in process
 				 */
 				if (response?.isSignedIn) {
-					const email = data.email.toLowerCase();
-					const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+					// const email = data.email.toLowerCase();
+					// const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
 
-					if (userError) {
-						toast.error('Error: ' + userError, getToastOptions({autoClose: false}));
-						reset(undefined, { keepValues: false });
-						throw new Error();
-					} else {
-						// Extract the first element from the array response
-						let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+					await checkUserLoggedIn();
+					
+					// Refresh session
+					await handleRememberDevice();
+					await currentSession();
+					setUpdateCheck(true);
+					toast.success('Successfully signed in', getToastOptions({}));
+					setTimeout(() => {
+						// Construct the referral object
+						const pendingReferral =
+							PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
-						if (!user) {
-							toast.error('Error: No user data found', getToastOptions({autoClose: false}));
-							reset(undefined, { keepValues: false });
-							throw new Error();
+						if (pendingReferral) {
+							window.location.href = pendingReferral.url; // Redirect to the referral page
+						} else {
+							// window.location.href = '/jobs'; // Redirect to home page
 						}
-
-						// Create userDetails from the first element
-						const userDetails: Partial<AuthLoginForGeneralUserDto> = {
-							lastAccessedDash: user.lastAccessedDash,
-							name: user.name,
-							email: user.email,
-							id: user.id,
-							profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
-							referralCount: user.referralCount,
-						};
-						// Store user details
-						secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
-						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
-						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
-
-						// console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
-
-						// Refresh session
-						await handleRememberDevice();
-						await currentSession();
-						setUpdateCheck(true);
-						toast.success('Successfully signed in', getToastOptions({}));
-						setTimeout(() => {
-							// Construct the referral object
-							const pendingReferral =
-								PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
-
-							if (pendingReferral) {
-								window.location.href = pendingReferral.url; // Redirect to the referral page
-							} else {
-								window.location.href = '/jobs'; // Redirect to home page
-							}
-						}, 3000);
-					}
+					}, 3000);
 				}
 			}
 		} catch (error: any) {
-			toast.error(error?.message || 'Something went wrong',  getToastOptions({autoClose: false}));
+			// toast.error(error?.message || 'Something went wrong', getToastOptions({ autoClose: false }));
+			console.log('Error during sign-in:', error);
 			// CognitoServiceObj.handleSignOut();
 		}
 	};
@@ -208,7 +179,7 @@ const LoginForm = () => {
 
 			// Call handleSignUpConfirmation and await the result
 			// debugger;
-			 await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform), {
+			await toast.promise(CognitoServiceObj.handleSignUpConfirmation(signupform), {
 				pending: 'Verifying Otp',
 				success: 'Otp verified successfully',
 				error: 'Error verifying Otp',
@@ -276,7 +247,7 @@ const LoginForm = () => {
 							Sign in
 						</button>
 					</div>
-					<hr className="w-full my-5 max-w-[350px] " /> 
+					<hr className="w-full my-5 max-w-[350px] " />
 					{/* LinkedIn  */}
 					<div className="w-full ">
 						<button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " disabled={isSubmitting} type="button" onClick={() => signUpWithLinkedIn('SignIn')}>
@@ -288,7 +259,7 @@ const LoginForm = () => {
 					<div className="w-full ">
 						<p className="text-center text-sm mt-3 ">
 							Don't have an account? &nbsp;
-							<div  onClick={()=>navigate('/auth/signup')} className="inline cursor-pointer text-blue-500 ">
+							<div onClick={() => navigate('/auth/signup')} className="inline cursor-pointer text-blue-500 ">
 								Sign up now
 							</div>
 						</p>

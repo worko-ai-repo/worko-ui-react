@@ -337,6 +337,7 @@ class CognitoService {
 
 			if (Array.isArray(userType)) {
 				if (userType.includes('corporate-admin') || userType.includes('corporate-recruiter')) {
+					secureStorage.setItem<'corporate-recruiter' | 'corporate-admin'>(SecureStorageKeyEnum.CORPORATEUSERTYPE, userType.includes('corporate-admin') ? 'corporate-admin' : 'corporate-recruiter'); 
 					secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Corporate');
 				}
 				if (userType.includes('admin')) {

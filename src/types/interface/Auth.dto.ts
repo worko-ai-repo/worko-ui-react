@@ -160,6 +160,24 @@ export interface AuthLoginForGeneralUserDto {
     cvAwsS3SignedUrl: string;
     profileImageAwsS3SignedUrl: string;
 }
+export interface CorporateUserDto {
+  inviteId: string;
+  companyId: string;
+  lastName: string;
+  createdAt: string;
+  isDeleted: boolean;
+  email: string;
+  GSI1SK: string;
+  firstName: string;
+  GSI1PK: string;
+  cognitoUserId: string;
+  updatedAt: string;
+  SK: string;
+  corporateUserType: string;
+  id: string;
+  PK: string;
+}
+
 export interface CandidateExperience {
     department: string;
     companyName: string;

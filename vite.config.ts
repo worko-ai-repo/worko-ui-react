@@ -5,6 +5,7 @@ import compression from 'vite-plugin-compression';
 import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
+	base: '/v0/',
 	plugins: [
 		react(),
 		compression()

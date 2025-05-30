@@ -192,6 +192,9 @@ const AppRoutes = createBrowserRouter([
 		),
 	},
 	{ path: '*', element: <PageNotFound /> },
-]);
+],
+{
+	basename: '/v0'
+});
 
 export default AppRoutes;
