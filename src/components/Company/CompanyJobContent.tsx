@@ -11,16 +11,16 @@ const JobFilterPanel = lazy(() => import("./JobFilterPanel"));
 
 // Lazy load components
 import CompanyCard from "./CompanyCard";
-import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
 import { useLocation } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
 import { useJobFilters } from "@Hooks/useJobFilter.hook";
 import MessageModal from "@Components/Modals/MessageModal";
-import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
-import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
-import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
-import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
+import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
+import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
+import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
+import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
 
 const CompanyJobContent = () => {
   const location = useLocation();
