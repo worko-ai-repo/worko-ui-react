@@ -24,8 +24,7 @@ const TermsOfUse = lazy(() => import('@Pages/terms/TermsOfUse'));
 const PrivacyPolicy = lazy(() => import('@Pages/privacy-policy/PrivacyPolicy'));
 const ContactUs = lazy(() => import('@Pages/contact-us/ContactUs'));
 const UnderConstruction = lazy(() => import('@Pages/errors/under-constuction/UnderConstruction'));
-
-const underConstructionPaths = ['faqs', 'blogs', 'privacy', 'contact', 'pricing', 'terms', 'employee/*', 'candidate/*', 'profile/*', 'support'];
+const underConstructionPaths = ['faqs', 'blogs', 'pricing', 'employee/*', 'candidate/*', 'profile/*', 'support'];
 
 // Create routes for under construction pages
 const underConstructionRoutes = underConstructionPaths.map(path => ({
