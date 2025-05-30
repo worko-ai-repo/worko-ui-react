@@ -110,7 +110,7 @@ export class HttpService {
 			if (!response.ok) {
 				const errorMessage = `HTTP error! status: ${response.status}, message: ${response.statusText}`;
 				console.error(`HTTP error on GET ${path}:`, errorMessage);
-				return { response: null, error: new Error(errorMessage) };
+				return { response: null, error: new Error(errorMessage),status: response.status };
 			}
 			// Parse and return the JSON response
 			const jsonResponse = await response.json() as ResponseDataDto;

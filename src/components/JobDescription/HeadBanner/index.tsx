@@ -11,7 +11,7 @@ export interface JobDescriptionSubComponentDTO {
   jobData: JobDto;
   applicationStatus: boolean;
   handleApplyClick: () => void;
-  jobMatchDetails?:JobMatchingScoreDto;
+  jobMatchDetails:JobMatchingScoreDto;
 }
 
 const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
@@ -36,25 +36,52 @@ const CheckCSpresence = async(jobData: JobDto): Promise<JobDto | undefined> => {
       [minExperience, maxExperience] = [maxExperience, minExperience];
     }
 
-    const requestPayload = {
-      experienceRange: {
+    const requestPayload: Record<string, any> = {};
+
+    // Add experienceRange if both values are valid numbers
+    if (minExperience != null && maxExperience != null) {
+      requestPayload.experienceRange = {
         min: minExperience,
         max: maxExperience,
-      },
-      salaryRange: {
-        min: Math.max(Number(response.salaryRange?.min) || 0, 0),
-        max: Math.max(Number(response.salaryRange?.max) || 0, 0),
-      },
-      noticePeriod: Number(response.noticePeriod) || 0,
-      location: typeof response.location === 'object' ? response.location : {},
-      workMode: ['WFH', 'WFO', 'HYBRID'].includes(response.workMode)
-        ? response.workMode
-        : undefined,
-        ...(response.department && { department: response.department }),
-        ...(response.coreSkills?.length && { coreSkills: response.coreSkills }),
-        ...(response.softSkills?.length && { softSkills: response.softSkills }),
-        ...(response.technicalSkills?.length && { technicalSkills: response.technicalSkills }),
-    };
+      };
+    }
+    // Add salaryRange if either min or max is a number >= 0
+    const minSalary = Math.max(Number(response.salaryRange?.min) || 0, 0);
+    const maxSalary = Math.max(Number(response.salaryRange?.max) || 0, 0);
+    if (minSalary > 0 || maxSalary > 0) {
+      requestPayload.salaryRange = {
+        min: minSalary,
+        max: maxSalary,
+      };
+    }
+    // Add noticePeriod if it's a valid number
+    const noticePeriod = Number(response.noticePeriod);
+    if (!isNaN(noticePeriod) && noticePeriod > 0) {
+      requestPayload.noticePeriod = noticePeriod;
+    }
+    // Add location only if it's a valid object
+    if (typeof response.location === 'object' && response.location !== null && Object.keys(response.location).length > 0) {
+      requestPayload.location = response.location;
+    }
+    // Add workMode if it's a valid predefined value
+    if (['WFH', 'WFO', 'HYBRID'].includes(response.workMode)) {
+      requestPayload.workMode = response.workMode;
+    }
+    // Add department if non-empty
+    if (response.department) {
+      requestPayload.department = response.department;
+    }
+    // Add skills only if arrays have elements
+    if (Array.isArray(response.coreSkills) && response.coreSkills.length > 0) {
+      requestPayload.coreSkills = response.coreSkills;
+    }
+    if (Array.isArray(response.softSkills) && response.softSkills.length > 0) {
+      requestPayload.softSkills = response.softSkills;
+    }
+    if (Array.isArray(response.technicalSkills) && response.technicalSkills.length > 0) {
+      requestPayload.technicalSkills = response.technicalSkills;
+    }
+    
 
     // console.log('Formatted Payload:', requestPayload);
 
@@ -94,7 +121,6 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   
     if (missingFields.length) {
       // console.log('Missing fields:', missingFields.join(', '));
-  
       const newJobData = await CheckCSpresence(jobData);
       if (newJobData) {
         jobData = newJobData;
@@ -104,7 +130,9 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   
 
   useEffect(() => {
-    checkSkillsPresence();
+    if(!jobData?.externalJobId){
+      checkSkillsPresence(); //@Dont call parseJD API for external jobs
+    }
   }, []);
   
   // Process company name with proper capitalization
@@ -148,6 +176,7 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
                     "salary"
                   )
               }
+              showSalary={jobData?.displaySalaryRange ?? true}
               coreSkills={jobData?.coreSkills}
               experience={jobData?.experienceRange
                 ? formatRange(

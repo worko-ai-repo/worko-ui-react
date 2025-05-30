@@ -52,7 +52,7 @@ export const useJobFilters = () => {
     else {
       // Handle multi-select filters that use comma-separated values
       if (key.includes('Skills') || key === 'location' || key === 'typeofEmployment' || 
-          key === 'teamSize' || key === 'companyName') {
+          key === 'teamSize' || key === 'companyName' || key === 'department' ) {
         // Join multiple selected values with commas
         newFilters[key] = values.join(',');
         updatedParams.set(key, newFilters[key]);

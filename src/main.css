@@ -218,8 +218,15 @@ label {
 	display: flex;
 	width: min-content;
 	align-items: center;
+  }
+#my-tooltip {
+	width: 100%;
+	text-align: left;
+	text-wrap: break-word;
+	max-width: 200px;
+	padding: 1rem;
+	border-radius: 0.5rem;
 }
-
 @media screen and (max-width: 480px) {
 	.section-wrapper {
 		padding: 5rem 0.5em;

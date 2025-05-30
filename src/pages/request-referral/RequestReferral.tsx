@@ -16,6 +16,7 @@ import RequestReferralMessage from '@Components/ReferralRequest/RequestReferralM
 import { MatchingScore } from '@Services/MatchingScore.service';
 import FeedbackModal, { FeedbackModalProps } from '@Components/Shared/Feedback';
 import { handleEditProfileRedirection } from '@Components/Company/CompanyJobContent';
+import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
 
 /**
  * MatchingScoreDto
@@ -39,10 +40,10 @@ interface ReferralRequestFormDto {
 /**
  * continueReferralRequestDataDto - This interface is used to define the structure of continueReferralRequestDataDto
  */
-export interface continueReferralRequestDataDto {
+export interface continueReferralRequestDataDto<T = ReferralRequestFormDto> {
 	type: string;
 	url: string;
-	data: ReferralRequestFormDto | null;
+	data: T | null;
 }
 
 /**
@@ -63,6 +64,10 @@ export async function fetchCompanyById(id: string): Promise<CompanyByIdDto> {
  * RequestReferral - This functional component is used to raise a referral request
  */
 const RequestReferral = () => {
+
+	// useCrossAppAuth - This is a custom hook used to navigate to a different page
+	const appHref = useCrossAppAuth();
+
 	// check if the use is logged in
 	const { PendingApply, setPendingApply, isLoggedIn, userDetails ,setIsModalOpen } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto> ,setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>};
 
@@ -234,7 +239,7 @@ const RequestReferral = () => {
 		switch (ModalType) {
 			case 'zeroReferral':
 				reset();
-				window.location.href = '/v1/candidate/subscription';
+				appHref('/v1/candidate/subscription');
 				break;
 			case 'AlreadyRequested':
 				reset();
@@ -242,7 +247,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				window.location.href = '/v1/candidate/referral/awaiting';
+				appHref('/v1/candidate/referral/awaiting');
 				break;
 			case 'RequestRejected':
 				reset();

@@ -256,7 +256,7 @@ const LinkedInSignup = () => {
 						secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
 						secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
 						// Refresh session
-						setUpdateCheck(true);
+						setUpdateCheck(prev=> !prev);
 					}
 				}
 			}

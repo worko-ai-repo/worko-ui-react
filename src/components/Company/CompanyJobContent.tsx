@@ -11,20 +11,23 @@ const JobFilterPanel = lazy(() => import("./JobFilterPanel"));
 
 // Lazy load components
 import CompanyCard from "./CompanyCard";
-import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
 import { useLocation } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
 import { useJobFilters } from "@Hooks/useJobFilter.hook";
 import MessageModal from "@Components/Modals/MessageModal";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
+import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
 import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
 
 const CompanyJobContent = () => {
   const location = useLocation();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [uploadResume, setUploadResume] = useState(false);
   const { userDetails, isLoggedIn }: { userDetails: Partial<AuthLoginForGeneralUserDto>; isLoggedIn: boolean } = useAppContext();
-  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete } = useCompanyContext();
+  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -53,12 +56,12 @@ const CompanyJobContent = () => {
   // Set searchText from query param on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const query = params.get("searchText") || "";
-    setSearchText(query);
+    const query = params.get("searchText");
+    if (query){ setSearchText(query);
     setJobFilters((prev) => ({ ...prev, searchText: query }));
     if (searchInputRef.current) {
       searchInputRef.current.value = query;
-    }
+    }}
   }, []);
 
   useEffect(() => {
@@ -163,7 +166,6 @@ const CompanyJobContent = () => {
 
                   const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
                   const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
-
                   const jobCard = (
                     <JobCard
                       key={job.id || index}
@@ -176,7 +178,7 @@ const CompanyJobContent = () => {
                         location: Finallocations || "Not Disclosed",
                         employmentType: job.typeofEmployment || "Not Disclosed",
                         createdAt: job.externalJobId ? job.jobPostedDate : job.createdAt,
-                        matchPercentage: job.matchingScore || -1,
+                        matchPercentage: job.matchingScore !== undefined ? job.matchingScore : -1,
                         status: job.applyStatus || "NOT_APPLIED",
                         jobId: job.id,
                         isExternalJob: job.externalJobId,
@@ -188,6 +190,12 @@ const CompanyJobContent = () => {
                         FullJob: job,
                         companyId: job.companyId,
                         jobUrl: job.jobUrl,
+                        showSalary:job?.displaySalaryRange ?? true,
+                        experience:  formatRange(
+                              job.experienceRange?.min ?? 0,
+                              job.experienceRange?.max ?? 0,
+                              "experience"
+                            )
                       }}
                     />
                   );
@@ -226,7 +234,7 @@ const CompanyJobContent = () => {
                       Find More Jobs
                     </div>
                   ) : companyJobData.length > 0 ? (
-                    <p className="text-lg font-medium text-gray-500">You've reached the end. No more jobs available for now. Check back later!</p>
+                    <p className="text-lg font-medium text-gray-500">Looks like we hit a dead end. Try changing the filters and searching again.</p>
                   ) : null}
                 </div>
               </>
@@ -260,20 +268,28 @@ const CompanyJobContent = () => {
           </div>
         )}
       </div>
+      {
+        uploadResume && ( 
+          <UpdateResumeModal
+            onClose={() =>setUploadResume(false)}
+            />
+        )
 
+      }
       {isProfileInclomplete && (
         <MessageModal
           type="error"
           size="lg"
           heading={{ type: "error", message: "Profile Incomplete" }}
-          message="It looks like your profile is incomplete. Please complete your profile by updating your details from your dashboard and uploading your latest resume."
+          message="It looks like your profile is incomplete. Please click the button below to update your resume."
           onClose={() => {}}
           showCloseButton={false}
           buttons={[
             {
-              label: "Complete Profile",
+              label: "Update Resume",
               action: () => {
-                handleEditProfileRedirection((userDetails?.lastAccessedDash as "CAND" | "EMP") || "CAND");
+                setIsProfileInclomplete(false);
+                setUploadResume(true);
               },
               type: "primary",
             },
@@ -287,6 +303,7 @@ const CompanyJobContent = () => {
 export default CompanyJobContent;
 
 export function handleEditProfileRedirection(userDetails: "CAND" | "EMP") {
+  const appHref = useCrossAppAuth();
   const params = encodeURIComponent(window.location.href);
-  window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}`;
+  appHref(`/v1/candidate/edit-profile?returnUrl=${params}`);
 }

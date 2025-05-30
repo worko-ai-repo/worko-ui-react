@@ -14,6 +14,7 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
 
@@ -48,6 +49,7 @@ interface LinkedInSignupForm {
 }
 
 const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleDataMutationtoDb, setCompanyName, fetchLinkedinSessionData }) => {
+  const appHref = useCrossAppAuth();
   const [ViewTerms, setViewTerms] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
@@ -89,7 +91,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     formState: { errors },
   } = useForm({
     defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false },
-    mode: "onChange",
+    mode: "all",
   });
 
   /**
@@ -112,63 +114,55 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
    *
    * @description This function is used to check if the user has completed the basic details or not
    */
-  const checkBasicDetails = async () => {
-    let retryCount = 0;
+  const checkBasicDetails = async (retryCount = 0): Promise<boolean> => {
     const maxRetries = 3;
-
-    const attemptCheck = async () => {
-      try {
-        if (activeFrame === "EMP") {
-          return;
+  
+    try {
+      if (activeFrame === "EMP") return true;
+  
+      if (retryCount === 0) setOpenReferralLoader(true);
+  
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+        `${import.meta.env.APP_API_URI}/user/basic-details`,
+        true,
+        {},
+        true
+      );
+  
+      if (error) throw error;
+  
+      const designation = response?.candidateExperience?.designation;
+      const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
+  
+      if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
+        setOpenReferralLoader(false);
+        return true;
+      } else {
+        if (retryCount < maxRetries) {
+          setCurrStep((prev) => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
+          await new Promise((resolve) => setTimeout(resolve, 8000)); // Wait before retrying
+          return checkBasicDetails(retryCount + 1); // Recursive retry
         } else {
-          if (retryCount === 0) {
-            setOpenReferralLoader(true);
-          }
-          const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
-
-          if (error) throw error;
-
-          const designation = response?.candidateExperience?.designation;
-          const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
-
-          // If either designation or coreSkills exist, update filters
-          if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
-            setOpenReferralLoader(false);
-            return;
-          } else {
-            // Check if we should retry
-            if (retryCount < maxRetries) {
-              retryCount++;
-              setCurrStep((prev) => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
-              // console.log(`Retrying checkBasicDetails (${retryCount}/${maxRetries})...`);
-              setTimeout(attemptCheck, 5000); // Retry after 5 seconds
-            } else {
-			  const params = import.meta.env.APP_WORKO_BASE_URL + '/jobs'
-              setOpenReferralLoader(false);
-              console.log("Max retries reached for checkBasicDetails");
-              // Optional: Show a message to the user that we couldn't get their details
-              toast.warning("Could not retrieve user details after multiple attempts", getToastOptions());
-              setTimeout(() => {
-                navigate(`/v1/candidate/edit-profile?returnUrl=${params}`, { replace: true });
-              }, 5000); // Redirect to the jobs page after 5 seconds
-            }
-          }
+          setOpenReferralLoader(false);
+          toast.warning("Could not retrieve user details after multiple attempts", getToastOptions());
+          return false;
         }
-      } catch (error) {
-        console.error("Error fetching user basic details:", error);
-        const params = import.meta.env.APP_WORKO_BASE_URL + "/jobs";
-        setModalData({
-          type: "error",
-          heading: { message: "Something Went Wrong", type: "error" },
-          message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
-          buttons: [{ label: "Go To Dashboard", action: () => (window.location.href = `/v1/candidate/edit-profile?returnUrl=${params}`) }],
-        });
       }
-    };
-
-    // Start the first attempt
-    await attemptCheck();
+    } catch (error) {
+      console.error("Error fetching user basic details:", error);
+      const params = import.meta.env.APP_WORKO_BASE_URL + "/jobs";
+      setModalData({
+        type: "error",
+        heading: { message: "Something Went Wrong", type: "error" },
+        message: "We encountered some issue while analysing your CV. Please enter a few details manually in your profile.",
+        buttons: [
+          { label: "Go To Dashboard", action: () => (appHref(`/v1/candidate/edit-profile?returnUrl=${params}`)) },
+        ],
+      });
+      return false;
+    }
   };
+  
 
   /**
    * onSubmit
@@ -214,7 +208,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-          activeFrame === "EMP" ? (window.location.href = "/v1/employee/Dashboard") : navigate("/jobs", { replace: true });
+          activeFrame === "EMP" ? (appHref("/v1/employee/Dashboard")) : navigate("/jobs", { replace: true });
         }
       }
     } catch (error) {
@@ -256,7 +250,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           {/* Name */}
           <div>
             <label className="hidden sm:block font-medium">Name</label>
-            <input placeholder="Enter Name" disabled type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
+            <input placeholder="Enter Name" type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
             {errors.name && <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>}
           </div>
 

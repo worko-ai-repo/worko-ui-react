@@ -11,10 +11,13 @@ import { LinkedinIcon } from 'lucide-react';
 import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
 
 export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const appHref = useCrossAppAuth();
+
 	const { setUpdateCheck, PendingApply, setPendingApply } = useAppContext();
 	let isCandidateNotPresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
@@ -191,6 +194,7 @@ export default function CheckRedirection() {
 				let dashboardPath = totalPercentage >= 60
 					? '/'
 					: userDetail.lastAccessedDash === 'CAND'
+					
 						? `${window.location.origin}/v1/candidate/edit-profile`
 						: `${window.location.origin}/v1/employee/Edit-profile`;
 
@@ -217,7 +221,7 @@ export default function CheckRedirection() {
 					}
 				}
 				else {
-					window.location.href = dashboardPath; // Redirect to Angular app
+					appHref(dashboardPath) // Redirect to Angular app
 					return false; // Stop further execution
 				}
 			}

@@ -15,6 +15,8 @@ import { validationRules } from "@Utils/FormValidator.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { generateJobSlug } from "@Utils/JobUriSlug.utils";
+import { get } from "http";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
@@ -27,7 +29,7 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl } = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience} = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -93,7 +95,7 @@ export const JobCard = ({ job }: any) => {
         try {
           // Populate form with saved data
           const savedData = (pendingData as { data: { recipientDetails: ReferralFormDTO } }).data.recipientDetails;
-          console.log("Saved Data:", pendingData);
+          // console.log("Saved Data:", pendingData);
           if (savedData) {
             setValue('fullName', savedData.name || '');
             setValue('email', savedData.email || '');
@@ -179,9 +181,19 @@ export const JobCard = ({ job }: any) => {
   }, [createdAt]);
 
   const timeAgo = useMemo(() => DaysFormatter(createdAt), [createdAt]);
-  const refinedCompanyName = (companyName ?? "comp").replace(/\s/g, "_");
+
   const handleReferralNav = () => {
-    nav(`/jobs/${refinedCompanyName}/${jobId}`,{state:{FullJob:FullJob as JobDto}});
+    const slug = generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  
+    nav(slug, {
+      state: { FullJob: FullJob as JobDto },
+    });
   };
 
   useEffect(() => {
@@ -219,6 +231,15 @@ export const JobCard = ({ job }: any) => {
     }
   }, [showModal, reset]);
 
+ const getJobUrl = () => {
+    return generateJobSlug({
+      title: title,
+      company: companyName ?? "comp",
+      location: location,
+      experience: experience,
+      jobId: jobId,
+    });
+  }
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -234,7 +255,7 @@ export const JobCard = ({ job }: any) => {
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
               <a
-                href={`/jobs/${refinedCompanyName}/${jobId}`} 
+                href={getJobUrl()} 
                 
                 rel="noopener noreferrer"
                 className="block"
@@ -244,7 +265,7 @@ export const JobCard = ({ job }: any) => {
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
 
                 {/* Salary */}
-                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">₹ {salary}</div>
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">{showSalary ? `₹${salary}` : "Not Disclosed"}</div>
               </div>
             </div>
 
