@@ -26,7 +26,8 @@ export const toSlug = (text: string): string =>
     experience: string;
     jobId: string | number;
   }): string => {
-    const slug = `/jobs/${toSlug(title)}-${toSlug(company)}-${toSlug(location)}-${toSlug(experience)}/${jobId}`;
+    // const slug = `/jobs/${toSlug(title)}-${toSlug(company)}-${toSlug(location)}-${toSlug(experience)}/${jobId}`;
+    const slug = `/jobs/${toSlug(company)}/${jobId}`;
     return slug;
   };
   

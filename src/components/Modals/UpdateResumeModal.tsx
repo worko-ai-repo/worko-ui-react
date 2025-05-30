@@ -55,7 +55,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
         if (nextStep >= 4) {
           setShowFinalTick(true);
           clearInterval(interval);
-          setTimeout(() => onClose(), 2000); // small delay before closing
+          setTimeout(() => {onClose();window.location.reload();}, 2000); // small delay before closing
           return 4;
         }
         return nextStep as 0 | 1 | 2 | 3 | 4;
@@ -78,9 +78,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
       if (error) throw error;
 
-      const designation = response?.candidateExperience?.designation;
-      const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
-      const hasRelevantData = response?.cvExtract
+      const hasRelevantData = (response?.cvExtract && response?.cvExtractParsed)
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());
@@ -167,7 +165,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="overflow-y-hidden fixed inset-0 flex items-center justify-center bg-black/50 w-full backdrop-blur-sm z-50  ">
-      <div id={secondStepEnabled ? styles.updateResumeHeader : undefined} className={` bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform scale-95 opacity-1 animate-fadeIn w-full min-h-[300px] ax-w-full sm:max-w-xl `}>
+      <div id={secondStepEnabled ? styles.updateResumeHeader : undefined} className={` max-sm:w-11/12 bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform scale-95 opacity-1 animate-fadeIn w-full max-sm:min-h-[200px] min-h-[300px] ax-w-full sm:max-w-xl `}>
         {secondStepEnabled && (
           <div className="">
             <div className="absolute bottom-0 w-full">

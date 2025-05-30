@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { MapPin, Clock, ChevronDown } from "lucide-react";
+import { MapPin, Clock, ChevronDown, Home } from "lucide-react";
 import { useForm } from "react-hook-form";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
@@ -29,7 +29,7 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience} = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience,workmode} = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -335,11 +335,17 @@ export const JobCard = ({ job }: any) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className="capitalize ">{location}</span>
+              <span className="capitalize max-w-[100px] truncate cursor-pointer"
+              data-tooltip-id="my-tooltip" data-tooltip-content={location} title={location}
+              >{location}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
               <span>{employmentType ? (employmentType.includes("_") ? employmentType.replace(/_/g, " ") : employmentType) : ""}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Home size={16} className="md:w-3 md:h-3" />
+              <span>{workmode ? (workmode.includes("_") ? workmode.replace(/_/g, " ") : workmode) : ""}</span>
             </div>
           </div>
 

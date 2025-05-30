@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { MapPin, Clock, Building2, ChevronDown } from "lucide-react";
+import { MapPin, Clock, Building2, ChevronDown, Home } from "lucide-react";
 import GaugeComponent from "@Components/Company/Gauge";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import httpServiceObj from "@Services/ApiHandler.service";
@@ -273,7 +273,6 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
 
   // Get company name based on job type
   const companyName = jobData.externalJobId ? jobData.companyName : jobData?.companyDetails?.name;
-  const titleCasedCompanyName = toTitleCase(companyName!);
   const titleCaseDepartment = toTitleCase(jobData?.department || "");
   const titleCaseLocation = toTitleCase(jobData?.location?.fullLocation?.join(", ") || "");
   const finalLogoUrl = jobData?.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${jobData?.companyDetails?.logo}` : jobData?.companyDetails?.logoUrl;
@@ -393,14 +392,20 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
         {/* Location, Job Type, and Buttons */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Location and Job Type */}
-          <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
-            <div className="flex gap-1">
+          <div className="flex flex-wrap gap-5 md:gap-4 text-xs md:text-[12px] text-[#313131]">
+            <div className="flex gap-1 items-center">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className="text-[12px] font-semibold">{!jobData?.location?.fullLocation?.length ? "Not Disclosed" : titleCaseLocation}</span>
+              <span className="text-[12px] font-semibold cursor-pointer max-w-[100px] truncate "
+              data-tooltip-id="my-tooltip" data-tooltip-content={!jobData?.location?.fullLocation?.length ? "Not Disclosed" : titleCaseLocation}
+              >{!jobData?.location?.fullLocation?.length ? "Not Disclosed" : titleCaseLocation}</span>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 items-center">
               <Clock size={16} className="md:w-3 md:h-3" />
               <span className="text-[12px] font-semibold">{jobData.typeofEmployment ? (jobData.typeofEmployment.includes("_") ? jobData.typeofEmployment.replace(/_/g, " ") : jobData.typeofEmployment) : "Not Disclosed"}</span>
+            </div>
+            <div className="flex gap-1 items-center">
+              <Home size={16} className="md:w-3 md:h-3" />
+              <span className="text-[12px] font-semibold">{jobData.workMode ? (jobData.workMode.includes("_") ? jobData.workMode.replace(/_/g, " ") : jobData.workMode) : "Not Disclosed"}</span>
             </div>
           </div>
 
