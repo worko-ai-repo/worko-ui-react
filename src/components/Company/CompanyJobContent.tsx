@@ -195,7 +195,8 @@ const CompanyJobContent = () => {
                               job.experienceRange?.min ?? 0,
                               job.experienceRange?.max ?? 0,
                               "experience"
-                            )
+                            ),
+                        workmode: job?.workMode || "Not Disclosed",
                       }}
                     />
                   );
