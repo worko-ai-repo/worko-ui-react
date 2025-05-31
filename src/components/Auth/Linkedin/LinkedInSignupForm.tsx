@@ -156,7 +156,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
         heading: { message: "Something Went Wrong", type: "error" },
         message: "We encountered some issue while analysing your CV. Please enter a few details manually in your profile.",
         buttons: [
-          { label: "Go To Dashboard", action: () => (appHref(`/v1/candidate/edit-profile?returnUrl=${params}`)) },
+          { label: "Go To Dashboard", action: () => (appHref(`/${import.meta.env.APP_PROXY_ANG}/candidate/edit-profile?returnUrl=${params}`)) },
         ],
       });
       return false;
@@ -208,7 +208,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-          activeFrame === "EMP" ? (appHref("/v1/employee/Dashboard")) : navigate("/jobs", { replace: true });
+          activeFrame === "EMP" ? (appHref(`/${import.meta.env.APP_PROXY_ANG}/employee/Dashboard`)) : navigate("/jobs", { replace: true });
         }
       }
     } catch (error) {

@@ -306,5 +306,5 @@ export default CompanyJobContent;
 export function handleEditProfileRedirection(userDetails: "CAND" | "EMP") {
   const appHref = useCrossAppAuth();
   const params = encodeURIComponent(window.location.href);
-  appHref(`/v1/candidate/edit-profile?returnUrl=${params}`);
+  appHref(`/${import.meta.env.APP_PROXY_ANG}/candidate/edit-profile?returnUrl=${params}`);
 }

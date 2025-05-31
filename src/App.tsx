@@ -17,6 +17,8 @@ export default function App() {
 	  }, []); */
 	  useEffect(() => {
 		console.info(import.meta.env.APP_NAME);
+		const isStaging = import.meta.env.APP_MODE === "STAGING";
+		console.log("Vite Config: isStaging =", isStaging);
 	}, []);
 	
 	

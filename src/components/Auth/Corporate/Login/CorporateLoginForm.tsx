@@ -1,6 +1,7 @@
 import { currentSession } from "@Components/Auth/Login/LoginForm";
 import { useAppContext } from "@Context/App.context";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { validationRules } from "@Utils/FormValidator.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
@@ -11,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CorporateLoginForm = () => {
+  const appHref = useCrossAppAuth();
   const navigate = useNavigate();
   const {checkUserLoggedIn , setUpdateCheck} = useAppContext();
   const {
@@ -62,7 +64,7 @@ const CorporateLoginForm = () => {
 					await currentSession();
 					setUpdateCheck(true);
 					toast.success('Successfully signed in', getToastOptions({}));
-          window.location.href = '/v2/corporate/dashboard';
+          appHref(`/${import.meta.env.APP_PROXY_DASH}/corporate/dashboard`);
 				}
 			}
 		} catch (error: any) {
