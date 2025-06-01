@@ -1,4 +1,4 @@
-import { currentSession } from "@Components/Auth/Login/LoginForm";
+import { currentSession, handleRememberDevice } from "@Components/Auth/Login/LoginForm";
 import { useAppContext } from "@Context/App.context";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
@@ -60,11 +60,13 @@ const CorporateLoginForm = () => {
 					// const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
 
 					await checkUserLoggedIn();
-					
+					await handleRememberDevice();
 					await currentSession();
 					setUpdateCheck(true);
 					toast.success('Successfully signed in', getToastOptions({}));
-          appHref(`/${import.meta.env.APP_PROXY_DASH}/corporate/dashboard`);
+          setTimeout(()=>{
+            window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/dashboard`;
+          },2000)
 				}
 			}
 		} catch (error: any) {
@@ -75,7 +77,12 @@ const CorporateLoginForm = () => {
 	};
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full ">
+    <form onSubmit={handleSubmit(data =>
+              toast.promise(() => onSubmit(data), {
+                pending: 'Signing in...',
+                error: 'Error: An error occurred while signing in',
+              }, getToastOptions({}))
+            )} className="w-full ">
       <p className="font-semibold text-gray-700 text-2xl text-center ">Corporate Login </p>
       <div className="mainForm min-w-full grid sm:grid-cols-[repeat(auto,_minmax(500px,500px))] grid-row-[min-content]   w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[250px] ">
         <div>

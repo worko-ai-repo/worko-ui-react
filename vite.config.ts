@@ -10,7 +10,7 @@ const isStaging = process.env.APP_MODE != "STAGING";
 console.log("Vite Config: isStaging =", isStaging);
 
 export default defineConfig({
-  ...(isStaging ? {} : { base: "/v0/" }),
+  // base: "/v0/",
   plugins: [react(), compression()],
   envDir: "./environments", // Manually specify the directory where the environment files are located
   envPrefix: "APP_", // Manually specify the prefix for the environment variables
@@ -40,7 +40,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/cognito/, ""),
       },
     },
-    open: true, // Manually open the browser window upon starting the server
+    open: false, // Manually open the browser window upon starting the server
     host: "0.0.0.0", //Manally specify the host so the app binds to all network interfaces and you can run the app on a different device
     port: 3001, // Manually specify the port for the server
   },

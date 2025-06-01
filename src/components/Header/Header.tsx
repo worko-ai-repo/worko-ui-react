@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
   { label: "For Corporate", href: "/corporate" },
   //{ label: 'Blog', href: '/blogs' },
   { label: "About Us", href: "/about" },
-];
+];1
 
 const Header = () => {
   const appHref = useCrossAppAuth();
@@ -62,10 +62,10 @@ const Header = () => {
   }, [isOpen]);
  
   const proxy = import.meta.env.APP_MODE === "STAGING" ? import.meta.env.APP_PROXY_DASH : import.meta.env.APP_PROXY_ANG;
-  console.log("proxy", proxy);
-  const profilePath = userDetails?.lastAccessedDash === "CAND" ? `/${proxy}/candidate/edit-profile` : `/${proxy}/employee/edit-profile`;
+  const profilePath =  `/${proxy}/candidate/profile`;
+  // const profilePath = userDetails?.lastAccessedDash === "CAND" ? `/${proxy}/candidate/edit-profile` : `/${proxy}/employee/edit-profile`;
 
-  const dashPath = `/${proxy}/${userDetails?.lastAccessedDash === "CAND" ? "candidate/d" : "employee/D"}ashboard`;
+  const dashPath = profilePath ; /* `/${proxy}/${userDetails?.lastAccessedDash === "CAND" ? "candidate/d" : "employee/D"}ashboard`; */
   return (
     <header className={styles.header} id="header_main_body" ref={headerRef}>
       <div className={styles.container}>
