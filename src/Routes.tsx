@@ -44,7 +44,7 @@ const AppRoutes = createBrowserRouter(
       path: "/",
       errorElement: <ErrorFallback />,
       element: (
-        <ProtectedRoute requiredRoles={['General_Users','Admin']} element={<MainLayout />} />
+        <ProtectedRoute requiredRoles={['General_Users','Admin']} tokenRequired={false} element={<MainLayout />} />
       ),
       children: [
         {
@@ -198,7 +198,7 @@ const AppRoutes = createBrowserRouter(
     { path: "*", element: <PageNotFound /> },
   ],
   {
-    // ...(import.meta.env.APP_MODE != "STAGING" ? {} : { basename: "/v0/" }),
+    ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
   }
 );
 export default AppRoutes;

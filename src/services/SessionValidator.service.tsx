@@ -44,6 +44,7 @@ type CustomUserType = 'Admin' | 'Corporate' | 'General_Users';
 interface ProtectedRouteProps {
 	element: JSX.Element;
 	requiredRoles?: CustomUserType[];
+	tokenRequired?: boolean; 
 }
 
 /**
@@ -59,61 +60,63 @@ interface ProtectedRouteProps {
  * @param {string[]} [requiredRoles] - Optional roles required for access
  * @returns {JSX.Element} Either the protected component or a redirect
  */
-const ProtectedRoute = ({ element, requiredRoles }: ProtectedRouteProps) => {
-	// Retrieve user token from Cognito storage
+
+const ProtectedRoute = ({
+	element,
+	requiredRoles,
+	tokenRequired = true,
+}: ProtectedRouteProps) => {
 	const token: any = CognitoServiceObj.getAccessToken();
+	const userType = secureStorage.getItem<CustomUserType>(SecureStorageKeyEnum.USERTYPE);
 
-	// If no token exists, redirect to login page
-	if (!token) {
-		// Checking roles with includes for better array handling
-		switch (true) {
-		  case !requiredRoles:
-		  case requiredRoles?.includes('General_Users'):
-		  case requiredRoles?.includes('Admin'):
-			return <Navigate to="/auth/login" />;
-			
-		  case requiredRoles?.includes('Corporate'):
+	const currentTime = Date.now() / 1000;
+
+	//  Step 1: If token is required but not present
+	if (tokenRequired && !token) {
+		if (requiredRoles?.includes('Corporate')) {
 			return <Navigate to="/auth/corporate/login" />;
-			
-		  default:
+		}
+		return <Navigate to="/auth/login" />;
+	}
+
+	//  Step 2: If token is present, validate it
+	if (token) {
+		try {
+			const decodedToken: JwtPayload & { role?: string } = jwtDecode(token);
+
+			if (decodedToken.exp && decodedToken.exp < currentTime) {
+				return <Navigate to="/auth/login" />;
+			}
+		} catch (err) {
+			console.error("Error decoding token:", err);
+			return <ErrorFallback error={err instanceof Error ? err : undefined} />;
+		}
+	}
+
+	//  Step 3: Check role if requiredRoles is specified
+	if (requiredRoles?.length) {
+		// If no userType (i.e. not logged in), and token is not required, allow access (as anonymous user)
+		if (!userType && !tokenRequired) {
+			// Allow access if no token but general users are allowed anonymously
+			if (requiredRoles.includes('General_Users')) {
+				return element;
+			}
 			return <Navigate to="/auth/login" />;
 		}
-	  }
-	  
-	try {
-		// Decode JWT token to access payload information
-		const decodedToken: JwtPayload & { role?: string } = jwtDecode(token);
-		const userType = secureStorage.getItem<CustomUserType>(SecureStorageKeyEnum.USERTYPE) || 'General_Users'; //@Visit 340 of Cognito.utils.tsx
-		console.log('Decoded Token:', decodedToken);
-		console.log('User Type:', userType);
-		
-		const currentTime = Date.now() / 1000;
-		
-		// Check if token has expired (exp is in seconds since epoch)
-		if (decodedToken.exp && decodedToken.exp < currentTime) {
-			 return <Navigate to="/auth/login" />;
-		}
-		
-		// Check if user has the required role for this route
-		if (requiredRoles && (!userType || !requiredRoles.includes(userType))) {
-			if (userType === 'Corporate') {
-				throw new UnauthorizedAccessError('Corporate');
-			} else if (userType === 'Admin') {
-				throw new UnauthorizedAccessError('Admin');
-			} else {
-				throw new UnauthorizedAccessError('General');
-			}
-		}
-		
-		// User is authenticated and authorized, mark as logged in
-		// localStorage.setItem('isLoggedIn', 'true');
 
-		// Render the protected component
-		return element;
-	} catch (error) {
-		// Handle errors during token decoding
-		console.error('Error decoding token:', error);
-		return <ErrorFallback error={error instanceof Error ? error : undefined} />;
+		if (userType && !requiredRoles.includes(userType)) {
+			return (
+				<ErrorFallback
+					error={
+						new UnauthorizedAccessError(
+							userType === 'General_Users' ? 'General' : userType
+						)
+					}
+				/>
+			);
+		}
 	}
+	return element;
 };
+
 export default ProtectedRoute;
