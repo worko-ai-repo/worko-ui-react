@@ -105,6 +105,7 @@ export const AppProvider = ({ children }: ContextProviderProps) => {
 		try {
 			// console.info('Checking user authentication status...');
 			const isUserLoggedIn = await CognitoServiceObj.isLoggedIn();
+			if (!isUserLoggedIn) return;
 			setIsLoggedIn(isUserLoggedIn);
 
 			if (!isUserLoggedIn) return;
