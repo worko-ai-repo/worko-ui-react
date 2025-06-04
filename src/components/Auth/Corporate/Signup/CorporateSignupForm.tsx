@@ -36,7 +36,7 @@ const CorporateSignupForm = ({ inviteData, handleFormSubmit }: { inviteData: any
       setValue("email", inviteData.email);
       setValue("company", inviteData.companyName);
     }
-  }, [inviteData, setValue]);
+  }, [inviteData]);
 
   // Form submission handler
   const onSubmit = (data: any) => {
