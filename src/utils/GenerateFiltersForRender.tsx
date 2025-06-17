@@ -34,11 +34,28 @@ export const generateFilterForRender = (
   isFiltering: boolean = false // Only resets cache if explicitly required
 ) => {
   try {
-    if (!data || data.length === 0) {
-      throw new Error("Data is empty or undefined");
+    if (!Array.isArray(data) || !Array.isArray(filterMetaData)) {
+      console.warn("Data or filterMetaData is not valid array");
+      return;
     }
-    if (!filterMetaData || filterMetaData.length === 0) {
-      throw new Error("filterMetaData is empty or undefined");
+    if (data.length === 0 || filterMetaData.length === 0) {
+      // Step 1: Extract static filters (those NOT in filterParams)
+      const filterParams = companyPageMode === CompanyPageModeEnum.JOB ? ["location", "coreSkills", "softSkills", "technicalSkills", "companyName", "department"] : ["industry", "companyName"];
+
+      const defaultEmptyFilters = filterMetaData.map((meta) => ({
+        options: filterParams.includes(meta.paramKey) ? [] : meta.options || [],
+        value: meta.value ?? [],
+        paramKey: meta.paramKey,
+        placeholder: meta.placeholder || meta.paramKey.charAt(0).toUpperCase() + meta.paramKey.slice(1),
+        selectType: meta.selectType || "normal",
+      }));
+      const customOrder = ["location", "coreSkills", "experienceRange", "department", "technicalSkills", "softSkills", "companyName", "salaryRange", "typeofEmployment", "workMode", "dashboard"];
+
+      // Sort final filters by custom order
+      const orderedFilters = customOrder.map((key) => defaultEmptyFilters.find((f) => f.paramKey === key)).filter((f): f is FilterOptionForRender => !!f); // Remove undefined
+  
+      setJobFilterForRender(orderedFilters);
+      return;
     }
 
     // Step 1: Reset cache only when explicitly requested
@@ -47,7 +64,7 @@ export const generateFilterForRender = (
     }
 
     // Step 2: Define relevant filter parameters
-    const filterParams = companyPageMode === CompanyPageModeEnum.JOB ? ["location", "coreSkills", "softSkills", "technicalSkills", "companyName","department"] : ["industry", "companyName"];
+    const filterParams = companyPageMode === CompanyPageModeEnum.JOB ? ["location", "coreSkills", "softSkills", "technicalSkills", "companyName", "department"] : ["industry", "companyName"];
 
     // Step 3: Ensure cache exists for each parameter
     filterParams.forEach((param) => {
@@ -62,7 +79,7 @@ export const generateFilterForRender = (
 
       if (companyPageMode === CompanyPageModeEnum.JOB) {
         // Extract options based on the parameter key
-        if (["coreSkills", "softSkills", "technicalSkills","department"].includes(paramKey)) {
+        if (["coreSkills", "softSkills", "technicalSkills", "department"].includes(paramKey)) {
           const skillData = data.map((job: JobDto) => ("externalJobId" in job ? [] : job[paramKey as keyof JobDto]));
           newOptions = normalizeSkills(skillData.filter((skills): skills is string[] => skills !== undefined));
         } else if (paramKey === "companyName") {
@@ -79,6 +96,8 @@ export const generateFilterForRender = (
           newOptions = Array.from(new Set(data.map((company: CompanyShortDto) => company.name).filter(Boolean)));
         }
       }
+      // CHANGED: Add empty fallback to avoid adding `undefined`
+      if (!Array.isArray(newOptions)) newOptions = [];
 
       // Merge with existing cache
       newOptions.forEach((option) => filterOptionsCache[paramKey].add(option));
@@ -105,29 +124,16 @@ export const generateFilterForRender = (
     const finalFilters = [...dynamicFilters, ...staticFilters];
     // console.log("Updated Filter Options:", finalFilters);
     // Step 7: Merge and update UI with custom order
-    const customOrder = [
-      "location",
-      "coreSkills",
-      "experienceRange",
-      "department", 
-      "technicalSkills",
-      "softSkills",
-      "companyName",
-      "salaryRange",
-      "typeofEmployment",
-      "workMode",
-      "dashboard",
-    ];
+    const customOrder = ["location", "coreSkills", "experienceRange", "department", "technicalSkills", "softSkills", "companyName", "salaryRange", "typeofEmployment", "workMode", "dashboard"];
 
     // Sort final filters by custom order
     const orderedFilters = customOrder.map((key) => finalFilters.find((f) => f.paramKey === key)).filter((f): f is FilterOptionForRender => !!f); // Remove undefined
 
     // Optionally include any leftover filters that weren't in custom order
     const unorderedFilters = finalFilters.filter((f) => !customOrder.includes(f.paramKey));
-
     // Final list: Ordered + leftover
     setJobFilterForRender([...orderedFilters, ...unorderedFilters]);
-
+    console.log([...orderedFilters, ...unorderedFilters]);
   } catch (error) {
     console.error("Error in generating filter options:", error);
   }

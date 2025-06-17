@@ -327,7 +327,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    */
 
   const CompanyQueryHandler = useCallback(
-    async ({ pageParam = null, filters, fallbackLevel = 1 }: { pageParam?: string | null; filters: JobFiltersDto; fallbackLevel?: 1 | 2 | 3 | 4 }) => {
+    async ({ pageParam = null, filters, fallbackLevel = 1 }: { pageParam?: string | null; filters: JobFiltersDto; fallbackLevel?: 1 | 2 | 3 }) => {
       // Check if we are on the job page
       const isJobPage = location.pathname.includes("job");
       // If pageParam is null, it's a new filter request
@@ -387,30 +387,25 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       try {
         const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
         if (error) throw error;
-
+        // Decide the filterMetaData based on the page mode
+        const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
         // recursively fetch job if default Filters were applied and no data was returned
         if (response.data.length <= 5 && ("YOE" in updatedFilters || "coreSkills" in updatedFilters || "jobTitle" in updatedFilters) && isJobPage && isFiltering) {
-          // Check the fallback level to determine what to remove from filters
+          setCompanyJobData([]); //  Clear stale jobs immediately
+
           const newFilters = { ...updatedFilters };
           if (fallbackLevel === 1) {
-            // Remove YOE and coreSkills from filters
             delete newFilters.YOE;
+            delete newFilters.coreSkills;
             return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
           } else if (fallbackLevel === 2) {
-            // Remove jobTitle from filters
             delete newFilters.jobTitle;
             return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
           } else if (fallbackLevel === 3) {
-            delete newFilters.coreSkills;
-            return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 4 });
-          }
-          else if (fallbackLevel === 4) {
-            return { data: [], nextPage: null }; // Return empty data if no jobs found after all fallbacks
+            generateFilterForRender([], companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
+            return { data: [], nextPage: null };
           }
         }
-
-        // Decide the filterMetaData based on the page mode
-        const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
 
         // Generate filters for rendering
         generateFilterForRender(response.data, companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
