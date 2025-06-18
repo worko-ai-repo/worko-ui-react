@@ -42,10 +42,10 @@ const getHTML = (html: string) => {
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = 'Not specified' }) => {
   const decode = getHTML(jobDescription);
   return (
-    <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
-      <h2 className="text-xl font-semibold mb-4">Job description</h2>
+    <div className={`mb-6 min-h-[250px] break-words text-wrap ${styles.job_description_container}`}>
+      <h2 className="text-xl font-semibold mb-4 break-words text-wrap">Job description</h2>
       <div
-        className={`space-y-4 mb-4 ${styles.job_description}`}
+        className={`space-y-4 mb-4 break-words  ${styles.job_description}`}
         dangerouslySetInnerHTML={{ __html: decode }}
       ></div>
     </div>
