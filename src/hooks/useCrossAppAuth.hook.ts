@@ -5,7 +5,8 @@ import CognitoServiceObj from "@Utils/Cognito.utils";
 import { set } from "react-hook-form";
 
 export const useCrossAppAuth = () => {
-  const isLoggedIn  = CognitoServiceObj.getAccessToken() 
+
+  const isLoggedIn  = CognitoServiceObj.isLoggedIn() 
   const navigate = useCallback((targetHref: string) => {
     // Add logic to check if user is allowed
     if (!isLoggedIn) {

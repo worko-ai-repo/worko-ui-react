@@ -90,7 +90,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false },
+    defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false, ctc: 0, ectc: 0 },
     mode: "all",
   });
 
@@ -116,24 +116,19 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
    */
   const checkBasicDetails = async (retryCount = 0): Promise<boolean> => {
     const maxRetries = 3;
-  
+
     try {
       if (activeFrame === "EMP") return true;
-  
+
       if (retryCount === 0) setOpenReferralLoader(true);
-  
-      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
-        `${import.meta.env.APP_API_URI}/user/basic-details`,
-        true,
-        {},
-        true
-      );
-  
+
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
+
       if (error) throw error;
-  
+
       const designation = response?.candidateExperience?.designation;
       const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
-  
+
       if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
         setOpenReferralLoader(false);
         return true;
@@ -162,7 +157,6 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
       return false;
     }
   };
-  
 
   /**
    * onSubmit
@@ -293,9 +287,14 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
               </label>
               <input type="file" className="input_primary auth_input  appearance-none cursor-pointer  " {...register("cv", { validate: validateCV })} accept=".pdf" />
               <Upload className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1" />
-			  <p className="sm:hidden text-left text-xs text-gray-500">Note: Click <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" 
-               data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported."  >Here</u> Before Uploading Any File</p>
-			  {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
+              <p className="sm:hidden text-left text-xs text-gray-500">
+                Note: Click{" "}
+                <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                  Here
+                </u>{" "}
+                Before Uploading Any File
+              </p>
+              {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
             </div>
           ) : (
             <div>
@@ -322,6 +321,33 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
               {errors.department && <p className="text-sm text-left text-red-500">{errors.department.message?.toString()}</p>}
             </div>
           )}
+                  {/* CTC */}
+        {activeFrame === "CAND" && (
+          <>
+            <div className="relative">
+              <label className="hidden sm:block font-medium w-fit">Current CTC (In LPA)</label>
+              <input placeholder="Enter current CTC in LPA" type="text" className={`input_primary auth_input  ${errors.ctc && "error"}`} {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })} />
+              <p
+                // Trigger input click
+                className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
+                LPA
+              </p>
+              {!errors.ctc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
+              {errors.ctc && <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>}
+            </div>
+            <div className="relative">
+              <label className="hidden sm:block font-medium">Expected CTC (In LPA)</label>
+              <input placeholder="Enter expected CTC in LPA" type="text" className={`input_primary auth_input  ${errors.ectc && "error"}`} {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })} />
+              <p
+                // Trigger input click
+                className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
+                LPA
+              </p>
+              {!errors.ectc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
+              {errors.ectc && <p className="text-sm text-left text-red-500">{errors.ectc.message?.toString()}</p>}
+            </div>
+          </>
+        )}
         </div>
 
         {/* Terms and Conditions */}

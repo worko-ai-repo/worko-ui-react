@@ -39,6 +39,8 @@ const LinkedInSignup = () => {
 		confirmPassword: '',
 		checkboxChecked: false,
 		acceptedTermsAndConditions: false,
+		ctc: 0,
+		ectc: 0,
 	});
 
 	/**
@@ -116,6 +118,12 @@ const LinkedInSignup = () => {
 
 		// Handle different cases for candidates and companies
 		if (activeFrame === 'CAND') {
+			// For candidates, set the CTC and ECTC values
+			setFormData(prev => ({
+				...prev,
+				ctc: data.ctc || 0,
+				ectc: data.ectc || 0,
+			}));
 			let resumeFile: File | null = null;
 			if(data.cv && data.cv.length > 0) {
 				resumeFile = data.cv[0] as File;
@@ -200,6 +208,8 @@ const LinkedInSignup = () => {
 					number: '+91' + formData.phoneNumber,
 					userId: ClientId,
 					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
+					CTC: formData.ctc,
+					ECTC: formData.ectc,
 				};
 				// Add the data to the backend
 				const { response, error } = await httpServiceObj.post('/user/register/candidate', candidateData, true);

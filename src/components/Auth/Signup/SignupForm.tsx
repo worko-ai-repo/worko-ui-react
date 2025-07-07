@@ -51,7 +51,7 @@ const SignupForm: React.FC<{
   verifyOtp: (otp: string) => Promise<boolean>;
   onFileUpload: (file: File) => void;
   setCompanyName: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName,onFileUpload  }) => {
+}> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName, onFileUpload }) => {
   const navTo = useNavigate();
   const signUpWithLinkedIn = useLinkedInSignup();
   const [otpError, setOtpError] = useState(false); // Use lowercase for setter
@@ -75,14 +75,13 @@ const SignupForm: React.FC<{
     reset,
     formState: { errors, isValid },
   } = useForm({
-    defaultValues: { name: null, phone: "", whatsappActive: false, company: undefined, cv: "", email: "", password: "", confirmPassword: "", termsAndConditions: false },
+    defaultValues: { name: null, phone: "", whatsappActive: false, company: undefined, cv: "", email: "", password: "", confirmPassword: "", termsAndConditions: false, ctc: 0, ectc: 0 },
     mode: "onChange",
   });
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       onFileUpload(file); // Pass file to parent
-  
     }
   };
   useEffect(() => {
@@ -124,9 +123,9 @@ const SignupForm: React.FC<{
       const success = await runCognitoBasicSignup(data);
       if (success) {
         setIsOtpSent(true);
-		setTimeout(() => {
-        setResendOtp(true);
-      }, 10000);
+        setTimeout(() => {
+          setResendOtp(true);
+        }, 10000);
       } else {
         reset();
       }
@@ -154,27 +153,27 @@ const SignupForm: React.FC<{
 
     try {
       await handleVerifyOtp(email, otpValue, watch("password")); // Assuming `handleVerifyOtp` only needs
-      
     } catch (error) {
       console.error("OTP verification failed", error);
     }
   }
 
   const handleResendOtp = async () => {
-	try {
-	  await toast.promise(
-		CognitoServiceObj.resendOtp({ username: watch("email") }), // Fixed function call
-		{
-		  pending: "Sending OTP...",
-		  success: "OTP sent successfully!",
-		  error: "Failed to resend OTP",
-		}, getToastOptions()
-	  );
-	} catch (error) {
-	  console.error("OTP resend failed", error);
-	}
+    try {
+      await toast.promise(
+        CognitoServiceObj.resendOtp({ username: watch("email") }), // Fixed function call
+        {
+          pending: "Sending OTP...",
+          success: "OTP sent successfully!",
+          error: "Failed to resend OTP",
+        },
+        getToastOptions()
+      );
+    } catch (error) {
+      console.error("OTP resend failed", error);
+    }
   };
-  
+
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const handleEditEmail = () => {
     setIsEditingEmail(true);
@@ -190,8 +189,6 @@ const SignupForm: React.FC<{
     setIsEditingEmail(false);
   };
 
-
-  
   return (
     <div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
       <form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
@@ -236,11 +233,11 @@ const SignupForm: React.FC<{
                 Edit Email
               </button>
             )}
-            {isEditingEmail &&
+            {isEditingEmail && (
               <button type="button" onClick={handleSaveEmail} className=" w-full text-xs text-left text-green-500">
                 Save
               </button>
-            }
+            )}
 
             {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
           </div>
@@ -248,29 +245,22 @@ const SignupForm: React.FC<{
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
             <div className="relative ">
-              <label className="hidden sm:block cursor-pointer font-medium"
-               data-tooltip-id="my-tooltip" 
-               data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported." >
-                Upload CV 
-                (<i 
-                  className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"
-                ></i> 
+              <label className="hidden sm:block cursor-pointer font-medium" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                Upload CV (<i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs" />
                 &nbsp; View file requirements)
-              </label>              
-              <input
-                disabled={isOtpSent}
-                type="file"
-                className="input_primary auth_input appearance-none cursor-pointer"
-                {...register("cv", { validate: validateCV })}
-                accept=".pdf"
-                onChange={handleFileChange}
-                />
-             <Upload
+              </label>
+              <input disabled={isOtpSent} type="file" className="input_primary auth_input appearance-none cursor-pointer" {...register("cv", { validate: validateCV })} accept=".pdf" onChange={handleFileChange} />
+              <Upload
                 onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()} // Trigger input click
                 className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1"
               />
-              <p className="sm:hidden text-left text-xs text-gray-500">Note: Click <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" 
-               data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported."  >Here</u> Before Uploading Any File</p>
+              <p className="sm:hidden text-left text-xs text-gray-500">
+                Note: Click{" "}
+                <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                  Here
+                </u>{" "}
+                Before Uploading Any File
+              </p>
               {errors.cv && <p className="text-sm text-left text-red-500">{errors.cv.message}</p>}
             </div>
           ) : (
@@ -281,6 +271,35 @@ const SignupForm: React.FC<{
               {errors.company && <p className="text-sm text-left text-red-500">{errors.company.message?.toString()}</p>}
             </div>
           )}
+
+          {/* CTC */}
+          {activeFrame === "CAND" && (
+            <>
+              <div className="relative">
+                <label className="hidden sm:block font-medium w-fit">Current CTC (In LPA)</label>
+                <input placeholder="Enter current CTC in LPA" disabled={isOtpSent} type="text" className={`input_primary auth_input  ${errors.ctc && "error"}`} {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })} />
+                <p
+                  // Trigger input click
+                  className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
+                  LPA
+                </p>
+                {!errors.ctc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
+                {errors.ctc && <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>}
+              </div>
+              <div className="relative">
+                <label className="hidden sm:block font-medium">Expected CTC (In LPA)</label>
+                <input placeholder="Enter expected CTC in LPA" disabled={isOtpSent} type="text" className={`input_primary auth_input  ${errors.ectc && "error"}`} {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })} />
+                <p
+                  // Trigger input click
+                  className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
+                  LPA
+                </p>
+                {!errors.ectc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
+                {errors.ectc && <p className="text-sm text-left text-red-500">{errors.ectc.message?.toString()}</p>}
+              </div>
+            </>
+          )}
+
           {/* Password */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Password</label>
@@ -326,7 +345,7 @@ const SignupForm: React.FC<{
             I accept the <span className="text-blue-500 cursor-pointer">Terms and Conditions</span>
           </p>
         </div>
-          {errors.termsAndConditions && <div className="text-sm text-red-500 text-center">{errors.termsAndConditions.message?.toString()}</div>}
+        {errors.termsAndConditions && <div className="text-sm text-red-500 text-center">{errors.termsAndConditions.message?.toString()}</div>}
 
         {ViewTerms && (
           <MessageModal
@@ -370,7 +389,7 @@ const SignupForm: React.FC<{
               Verify & Signup
             </button>
           )}
-           <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
+          <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
             <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign up with Linkedin
           </button>
         </div>
@@ -378,7 +397,7 @@ const SignupForm: React.FC<{
         {/* Already have an account? */}
         <p className="text-center sm:mt-4">
           Already have an account?{" "}
-          <div  onClick={()=>navTo('/auth/login')} className="inline cursor-pointer text-blue-500">
+          <div onClick={() => navTo("/auth/login")} className="inline cursor-pointer text-blue-500">
             Sign In
           </div>
         </p>

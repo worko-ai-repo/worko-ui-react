@@ -6,6 +6,8 @@ export interface AuthSignupBaseDto {
 	emailId: string;
 	password: string;
 	candidateOtp: string;
+    ctc: number;
+    ectc: number;
 	phoneNumber: string;
     companyEmailId?: string;   
     department?: string;
@@ -39,6 +41,8 @@ export interface AuthFormDto {
 	password: string;
 	confirmPassword: string;
 	termsAndConditions: boolean;
+    ctc?: number;
+    ectc?: number;
 }
 
 /**
@@ -73,6 +77,8 @@ export interface DevCandidateDto {
 	email: string;
 	number: string;
 	userId: string;
+    CTC: number;
+    ECTC: number;
 	acceptedTermsAndConditions: boolean;
 }
 /**

@@ -55,6 +55,8 @@ const Signup = () => {
 	let formData: AuthSignupBaseDto = {
 		name: '',
 		emailId: '',
+		ctc: 0,
+		ectc: 0,
 		password: '',
 		candidateOtp: '',
 		phoneNumber: '',
@@ -106,6 +108,8 @@ Z — Signup-BwkRK2K6.js:1:7879
 		formData.acceptedTermsAndConditions = data.termsAndConditions;
 
 		if (activeFrame === 'CAND') {
+			formData.ectc = data.ectc ?? 0; // Default to 0 if data.ectc is undefined
+			formData.ctc = data.ctc ?? 0; // Default to 0 if data.ctc is undefined
 			let resumeFile: File | null = null;
 			if(data.cv && data.cv.length > 0) {
 				resumeFile = data.cv[0] as File;
@@ -396,6 +400,8 @@ Z — Signup-BwkRK2K6.js:1:7879
 					email: formData.emailId,
 					number: '+91' + formData.phoneNumber,
 					userId: ClientId,
+					CTC: formData.ctc,
+					ECTC: formData.ectc,
 					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
 				};
 				// Add the data to the backend

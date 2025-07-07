@@ -363,4 +363,16 @@ name: {
 		  return true;
 		},
 	  },
+
+	/**
+	 * ctc
+	 * 
+	 * @description - Default validation rules for form fields. This is used for CTC fields.
+	 */
+	ctc: {
+		valueAsNumber: true,
+		required: "CTC is required",
+		min: { value: 0, message: "Minimum value is 0" },
+		max: { value: 100, message: "Maximum value is 100" },
+	  },
 };
