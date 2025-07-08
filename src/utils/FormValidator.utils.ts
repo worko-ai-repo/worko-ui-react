@@ -374,5 +374,15 @@ name: {
 		required: "CTC is required",
 		min: { value: 0, message: "Minimum value is 0" },
 		max: { value: 100, message: "Maximum value is 100" },
-	  },
+		validate: (value: number) => {
+		  if (isNaN(value)) {
+			return "Please enter a valid number";
+		  }
+		  // Max 2 decimal places
+		  if (!/^\d+(\.\d{1,2})?$/.test(value.toString())) {
+			return "Only up to 2 decimal places allowed";
+		  }
+		  return true;
+		},
+	  }	  
 };
