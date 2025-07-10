@@ -107,12 +107,19 @@ export function compareResumeWithJD(
         console.warn("Invalid experience range:", { jdMinYOE, jdMaxYOE });
         allCriteriaScores.experience = 0;
       } else {
-        const matchRatio = jdMinYOE > 0 ? Math.min(userYOE / jdMinYOE, 2) : 0;
-        const relevanceRatio = userYOE > 0 ? Math.min(jdMinYOE / userYOE, 1) : 0;
+        // Special case: If job requires 0 years of experience, give full score to anyone with experience
+        if (jdMinYOE === 0 && userYOE > 0) {
+          experienceScore = 90;
+          // console.log('Special case hit: experienceScore set to 90');
+        } else {
+          const matchRatio = jdMinYOE > 0 ? Math.min(userYOE / jdMinYOE, 2) : 0;
+          const relevanceRatio = userYOE > 0 ? Math.min(jdMinYOE / userYOE, 1) : 0;
 
-        const rawScore = matchRatio * relevanceRatio * 100;
+          const rawScore = matchRatio * relevanceRatio * 100;
 
-        experienceScore = Math.min(90, Math.round(rawScore));
+          experienceScore = Math.min(90, Math.round(rawScore));
+        }
+        
         allCriteriaScores.experience = experienceScore;
         totalScore += experienceScore;
       }

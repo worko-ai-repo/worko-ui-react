@@ -5,7 +5,7 @@ import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
 import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 import { useAppContext } from "@Context/App.context";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { DaysFormatter } from "@Utils/DaysFormatter.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { JobDto } from "@Interfaces/JobsAndCompany.dto";
@@ -29,7 +29,7 @@ interface ReferralFormDTO {
 }
 
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl,showSalary,experience,workmode} = job;
+  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl, showSalary, experience, workmode } = job;
   const { isLoggedIn } = useAppContext();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -45,21 +45,21 @@ export const JobCard = ({ job }: any) => {
     setValue,
     formState: { errors, isSubmitting },
     reset,
-    watch
+    watch,
   } = useForm<ReferralFormDTO>({
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
       fullName: "",
       email: "",
       phone: undefined,
-      phoneCountryCode: "+91"
-    }
+      phoneCountryCode: "+91",
+    },
   });
 
-  const phoneCountryCode = watch('phoneCountryCode');
+  const phoneCountryCode = watch("phoneCountryCode");
 
   const handleCountryCodeSelect = (code: string) => {
-    setValue('phoneCountryCode', code);
+    setValue("phoneCountryCode", code);
     setShowCountryDropdown(false);
   };
 
@@ -70,109 +70,105 @@ export const JobCard = ({ job }: any) => {
         name: formData.fullName,
         email: formData.email,
         phoneNumber: Number(formData.phone),
-        phoneCountryCode: Number(formData.phoneCountryCode.slice(1))
+        phoneCountryCode: Number(formData.phoneCountryCode.slice(1)),
       },
       companyDetails: {
         id: companyId,
-        name: companyName
+        name: companyName,
       },
       jobDetails: {
         id: jobId,
         title: title,
-        url: jobUrl
-      }
+        url: jobUrl,
+      },
     };
   };
 
   useEffect(() => {
-    // Check if user just logged in and has pending data
     if (isLoggedIn) {
-      
-        let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
-      
-      // If we have pending data and it's for refer and earn
-      if (pendingData && typeof pendingData === 'object' && 'data' in pendingData) {
+      let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+
+      if (pendingData !== null && typeof pendingData === "object" && "data" in pendingData) {
         try {
-          // Populate form with saved data
-          const savedData = (pendingData as { data: { recipientDetails: ReferralFormDTO } }).data.recipientDetails;
-          // console.log("Saved Data:", pendingData);
-          if (savedData) {
-            setValue('fullName', savedData.name || '');
-            setValue('email', savedData.email || '');
-            setValue('phone', savedData.phoneNumber || 0);
-            setValue('phoneCountryCode', `+${savedData.phoneCountryCode}` || '+91');
-            
-            // Submit form after a brief delay to ensure values are set
-              handleSubmit(onSubmit)();
-            
+          const recipientDetails = (pendingData as any)?.data?.recipientDetails;
+
+          if (recipientDetails) {
+            setValue("fullName", recipientDetails.name || "");
+            setValue("email", recipientDetails.email || "");
+            setValue("phone", recipientDetails.phoneNumber || 0);
+            setValue("phoneCountryCode", `+${recipientDetails.phoneCountryCode}` || "+91");
+
+            handleSubmit(onSubmit)();
+          } else {
+            console.warn("recipientDetails was null or undefined");
           }
-          
-          // Clear the pending data
+
+          // Clear pending data
           secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
-          localStorage.removeItem('continueReferAndEarnRequestData');
+          localStorage.removeItem("continueReferAndEarnRequestData");
         } catch (error) {
           console.error("Error processing pending referral data:", error);
         }
       }
     }
-  }, [isLoggedIn, locationHook.pathname]); // Run when login status or location changes
+  }, [isLoggedIn, locationHook.pathname]);
 
-  const onSubmit = async (formData:ReferralFormDTO) => {
+  const onSubmit = async (formData: ReferralFormDTO) => {
     const payload = createPayload(formData);
-  
+
     if (!isLoggedIn) {
       // Store data for after login
       const continueReferAndEarnRequestData = {
         type: "continueReferAndEarn",
         data: payload,
-        url: window.location.href
+        url: window.location.href,
       };
 
       // Store in both secure storage and localStorage
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
-      localStorage.setItem('continueReferAndEarnRequestData', JSON.stringify(continueReferAndEarnRequestData));
-      
+      localStorage.setItem("continueReferAndEarnRequestData", JSON.stringify(continueReferAndEarnRequestData));
+
       // Navigate to login
-      nav('/auth/login');
+      nav("/auth/login");
       return;
     }
-    
+
     try {
-      const result = await toast.promise(
+      const result = (await toast.promise(
         httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, payload, true, {}, true),
         {
-          pending: 'Sharing job...',
+          pending: "Sharing job...",
         },
         getToastOptions()
-      ) as ApiCallResponse;
-  
+      )) as ApiCallResponse;
+
       const { response, error, status } = result;
-  
+
       if (status === 409) {
         toast.error(error.message, getToastOptions());
         return;
       }
-  
+
       if (error) {
-        console.error('Error details:', error);
-        throw new Error(error.message || 'Failed to submit referral');
+        console.error("Error details:", error);
+        throw new Error(error.message || "Failed to submit referral");
       }
-  
-      toast.success('Referral applied successfully!', getToastOptions());
+
+      toast.success("Referral applied successfully!", getToastOptions());
     } catch (error: any) {
-      console.error('Error submitting referral:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit referral', getToastOptions());
+      console.error("Error submitting referral:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to submit referral", getToastOptions());
     } finally {
       reset();
       setShowModal(false);
     }
   };
-  
+
   // Rest of the component remains the same...
-  
+
   // Just showing the relevant parts for brevity
   // Return JSX remains the same
-  
+
   const isEarlyApplicant = useMemo(() => {
     const createdDate = new Date(createdAt);
     const threeDaysAgo = new Date();
@@ -190,7 +186,7 @@ export const JobCard = ({ job }: any) => {
       experience: experience,
       jobId: jobId,
     });
-  
+
     nav(slug, {
       state: { FullJob: FullJob as JobDto },
     });
@@ -213,14 +209,14 @@ export const JobCard = ({ job }: any) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.country-dropdown-container')) {
+      if (!target.closest(".country-dropdown-container")) {
         setShowCountryDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -231,7 +227,7 @@ export const JobCard = ({ job }: any) => {
     }
   }, [showModal, reset]);
 
- const getJobUrl = () => {
+  const getJobUrl = () => {
     return generateJobSlug({
       title: title,
       company: companyName ?? "comp",
@@ -239,7 +235,7 @@ export const JobCard = ({ job }: any) => {
       experience: experience,
       jobId: jobId,
     });
-  }
+  };
   return (
     <div className="w-full bg-white rounded-[20px] md:rounded-[15px] border border-black/5 shadow-[0px_4px_16px_rgba(0,0,0,0.05)] md:shadow-[0px_3px_12px_rgba(0,0,0,0.05)] p-6 md:p-4">
       <div className="flex flex-col gap-4">
@@ -250,17 +246,14 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName}  className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">{isLogoAvailable && !imgError ?  <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="w-full text-wrap truncate text-[60%] font-extrabold text-sky-400 ">{companyName}</div>}</div>
+              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName} className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">
+                {isLogoAvailable && !imgError ? <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="w-full text-wrap truncate text-[60%] font-extrabold text-sky-400 ">{companyName}</div>}
+              </div>
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
-              <a
-                href={getJobUrl()} 
-                
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
+                <a href={getJobUrl()} rel="noopener noreferrer" className="block">
+                  <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
                 </a>
                 <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
 
@@ -294,12 +287,12 @@ export const JobCard = ({ job }: any) => {
 
                 {/* Text Below Gauge */}
                 {isLoggedIn ? (
-                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">
-  {matchPercentage !== -1 ? strengthLabel : "Processing"}
-</p>
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
-                    <small className="text-[8px] sm:text-xs"  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">Login to fetch your score</small>
+                    <small className="text-[8px] sm:text-xs" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
+                      Login to fetch your score
+                    </small>
                   </div>
                 )}
               </div>
@@ -323,7 +316,10 @@ export const JobCard = ({ job }: any) => {
               <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <>
-                <small  data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores"> Login to fetch your score</small>
+                <small data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
+                  {" "}
+                  Login to fetch your score
+                </small>
               </>
             )}
           </div>
@@ -335,9 +331,9 @@ export const JobCard = ({ job }: any) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className="capitalize max-w-[100px] truncate cursor-pointer"
-              data-tooltip-id="my-tooltip" data-tooltip-content={location} title={location}
-              >{location}</span>
+              <span className="capitalize max-w-[100px] truncate cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content={location} title={location}>
+                {location}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
@@ -351,16 +347,12 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            { (!isExternalJob) && 
-            <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content='Refer a friend, and earn ₹5000 when they get hired!'>
-            <button
-              onClick={() => setShowModal(true)}
-              >
-              Refer A Friend
-            </button> 
-            </div>
-            }
-             <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
+            {!isExternalJob && (
+              <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
+                <button onClick={() => setShowModal(true)}>Refer A Friend</button>
+              </div>
+            )}
+            <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details
             </button>
           </div>
@@ -369,38 +361,30 @@ export const JobCard = ({ job }: any) => {
 
       {/* Modal with useForm integration */}
       {showModal && (
-        <CustomModal 
-          type="share" 
-          title="Refer a Friend and Earn Rewards!" 
-          onSubmit={()=>{}} // Will use handleSubmit from useForm instead
+        <CustomModal
+          type="share"
+          title="Refer a Friend and Earn Rewards!"
+          onSubmit={() => {}} // Will use handleSubmit from useForm instead
           onClose={() => setShowModal(false)}
-          hideDefaultButtons={true}
-        >
+          hideDefaultButtons={true}>
           <div className="text-center px-4">
-            <p className="text-gray-600 text-sm mb-4">
-              Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!
-            </p>
+            <p className="text-gray-600 text-sm mb-4">Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!</p>
           </div>
-          <form className="space-y-4 px-4" onSubmit={handleSubmit(onSubmit)}> 
+          <form className="space-y-4 px-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <input 
-                type="text" 
-                {...register('fullName', { 
-                  required: 'Full name is required',
-                  minLength: { value: 3, message: 'Name must be at least 3 characters' } 
-                })} 
-                className="input_primary text-gray-500 w-full p-2 border rounded" 
-                placeholder="Full Name" 
+              <input
+                type="text"
+                {...register("fullName", {
+                  required: "Full name is required",
+                  minLength: { value: 3, message: "Name must be at least 3 characters" },
+                })}
+                className="input_primary text-gray-500 w-full p-2 border rounded"
+                placeholder="Full Name"
               />
               {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
             </div>
             <div>
-              <input 
-                type="email" 
-                {...register('email', validationRules.email)} 
-                className="input_primary text-gray-500 w-full p-2 border rounded" 
-                placeholder="E-Mail ID" 
-              />
+              <input type="email" {...register("email", validationRules.email)} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="E-Mail ID" />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
             </div>
             <div>
@@ -408,23 +392,16 @@ export const JobCard = ({ job }: any) => {
               <div className="flex items-center">
                 {/* Country code dropdown */}
                 <div className="relative country-dropdown-container">
-                  <div 
-                    className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
-                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                  >
+                  <div className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0" onClick={() => setShowCountryDropdown(!showCountryDropdown)}>
                     <span>{phoneCountryCode}</span>
                     <ChevronDown size={14} />
                   </div>
-                  
+
                   {/* Dropdown list */}
                   {showCountryDropdown && (
                     <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
                       {countryCodes.map((item) => (
-                        <div 
-                          key={item.code} 
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
-                          onClick={() => handleCountryCodeSelect(item.code)}
-                        >
+                        <div key={item.code} className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2" onClick={() => handleCountryCodeSelect(item.code)}>
                           <span className="font-medium">{item.code}</span>
                           <span className="text-gray-500">{item.country}</span>
                         </div>
@@ -432,36 +409,30 @@ export const JobCard = ({ job }: any) => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Phone input */}
-                <input 
-                  type="tel" 
-                  {...register('phone', { 
-                    required: 'Phone number is required',
-                    pattern: { 
-                      value: /^[0-9]{10}$/, 
-                      message: 'Please enter a valid 10-digit phone number'
-                    }
+                <input
+                  type="tel"
+                  {...register("phone", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Please enter a valid 10-digit phone number",
+                    },
                   })}
-                  className="input_primary text-gray-500 flex-1 p-2 border rounded" 
-                  placeholder="Contact Number" 
+                  className="input_primary text-gray-500 flex-1 p-2 border rounded"
+                  placeholder="Contact Number"
                 />
               </div>
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message as string}</p>}
             </div>
             <div className="text-center mt-4">
-              <button 
-                type="submit" 
-                className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Referral'}
+              <button type="submit" className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Referral"}
               </button>
             </div>
           </form>
-          <p className="text-gray-400 text-xs text-center mt-4 px-4">
-            Your information is secure and will only be used to process your referral and communicate about the program.
-          </p>
+          <p className="text-gray-400 text-xs text-center mt-4 px-4">Your information is secure and will only be used to process your referral and communicate about the program.</p>
         </CustomModal>
       )}
     </div>

@@ -178,10 +178,10 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
       let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
       // If we have pending data and it's for refer and earn
-      if (pendingData && typeof pendingData === "object" && "data" in pendingData) {
+      if (pendingData !== null && typeof pendingData === 'object' && 'data' in pendingData)         {
         try {
           // Populate form with saved data
-          const savedData = (pendingData as { data: { recipientDetails: ReferralFormDTO } }).data.recipientDetails;
+          const savedData =(pendingData as any)?.data?.recipientDetails;
           // console.log("Saved Data:", pendingData);
           if (savedData) {
             setValue("fullName", savedData.name || "");
@@ -191,6 +191,8 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
 
             // Submit form after a brief delay to ensure values are set
             handleSubmit(onSubmit)();
+          }else {
+            console.warn("recipientDetails was null or undefined");
           }
 
           // Clear the pending data
@@ -420,7 +422,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
             )}
 
             {/* Apply button */}
-            <button className={`w-full max-sm:px-0 max-sm:text-xs md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`} onClick={onApply} disabled={applicationStatus || jobData.status === "ARCHIVED" || jobData.status === "CLOSED" || (isLoggedIn && displayMatchScore < 1)} data-tooltip-id="my-tooltip" data-tooltip-content={isLoggedIn && displayMatchScore < 1 ? "Processing your eligibility. Please wait..." : undefined}>
+            <button className={`w-full max-sm:px-0 max-sm:text-xs md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`} onClick={onApply} disabled={applicationStatus || jobData.status === "ARCHIVED" || jobData.status === "CLOSED" } >
               {isLoggedIn /* Check if the user is Logged in or not  */ ? (applicationStatus /* If the user user is Logged In then check if the user has already applied the job or not */ ? "Already Applied" /* Already Applied  */ : jobData.status === "ARCHIVED" || jobData.status === "CLOSED" || displayMatchScore < 1 /* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */ ? `${displayMatchScore < 1 ? "Apply Now" : jobData.status}` : "Apply Now") : "Login to Apply"} {/* If not then Ask them */}
             </button>
           </div>
