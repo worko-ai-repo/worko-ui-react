@@ -147,7 +147,7 @@ export const generateFilterForRender = (
     const unorderedFilters = finalFilters.filter((f) => !customOrder.includes(f.paramKey));
     // Final list: Ordered + leftover
     setJobFilterForRender([...orderedFilters, ...unorderedFilters]);
-    console.log([...orderedFilters, ...unorderedFilters]);
+    // console.log([...orderedFilters, ...unorderedFilters]);
   } catch (error) {
     console.error("Error in generating filter options:", error);
   }

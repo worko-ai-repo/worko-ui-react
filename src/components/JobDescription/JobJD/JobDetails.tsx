@@ -200,8 +200,7 @@ const [matchScore, setMatchScore] = useState<number | undefined>(0);
             className={` disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 
               text-white font-bold px-4 py-2 rounded-lg transition-colors`}
             onClick={onApply}
-            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED' || (isLoggedIn && displayMatchScore < 1 )}
-            data-tooltip-id="my-tooltip" data-tooltip-content={(isLoggedIn && displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
+            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED' }
           >
              {isLoggedIn 
               ? applicationStatus 

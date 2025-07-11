@@ -495,7 +495,7 @@ const JobDescription = () => {
       } else {
         // If the scores are very Low then warn the user
         if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
-          if (jobMatchDetails.matchingScore < 1) {
+          if (jobMatchDetails.matchingScore < 0) {
             setShowApplyModal(true);
             showModalsError("badScore");
             return;
