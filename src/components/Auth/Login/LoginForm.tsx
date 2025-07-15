@@ -246,7 +246,7 @@ const LoginForm = () => {
 					{/* Name */}
 					<div className="w-full max-w-[350px] sm:max-w-[350px] ">
 						<label className="font-medium hidden sm:block">Email</label>
-						<input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', validationRules.email)} />
+						<input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', validationRules.personalEmail)} />
 						{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 					</div>
 					{/* Password */}

@@ -117,7 +117,7 @@ const ForgotPassword = () => {
 								{/* Name */}
 								<div className="w-full max-w-[350px] sm:max-w-[350px] ">
 									<label className="hidden sm:block font-medium">Email</label>
-									<input disabled={!isStepOne} type="text" placeholder="Enter your email" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', pagetype === 'GEN' ? validationRules.email : validationRules.corporateEmail)} />
+									<input disabled={!isStepOne} type="text" placeholder="Enter your email" className={`input_primary auth_input ${errors.email && 'error'}`} {...register('email', pagetype === 'GEN' ? validationRules.personalEmail : validationRules.corporateEmail)} />
 									{errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
 								</div>
 								<div className={`${isStepOne ? 'hidden' : 'block'} w-full max-w-[350px] sm:max-w-[350px] `}>

@@ -274,7 +274,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           {/* Email */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Email</label>
-            <input placeholder="Enter Email" disabled type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.email)} />
+            <input placeholder="Enter Email" disabled type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
             {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
           </div>
 

@@ -95,31 +95,40 @@ export function compareResumeWithJD(
   /**
    * ========================================================= Experience =========================================================
    */
-  if (jobDescription.experienceRange && typeof jobDescription.experienceRange === "object" && typeof jobDescription.experienceRange.min === "number" && typeof jobDescription.experienceRange.max === "number" && typeof userBasicDetails.YOE === "number" && !isNaN(userBasicDetails.YOE)) {
+  if (
+    jobDescription.experienceRange &&
+    typeof jobDescription.experienceRange === "object" &&
+    typeof jobDescription.experienceRange.min === "number" &&
+    typeof jobDescription.experienceRange.max === "number" &&
+    typeof userBasicDetails.YOE === "number" &&
+    !isNaN(userBasicDetails.YOE)
+  ) {
     try {
       const { min: jdMinYOE, max: jdMaxYOE } = jobDescription.experienceRange;
       const userYOE = userBasicDetails.YOE;
-
+  
       let experienceScore = 0;
-
-      // Validate input
+  
+      // Validate range
       if (jdMinYOE < 0 || jdMaxYOE < 0 || jdMinYOE > jdMaxYOE) {
         console.warn("Invalid experience range:", { jdMinYOE, jdMaxYOE });
         allCriteriaScores.experience = 0;
       } else {
-        // Special case: If job requires 0 years of experience, give full score to anyone with experience
-        if (jdMinYOE === 0 && userYOE > 0) {
+        // Special case: JD asks for 0 YOE and candidate has any
+        if ((jdMinYOE === 0 && jdMaxYOE === 0) && userYOE > 0) {
           experienceScore = 90;
-          // console.log('Special case hit: experienceScore set to 90');
-        } else {
-          const matchRatio = jdMinYOE > 0 ? Math.min(userYOE / jdMinYOE, 2) : 0;
-          const relevanceRatio = userYOE > 0 ? Math.min(jdMinYOE / userYOE, 1) : 0;
-
-          const rawScore = matchRatio * relevanceRatio * 100;
-
-          experienceScore = Math.min(90, Math.round(rawScore));
+        } else if (userYOE >= jdMinYOE && userYOE <= jdMaxYOE) {
+          // Candidate fits perfectly within range
+          experienceScore = 90;
+        } else if (userYOE < jdMinYOE) {
+          const matchRatio = Math.min(userYOE / jdMinYOE, 1);
+          experienceScore = Math.round(matchRatio * 100);
+        } else if (userYOE > jdMaxYOE) {
+          const relevanceRatio = Math.min(jdMaxYOE / userYOE, 1);
+          experienceScore = Math.round(relevanceRatio * 100);
         }
-        
+  
+        experienceScore = Math.min(90, experienceScore);
         allCriteriaScores.experience = experienceScore;
         totalScore += experienceScore;
       }
@@ -130,6 +139,8 @@ export function compareResumeWithJD(
   } else {
     allCriteriaScores.experience = 0;
   }
+  
+  
 
   /**
    * ========================================================= Responsibilities =========================================================

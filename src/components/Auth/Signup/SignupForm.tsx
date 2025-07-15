@@ -227,7 +227,7 @@ const SignupForm: React.FC<{
           {/* Email */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Email</label>
-            <input placeholder="Enter Email" disabled={isOtpSent} type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.email)} />
+            <input placeholder="Enter Email" disabled={isOtpSent} type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
             {!isEditingEmail && isOtpSent && (
               <button type="button" onClick={handleEditEmail} className=" text-left  w-full text-xs text-blue-500">
                 Edit Email

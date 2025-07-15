@@ -107,6 +107,28 @@ export const validationRules = {
   },
 
   /**
+   * @type  {Object} personalEmail
+   * 
+   * @description - Validation rules for form fields for personal email entered.
+   * 
+   * @property {string} personalEmail.required - Error message when the personal email is not provided.
+   * @property {Object} personalEmail.pattern - Pattern validation for the personal email.
+   * */
+  personalEmail: {
+    required: "Email is required",
+    pattern: {
+      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      message: "Invalid email address",
+    },
+    validate: (email: string) =>{
+      //skip if email has worko.ai domain
+      if(email.endsWith("@worko.ai")) return true;
+      else return (
+      !emailDomainDenyListValidator(email) || "Corporate email domains are not allowed"
+      )},
+  },
+
+  /**
    * @type  {Object} linkedInPage
    *
    * @description - Validation rules for form fields for linkedin url entered.
