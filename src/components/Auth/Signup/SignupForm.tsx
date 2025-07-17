@@ -15,6 +15,7 @@ import CognitoServiceObj from "@Utils/Cognito.utils";
 import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { useNavigate } from "react-router-dom";
+import { CompanyShortDto } from "@Interfaces/JobsAndCompany.dto";
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
 
 /**
@@ -50,7 +51,7 @@ const SignupForm: React.FC<{
   handleVerifyOtp: (email: string, otp: string, password: string) => Promise<any>;
   verifyOtp: (otp: string) => Promise<boolean>;
   onFileUpload: (file: File) => void;
-  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
+  setCompanyName: React.Dispatch<React.SetStateAction<CompanyShortDto | undefined>>;
 }> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName, onFileUpload }) => {
   const navTo = useNavigate();
   const signUpWithLinkedIn = useLinkedInSignup();

@@ -6,6 +6,7 @@ import { ConfirmResetPasswordInput, confirmResetPassword,  resetPassword } from 
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
 import { getToastOptions } from '@Utils/Toast.utils';
+import CustomModal from '@Components/Modals/FormModal';
 
 type PageType = 'CORP' | 'GEN';
 
@@ -17,6 +18,8 @@ const ForgotPassword = () => {
 	const [showPassword, setShowPassword] = React.useState<boolean>(false);
 	const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
 	const [isStepOne, setIsStepOne] = React.useState<boolean>(true);
+	const [otp, setOtp] = React.useState('');
+	const [confirmAccount, setConfirmAccount] = React.useState<boolean>(false);
 	const {
 		register,
 		handleSubmit,
@@ -41,7 +44,8 @@ const ForgotPassword = () => {
 	async function onSendCode(e:any) {
         e.preventDefault();
 		// STEP 2: Cognito is accepting username as email so we are using calling resetPassword function and passing the email to the next function
-        const isEmailValid = await trigger('email'); // Validate only the email field
+		const isEmailValid = await trigger('email'); // Validate only the email field
+		
 		if (!isEmailValid) return; // Prevent step change if invalid
 
       try {
@@ -59,8 +63,19 @@ const ForgotPassword = () => {
        if(nextStep.resetPasswordStep === 'CONFIRM_RESET_PASSWORD_WITH_CODE'){
            nextStep.codeDeliveryDetails;
        }
-     } catch (error) {
-        console.log(error);
+     } catch (error:any) {
+		console.error("Reset error:", error);
+
+		const message = error?.message || '';
+		const code = error?.code || error?.name || '';
+	  
+		if (message.includes('no registered/verified email or phone_number')) {
+		 toast.error('Your Email might not be registered or verified. Please write to us at support@worko.ai.', getToastOptions({}));  
+		} else if (code === 'LimitExceededException') {
+		  toast.error('You’ve tried too many times. Please wait a few minutes.', getToastOptions({}));
+		} else {
+		  toast.error('Something went wrong. Please try again.', getToastOptions({}));
+		}
      } 
 	}
 

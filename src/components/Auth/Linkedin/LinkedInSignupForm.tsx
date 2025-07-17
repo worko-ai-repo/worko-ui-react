@@ -13,7 +13,7 @@ import { useAppContext } from "@Context/App.context";
 import { getToastOptions } from "@Utils/Toast.utils";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import httpServiceObj from "@Services/ApiHandler.service";
-import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import { CompanyShortDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
@@ -44,7 +44,7 @@ type SignupMode = "EMP" | "CAND";
 interface LinkedInSignupForm {
   activeFrame: SignupMode;
   handleDataMutationtoDb: (data: any) => Promise<boolean>;
-  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
+  setCompanyName: React.Dispatch<React.SetStateAction<CompanyShortDto | undefined>>;
   fetchLinkedinSessionData: () => Promise<AuthSessionDto>;
 }
 
