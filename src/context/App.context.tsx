@@ -7,7 +7,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { AppContextType, ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo } from 'react';
-import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
+import { continueReferralRequestDataDto, ReferralRequestFormDto } from '@Pages/request-referral/RequestReferral';
 
 
 // Corporate User Interface
@@ -48,16 +48,16 @@ export interface CognitoMetaDataDto extends JwtPayload {
 }
 
 // Create the context object
-export const AppContext = createContext<AppContextType | undefined>(undefined);
+export const AppContext = createContext<AppContextType<any> | undefined>(undefined);
 
 // Create the provider component
-export const AppProvider = ({ children }: ContextProviderProps) => {
+export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 	// State variables
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [tokenData, setTokenData] = useState<any | null>(null);
 	const [userDetails, setUserDetails] = useState<Partial<AuthLoginForGeneralUserDto> | null>(null);
 	const [updateCheck, setUpdateCheck] = useState<boolean>(false);
-	const [PendingApply , setPendingApply] = useState<continueReferralRequestDataDto | null>(null)
+	const [PendingApply , setPendingApply] = useState<continueReferralRequestDataDto<T> | null>(null)
 	const [isModalOpen , setIsModalOpen] = useState<boolean>(false)
 	// Fetch user details based on user type
 	const fetchUserDetails = async (userType: string[] | undefined, userId: string | undefined, userEmail: string | undefined) => {
@@ -163,10 +163,10 @@ export const AppProvider = ({ children }: ContextProviderProps) => {
  *
  * This hook is used to access the context object
  */
-export const useAppContext = () => {
+export const useAppContext = <T,>() => {
 	const context = useContext(AppContext);
 	if (!context) {
 		throw new Error('useAppContext must be used within an AppProvider');
 	}
-	return context;
+	return context as AppContextType<T>;
 };

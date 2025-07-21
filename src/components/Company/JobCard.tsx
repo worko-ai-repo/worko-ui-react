@@ -17,6 +17,7 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { generateJobSlug } from "@Utils/JobUriSlug.utils";
 import { get } from "http";
+import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
@@ -27,10 +28,26 @@ interface ReferralFormDTO {
   phone: number;
   phoneCountryCode: string;
 }
-
+export interface ReferrFriendDto {
+  recipientDetails: {
+    name: string;
+    email: string;
+    phoneNumber: number;
+    phoneCountryCode: number;
+  };
+  companyDetails: {
+    id: any;
+    name: any;
+  };
+  jobDetails: {
+    id: any;
+    title: any;
+    url: any;
+  };
+}
 export const JobCard = ({ job }: any) => {
   const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl, showSalary, experience, workmode } = job;
-  const { isLoggedIn } = useAppContext();
+  const { isLoggedIn, PendingApply, setPendingApply } = useAppContext<ReferrFriendDto>();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [imgError, setImgError] = useState(false);
@@ -86,11 +103,11 @@ export const JobCard = ({ job }: any) => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+      const pendingData = PendingApply || secureStorage.getItem<continueReferralRequestDataDto<ReferrFriendDto>>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
       if (pendingData !== null && typeof pendingData === "object" && "data" in pendingData) {
         try {
-          const recipientDetails = (pendingData as any)?.data?.recipientDetails;
+          const recipientDetails = pendingData?.data?.recipientDetails;
 
           if (recipientDetails) {
             setValue("fullName", recipientDetails.name || "");
@@ -102,19 +119,20 @@ export const JobCard = ({ job }: any) => {
           } else {
             console.warn("recipientDetails was null or undefined");
           }
-
-          // Clear pending data
-          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
-          localStorage.removeItem("continueReferAndEarnRequestData");
         } catch (error) {
           console.error("Error processing pending referral data:", error);
+        } finally {
+          // Reset the pending apply state after processing
+          setPendingApply(null);
+          localStorage.removeItem("continueReferAndEarnRequestData");
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
         }
       }
     }
   }, [isLoggedIn, locationHook.pathname]);
 
   const onSubmit = async (formData: ReferralFormDTO) => {
-    const payload = createPayload(formData);
+    const payload: ReferrFriendDto = createPayload(formData);
 
     if (!isLoggedIn) {
       // Store data for after login
@@ -123,9 +141,9 @@ export const JobCard = ({ job }: any) => {
         data: payload,
         url: window.location.href,
       };
-
       // Store in both secure storage and localStorage
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
+      setPendingApply(continueReferAndEarnRequestData);
       localStorage.setItem("continueReferAndEarnRequestData", JSON.stringify(continueReferAndEarnRequestData));
 
       // Navigate to login

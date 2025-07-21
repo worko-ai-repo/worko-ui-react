@@ -16,6 +16,8 @@ import { validationRules } from "@Utils/FormValidator.utils";
 import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
+import { ReferrFriendDto } from "@Components/Company/JobCard";
 
 interface ReferralFormDTO {
   phoneNumber: number;
@@ -81,7 +83,7 @@ const MetricGauge = ({ value, label, isLoggedIn }: { value: number; label: strin
 };
 
 const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, jobMatchDetails }) => {
-  const { isLoggedIn } = useAppContext();
+  const { isLoggedIn,PendingApply,setPendingApply } = useAppContext<ReferrFriendDto>();
   const { jobid } = useParams();
   const [matchScore, setMatchScore] = useState<number>(0);
   const [miscScore, setMiscScore] = useState<{
@@ -175,7 +177,8 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
   useEffect(() => {
     // Check if user just logged in and has pending data
     if (isLoggedIn) {
-      let pendingData = secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+      const pendingData = PendingApply || secureStorage.getItem<continueReferralRequestDataDto<ReferrFriendDto>>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+
 
       // If we have pending data and it's for refer and earn
       if (pendingData !== null && typeof pendingData === 'object' && 'data' in pendingData)         {
@@ -194,12 +197,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
           }else {
             console.warn("recipientDetails was null or undefined");
           }
-
-          // Clear the pending data
-          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
-          localStorage.removeItem("continueReferAndEarnRequestData");
         } catch (error) {
           console.error("Error processing pending referral data:", error);
+        }
+        finally {
+           // Clear the pending data
+           secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
+           localStorage.removeItem("continueReferAndEarnRequestData");
+          setPendingApply(null); // Clear the pending apply state
         }
       }
     }
@@ -234,6 +239,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
 
       // Store in both secure storage and localStorage
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
+      setPendingApply(continueReferAndEarnRequestData);
       localStorage.setItem("continueReferAndEarnRequestData", JSON.stringify(continueReferAndEarnRequestData));
 
       // Navigate to login
