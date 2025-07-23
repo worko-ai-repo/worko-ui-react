@@ -65,7 +65,7 @@ const CorporateLoginForm = () => {
 					setUpdateCheck(true);
 					toast.success('Successfully signed in', getToastOptions({}));
           setTimeout(()=>{
-            window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/dashboard`;
+            window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/jobs`;
           },2000)
 				}
 			}
