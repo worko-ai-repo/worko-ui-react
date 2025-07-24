@@ -88,7 +88,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
               </div>
               <div className="flex gap-1 items-baseline  mt-1">
                 <MapPin className="w-2 h-2 sm:w-3 sm:h-3 flex-shrink-0" />
-                <p className="text-xs sm:text-xs text-gray-600 truncate">{titleCaseLocation}</p>
+                <p className="text-xs sm:text-xs text-gray-600 word-break truncate w-[180px]">{titleCaseLocation}</p>
               </div>
             </div>
           </span>

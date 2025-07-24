@@ -42,10 +42,10 @@ const getHTML = (html: string) => {
 export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = 'Not specified' }) => {
   const decode = getHTML(jobDescription);
   return (
-    <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
-      <h2 className="text-xl font-semibold mb-4">Job description</h2>
+    <div className={`mb-6 min-h-[250px] break-words text-wrap ${styles.job_description_container}`}>
+      <h2 className="text-xl font-semibold mb-4 break-words text-wrap">Job description</h2>
       <div
-        className={`space-y-4 mb-4 ${styles.job_description}`}
+        className={`space-y-4 mb-4 break-words  ${styles.job_description}`}
         dangerouslySetInnerHTML={{ __html: decode }}
       ></div>
     </div>
@@ -200,8 +200,7 @@ const [matchScore, setMatchScore] = useState<number | undefined>(0);
             className={` disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 
               text-white font-bold px-4 py-2 rounded-lg transition-colors`}
             onClick={onApply}
-            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED' || (isLoggedIn && displayMatchScore < 1 )}
-            data-tooltip-id="my-tooltip" data-tooltip-content={(isLoggedIn && displayMatchScore < 1 )? 'Processing your eligibility. Please wait...' : undefined}
+            disabled={applicationStatus || job.status === 'ARCHIVED' || job.status === 'CLOSED' }
           >
              {isLoggedIn 
               ? applicationStatus 

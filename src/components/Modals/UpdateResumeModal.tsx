@@ -8,8 +8,15 @@ import { AwsS3FileUploadResponse, FileUpload } from "@Interfaces/Auth.dto";
 import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { set } from "react-hook-form";
+import { getCurrentUser, GetCurrentUserOutput } from '@aws-amplify/auth';
 import ResumeDropzone from "@Components/Shared/ResumeDropZone";
+
+
+interface CvS3MetaData {
+  userId: string;
+  resumeUserFileName: string;
+  resumeFileMimeType: string;
+}
 
 const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
   const [dragOver, setDragOver] = useState(false);
@@ -119,11 +126,14 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     }
 
     const resumeUserFileMimeType = selectedFile.type;
+    const user:GetCurrentUserOutput = await getCurrentUser();
 
-    const cvS3metaData = {
-      userId: secureStorage.getItem(SecureStorageKeyEnum.COGNITOUSERID),
-      resumeUserFileName: selectedFile.name,
-      resumeFileMimeType: resumeUserFileMimeType,
+    const userId =user.userId;
+
+    const cvS3metaData: CvS3MetaData = {
+      userId,
+      resumeUserFileName: selectedFile?.name ?? 'unnamed_resume',
+      resumeFileMimeType: resumeUserFileMimeType ?? 'application/pdf', // Default to PDF if not provided
     };
 
     const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>("/file/gsu2u/USER_RESUME", cvS3metaData, true);
