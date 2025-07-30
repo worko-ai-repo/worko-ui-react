@@ -494,8 +494,8 @@ const JobDescription = () => {
         showModalsError("isExternalJobApplied");
       } else {
         // If the scores are very Low then warn the user
-        if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
-          if (jobMatchDetails.matchingScore < 1) {
+       /*  if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
+          if (jobMatchDetails.matchingScore < 0) {
             setShowApplyModal(true);
             showModalsError("badScore");
             return;
@@ -504,7 +504,7 @@ const JobDescription = () => {
             const proceed = await showModalPromise("lowScore");
             if (!proceed) return; // User cancelled, break the flow
           }
-        }
+        } */
         setCurrStep(0);
         const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
         if (profilePer) {

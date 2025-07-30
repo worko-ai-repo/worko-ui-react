@@ -14,6 +14,7 @@ import { SignupMode } from '../Signup/Signup';
 import { LinkedinIcon } from 'lucide-react';
 import LinkedInSignupForm from './LinkedInSignupForm';
 import { getToastOptions } from '@Utils/Toast.utils';
+import { CompanyShortDto } from '@Interfaces/JobsAndCompany.dto';
 
 const LinkedInSignup = () => {
 	const location = useLocation();
@@ -25,7 +26,7 @@ const LinkedInSignup = () => {
 	const [resumeUserFileName, setResumeUserFileName] = useState<string>('');
 	const [resumeUserFileMimeType, setResumeUserFileMimeType] = useState<string>('');
 	const [companySk, setCompanySk] = useState<string>('');
-	const [CompanyName, setCompanyName] = useState<string>('');
+	 const [CompanyDetails, setCompanyDetails] = useState<CompanyShortDto>();
 
 	// State variables for form data
 	const [formData, setFormData] = useState<AuthSignupBaseDto>({
@@ -39,6 +40,8 @@ const LinkedInSignup = () => {
 		confirmPassword: '',
 		checkboxChecked: false,
 		acceptedTermsAndConditions: false,
+		ctc: 0,
+		ectc: 0,
 	});
 
 	/**
@@ -116,6 +119,12 @@ const LinkedInSignup = () => {
 
 		// Handle different cases for candidates and companies
 		if (activeFrame === 'CAND') {
+			// For candidates, set the CTC and ECTC values
+			setFormData(prev => ({
+				...prev,
+				ctc: data.ctc || 0,
+				ectc: data.ectc || 0,
+			}));
 			let resumeFile: File | null = null;
 			if(data.cv && data.cv.length > 0) {
 				resumeFile = data.cv[0] as File;
@@ -200,6 +209,8 @@ const LinkedInSignup = () => {
 					number: '+91' + formData.phoneNumber,
 					userId: ClientId,
 					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
+					CTC: formData.ctc,
+					ECTC: formData.ectc,
 				};
 				// Add the data to the backend
 				const { response, error } = await httpServiceObj.post('/user/register/candidate', candidateData, true);
@@ -217,7 +228,7 @@ const LinkedInSignup = () => {
 					YOE: 0,
 					department: formData.department,
 					companyEmailId: formData.companyEmailId,
-					companyName: CompanyName,
+					companyName: CompanyDetails?.name || '', // Use the company name from the state
 					companySK: companySk,
 					userId: ClientId,
 					acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
@@ -315,7 +326,7 @@ const LinkedInSignup = () => {
 					</div>
 					{/* Signup form */}
 					<div className="scale-90 sm:scale-100  flex flex-1 sm:mx-auto sm:w-[90%] ">
-						<LinkedInSignupForm activeFrame={activeFrame} handleDataMutationtoDb={handleDataMutationtoDb} setCompanyName={setCompanyName} fetchLinkedinSessionData={fetchLinkedinSessionData} />
+						<LinkedInSignupForm activeFrame={activeFrame} handleDataMutationtoDb={handleDataMutationtoDb} setCompanyName={setCompanyDetails} fetchLinkedinSessionData={fetchLinkedinSessionData} />
 					</div>
 				</div>
 			</div>

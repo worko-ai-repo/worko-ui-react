@@ -24,16 +24,17 @@ const plans: Plan[] = [
       { text: 'Pay-As-You-Go: Pay only when candidates join.' },
       { text: 'AI-Powered Filtering: Utilize our AI matching algorithm to screen candidates sourced externally.' },
       { text: 'Enhanced Insights: Access candidate video interviews with evaluations on Communication, Personality, Aptitude, and Skills.' },
-      { text: 'Support: Account manager to assist you.' },
+      { text: 'Priority Support: Senior account manager for seamless collaboration.' },
+      { text: 'Custom Solutions: Product customization to meet your unique hiring needs.*' },
     ],
   },
   {
     name: 'Hiring Partner',
     price: '3%',
-    additional: ' + Retainership',
+    additional: ' + Retainership*',
     buttonVariant: 'secondary',
     features: [
-      { text: 'Comprehensive Coverage: 60-day replacement or refund policy.' },
+      { text: 'Comprehensive Coverage: 60-day replacement' },
       { text: 'Dedicated Recruitment Team: We act as your extended talent acquisition team.' },
       { text: 'Complete Communication: End-to-end candidate engagement handled on your behalf.' },
       { text: 'AI-Driven Solutions: Benefit from our AI matching algorithm for external candidate filtering. (2000 Free Credit)' },
@@ -44,17 +45,20 @@ const plans: Plan[] = [
   },
   {
     name: 'Co-Pilot',
-    price: '7%',
+    price: '12%',
     buttonVariant: 'secondary',
     features: [
       { text: 'Pay-As-You-Go: Pay only when candidates join.' },
-      { text: 'Risk-Free Guarantee: 60-day replacement or refund policy.' },
-      { text: 'AI-Powered Efficiency: Use our AI matching algorithm to screen externally sourced candidates.(500 Free Credit)' },
+      { text: 'Dedicated Recruitment Team: We act as your extended talent acquisition team.' },
+      { text: 'Risk-Free Guarantee: 90-day replacement' },
+      { text: 'Complete Communication: End-to-end candidate engagement handled on your behalf.' },
+      { text: 'AI-Powered Efficiency: Use our AI matching algorithm to screen externally sourced candidates. (500 Free Credit)' },
       { text: 'Enhanced Insights: Access candidate video interviews with evaluations on Communication, Personality, Aptitude, and Skills.' },
-      { text: 'Personalized Support: Dedicated account manager to assist you.' },
+      { text: 'Personalized Support: Senior dedicated account manager for seamless collaboration.' },
     ],
   },
 ];
+
 
 function CorporatePlans() {
   const navigate = useNavigate();

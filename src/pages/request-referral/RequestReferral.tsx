@@ -31,7 +31,7 @@ export interface MatchScore {
 /**
  * ReferralRequestFormDto - This interface is used to define the structure of ReferralRequestFormDto
  */
-interface ReferralRequestFormDto {
+export interface ReferralRequestFormDto {
 	url: string;
 	experience: number;
 	description: string;

@@ -58,18 +58,15 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 		if (company) {
 			setSelectedCompany(company);
 			setSearchText(company.name);
-			setCompanyName(company.name);
+			setCompanyName(company);
 			setValue('company', company.SK);
-			secureStorage.setItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY, company);
-
 			clearErrors('company');
 		} else {
 			setSelectedCompany(null);
 			setSearchText('');
 			setCompanyName('');
 			setValue('company', '');
-			secureStorage.setItem<CompanyShortDto | null>(SecureStorageKeyEnum.AUTHEMPSELECTEDCOMPANY, null);
-
+            console.log("null is set as company") 
 		}
 		setIsOpen(false);
 	};
