@@ -10,7 +10,7 @@ const isStaging = process.env.APP_MODE != "STAGING";
 console.log("Vite Config: isStaging =", isStaging);
 
 export default defineConfig({
-  // base: "/v0/",
+  base: "/v0/",
   plugins: [react(), compression()],
   envDir: "./environments", // Manually specify the directory where the environment files are located
   envPrefix: "APP_", // Manually specify the prefix for the environment variables

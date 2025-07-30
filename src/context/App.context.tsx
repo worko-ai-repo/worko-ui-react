@@ -7,7 +7,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import { AuthLoginForGeneralUserDto, CorporateUserDto } from '@Interfaces/Auth.dto';
 import { AppContextType, ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo } from 'react';
-import { continueReferralRequestDataDto, ReferralRequestFormDto } from '@Pages/request-referral/RequestReferral';
+import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 
 
 // Corporate User Interface

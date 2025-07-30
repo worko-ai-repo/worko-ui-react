@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import CorporateLogin from '@Components/Auth/Corporate/Login/CorporateLogin';
+import EvaluatorLogin from '@Components/Auth/EvaluatorDashboard/EvaluatorLogin';
 import CheckRedirection from '@Components/Auth/CheckRedirection';
 import MainLoader from '@Components/Loader/Loader';
 import { AuthProvider } from '@Context/Auth.context';
@@ -27,6 +28,7 @@ const Auth = () => {
 					<Route path = "/linkedinSignup" element = {<LinkedInSignup />} />
 					<Route path="/corporate/signup/:id" element={<CorporateSignup />} />
 					<Route path="/corporate/login" element={<CorporateLogin />} />
+					<Route path="/evaluator-dashboard/login" element={<EvaluatorLogin />} />
 				</Route>
 				{/* <Route path="/corporate/signup/:id" element={<CorporateSignup />} />
 				<Route path="/corporate/login" element={<CorporateLogin />} /> */}

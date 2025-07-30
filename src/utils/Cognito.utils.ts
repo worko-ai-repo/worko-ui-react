@@ -8,6 +8,13 @@ import secureStorage from './SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 
 /**
+ * Interface for evaluator-specific authentication
+ */
+interface EvaluatorAuthConfig {
+	userPoolId: string;
+	userPoolClientId: string;
+}
+/**
  * Interface for user authentication credentials
  */
 interface IUser {
@@ -50,6 +57,7 @@ class CognitoService {
 	private linkedinAccessToken: string = '';
 	private UserRegistered: boolean = false;
 	private linkedinSignInDetails: any;
+	private evaluatorConfig: EvaluatorAuthConfig | null = null;
 
 	/**
 	 * Constructor for CognitoService
@@ -65,6 +73,30 @@ class CognitoService {
 		this.setupAuthListener();
 	}
 
+	/**
+	 * Configure Amplify for evaluator-specific authentication
+	 * This method allows switching between regular and evaluator configurations
+	 * @param evaluatorConfig - Optional evaluator configuration
+	 */
+	public configureForEvaluator(evaluatorConfig?: EvaluatorAuthConfig): void {
+		if (evaluatorConfig) {
+			this.evaluatorConfig = evaluatorConfig;
+			const evaluatorAmplifyConfig = {
+				Auth: {
+					Cognito: {
+						userPoolId: evaluatorConfig.userPoolId,
+						userPoolClientId: evaluatorConfig.userPoolClientId,
+					}
+				}
+			};
+			console.log('Configuring Amplify for evaluator authentication');
+			Amplify.configure(evaluatorAmplifyConfig);
+		} else {
+			// Reset to default configuration
+			this.evaluatorConfig = null;
+			Amplify.configure(Awsconfig as AwsconfigDto);
+		}
+	}
 	/**
 	 * Sets up the authentication listener using Amplify Hub
 	 * @private
@@ -136,13 +168,41 @@ class CognitoService {
 	public async isLoggedIn(): Promise<boolean> {
 		this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || false;
 		this.linkedinSignInDetails =secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || '{}';
-		//debugger;
+		
+		// Check if this is an evaluator user
+		const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
+		if (userType === 'Evaluator') {
+			return this.handleEvaluatorLogin();
+		}
+		
 		if (this.UserRegistered === true) {
 			return this.handleLinkedInLogin();
 		}
 		return this.handleRegularLogin();
 	}
 
+	/**
+	 * Handles evaluator login verification
+	 * @private
+	 * @returns Promise<boolean>
+	 */
+	private async handleEvaluatorLogin(): Promise<boolean> {
+		try {
+			const { tokens } = await fetchAuthSession();
+			if (tokens) {
+				if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
+					secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload['email']?.toString().toLowerCase() || '');
+					secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS, tokens?.idToken?.payload || '');
+				}
+				return true;
+			}
+			await this.handleSignOut();
+			return false;
+		} catch (err) {
+			console.error('Error in evaluator login verification:', err);
+			return false;
+		}
+	}
 	/**
 	 * Handles LinkedIn login verification
 	 * @private
@@ -191,6 +251,10 @@ class CognitoService {
 	public async handleSignOut(): Promise<void> {
 		try {
 			this.clearStorage();
+			// Reset to default configuration after sign out
+			if (this.evaluatorConfig) {
+				this.configureForEvaluator();
+			}
 			await signOut();
 		} catch (error) {
 			console.error('Sign out error:', error);
@@ -203,15 +267,29 @@ class CognitoService {
 	 * @private
 	 */
 	private clearStorage(): void {
-		// const keysToRemove = ['useremail', 'LinkedinUserType', 'REDACTED_SECRET', 'signInDetails', 'isCompanyListingRoute', 'type', 'companySK', 'userType', 'dynamicRoute', 'cognitoUserId'];
 
-		// keysToRemove.forEach((key:SecureStorageKeyEnum) => secureStorage.clear(key));
-		// Clear the storage 
 		secureStorage.clear();
 		this.removeAccessToken();
 		localStorage.clear();
 	}
 	
+	/**
+	 * Check if current user is an evaluator
+	 * @returns boolean
+	 */
+	public isEvaluatorUser(): boolean {
+		const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
+		return userType === 'Evaluator';
+	}
+
+	/**
+	 * Get user type from storage
+	 * @returns string
+	 */
+	public getUserType(): string {
+		return secureStorage.getItem(SecureStorageKeyEnum.USERTYPE) || '';
+	}
+
 	/**
 	 * Handles user sign-up
 	 * @param params - Sign up parameters

@@ -195,10 +195,11 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
+
     { path: "*", element: <PageNotFound /> },
   ],
   {
-    // ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
+    ...(import.meta.env.APP_MODE != "STAGING" ? {} : { basename: "/v0/" }),
   }
 );
 export default AppRoutes;
