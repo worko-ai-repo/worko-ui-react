@@ -2,58 +2,121 @@ import { Navigate } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import secureStorage from '@Utils/SecureStorage.utils';
 import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
+import CognitoServiceObj from '@Utils/Cognito.utils';
+import { UnauthorizedAccessError } from '@Utils/ErrorBoundary.utils';
+import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
 
+/**
+ * Interface defining the structure of a decoded Cognito token.
+ * 
+ * This interface represents the payload of a JWT token issued by Amazon Cognito.
+ * It includes standard claims as well as custom claims specific to the application.
+ */
+export interface DecodedCognitoToken {
+	sub: string;
+	"cognito:groups"?: string[];
+	email_verified: boolean;
+	iss: string;
+	phone_number_verified: boolean;
+	"cognito:username": string;
+	origin_jti: string;
+	aud: string;
+	event_id: string;
+	token_use: string;
+	auth_time: number;
+	name: string;
+	phone_number: string;
+	exp: number;
+	iat: number;
+	jti: string;
+	email: string;
+}
+/**
+ * Custom userType for the users
+ */
+type CustomUserType = 'Admin' | 'Corporate' | 'General_Users';
+
+/**
+ * Interface defining the props for the ProtectedRoute component.
+ * @property {JSX.Element} element - The component/element to render if the user is authorized.
+ * @property {string[]} [requiredRoles] - Optional array of roles that are allowed to access this route.
+ */
 interface ProtectedRouteProps {
-	component: React.ComponentType;
-	requiredRoles?: string[]; // Array of roles allowed to access the route
+	element: JSX.Element;
+	requiredRoles?: CustomUserType[];
+	tokenRequired?: boolean; 
 }
 
 /**
- * ProtectedRoute
- *
- * @description A wrapper for the Route component that checks if the user is authenticated and has the required roles to access the route
- *
- * @param {ProtectedRouteProps} { component: Component, requiredRoles, ...rest }
- *
- * @example
- *  //Protected Routes
- *  <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
- *  <Route path="/admin" element={<ProtectedRoute component={AdminPage} requiredRoles={['admin']} />} />
- * @returns
+ * A component that protects routes by checking authentication and authorization.
+ * This component performs the following checks:
+ * 1. Verifies if a user token exists
+ * 2. Validates that the token hasn't expired
+ * 3. Checks if the user has the required role (if specified)
+ * 
+ * If any check fails, the user is redirected to the appropriate page.
+ * 
+ * @param {JSX.Element} element - The component to render if authorization passes
+ * @param {string[]} [requiredRoles] - Optional roles required for access
+ * @returns {JSX.Element} Either the protected component or a redirect
  */
-const ProtectedRoute = ({ component: Component, requiredRoles, ...rest }: ProtectedRouteProps) => {
-	// Get the token from secure storage
-	const token:any = secureStorage.getItem(SecureStorageKeyEnum.USERTOKEN);
 
-	if (!token) {
-		// console.log('Token not found. Redirecting to login.');
-		return <Navigate to="/login" />;
+const ProtectedRoute = ({
+	element,
+	requiredRoles,
+	tokenRequired = true,
+}: ProtectedRouteProps) => {
+	const token: any = CognitoServiceObj.getAccessToken();
+	const userType = secureStorage.getItem<CustomUserType>(SecureStorageKeyEnum.USERTYPE);
+
+	const currentTime = Date.now() / 1000;
+
+	//  Step 1: If token is required but not present
+	if (tokenRequired && !token) {
+		if (requiredRoles?.includes('Corporate')) {
+			return <Navigate to="/auth/corporate/login" />;
+		}
+		return <Navigate to="/auth/login" />;
 	}
 
-	try {
-		// Decode the token
-		const decodedToken: JwtPayload & { role?: string } = jwtDecode(token);
-		const currentTime = Date.now() / 1000; // Convert to seconds
+	//  Step 2: If token is present, validate it
+	if (token) {
+		try {
+			const decodedToken: JwtPayload & { role?: string } = jwtDecode(token);
 
-		// Check if the token is expired
-		if (decodedToken.exp && decodedToken.exp < currentTime) {
-			// console.log('Token has expired. Redirecting to login.');
-			return <Navigate to="/login" />;
+			if (decodedToken.exp && decodedToken.exp < currentTime) {
+				return <Navigate to="/auth/login" />;
+			}
+		} catch (err) {
+			console.error("Error decoding token:", err);
+			return <ErrorFallback error={err instanceof Error ? err : undefined} />;
 		}
-
-		// Check for required roles if specified
-		if (requiredRoles && (!decodedToken.role || !requiredRoles.includes(decodedToken.role))) {
-			// console.log('User does not have the required role. Redirecting to unauthorized page.');
-			return <Navigate to="/unauthorized" />;
-		}
-
-		// Render the component if all checks pass
-		localStorage.setItem('isLoggedIn', 'true');
-		return <Component {...rest} />;
-	} catch (error) {
-		console.error('Error decoding token:', error);
-		return <Navigate to="/login" />;
 	}
+
+	//  Step 3: Check role if requiredRoles is specified
+	if (requiredRoles?.length) {
+		// If no userType (i.e. not logged in), and token is not required, allow access (as anonymous user)
+		if (!userType && !tokenRequired) {
+			// Allow access if no token but general users are allowed anonymously
+			if (requiredRoles.includes('General_Users')) {
+				return element;
+			}
+			return <Navigate to="/auth/login" />;
+		}
+
+		if (userType && !requiredRoles.includes(userType)) {
+			return (
+				<ErrorFallback
+					error={
+						new UnauthorizedAccessError(
+							userType === 'General_Users' ? 'General' : userType
+						)
+					}
+				/>
+			);
+		}
+	}
+	return element;
 };
 
 export default ProtectedRoute;
