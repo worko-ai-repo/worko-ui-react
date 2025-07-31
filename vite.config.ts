@@ -1,12 +1,42 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
+import { VitePWA } from 'vite-plugin-pwa';
 
 import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
 		react(),
+		VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'Worko.ai',
+        short_name: 'worko',
+        description: 'Worko.ai Application',
+        start_url: '/',
+        id: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'any',
+        background_color: '#ffffff',
+        theme_color: '#000000',
+        prefer_related_applications: false,
+        categories: ['productivity'],
+        icons: [
+          {
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
+    }),
 		compression()
 	],
 	envDir: './environments', // Manually specify the directory where the environment files are located

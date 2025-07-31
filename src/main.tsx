@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import { AppProvider } from '@Context/App.context.tsx';
 import ErrorBoundary from './error-boundary/ErrorBoundary.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import PWAInstallPrompt  from "./components/PWAInstallPrompt/PWAInstallPrompt.tsx"
 
 const client = new QueryClient(); // Creating a new QueryClient instance
 
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 				{/* fallback error boundary component */}
 				<AppProvider>
 					<App />
+					<PWAInstallPrompt/>
 					<Tooltip id="my-tooltip" className='z-50' />
 					<ToastContainer stacked /> {/* Toast Container for the application */}
 				</AppProvider>
