@@ -10,6 +10,9 @@ import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
 import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
+import secureStorage from "@Utils/SecureStorage.utils";
+import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 
 // Create the context object
 export const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -57,12 +60,12 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   }, [defaultFiltersState]);
 
   const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
+  const isCorporate = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE)?.includes(UserRole.CORPORATE);
 
   // useLayoutEffect to check if we are on job page or referral page
   useLayoutEffect(() => {
     const mode = location.pathname.includes("job") ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
-
-    if (location.pathname.includes("job") && isLoggedIn) {
+    if (location.pathname.includes("job") && isLoggedIn && !isCorporate) {
       fetchUserBasicDetails();
     }
 
@@ -454,7 +457,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     if (isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {
       return true;
     }
-    if (isLoggedIn && !defaultFiltersState) return false; // If logged in, ensure userDesignation is present
+    if (isLoggedIn && !defaultFiltersState && !isCorporate ) return false; // If logged in, ensure userDesignation is present
     if (!isInitialFilterSet && companyPageMode === CompanyPageModeEnum.JOB) return false;
     return true;
     // enabled:!!companyPageMode && jobFilters.pageSize! > 0 &&

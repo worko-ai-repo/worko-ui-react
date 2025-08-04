@@ -9,6 +9,7 @@ import FAQ from "@Pages/faq/Faq";
 
 import JobDescription from "@Pages/JobDescriptionPage";
 import ProtectedRoute from "@Services/SessionValidator.service";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 
 // Lazy Load Components
 const Hero = lazy(() => import("@Pages/hero/Hero"));
@@ -43,7 +44,7 @@ const AppRoutes = createBrowserRouter(
     {
       path: "/",
       errorElement: <ErrorFallback />,
-      element: <ProtectedRoute requiredRoles={["General_Users", "Admin"]} tokenRequired={false} element={<MainLayout />} />,
+      element: <ProtectedRoute requiredRoles={[UserRole.ADMIN , UserRole.CORPORATE , UserRole.GENERAL_USER]} tokenRequired={false} element={<MainLayout />} />,
       children: [
         {
           index: true,

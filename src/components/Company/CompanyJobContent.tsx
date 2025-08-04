@@ -21,12 +21,13 @@ import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
 import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
 import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
+import { NormalizedUser } from "@Utils/NormalizeUser";
 
 const CompanyJobContent = () => {
   const location = useLocation();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [uploadResume, setUploadResume] = useState(false);
-  const { userDetails, isLoggedIn }: { userDetails: Partial<AuthLoginForGeneralUserDto>; isLoggedIn: boolean } = useAppContext();
+  const { isLoggedIn }: { isLoggedIn: boolean } = useAppContext();
   const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);

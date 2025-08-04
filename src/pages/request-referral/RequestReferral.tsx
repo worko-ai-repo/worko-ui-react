@@ -17,6 +17,8 @@ import { MatchingScore } from '@Services/MatchingScore.service';
 import FeedbackModal, { FeedbackModalProps } from '@Components/Shared/Feedback';
 import { handleEditProfileRedirection } from '@Components/Company/CompanyJobContent';
 import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
+import { NormalizedUser } from '@Utils/NormalizeUser';
+import { RBAC } from '@Utils/RoleBaseAccessControll.utils';
 
 /**
  * MatchingScoreDto
@@ -69,7 +71,7 @@ const RequestReferral = () => {
 	const appHref = useCrossAppAuth();
 
 	// check if the use is logged in
-	const { PendingApply, setPendingApply, isLoggedIn, userDetails ,setIsModalOpen } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto> ,setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>};
+	const { PendingApply, setPendingApply, isLoggedIn, userDetails ,setIsModalOpen } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: NormalizedUser ,setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>};
 
 	// navigate to a different page
 	const nav = useNavigate();
@@ -310,7 +312,11 @@ const RequestReferral = () => {
 						{errors.description && <p className="text-red-500 text-xs text-left">{errors.description.message}</p>}
 					</div>
 					<div className="w-full text-left ml-2">
-						<button type="submit" className="btn_primary  mt-6 px-3 py-1 bg-gradient-to-t from-blue-900 to-sky-500 text-white rounded-lg scale-110  hover:bg-blue-700">
+						<button 
+						disabled={!RBAC.can('apply_jobs')}
+						data-tooltip-id='my-tooltip'
+						data-tooltip-content={(RBAC.can("apply_jobs") ? "Click to submit your referral request" : "Login as candidate to submit your referral request")}
+						type="submit" className="btn_primary  mt-6 px-3 py-1 bg-gradient-to-t from-blue-900 to-sky-500 text-white rounded-lg scale-110 disabled:cursor-not-allowed hover:bg-blue-700">
 							Request Referral
 						</button>
 					</div>

@@ -5,6 +5,7 @@ import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import { UnauthorizedAccessError } from '@Utils/ErrorBoundary.utils';
 import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
+import { UserRole } from '@Interfaces/RoleBasedAccessControl';
 
 /**
  * Interface defining the structure of a decoded Cognito token.
@@ -31,19 +32,15 @@ export interface DecodedCognitoToken {
 	jti: string;
 	email: string;
 }
-/**
- * Custom userType for the users
- */
-type CustomUserType = 'Admin' | 'Corporate' | 'General_Users';
 
 /**
  * Interface defining the props for the ProtectedRoute component.
  * @property {JSX.Element} element - The component/element to render if the user is authorized.
- * @property {string[]} [requiredRoles] - Optional array of roles that are allowed to access this route.
+ * @property {UserRole[]} [requiredRoles] - Optional array of roles that are allowed to access this route.
  */
 interface ProtectedRouteProps {
 	element: JSX.Element;
-	requiredRoles?: CustomUserType[];
+	requiredRoles?: UserRole[];
 	tokenRequired?: boolean; 
 }
 
@@ -57,7 +54,7 @@ interface ProtectedRouteProps {
  * If any check fails, the user is redirected to the appropriate page.
  * 
  * @param {JSX.Element} element - The component to render if authorization passes
- * @param {string[]} [requiredRoles] - Optional roles required for access
+ * @param {UserRole[]} [requiredRoles] - Optional roles required for access
  * @returns {JSX.Element} Either the protected component or a redirect
  */
 
@@ -67,13 +64,13 @@ const ProtectedRoute = ({
 	tokenRequired = true,
 }: ProtectedRouteProps) => {
 	const token: any = CognitoServiceObj.getAccessToken();
-	const userType = secureStorage.getItem<CustomUserType>(SecureStorageKeyEnum.USERTYPE);
+	const userType = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE);
 
 	const currentTime = Date.now() / 1000;
 
 	//  Step 1: If token is required but not present
 	if (tokenRequired && !token) {
-		if (requiredRoles?.includes('Corporate')) {
+		if (requiredRoles?.includes(UserRole.CORPORATE)) {
 			return <Navigate to="/auth/corporate/login" />;
 		}
 		return <Navigate to="/auth/login" />;
@@ -98,18 +95,17 @@ const ProtectedRoute = ({
 		// If no userType (i.e. not logged in), and token is not required, allow access (as anonymous user)
 		if (!userType && !tokenRequired) {
 			// Allow access if no token but general users are allowed anonymously
-			if (requiredRoles.includes('General_Users')) {
+			if (requiredRoles.includes(UserRole.GENERAL_USER)) {
 				return element;
 			}
 			return <Navigate to="/auth/login" />;
 		}
-
-		if (userType && !requiredRoles.includes(userType)) {
+		if (Array.isArray(userType) && !userType.some(role => requiredRoles.includes(role))) {
 			return (
 				<ErrorFallback
 					error={
 						new UnauthorizedAccessError(
-							userType === 'General_Users' ? 'General' : userType
+							userType.includes(UserRole.GENERAL_USER) ? UserRole.GENERAL_USER : userType[0]
 						)
 					}
 				/>

@@ -1,5 +1,5 @@
 import { JwtPayload } from 'jwt-decode';
-import { fetchAuthSession } from '@aws-amplify/auth'
+import {fetchAuthSession} from '@aws-amplify/auth'
 import CognitoServiceObj from '@Utils/Cognito.utils';
 import secureStorage from '@Utils/SecureStorage.utils';
 import httpServiceObj from '@Services/ApiHandler.service';
@@ -8,10 +8,11 @@ import { AuthLoginForGeneralUserDto, CorporateUserDto } from '@Interfaces/Auth.d
 import { AppContextType, ContextProviderProps } from '@Interfaces/ContextProvider.dto';
 import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo } from 'react';
 import { continueReferralRequestDataDto, ReferralRequestFormDto } from '@Pages/request-referral/RequestReferral';
+import { NormalizedUser, normalizeUserData } from '@Utils/NormalizeUser';
 
 
 // Corporate User Interface
-interface CorporateUserDetail extends AuthLoginForGeneralUserDto {
+export interface CorporateUserDetail extends AuthLoginForGeneralUserDto {
 	id: string;
 	companyId: string;
 	firstName: string;
@@ -55,7 +56,7 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 	// State variables
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [tokenData, setTokenData] = useState<any | null>(null);
-	const [userDetails, setUserDetails] = useState<Partial<AuthLoginForGeneralUserDto> | Partial<CorporateUserDto> | null>(null);
+	const [userDetails, setUserDetails] = useState<NormalizedUser | null>(null);
 	const [updateCheck, setUpdateCheck] = useState<boolean>(false);
 	const [PendingApply , setPendingApply] = useState<continueReferralRequestDataDto<T> | null>(null)
 	const [isModalOpen , setIsModalOpen] = useState<boolean>(false)
@@ -87,8 +88,8 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 			// 	profileImageAwsS3SignedUrl: userResponse?.profileImageAwsS3SignedUrl || '',
 			// 	referralCount: userResponse?.referralCount || 0,
 			// };
-
-			const userDetails: Partial<AuthLoginForGeneralUserDto | Partial<CorporateUserDto>> = userResponse;
+			 
+			 const userDetails: NormalizedUser = normalizeUserData(userResponse);;
 
 			setUserDetails(userDetails);
 
@@ -98,43 +99,41 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 		}
 	};
 
+  const checkUserLoggedIn = async () => {
+    try {
+      console.info('Checking user authentication status...');
+      const isUserLoggedIn = await CognitoServiceObj.isLoggedIn();
+      setIsLoggedIn(isUserLoggedIn);
+
+      if (!isUserLoggedIn) return;
+
+      // Retrieve user-related information from secure storage
+      const { tokens } =  await fetchAuthSession()
+      const cognitoUserDetails : CognitoMetaDataDto | undefined =  tokens?.idToken?.payload;
+      const userType : string[] | undefined = cognitoUserDetails?.['cognito:groups'];
+      const userEmail = cognitoUserDetails?.email;
+      const userId = cognitoUserDetails?.sub;
+
+      // Get token and store it
+      const token = CognitoServiceObj.getAccessToken();
+      setTokenData(token);
+
+      // Check if user details are already stored
+      const storedUserDetails = secureStorage.getItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS);
+      if (storedUserDetails && Object.keys(storedUserDetails).length > 0) {
+		setUserDetails(storedUserDetails);
+	  } else {
+		// No user details found, fetch them
+		await fetchUserDetails(userType, userId, userEmail);
+	  }
+    } catch (error) {
+      console.error('Authentication check failed:', error);
+      await CognitoServiceObj.handleSignOut();
+      setIsLoggedIn(false);
+    }
+  };
+
 	// Check if user is logged in
-	const checkUserLoggedIn = async () => {
-		try {
-			// console.info('Checking user authentication status...');
-			const isUserLoggedIn = await CognitoServiceObj.isLoggedIn();
-			if (!isUserLoggedIn) return;
-			setIsLoggedIn(isUserLoggedIn);
-
-			if (!isUserLoggedIn) return;
-
-			// Retrieve user-related information from secure storage
-			const { tokens } = await fetchAuthSession()
-			const cognitoUserDetails: CognitoMetaDataDto | undefined = tokens?.idToken?.payload;
-			const userType: string[] | undefined = cognitoUserDetails?.['cognito:groups'];
-			const userEmail = cognitoUserDetails?.email;
-			const userId = cognitoUserDetails?.sub;
-
-			// Get token and store it
-			const token = CognitoServiceObj.getAccessToken();
-			setTokenData(token);
-
-			// Check if user details are already stored
-			const storedUserDetails = secureStorage.getItem(SecureStorageKeyEnum.LOGINDETAILS);
-			if (storedUserDetails) {
-				setUserDetails(storedUserDetails);
-				return;
-			}
-
-			// Fetch user details from API if not available in storage
-			await fetchUserDetails(userType, userId, userEmail);
-		} catch (error) {
-			console.error('Authentication check failed:', error);
-			await CognitoServiceObj.handleSignOut();
-			setIsLoggedIn(false);
-		}
-	};
-
 	useLayoutEffect(() => {
 		checkUserLoggedIn();
 
@@ -157,13 +156,14 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 			setAuthState,
 			setUpdateCheck,
 			userDetails,
+			setUserDetails,
 			PendingApply,
 			setPendingApply,
 			isModalOpen,
 			setIsModalOpen,
 			checkUserLoggedIn,
 		}),
-		[isLoggedIn, tokenData, setAuthState, userDetails, setUpdateCheck, PendingApply, setPendingApply, isModalOpen, setIsModalOpen, checkUserLoggedIn]
+		[isLoggedIn, tokenData, setAuthState, userDetails,setUserDetails, setUpdateCheck,PendingApply,setPendingApply,isModalOpen,setIsModalOpen,checkUserLoggedIn]
 	);
 
 	return <AppContext.Provider value={memoizedValue}>{children}</AppContext.Provider>;

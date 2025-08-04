@@ -18,6 +18,7 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import MessageModal from "@Components/Modals/MessageModal";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
+import { NormalizedUser, normalizeUserData } from "@Utils/NormalizeUser";
 
 export type SignupMode = "EMP" | "CAND";
 interface ToggleOptionsDto {
@@ -27,7 +28,7 @@ interface ToggleOptionsDto {
 
 const Signup = () => {
   const navigateTo = useNavigate();
-  const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck } = useAppContext();
+  const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck,setUserDetails } = useAppContext();
   const appHref = useCrossAppAuth();
   const location = useLocation(); // Get location object
   // Remove initialFrame variable
@@ -166,10 +167,10 @@ Z — Signup-BwkRK2K6.js:1:7879
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
       window.location.href = PendingApply.url; // Redirect to the referral page
     } else {
-      const AuthActiveFrame = localStorage.getItem('AuthActiveFrame');
-			const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
-			// prefer local over state
-			finalActiveFrame === 'CAND' ? navigateTo('/jobs', { replace: true }) : (appHref(`/${import.meta.env.APP_PROXY_ANG}/employee/Dashboard`)); // Redirect to the home page
+      const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
+      const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
+      // prefer local over state
+      finalActiveFrame === "CAND" ? navigateTo("/jobs", { replace: true }) : appHref(`/${import.meta.env.APP_PROXY_ANG}/employee/Dashboard`); // Redirect to the home page
     }
   };
   /**
@@ -259,26 +260,18 @@ Z — Signup-BwkRK2K6.js:1:7879
             throw new Error();
           } else {
             // Extract the first element from the array response
-            let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+            const user: NormalizedUser = normalizeUserData(userResponse?.[0] || {});
+            setUserDetails(user);
 
             if (!user) {
               toast.error("Error: No user data found", getToastOptions());
               throw new Error();
             }
 
-            // Create userDetails from the first element
-            const userDetails: Partial<AuthLoginForGeneralUserDto> = {
-              lastAccessedDash: user.lastAccessedDash,
-              name: user.name,
-              email: user.email,
-              id: user.id,
-              profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
-              referralCount: user.referralCount,
-            };
             // Store user details
             secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
-            secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
-            secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
+            secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.fullName);
+            secureStorage.setItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS, user);
 
             await currentSession();
             setUpdateCheck((prev) => !prev);

@@ -18,6 +18,7 @@ import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
 import { ReferrFriendDto } from "@Components/Company/JobCard";
+import { RBAC } from "@Utils/RoleBaseAccessControll.utils";
 
 interface ReferralFormDTO {
   phoneNumber: number;
@@ -68,12 +69,13 @@ const MatchMetrics: React.FC<MatchMetricsProps> = ({ displayMatchScore, miscScor
 };
 
 const MetricGauge = ({ value, label, isLoggedIn }: { value: number; label: string; isLoggedIn: boolean }) => {
+  const canApply = RBAC.can("apply_jobs");
   return (
     <div className="flex flex-col items-center ">
       <div className="w-16 h-16 relative mb-2 cursor-pointer" {...(!isLoggedIn && { "data-tooltip-id": "my-tooltip", "data-tooltip-content": "Please login to view scores" })}>
         <div className={`w-full ${isLoggedIn === true ? "" : "border border-blue-600"} h-full text-blue-600 rounded-full flex items-center justify-center text-sm`}>
-          <div>
-            <GaugeComponent score={value} color={"black"} />
+          <div className={`${canApply ? "" : "border"} rounded-full`}>
+            <GaugeComponent score={ canApply ? value : 0} color={"black"} />
           </div>
         </div>
       </div>
@@ -290,6 +292,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
   const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
 
   const jobTitle = toTitleCase(jobData?.jobTitle);
+  const canApply = RBAC.can("apply_jobs");
 
   // Determine if the job posting is recent
   const isEarlyApplicant = useMemo(() => {
@@ -354,7 +357,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
                   {isLoading ? <div className="animate-pulse w-8 h-8 bg-blue-300 rounded-full"></div> : <GaugeComponent score={displayMatchScore} />}
                 </div>
 
-                {isLoggedIn ? (
+                {(isLoggedIn && canApply) ? (
                   <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{displayMatchScore !== -1 ? strengthLabel : "Processing"}</p>
                 ) : (
                   <div className="flex  items-center w-[120%] justify-center gap-2 text-center cursor-pointer " data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
@@ -378,7 +381,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
             </div>
 
             {/* Text Below Gauge */}
-            {isLoggedIn ? (
+            {(isLoggedIn && canApply) ? (
               <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{displayMatchScore !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <div className="flex items-end w-[120%] justify-end gap-2 text-center cursor-pointer " data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
@@ -421,15 +424,17 @@ const JobCard: React.FC<JobCardProps> = ({ jobData, onApply, applicationStatus, 
           {/* Button container with responsive layout */}
           <div className="flex items-center justify-end gap-2 w-full md:w-auto">
             {/* Refer A Friend button */}
-            {!jobData.externalJobId && (
-              <div className="w-full max-sm:px-0 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0  md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center" data-tooltip-id="my-tooltip" data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
+            {(!jobData.externalJobId && canApply) && (
+              <div className="w-full max-sm:px-0 max-sm:text-xs max-sm:min-w-[100px]  md:w-auto px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm font-bold h-11 flex justify-center items-center text-center" data-tooltip-id="my-tooltip" data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
                 <button onClick={() => setShowModal(true)}>Refer A Friend</button>
               </div>
             )}
 
             {/* Apply button */}
-            <button className={`w-full max-sm:px-0 max-sm:text-xs md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`} onClick={onApply} disabled={applicationStatus || jobData.status === "ARCHIVED" || jobData.status === "CLOSED" } >
-              {isLoggedIn /* Check if the user is Logged in or not  */ ? (applicationStatus /* If the user user is Logged In then check if the user has already applied the job or not */ ? "Already Applied" /* Already Applied  */ : jobData.status === "ARCHIVED" || jobData.status === "CLOSED" || displayMatchScore < 1 /* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */ ? `${displayMatchScore < 1 ? "Apply Now" : jobData.status}` : "Apply Now") : "Login to Apply"} {/* If not then Ask them */}
+            <button 
+            data-tooltip-id="my-tooltip" data-tooltip-content={(isLoggedIn && canApply) ? (applicationStatus ? "You have already applied for this job" : "Click to apply for this job") : "Please login as candidate to apply for this job"}
+            className={`w-full max-sm:px-0 max-sm:text-xs md:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 text-white font-bold flex justify-center items-center px-4 mr-4 md:mr-0 py-2 rounded-lg transition-colors h-11 text-center`} onClick={onApply} disabled={applicationStatus || jobData.status === "ARCHIVED" || jobData.status === "CLOSED" || !canApply } >
+              {(isLoggedIn && canApply) /* Check if the user is Logged in or not  */ ? (applicationStatus /* If the user user is Logged In then check if the user has already applied the job or not */ ? "Already Applied" /* Already Applied  */ : jobData.status === "ARCHIVED" || jobData.status === "CLOSED" || displayMatchScore < 1 /* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */ ? `${displayMatchScore < 1 ? "Apply Now" : jobData.status}` : "Apply Now") : "Login to Apply"} {/* If not then Ask them */}
             </button>
           </div>
         </div>
