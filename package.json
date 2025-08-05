@@ -6,6 +6,7 @@
   "proxy": "https://cognito-idp.ap-south-1.amazonaws.com",
   "scripts": {
     "dev": "vite --mode development",
+    "tscdev": "tsc -b && vite --mode development",
     "stage": "vite --mode staging",
     "prod": "vite --mode production",
     "build": "tsc -b && vite build --mode development",

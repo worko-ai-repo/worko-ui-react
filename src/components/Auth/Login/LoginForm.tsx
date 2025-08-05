@@ -40,6 +40,18 @@ export const currentSession = async () => {
   }
 };
 
+  export const handleRememberDevice = async (isToggleEnabled?:boolean) => {
+    try {
+      // console.log('Is Remembered me enabled :', isToggleEnabled);
+      // Remember the device
+      await rememberDevice();
+      // If the device is successfully remembered, refresh the session
+      await fetchAuthSession({ forceRefresh: isToggleEnabled });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 const LoginForm = () => {
   // Use Navigate Hook
   const navigate = useNavigate();
@@ -72,17 +84,7 @@ const LoginForm = () => {
   });
 
   // Functions
-  const handleRememberDevice = async () => {
-    try {
-      // console.log('Is Remembered me enabled :', isToggleEnabled);
-      // Remember the device
-      await rememberDevice();
-      // If the device is successfully remembered, refresh the session
-      await fetchAuthSession({ forceRefresh: isToggleEnabled });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 
   /**
    * onSubmit
