@@ -4,11 +4,14 @@ import { Mail, Shield, ArrowRight, RefreshCw, CheckCircle, AlertCircle, User } f
 import PasswordlessAuthService, { EvaluatorAuthUser } from '../../../utils/PasswordlessAuth.utils';
 import { EvaluatorService } from '../../../services/EvaluatorService.service';
 import CognitoServiceObj from '../../../utils/Cognito.utils';
+import { fetchAuthSession } from '@aws-amplify/auth';
+
 
 const EvaluatorLogin: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const evaluatorEmail = searchParams.get('evaluatorEmail') || '';
+  const rawEmail = searchParams.get('evaluatorEmail') || '';
+  const evaluatorEmail = rawEmail.toLowerCase();
 
   const [step, setStep] = useState<'loading' | 'otp' | 'name' | 'success' | 'error'>('loading');
   const [otp, setOtp] = useState('');
@@ -109,6 +112,15 @@ const EvaluatorLogin: React.FC = () => {
       if (!signInResult.success) {
         throw new Error(signInResult.error || 'Sign in confirmation failed');
       }
+
+      const currentUser = await PasswordlessAuthService.getCurrentUser();
+      if (!currentUser) throw new Error('User not authenticated after sign in');
+
+      // Optionally refresh session or fetch tokens if your service supports it
+      // await CognitoServiceObj.refreshSession();  // Uncomment if you have such method
+
+      const accessToken = CognitoServiceObj.getAccessToken();
+      if (!accessToken) throw new Error('Access token not found after sign in');
 
       console.log('Sign in confirmed successfully');
 
@@ -227,6 +239,32 @@ const EvaluatorLogin: React.FC = () => {
       setIsResending(false);
     }
   };
+
+ useEffect(() => {
+  const checkSession = async () => {
+    try {
+      const session = await fetchAuthSession();
+
+      if (session?.tokens?.idToken) {
+        const token = session.tokens.idToken.toString();
+        const payload = JSON.parse(atob(token.split('.')[1]));
+
+        console.log('Decoded token:', payload);
+
+        // Redirect
+        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(payload.email)}`;
+      } else {
+        console.log('No ID token found. Starting login flow...');
+        // initializeAuth();
+      }
+    } catch (err) {
+      console.log('Not logged in. Starting login flow...');
+      // initializeAuth();
+    }
+  };
+
+  checkSession();
+}, []);
 
   // Loading state
   if (step === 'loading') {
