@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, Shield, ArrowRight, RefreshCw, CheckCircle, AlertCircle, User } from 'lucide-react';
 import PasswordlessAuthService, { EvaluatorAuthUser } from '../../../utils/PasswordlessAuth.utils';
-import { EvaluatorService } from '../../../services/EvaluatorService.service';
+import { EvaluatorService, getEvaluatorById, fetchEvaluationDetails} from '../../../services/EvaluatorService.service';
 import CognitoServiceObj from '../../../utils/Cognito.utils';
 import { fetchAuthSession } from '@aws-amplify/auth';
 
@@ -10,8 +10,8 @@ import { fetchAuthSession } from '@aws-amplify/auth';
 const EvaluatorLogin: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const rawEmail = searchParams.get('evaluatorEmail') || '';
-  const evaluatorEmail = rawEmail.toLowerCase();
+  // const rawEmail = searchParams.get('evaluatorEmail') || '';
+  // const evaluatorEmail = rawEmail.toLowerCase();
 
   const [step, setStep] = useState<'loading' | 'otp' | 'name' | 'success' | 'error'>('loading');
   const [otp, setOtp] = useState('');
@@ -21,10 +21,28 @@ const EvaluatorLogin: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [requiresSignInOTP, setRequiresSignInOTP] = useState(false);
+  const [evaluatorEmail, setEvaluatorEmail] = useState("");
+  
+  const jobApplicationId = searchParams.get('jobApplicationId') || '';
+  const evaluationRequestId = searchParams.get('evaluationRequestId') || '';
+
+    useEffect(() => {
+    const getEvaluationDetails = async () => {
+      try {
+        const details = await fetchEvaluationDetails(jobApplicationId,evaluationRequestId);
+        const rawEmail = details.evaluatorDetails.email
+        setEvaluatorEmail(rawEmail)
+        console.log("rawemail",rawEmail)
+      } catch (err) {
+        console.error('Error fetching evaluation details:', err);
+      } 
+    }
+    getEvaluationDetails()
+  }, [])
 
   useEffect(() => {
     if (!evaluatorEmail) {
-      setError('Invalid email parameter in URL');
+      setError('We couldn’t find evaluator access linked to this email address, or the provided ID is invalid.');
       setStep('error');
       return;
     }
@@ -32,6 +50,7 @@ const EvaluatorLogin: React.FC = () => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(evaluatorEmail)) {
+      console.log(emailRegex)
       setError('Invalid email format');
       setStep('error');
       return;
@@ -205,7 +224,8 @@ const EvaluatorLogin: React.FC = () => {
 
       // Redirect after a short delay
       setTimeout(() => {
-        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(evaluatorEmail)}`;
+        // window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(evaluatorEmail)}`;
+        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
       }, 2000);
     } catch (error: any) {
       console.error('Redirect error:', error);
@@ -252,7 +272,8 @@ const EvaluatorLogin: React.FC = () => {
         console.log('Decoded token:', payload);
 
         // Redirect
-        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(payload.email)}`;
+        // window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(payload.email)}`;
+        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
       } else {
         console.log('No ID token found. Starting login flow...');
         // initializeAuth();

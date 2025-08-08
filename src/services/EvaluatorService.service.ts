@@ -27,6 +27,43 @@ export interface JobApplicationsResponse {
   hasMore: boolean;
 }
 
+export interface EvaluationRequest {
+  id: string;
+  jobId: string;
+  companyId: string;
+  jobApplicationId: string;
+  applicantUserId: string;
+  applicantUserEmail: string;
+  hrName: string;
+  hrCurrentCompanyName: string;
+  jobTitle: string;
+  hrDetailedFeedback: string;
+  createdAt: string;
+  evaluatorDetails: {
+    name: string;
+    email: string;
+  };
+  applicantName:string;
+  createdByUserId?:string;
+  createdByCorporateUserId?:string;
+  evaluationResponseId?:string;
+}
+
+export interface EvaluationDetails extends EvaluationRequest {
+  hrHtmlDetailedFeedback: string;
+}
+
+export const fetchEvaluationDetails = async (
+  jobApplicationId: string,
+  evaluationRequestId: string
+): Promise<EvaluationDetails> => {
+  const url = `${JOB_BASE_URL}/request-evaluation/${jobApplicationId}/${evaluationRequestId}`;
+  const { response, error } = await httpServiceObj.get<EvaluationDetails>(url, true, {}, true);
+
+  if (error) throw error;
+  return response!;
+};
+
 // Core API functions
 export const registerEvaluator = async (
   payload: RegisterEvaluatorPayload
