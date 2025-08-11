@@ -21,6 +21,7 @@ import { ApiCallResponse } from "@Interfaces/HttpOption.dto";
 import { handleEditProfileRedirection } from "@Components/Company/CompanyJobContent";
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
+import { NormalizedUser } from "@Utils/NormalizeUser";
 
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
@@ -33,7 +34,7 @@ const fetchUserBasicDetails = async () => {
 
 const JobDescription = () => {
   // check if the use is logged in
-  const { setPendingApply, isLoggedIn, userDetails } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: Partial<AuthLoginForGeneralUserDto>; setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>> };
+  const { setPendingApply, isLoggedIn, userDetails } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: NormalizedUser; setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>> };
 
   // navigate to a different page
   const nav = useNavigate();

@@ -8,6 +8,7 @@ import MessageModal from "@Components/Modals/MessageModal";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { useNavigate } from "react-router-dom";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 
 const CorporateLogin = () => {
   const navigate = useNavigate();
@@ -28,14 +29,14 @@ const CorporateLogin = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
+      const userType = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE);
       setModalData({
         type: "warning",
         heading: { message: "Already Logged In!", type: "warning" },
         message: "You Are Already Logged In. Do you wish to logout and continue?",
         buttons: [
           { label: "Continue", action: handleForceLogin, type: "danger" },
-          { label: "Back to Home", action: () => navigate(userType === "Corporate" ? "/v2/corporate/jobs/" : "/") },
+          { label: "Back to Home", action: () => navigate(userType?.includes(UserRole.CORPORATE) ? "/v2/corporate/jobs/" : "/") },
         ],
       });
     }

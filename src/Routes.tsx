@@ -1,14 +1,15 @@
-import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
-import MainLayout from '@Layouts/Main-Layout/MainLayout';
-import PageNotFound from '@Pages/errors/404/PageNotFound';
-import MainLoader from '@Components/Loader/Loader';
-import TestPage from '@Pages/JobDescriptionPage';
-import ErrorFallback from '@Pages/errors/base-error/ErrorFallback';
-import FAQ from '@Pages/faq/Faq';
+import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
+import MainLayout from "@Layouts/Main-Layout/MainLayout";
+import PageNotFound from "@Pages/errors/404/PageNotFound";
+import MainLoader from "@Components/Loader/Loader";
+import TestPage from "@Pages/JobDescriptionPage";
+import ErrorFallback from "@Pages/errors/base-error/ErrorFallback";
+import FAQ from "@Pages/faq/Faq";
 
-import JobDescription from '@Pages/JobDescriptionPage';
-import ProtectedRoute from '@Services/SessionValidator.service';
+import JobDescription from "@Pages/JobDescriptionPage";
+import ProtectedRoute from "@Services/SessionValidator.service";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 
 // Lazy Load Components
 const Hero = lazy(() => import("@Pages/hero/Hero"));
@@ -43,9 +44,7 @@ const AppRoutes = createBrowserRouter(
     {
       path: "/",
       errorElement: <ErrorFallback />,
-      element: (
-        <ProtectedRoute requiredRoles={['General_Users','Admin']} tokenRequired={false} element={<MainLayout />} />
-      ),
+      element: <ProtectedRoute requiredRoles={[UserRole.ADMIN , UserRole.CORPORATE , UserRole.GENERAL_USER]} tokenRequired={false} element={<MainLayout />} />,
       children: [
         {
           index: true,
@@ -199,7 +198,7 @@ const AppRoutes = createBrowserRouter(
     { path: "*", element: <PageNotFound /> },
   ],
   {
-    ...(import.meta.env.APP_MODE != "STAGING" ? {} : { basename: "/v0/" }),
+    ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
   }
 );
 export default AppRoutes;

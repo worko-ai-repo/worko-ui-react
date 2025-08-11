@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, collapse
                     <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-2 overflow-hidden">
                             {Avatar}
-                            <span className="text-base text-start font-bold capitalize">{userDetails?.name}</span>
+                            <span className="text-base text-start font-bold capitalize">{userDetails?.fullName}</span>
                         </div>
 
                         <button

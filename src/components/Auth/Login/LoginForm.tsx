@@ -14,6 +14,8 @@ import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import useLinkedInSignup from "@Hooks/useSignupLinkedIn.hook";
 import CustomModal from "@Components/Modals/FormModal";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { NormalizedUser, normalizeUserData } from "@Utils/NormalizeUser";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 
 /**
  * currentSession
@@ -40,17 +42,18 @@ export const currentSession = async () => {
   }
 };
 
-  export const handleRememberDevice = async (isToggleEnabled?:boolean) => {
-    try {
-      // console.log('Is Remembered me enabled :', isToggleEnabled);
-      // Remember the device
-      await rememberDevice();
-      // If the device is successfully remembered, refresh the session
-      await fetchAuthSession({ forceRefresh: isToggleEnabled });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+// Functions
+export const handleRememberDevice = async (isToggleEnabled = true) => {
+  try {
+    // console.log('Is Remembered me enabled :', isToggleEnabled);
+    // Remember the device
+    await rememberDevice();
+    // If the device is successfully remembered, refresh the session
+    await fetchAuthSession({ forceRefresh: isToggleEnabled });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const LoginForm = () => {
   // Use Navigate Hook
@@ -60,7 +63,7 @@ const LoginForm = () => {
   const signUpWithLinkedIn = useLinkedInSignup();
 
   // Update Check from App Context to broadcast the changes
-  const { PendingApply, setUpdateCheck,setPendingApply } = useAppContext();
+  const { PendingApply, setUpdateCheck, setPendingApply ,setUserDetails} = useAppContext();
 
   // States
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -82,9 +85,6 @@ const LoginForm = () => {
     },
     mode: "onChange",
   });
-
-  // Functions
-
 
   /**
    * onSubmit
@@ -109,13 +109,13 @@ const LoginForm = () => {
         throw new Error(error.message);
       } else {
         // Fetch stored user data and check if the user is a corporate user
-        const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
+        const userType = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE);
 
         /**
          * After successful sign-in, check if the user account is a corporate account.
          * If corporate, show a popup and log out the user.
          */
-        if (userType === "Corporate") {
+        if (userType?.includes(UserRole.CORPORATE)) {
           toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.", getToastOptions({ autoClose: false }));
           CognitoServiceObj.handleSignOut();
           return;
@@ -148,7 +148,8 @@ const LoginForm = () => {
             throw new Error();
           } else {
             // Extract the first element from the array response
-            let user: Partial<AuthLoginForGeneralUserDto> = userResponse?.[0] || {};
+            const user: NormalizedUser = normalizeUserData(userResponse?.[0] || {});
+            setUserDetails(user);
 
             if (!user) {
               toast.error("Error: No user data found", getToastOptions({ autoClose: false }));
@@ -156,19 +157,10 @@ const LoginForm = () => {
               throw new Error();
             }
 
-            // Create userDetails from the first element
-            const userDetails: Partial<AuthLoginForGeneralUserDto> = {
-              lastAccessedDash: user.lastAccessedDash,
-              name: user.name,
-              email: user.email,
-              id: user.id,
-              profileImageAwsS3SignedUrl: user.profileImageAwsS3SignedUrl,
-              referralCount: user.referralCount,
-            };
             // Store user details
             secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
-            secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.name);
-            secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, userDetails);
+            secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.fullName);
+            secureStorage.setItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS, user);
 
             // console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
 

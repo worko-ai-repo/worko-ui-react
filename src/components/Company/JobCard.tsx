@@ -18,6 +18,7 @@ import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { generateJobSlug } from "@Utils/JobUriSlug.utils";
 import { get } from "http";
 import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
+import { RBAC } from "@Utils/RoleBaseAccessControll.utils";
 
 // Define interface for referral form data
 interface ReferralFormDTO {
@@ -52,6 +53,7 @@ export const JobCard = ({ job }: any) => {
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
   const [imgError, setImgError] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const canApply = RBAC.can("apply_jobs");
   const nav = useNavigate();
   const locationHook = useLocation(); // Using location hook for checking URL changes
 
@@ -300,11 +302,11 @@ export const JobCard = ({ job }: any) => {
                 <div
                   className="w-[75%] h-[75%] sm:w-[85%] sm:h-[85%] 
       flex items-center justify-center  ">
-                  <GaugeComponent score={matchPercentage} />
+                  <GaugeComponent score={canApply ? matchPercentage : 0} />
                 </div>
 
                 {/* Text Below Gauge */}
-                {isLoggedIn ? (
+                {(isLoggedIn &&  canApply) ? (
                   <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
@@ -326,11 +328,11 @@ export const JobCard = ({ job }: any) => {
             <div
               className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
             flex items-center justify-center sm:scale-90">
-              <GaugeComponent score={matchPercentage} />
+              <GaugeComponent score={canApply ? matchPercentage : 0} />
             </div>
 
             {/* Text Below Gauge */}
-            {isLoggedIn ? (
+            {(isLoggedIn && canApply) ? (
               <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
             ) : (
               <>
@@ -365,7 +367,7 @@ export const JobCard = ({ job }: any) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {!isExternalJob && (
+            {(!isExternalJob && canApply) && (
               <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
                 <button onClick={() => setShowModal(true)}>Refer A Friend</button>
               </div>

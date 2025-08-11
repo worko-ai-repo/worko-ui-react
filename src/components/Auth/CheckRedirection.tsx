@@ -12,13 +12,15 @@ import { useAppContext } from '@Context/App.context';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 import { continueReferralRequestDataDto } from '@Pages/request-referral/RequestReferral';
 import { useCrossAppAuth } from '@Hooks/useCrossAppAuth.hook';
+import { NormalizedUser, normalizeUserData } from '@Utils/NormalizeUser';
+import { UserRole } from '@Interfaces/RoleBasedAccessControl';
 
 export default function CheckRedirection() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const appHref = useCrossAppAuth();
 
-	const { setUpdateCheck, PendingApply, setPendingApply } = useAppContext();
+	const { setUpdateCheck, PendingApply, setPendingApply, setUserDetails } = useAppContext();
 	let isCandidateNotPresent: any;
 	const [registrationType, setRegistrationType] = useState<'candidate' | 'employee' | ''>('');
 	const [userEmail, setUserEmail] = useState<string>('');
@@ -144,7 +146,7 @@ export default function CheckRedirection() {
 
 			// Step 3: Store Admin Status in Secure Storage
 			if (Array.isArray(groups) && groups.includes('admin')) {
-				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, 'Admin');
+				secureStorage.setItem(SecureStorageKeyEnum.USERTYPE, [UserRole.ADMIN]);
 			}
 
 			// Step 4: Fetch User Details
@@ -152,20 +154,15 @@ export default function CheckRedirection() {
 			if (!userDetails) return true;
 
 			// Step 5: Store User Details in Secure Storage
-			const userDetail: Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
-			const FinaluserDetails: Partial<AuthLoginForGeneralUserDto> = {
-				lastAccessedDash: userDetail.lastAccessedDash,
-				name: userDetail.name,
-				email: userDetail.email,
-				id: userDetail.id,
-				profileImageAwsS3SignedUrl: userDetail.profileImageAwsS3SignedUrl,
-				referralCount: userDetail.referralCount,
-			};
+			// const userDetail: Partial<AuthLoginForGeneralUserDto> = userDetails?.[0];
+			const userDetail: NormalizedUser = normalizeUserData( userDetails?.[0]);
+			setUserDetails(userDetail);
+			
 			secureStorage.setItem(SecureStorageKeyEnum.REDACTED_SECRET, 'true');
 			secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSED_DASH, userDetail.lastAccessedDash);
-			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.name);
+			secureStorage.setItem(SecureStorageKeyEnum.USERNAME, userDetail.fullName);
 			secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, email);
-			secureStorage.setItem<Partial<AuthLoginForGeneralUserDto>>(SecureStorageKeyEnum.LOGINDETAILS, FinaluserDetails);
+			secureStorage.setItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS, userDetail);
 
 			// Step 6: Handle Dynamic Routes (If Coming From Company Listing)
 			const isCompanyListingRoute = secureStorage.getItem(SecureStorageKeyEnum.IS_COMPANY_LISTING_ROUTE);

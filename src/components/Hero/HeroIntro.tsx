@@ -21,10 +21,10 @@ const HeroIntro = () => {
 			tag: "Request Referral",
 			href: "/referrals",
 		},
-		{
+		/* {
 			tag: "Corporate Login",
 			href: "/auth/corporate/login",
-		}
+		} */
 	]
 	
 

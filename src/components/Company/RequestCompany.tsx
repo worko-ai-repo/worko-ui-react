@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { useNavigate } from "react-router-dom";
+import { NormalizedUser } from "@Utils/NormalizeUser";
 
 export interface RequestCompanyFormData {
   userType: string;
@@ -27,7 +28,7 @@ export interface RequestCompanyFormData {
 }
 
 interface RequestCompanyDto {
-  userDetails: Partial<AuthLoginForGeneralUserDto>;
+  userDetails: NormalizedUser | null;
   isLoggedIn: boolean;
   PendingApply: continueReferralRequestDataDto<any> | null;
   setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto<any> | null>>;
@@ -81,7 +82,7 @@ const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUse
       // Populate additional user details from context
       requestData.companyDetail.industry = "Industry";
       if (userDetails) {
-        const { name: userName = "", email: userEmail = "", lastAccessedDash: userType = "" } = userDetails;
+        const { fullName: userName = "", email: userEmail = "", lastAccessedDash: userType = "" } = userDetails;
         Object.assign(requestData, { userName, userEmail, userType });
       }
       const response = await httpServiceObj.post("/company/request", requestData, true);

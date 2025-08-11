@@ -2,6 +2,7 @@ import { currentSession, handleRememberDevice } from "@Components/Auth/Login/Log
 import { useAppContext } from "@Context/App.context";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
+import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { validationRules } from "@Utils/FormValidator.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
@@ -45,8 +46,8 @@ const CorporateLoginForm = () => {
 				throw new Error(error.message);
 			} else {
 				// Fetch stored user data and check if the user is a corporate user
-				const userType = secureStorage.getItem(SecureStorageKeyEnum.USERTYPE);
-        if (userType != 'Corporate') {
+				const userType = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE);
+        if (!userType?.includes( UserRole.CORPORATE)) {
 					toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.",getToastOptions({autoClose: false}));
 					CognitoServiceObj.handleSignOut();
 					return;
@@ -65,7 +66,7 @@ const CorporateLoginForm = () => {
 					setUpdateCheck(true);
 					toast.success('Successfully signed in', getToastOptions({}));
           setTimeout(()=>{
-            window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/dashboard`;
+            window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/jobs`;
           },2000)
 				}
 			}
