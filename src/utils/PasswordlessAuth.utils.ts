@@ -1,6 +1,10 @@
 import { Amplify } from 'aws-amplify';
 import { signUp, confirmSignUp, signIn, confirmSignIn, resendSignUpCode, getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 import CognitoServiceObj from './Cognito.utils';
+import Awsconfig from '../aws-config';
+import { AwsconfigDto } from 'src/aws-config';
+import secureStorage from './SecureStorage.utils';
+import { SecureStorageKeyEnum } from '@Enums/SecureStorage.enum';
 
 /**
  * Evaluator-specific Amplify configuration for passwordless authentication
@@ -34,6 +38,10 @@ export interface EvaluatorAuthResult {
     requiresSignInOTP?: boolean;
 }
 
+interface EvaluatorAuthConfig {
+	userPoolId: string;
+	userPoolClientId: string;
+}
 /**
  * PasswordlessAuth Utility Class
  * Handles all evaluator-specific passwordless authentication operations
@@ -41,6 +49,7 @@ export interface EvaluatorAuthResult {
 class PasswordlessAuth {
     private static instance: PasswordlessAuth;
     private isConfigured = false;
+    private evaluatorConfig: EvaluatorAuthConfig | null = null;
 
     /**
      * Private constructor for singleton pattern
@@ -412,6 +421,49 @@ class PasswordlessAuth {
     public getAccessToken(): string {
         return CognitoServiceObj.getAccessToken();
     }
+
+
+    public configureForEvaluator(evaluatorConfig?: EvaluatorAuthConfig): void {
+		if (evaluatorConfig) {
+			this.evaluatorConfig = evaluatorConfig;
+			const evaluatorAmplifyConfig = {
+				Auth: {
+					Cognito: {
+						userPoolId: evaluatorConfig.userPoolId,
+						userPoolClientId: evaluatorConfig.userPoolClientId,
+					}
+				}
+			};
+			console.log('Configuring Amplify for evaluator authentication');
+			Amplify.configure(evaluatorAmplifyConfig);
+		} else {
+			// Reset to default configuration
+			this.evaluatorConfig = null;
+			Amplify.configure(Awsconfig as AwsconfigDto);
+		}
+	}
+
+	public async handleSignOut(): Promise<void> {
+		try {
+			this.clearStorage();
+			// Reset to default configuration after sign out
+			if (this.evaluatorConfig) {
+				this.configureForEvaluator();
+			}
+			await signOut();
+		} catch (error) {
+			console.error('Sign out error:', error);
+			throw error;
+		}
+	}
+    private clearStorage(): void {
+		secureStorage.clear();
+		this.removeAccessToken();
+		localStorage.clear();
+	}
+    public removeAccessToken(): void {
+		secureStorage.remove(SecureStorageKeyEnum.ACCESSTOKEN);
+	}
 }
 
 // Export singleton instance

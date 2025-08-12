@@ -25,55 +25,154 @@ const EvaluatorLogin: React.FC = () => {
   
   const jobApplicationId = searchParams.get('jobApplicationId') || '';
   const evaluationRequestId = searchParams.get('evaluationRequestId') || '';
+  const v2 = import.meta.env.APP_PROXY_DASH
+//   useEffect(() => {
+//     const getEvaluationDetails = async () => {
+//       try {
+//         const details = await fetchEvaluationDetails(jobApplicationId,evaluationRequestId);
+//         const rawEmail = details.evaluatorDetails.email
+//         setEvaluatorEmail(rawEmail)
+//         console.log("rawemail",rawEmail)
+//       } catch (err) {
+//         console.error('Error fetching evaluation details:', err);
+//       } 
+//     }
+//     getEvaluationDetails()
+//   }, [])
 
-    useEffect(() => {
-    const getEvaluationDetails = async () => {
+//   useEffect(() => {
+//     if (!evaluatorEmail) {
+//       setError('We couldn’t find evaluator access linked to this email address, or the provided ID is invalid.');
+//       setStep('error');
+//       return;
+//     }
+
+//     // Validate email format
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(evaluatorEmail)) {
+//       console.log(emailRegex)
+//       setError('Invalid email format');
+//       setStep('error');
+//       return;
+//     }
+
+//     // Configure Cognito for evaluator authentication
+//     CognitoServiceObj.configureForEvaluator({
+//       //@todo remove this line
+//       userPoolId: import.meta.env.APP_COGNITO_USER_POOL_ID || "ap-south-1_xGreJKkNc",
+//       userPoolClientId: import.meta.env.EVALUATOR_USER_POOL_CLIENT_ID || "4g99pq8fgr9bm7ucgkao1h9jmb"
+//     });
+//     initializeAuth();
+//   }, [evaluatorEmail]);
+
+//   useEffect(() => {
+//   const checkSession = async () => {
+//     try {
+//       const session = await fetchAuthSession();
+
+//       if (session?.tokens?.idToken) {
+//         const token = session.tokens.idToken.toString();
+//         const payload = JSON.parse(atob(token.split('.')[1]));
+
+//         console.log('Decoded token:', payload);
+
+//         // Redirect
+//         // window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(payload.email)}`;
+//         window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
+//       } else {
+//         console.log('No ID token found. Starting login flow...');
+//         // initializeAuth();
+//       }
+//     } catch (err) {
+//       console.log('Not logged in. Starting login flow...');
+//       // initializeAuth();
+//     }
+//   };
+
+//   checkSession();
+// }, []);
+
+useEffect(() => {
+  const init = async () => {
+    try {
+      // Fetch evaluator details first
+      let details;
       try {
-        const details = await fetchEvaluationDetails(jobApplicationId,evaluationRequestId);
-        const rawEmail = details.evaluatorDetails.email
-        setEvaluatorEmail(rawEmail)
-        console.log("rawemail",rawEmail)
+        details = await fetchEvaluationDetails(jobApplicationId, evaluationRequestId);
+        console.log('[DEBUG] fetchEvaluationDetails response:', details);
       } catch (err) {
-        console.error('Error fetching evaluation details:', err);
-      } 
-    }
-    getEvaluationDetails()
-  }, [])
+        console.error('[ERROR] fetchEvaluationDetails threw an error:', err);
+        setError('Unable to fetch evaluator access. Please verify the link If the issue persists, contact HR for assistance.');
+        setStep('error');
+        return;
+      }
 
-  useEffect(() => {
-    if (!evaluatorEmail) {
-      setError('We couldn’t find evaluator access linked to this email address, or the provided ID is invalid.');
+      const expectedEmail = details?.evaluatorDetails?.email;
+      if (!expectedEmail) {
+        setError('No evaluator email found from the provided ID. Please check your link or request.');
+        setStep('error');
+        return;
+      }
+
+      // Check if user is already logged in
+      const session = await fetchAuthSession();
+      console.log(session);
+
+      if (session?.tokens?.idToken) {
+        const token = session.tokens.idToken.toString();
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Decoded token:', payload);
+
+        // Step 3: Compare token email with expected email
+        if (payload.email !== expectedEmail) {
+          setError('Logged in user does not match the evaluator email.');
+          setStep('error');
+          return;
+        }
+
+        // Redirect only if email matches
+        window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
+        return; // Exit early — session is valid and user matches
+      }
+
+      // Step 4: Validate email format for authentication
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(expectedEmail)) {
+        setError('Invalid email format');
+        setStep('error');
+        return;
+      }
+
+      // Step 5: Configure Cognito and initialize authentication
+      PasswordlessAuthService.configureForEvaluator({
+        userPoolId: import.meta.env.APP_COGNITO_USER_POOL_ID,
+        userPoolClientId: import.meta.env.EVALUATOR_USER_POOL_CLIENT_ID
+      });
+
+      setEvaluatorEmail(expectedEmail);
+      initializeAuth(expectedEmail);
+
+    } catch (error) {
+      console.error('Unexpected error during initialization:', error);
+      setError('An unexpected error occurred. Please try again later.');
       setStep('error');
-      return;
     }
+  };
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(evaluatorEmail)) {
-      console.log(emailRegex)
-      setError('Invalid email format');
-      setStep('error');
-      return;
-    }
+  init();
+}, []);
 
-    // Configure Cognito for evaluator authentication
-    CognitoServiceObj.configureForEvaluator({
-      //@todo remove this line
-      userPoolId: import.meta.env.APP_COGNITO_USER_POOL_ID || "ap-south-1_xGreJKkNc",
-      userPoolClientId: import.meta.env.EVALUATOR_USER_POOL_CLIENT_ID || "4g99pq8fgr9bm7ucgkao1h9jmb"
-    });
-    initializeAuth();
-  }, [evaluatorEmail]);
 
-  const initializeAuth = async () => {
+  const initializeAuth = async (emailParam?: string) => {
     try {
       setIsLoading(true);
       setError('');
 
+      const emailToUse = emailParam || evaluatorEmail;
       console.log('Initializing authentication for:', evaluatorEmail);
 
       // Use signup-first strategy from PasswordlessAuthService
-      const result = await PasswordlessAuthService.initializeAuth(evaluatorEmail);
+      const result = await PasswordlessAuthService.initializeAuth(emailToUse);
 
       if (!result.success) {
         throw new Error(result.error || 'Authentication initialization failed');
@@ -138,7 +237,7 @@ const EvaluatorLogin: React.FC = () => {
       // Optionally refresh session or fetch tokens if your service supports it
       // await CognitoServiceObj.refreshSession();  // Uncomment if you have such method
 
-      const accessToken = CognitoServiceObj.getAccessToken();
+      const accessToken = PasswordlessAuthService.getAccessToken();
       if (!accessToken) throw new Error('Access token not found after sign in');
 
       console.log('Sign in confirmed successfully');
@@ -224,8 +323,8 @@ const EvaluatorLogin: React.FC = () => {
 
       // Redirect after a short delay
       setTimeout(() => {
-        // window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(evaluatorEmail)}`;
-        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
+        // window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(evaluatorEmail)}`;
+        window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
       }, 2000);
     } catch (error: any) {
       console.error('Redirect error:', error);
@@ -260,32 +359,6 @@ const EvaluatorLogin: React.FC = () => {
     }
   };
 
- useEffect(() => {
-  const checkSession = async () => {
-    try {
-      const session = await fetchAuthSession();
-
-      if (session?.tokens?.idToken) {
-        const token = session.tokens.idToken.toString();
-        const payload = JSON.parse(atob(token.split('.')[1]));
-
-        console.log('Decoded token:', payload);
-
-        // Redirect
-        // window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(payload.email)}`;
-        window.location.href = `${window.location.origin}/v2/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
-      } else {
-        console.log('No ID token found. Starting login flow...');
-        // initializeAuth();
-      }
-    } catch (err) {
-      console.log('Not logged in. Starting login flow...');
-      // initializeAuth();
-    }
-  };
-
-  checkSession();
-}, []);
 
   // Loading state
   if (step === 'loading') {
@@ -329,13 +402,13 @@ const EvaluatorLogin: React.FC = () => {
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Something Went Wrong</h2>
             <p className="text-gray-600 mb-6 text-lg">{error}</p>
-            <button
+            {/* <button
               onClick={initializeAuth}
               className="w-full bg-[#316BFF] text-white py-3 px-6 rounded-lg hover:bg-[#2557E6] transition-colors flex items-center justify-center gap-2 font-medium"
             >
               <RefreshCw className="w-4 h-4" />
               <span>Try Again</span>
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
