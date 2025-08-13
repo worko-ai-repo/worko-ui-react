@@ -25,6 +25,7 @@ const EvaluatorLogin: React.FC = () => {
   
   const jobApplicationId = searchParams.get('jobApplicationId') || '';
   const evaluationRequestId = searchParams.get('evaluationRequestId') || '';
+  //@TODO change v2 to some sensible variable name
   const v2 = import.meta.env.APP_PROXY_DASH
 //   useEffect(() => {
 //     const getEvaluationDetails = async () => {
@@ -99,9 +100,9 @@ useEffect(() => {
       let details;
       try {
         details = await fetchEvaluationDetails(jobApplicationId, evaluationRequestId);
-        console.log('[DEBUG] fetchEvaluationDetails response:', details);
+        // console.log('[DEBUG] fetchEvaluationDetails response:', details);
       } catch (err) {
-        console.error('[ERROR] fetchEvaluationDetails threw an error:', err);
+        // console.error('[ERROR] fetchEvaluationDetails threw an error:', err);
         setError('Unable to fetch evaluator access. Please verify the link If the issue persists, contact HR for assistance.');
         setStep('error');
         return;
@@ -116,12 +117,12 @@ useEffect(() => {
 
       // Check if user is already logged in
       const session = await fetchAuthSession();
-      console.log(session);
+      // console.log(session);
 
       if (session?.tokens?.idToken) {
         const token = session.tokens.idToken.toString();
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('Decoded token:', payload);
+        // console.log('Decoded token:', payload);
 
         // Step 3: Compare token email with expected email
         if (payload.email !== expectedEmail) {
