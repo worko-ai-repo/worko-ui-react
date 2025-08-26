@@ -83,7 +83,7 @@ const Header = () => {
     } else if (userType?.includes(UserRole.ADMIN)) {
       return `/${proxy}/admin/jobs`;
     } else {
-      return `/${proxy}/candidate/edit-profile`;
+      return `/${proxy}/candidate/profile`;
     }
   };
   const profilePath = getProfilePath();
