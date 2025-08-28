@@ -323,7 +323,9 @@ const Guidance = () => {
 					type="submit" 
 					data-tooltip-id='my-tooltip'
 					data-tooltip-content={(RBAC.can("apply_jobs") ? "Click to submit your guidance request" : "Login as candidate to submit your guidance request")}
-					className="btn_primary mt-6 px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:!bg-gray-300 cursor-not-allowed " disabled={(isSubmitting || !RBAC.can("apply_jobs") )}>
+					className="btn_primary mt-6 px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+					// className="btn_primary mt-6 px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:!bg-gray-300 cursor-not-allowed"
+					disabled={(isSubmitting || !RBAC.can("apply_jobs") )}>
 						{isSubmitting ? 'Submitting...' : 'Submit'}
 					</button>
 				</form>

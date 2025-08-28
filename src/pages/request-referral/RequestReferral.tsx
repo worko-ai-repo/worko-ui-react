@@ -301,7 +301,7 @@ const RequestReferral = () => {
 								{errors.url && <p className="text-red-500 text-xs">{errors.url.message}</p>}
 							</div>
 							<div className="sm:w-1/3 ">
-								<input {...register('experience', validationRules.defaultNumber)} placeholder="Paste experience from job description" className="border-[#929292]  p-4 border rounded-2xl w-full  text-left bg-white " />
+								<input {...register('experience', validationRules.defaultNumber)} placeholder="Paste YOE required from job description" className="border-[#929292]  p-4 border rounded-2xl w-full  text-left bg-white " />
 								{errors.experience && <p className="text-red-500 text-xs">{errors.experience.message}</p>}
 							</div>
 						</div>

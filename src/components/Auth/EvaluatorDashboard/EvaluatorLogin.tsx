@@ -5,6 +5,7 @@ import PasswordlessAuthService, { EvaluatorAuthUser } from '../../../utils/Passw
 import { EvaluatorService, getEvaluatorById, fetchEvaluationDetails} from '../../../services/EvaluatorService.service';
 import CognitoServiceObj from '../../../utils/Cognito.utils';
 import { fetchAuthSession } from '@aws-amplify/auth';
+import { logo_text } from '@Assets';
 
 
 const EvaluatorLogin: React.FC = () => {
@@ -22,7 +23,9 @@ const EvaluatorLogin: React.FC = () => {
   const [isNewUser, setIsNewUser] = useState(false);
   const [requiresSignInOTP, setRequiresSignInOTP] = useState(false);
   const [evaluatorEmail, setEvaluatorEmail] = useState("");
-  
+  const [otpCooldown, setOtpCooldown] = useState(0);
+
+
   const jobApplicationId = searchParams.get('jobApplicationId') || '';
   const evaluationRequestId = searchParams.get('evaluationRequestId') || '';
   //@TODO change v2 to some sensible variable name
@@ -178,7 +181,7 @@ useEffect(() => {
       if (!result.success) {
         throw new Error(result.error || 'Authentication initialization failed');
       }
-
+      setOtpCooldown(30);
       // Set user type based on result
       setIsNewUser(result.isNewUser || false);
       setStep('otp');
@@ -342,11 +345,13 @@ useEffect(() => {
       if (isNewUser && !requiresSignInOTP) {
         // Resend signup confirmation code
         const result = await PasswordlessAuthService.resendSignUpCode(evaluatorEmail);
+        setOtpCooldown(30);
         if (!result.success) throw new Error(result.error || 'Failed to resend signup code');
         console.log('Resent signup confirmation code');
       } else {
         // For existing users, reinitiate the sign-in process
         const result = await PasswordlessAuthService.resendSignInOTP(evaluatorEmail);
+        setOtpCooldown(30);
         if (!result.success) {
           throw new Error(result.error || 'Failed to resend verification code');
         }
@@ -359,6 +364,16 @@ useEffect(() => {
       setIsResending(false);
     }
   };
+
+useEffect(() => {
+  if (otpCooldown === 0) return;
+
+  const timer = setInterval(() => {
+    setOtpCooldown((prev) => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [otpCooldown]);
 
 
   // Loading state
@@ -422,9 +437,10 @@ useEffect(() => {
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-[#316BFF]/10 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+          <img src={logo_text} alt="logo" className='w-60 h-auto mx-auto'/>
+          {/* <div className="bg-[#316BFF]/10 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <Shield className="w-8 h-8 text-[#316BFF]" />
-          </div>
+          </div> */}
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Welcome Back</h1>
           <p className="text-gray-600">
             {isNewUser ? 'Let\'s set up your account' : 'Sign in to access your dashboard'}
@@ -512,7 +528,7 @@ useEffect(() => {
             <button
               type="button"
               onClick={handleResendOtp}
-              disabled={isResending}
+              disabled={isResending || otpCooldown > 0}
               className="w-full text-[#316BFF] hover:text-[#2557E6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 py-2 font-medium"
             >
               {isResending ? (
@@ -520,7 +536,7 @@ useEffect(() => {
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4" />
-                  <span>Send New Code</span>
+                  <span>{otpCooldown > 0 ? `Resend in ${otpCooldown}s` : 'Send New Code'}</span>
                 </>
               )}
             </button>
