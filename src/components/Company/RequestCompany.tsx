@@ -34,7 +34,7 @@ interface RequestCompanyDto {
   setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto<any> | null>>;
 }
 
-const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUserDto> }) => {
+const RequestCompany = ({ userType }: { userType: Partial<AuthLoginForGeneralUserDto>  }) => {
   const navigateTo = useNavigate();
   const { userDetails, isLoggedIn, PendingApply, setPendingApply }: RequestCompanyDto = useAppContext();
   const {

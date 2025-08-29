@@ -8,6 +8,7 @@ import CognitoServiceObj from "@Utils/Cognito.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { cn } from "@Utils/Tailwind.util";
 
 interface NavItem {
   label: string;
@@ -116,11 +117,14 @@ const Header = () => {
        h-16 w-full bg-white shadow-sm border-b border-gray-200"}
     `}>
       <header
-        className={`
-      z-[99999999999] fixed left-1/2 transform -translate-x-1/2 
-      transition-[width,top] duration-500 ease-in-out
-      ${isScrolled ? "top-[10px] w-[80vw] bg-white/80 backdrop-blur-md shadow-xl rounded-full border border-gray/20" : "top-0 w-full bg-white shadow-sm border-b border-gray-200"}
-    `}
+        className={cn(
+          "z-[99999999999] fixed left-1/2 transform -translate-x-1/2 transition-[width,top] duration-500 ease-in-out",
+          isScrolled
+            ? `top-[10px] w-[95vw] bg-white/60 backdrop-blur-md shadow-xl rounded-full ${
+                isOpen && isScrolled ? "max-sm:rounded-b-none max-sm:rounded-t-3xl" : ""
+              } border border-gray/20`
+            : "top-0 w-full bg-white shadow-sm border-b border-gray-200"
+        )}
         id="header_main_body"
         ref={headerRef}
         style={
@@ -289,7 +293,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-50 transition-all ease-in-out duration-300">
+          <div className="md:hidden absolute rounded-b-2xl overflow-hidden top-full left-0 w-full bg-white shadow-lg border-t  border-gray-200 z-50 transition-all ease-in-out duration-300">
             {isLoggedIn && (
               <div className="flex flex-col items-start gap-4 p-4 border-b border-gray-200">
                 <div className="flex font-bold justify-between items-center w-full">

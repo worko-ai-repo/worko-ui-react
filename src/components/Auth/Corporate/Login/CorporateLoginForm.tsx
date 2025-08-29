@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 const CorporateLoginForm = () => {
   const appHref = useCrossAppAuth();
   const navigate = useNavigate();
-  const {checkUserLoggedIn , setUpdateCheck} = useAppContext();
+  const {checkUserLoggedIn , setUpdateCheck,fetchCorporateCompanyDetails} = useAppContext();
   const {
     register,
     handleSubmit,
@@ -64,6 +64,7 @@ const CorporateLoginForm = () => {
 					await handleRememberDevice();
 					await currentSession();
 					setUpdateCheck(true);
+          await fetchCorporateCompanyDetails();
 					toast.success('Successfully signed in', getToastOptions({}));
           setTimeout(()=>{
             window.location.href = `/${import.meta.env.APP_PROXY_DASH}/corporate/jobs`;

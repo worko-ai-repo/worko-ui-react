@@ -22,4 +22,5 @@ export interface AppContextType<T> {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   checkUserLoggedIn: () => Promise<void>;
+  fetchCorporateCompanyDetails: () => Promise<void>;
 }

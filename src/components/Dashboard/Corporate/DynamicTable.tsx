@@ -45,7 +45,7 @@ export function DynamicTable<T extends { id: string }>(
     <div className="bg-white rounded-lg p-2 md:p-4 overflow-x-auto w-full">
       <table className="min-w-full table-auto">
         {/* Table Head */}
-        <thead className="bg-[#EFFFFF] text-[#94A3B8]">
+        <thead className="bg-[#EFFFFF] text-[#94A3B8] ">
           <tr>
             <th className="p-3 text-center rounded-l-xl">
               <input

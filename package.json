@@ -26,6 +26,7 @@
     "aws-amplify": "^6.12.3",
     "aws-sdk": "^2.1692.0",
     "crypto-js": "^4.2.0",
+    "gsap": "^3.13.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.471.1",
     "react": "^18.3.1",
@@ -38,7 +39,8 @@
     "react-toastify": "^11.0.2",
     "react-tooltip": "^5.28.0",
     "sass": "^1.83.1",
-    "secure-web-storage": "^1.0.2"
+    "secure-web-storage": "^1.0.2",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

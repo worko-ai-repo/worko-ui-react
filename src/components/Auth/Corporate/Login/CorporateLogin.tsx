@@ -36,7 +36,7 @@ const CorporateLogin = () => {
         message: "You Are Already Logged In. Do you wish to logout and continue?",
         buttons: [
           { label: "Continue", action: handleForceLogin, type: "danger" },
-          { label: "Back to Home", action: () => navigate(userType?.includes(UserRole.CORPORATE) ? "/v2/corporate/jobs/" : "/") },
+          { label: "Back to Home", action: () => navigate(userType?.includes(UserRole.CORPORATE) ?`/${import.meta.env.APP_PROXY_DASH}/corporate/jobs/` : "/") },
         ],
       });
     }

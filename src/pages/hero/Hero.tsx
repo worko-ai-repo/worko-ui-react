@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react';
 import MainLoader from '@Components/Loader/Loader';
 import Reveal from '@Views/intersection-observer/IntersectionObs';
 import { testimonials } from '@Components/Hero/data';
+import NewHeroIntro from '@Components/Hero/NewHeroIntro';
 
 const HeroIntro = lazy(() => import('@Components/Hero/HeroIntro'));
 const CompaniesList = lazy(() => import('@Components/Hero/CompaniesList'));
@@ -33,7 +34,7 @@ const Hero = () => {
 	return (
 		<div className="w-full bg-transparent " id="locoScrollMainContainer">
 			<Suspense fallback={<MainLoader />}>
-				<HeroIntro />
+				<NewHeroIntro />
 				<CompaniesList />
 				<PromoCard />
 				{/* This section will always be rendered */}

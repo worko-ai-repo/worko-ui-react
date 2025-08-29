@@ -8,10 +8,11 @@ import { MultiSelect } from '@Components/Shared/MultiSelect';
 import { useSearchParams } from 'react-router-dom';
 import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/Loader/Skeleton/SkeletonLoader';
 import { useJobFilters } from '@Hooks/useJobFilter.hook';
+import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
 export const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
 	const { setJobFilters, jobFilterForRender = [], resetFiltersValues,setIsInitialFilterSet } = useCompanyContext();
-	const { userDetails } = useAppContext();
+	const { userDetails } = useAppContext<Partial<AuthLoginForGeneralUserDto>>();
 	const [searchParams, setSearchParams] = useSearchParams();
   const { handleFilterChange, resetFilters, selectedValues,setSelectedValues } = useJobFilters();
   
@@ -99,7 +100,7 @@ useEffect(() => {
 					</div>
 				</div>
 			</div>
-			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={userDetails?.lastAccessedDash} /> : null}
+			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={typeof userDetails?.lastAccessedDash === 'object' ? userDetails?.lastAccessedDash : {}} /> : null}{/*  @TODO: ADD APPROPIATE TYE HERE */}
 		</div>
 	);
 };

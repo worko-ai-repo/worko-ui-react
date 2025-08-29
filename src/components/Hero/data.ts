@@ -53,3 +53,13 @@ export const EmployeeTestimonials = [
 		],
 	},
 ]
+
+
+export const floatingStats = [
+    { text: "AI", subText: "powered", position: "top-12 left-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
+    { text: "2000+", subText: "candidate", position: "top-40 left-16 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
+    { text: "1000+", subText: "Jobs", position: "top-72 left-40 bg-[#0038F0F0]-to-t from-[#299DF2BF]-500 to-teal-500 outline outline-1 outline-offset-[-1px] outline-teal-300 " },
+    { text: "100+", subText: "Companies", position: "top-16 right-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
+    { text: "Earn", subText: "With", position: "top-40 right-16 bg-gradient-to-r from-red-500 to-pink-500" },
+    { text: "AI", subText: "powered", position: "top-72 right-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
+  ];

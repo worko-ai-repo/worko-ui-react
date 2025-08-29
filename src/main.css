@@ -219,6 +219,15 @@ label {
 	width: min-content;
 	align-items: center;
   }
+
+  .no-scrl {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox, Safari 18.2+, Chromium 121+ */
+}
+.no-scrl-web::-webkit-scrollbar { 
+    display: none;  /* Older Safari and Chromium */
+}
+
 #my-tooltip {
 	width: 100%;
 	text-align: left;

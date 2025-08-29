@@ -1,12 +1,12 @@
 /* Reusable Button Base Styles */
 
 .btn_t1 {
-  @apply  px-4 py-2 border text-sm font-semibold rounded-md transition-all duration-200 ease-in-out cursor-pointer;
+  @apply px-4 py-2 border text-sm font-semibold rounded-md transition-all duration-200 ease-in-out cursor-pointer;
 }
 
 /* btn_t1: login style */
 .btn_t1.login {
-  @apply text-gray-800 bg-gray-50 border-transparent   ;
+  @apply text-gray-800 bg-gray-50 border-transparent;
 }
 
 .btn_t1.login:hover {
@@ -24,7 +24,7 @@
 
 /* btn_t1: logout style */
 .btn_t1.logout {
-  @apply  text-white bg-red-600;
+  @apply text-white bg-red-600;
 }
 
 .btn_t1.logout:hover {
@@ -40,8 +40,6 @@
   @apply text-white bg-gray-700;
 }
 
-
-
 .btn_find_job {
   @apply bg-gradient-to-t from-[#0E0E0E] to-[#747474] text-white py-2 px-4 border-none rounded-3xl font-medium text-base transition-all duration-200 ease-in-out;
 }
@@ -54,15 +52,15 @@
 .btn_primary {
   @apply px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out cursor-pointer rounded-lg border border-[#4b7eff] bg-gradient-to-b from-[#316bff] to-[#38a1d6] shadow-md text-white;
 }
-.btn_primary.disabled{
+.btn_primary.disabled {
   background: transparent;
-  border:none;
+  border: none;
   box-shadow: none;
   color: rgba(128, 128, 128, 0.332);
 }
-.btn_primary.disabled:hover{
+.btn_primary.disabled:hover {
   background: transparent;
-  border:none;
+  border: none;
   box-shadow: none;
   color: rgba(128, 128, 128, 0.332);
 }

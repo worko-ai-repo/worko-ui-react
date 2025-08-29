@@ -79,6 +79,8 @@ import Bulk_CV from './svgs/bulk_cv.svg';
 import Invites from './svgs/invites.svg';
 import Referral from './svgs/referral.svg';
 import Support from './svgs/support.svg';
+import dash_lines from './backgrounds/dash_lines.svg'
+import cloudUpload from './svgs/cloudUpload.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -153,4 +155,6 @@ export {
     Referral,
     Invites,
     Support,
+    dash_lines,
+    cloudUpload,
 };

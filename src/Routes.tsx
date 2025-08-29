@@ -3,13 +3,13 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "@Layouts/Main-Layout/MainLayout";
 import PageNotFound from "@Pages/errors/404/PageNotFound";
 import MainLoader from "@Components/Loader/Loader";
-import TestPage from "@Pages/JobDescriptionPage";
 import ErrorFallback from "@Pages/errors/base-error/ErrorFallback";
 import FAQ from "@Pages/faq/Faq";
 
 import JobDescription from "@Pages/JobDescriptionPage";
 import ProtectedRoute from "@Services/SessionValidator.service";
 import { UserRole } from "@Interfaces/RoleBasedAccessControl";
+import NewHeroIntro from "@Components/Hero/NewHeroIntro";
 
 // Lazy Load Components
 const Hero = lazy(() => import("@Pages/hero/Hero"));
@@ -194,7 +194,12 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
-
+    {
+      path:"test" ,
+      element: (
+        <NewHeroIntro />
+      ),
+    },
     { path: "*", element: <PageNotFound /> },
   ],
   {
