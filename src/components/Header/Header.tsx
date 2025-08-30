@@ -82,7 +82,7 @@ const Header = () => {
       //encode useremail and append to evaluator-dashboard path
       return `/${proxy}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(userDetails?.email || "")}`;
     } else if (userType?.includes(UserRole.ADMIN)) {
-      return `/${proxy}/admin/jobs`;
+      return `/${proxy}/admin/ajobs`;
     } else {
       return `/${proxy}/candidate/profile`;
     }
