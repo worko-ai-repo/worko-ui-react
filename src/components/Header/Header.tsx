@@ -72,23 +72,36 @@ const Header = () => {
     };
   }, [isOpen]);
 
-  const proxy = import.meta.env.APP_MODE === "STAGING" ? import.meta.env.APP_PROXY_DASH : import.meta.env.APP_PROXY_ANG;
+  const proxy = import.meta.env.APP_PROXY_DASH;
 
   // Function to get profile path based on user type
   const getProfilePath = () => {
     if (userType?.includes(UserRole.CORPORATE)) {
       return `/${proxy}/corporate/jobs/`;
-    } else if (userType?.includes(UserRole.EVALUATOR)) {
-      //encode useremail and append to evaluator-dashboard path
-      return `/${proxy}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(userDetails?.email || "")}`;
     } else if (userType?.includes(UserRole.ADMIN)) {
       return `/${proxy}/admin/ajobs`;
     } else {
-      return `/${proxy}/candidate/profile`;
+      if(userDetails?.lastAccessedDash === "CAND" ){
+        return `/${proxy}/candidate/profile`
+      }else{
+        return `/${proxy}/employee/profile`
+      }
     }
+
+    //below is the old one with evaluator path
+    //     if (userType?.includes(UserRole.CORPORATE)) {
+    //   return `/${proxy}/corporate/jobs/`;
+    // } else if (userType?.includes(UserRole.EVALUATOR)) {
+    //   //encode useremail and append to evaluator-dashboard path
+    //   return `/${proxy}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(userDetails?.email || "")}`;
+    // } else if (userType?.includes(UserRole.ADMIN)) {
+    //   return `/${proxy}/admin/ajobs`;
+    // } else {
+    //   return `/${proxy}/candidate/profile`;
+    // }
   };
   const profilePath = getProfilePath();
-  // const profilePath = userDetails?.lastAccessedDash === "CAND" ? `/${proxy}/candidate/edit-profile` : `/${proxy}/employee/edit-profile`;
+  // const profilePath = userDetails?.lastAccessedDash === "CAND" ? `/${proxy}/candidate/profile` : `/${proxy}/employee/profile`;
   const dashPath = profilePath;
 
   const getMiscUserPosition = (): string => {
@@ -227,7 +240,11 @@ const Header = () => {
                       <span className="text-sm font-semibold text-gray-400 cursor-default">Personal</span>
                     </li>
                     <li className="mb-1">
-                      {!userType?.includes(UserRole.EVALUATOR) ? (
+                        <div onClick={() => appHref(profilePath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
+                          Edit Profile
+                        </div>
+                        {/* below is the code where we used evaluator earlier remove the above div with edit profile and uncomment below */}
+                      {/* {!userType?.includes(UserRole.EVALUATOR) ? (
                         <div onClick={() => appHref(profilePath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
                           Edit Profile
                         </div>
@@ -235,7 +252,7 @@ const Header = () => {
                         <div onClick={() => appHref(`/${proxy}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(userDetails?.email || "")}`)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
                           Evaluator Dashboard
                         </div>
-                      )}
+                      )} */}
                     </li>
                     <li className="mb-1">
                       <div onClick={() => appHref(dashPath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">

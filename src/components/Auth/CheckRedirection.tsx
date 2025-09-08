@@ -192,8 +192,8 @@ export default function CheckRedirection() {
 					? '/'
 					: userDetail.lastAccessedDash === 'CAND'
 					
-						? `${window.location.origin}/${import.meta.env.APP_PROXY_ANG}/candidate/edit-profile`
-						: `${window.location.origin}/${import.meta.env.APP_PROXY_ANG}/employee/Edit-profile`;
+						? `${window.location.origin}/${import.meta.env.APP_PROXY_DASH}/candidate/profile`
+						: `${window.location.origin}/${import.meta.env.APP_PROXY_DASH}/employee/profile`;
 
 	
 				// Step 10: If Total Percentage >= 60, Check Pending Application

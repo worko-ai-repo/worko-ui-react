@@ -184,7 +184,7 @@ const LoginForm = () => {
                 secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
                 window.location.href = PendingApply.url; // Redirect to the referral page
               } else {
-                window.location.href = "/v0/jobs"; // Redirect to home page
+                window.location.href = "/jobs"; // Redirect to home page
               }
             }, 3000);
           }

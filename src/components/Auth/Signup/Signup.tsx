@@ -170,7 +170,7 @@ Z — Signup-BwkRK2K6.js:1:7879
       const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
       const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
       // prefer local over state
-      finalActiveFrame === "CAND" ? navigateTo("/jobs", { replace: true }) : appHref(`/${import.meta.env.APP_PROXY_ANG}/employee/Dashboard`); // Redirect to the home page
+      finalActiveFrame === "CAND" ? navigateTo("/jobs", { replace: true }) : appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`); // Redirect to the home page
     }
   };
   /**
@@ -226,7 +226,7 @@ Z — Signup-BwkRK2K6.js:1:7879
           type: "error",
           heading: { message: "Something Went Wrong", type: "error" },
           message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
-          buttons: [{ label: "Go To Dashboard", action: () => appHref(`/v1/candidate/edit-profile?returnUrl=${params}`) }],
+          buttons: [{ label: "Go To Dashboard", action: () => appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/profile?returnUrl=${params}`) }],
         });
       }
     };
