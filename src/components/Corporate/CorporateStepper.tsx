@@ -1,142 +1,111 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 const CorporateStepper = () => {
-  const [activeStep, setActiveStep] = useState(1);
-  const stepsRef = useRef<(HTMLDivElement | null)[]>([]);
-  
-  const steps = [
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const testimonials = [
     {
-      "id": 1,
-      "title": "Smart Candidate Filtering",
-      "description": "No more manual screening. Our AI models analyze your needs and filter through dozens of data points to bring out the best fits.",
+      text: "Worko saved us 40 hours/week in resume screening. Every candidate is interview-ready.",
+      name: "Rajesh Kumar",
+      title: "VP Engineering",
+      company: "FinTech Unicorn",
     },
     {
-      "id": 2,
-      "title": "Maximized Job Visibility",
-      "description": "Your job posting isn't limited to Worko. We promote it across multiple platforms, helping you find top talent faster.",
+      text: "Candidate quality improved drastically. We now hire faster.",
+      name: "Priya Sharma",
+      title: "Head of HR",
+      company: "E-commerce Giant",
     },
     {
-      "id": 3,
-      "title": "Pre-Vetted Talent Pool",
-      "description": "Gain access to a gold mine of pre-screened, high-intent candidates who are ready to contribute to your goals.",
+      text: "Worko made hiring faster and more efficient. A game changer.",
+      name: "Amit Verma",
+      title: "Recruitment Lead",
+      company: "Global SaaS Company",
     },
     {
-      "id": 4,
-      "title": "Seamless External Resume Processing",
-      "description": "Upload thousands of CVs from external job boards and instantly receive a shortlist of top candidates.",
-    }
+      text: "Reduced hiring costs by 30% in two months with Worko.",
+      name: "Sneha Reddy",
+      title: "Talent Acquisition Manager",
+      company: "EdTech Startup",
+    },
+    {
+      text: "Highly recommend Worko for scaling hiring without compromising quality.",
+      name: "Vikram Malhotra",
+      title: "COO",
+      company: "Healthcare Innovators",
+    },
   ];
 
-  // Setting Intersection Observer for scroll animation
+  const stats = [
+    { value: "98%", label: "Candidate Relevance Rate", color: "text-blue-600", bg: "bg-blue-50" },
+    {
+      value: "80%",
+      label: "Reduction in Screening Time",
+      color: "text-green-600",
+      bg: "bg-green-50",
+    },
+    { value: "50+", label: "Companies Trust Us", color: "text-purple-600", bg: "bg-purple-50" },
+    {
+      value: "2 Weeks",
+      label: "Average Time to Hire",
+      color: "text-orange-600",
+      bg: "bg-orange-50",
+    },
+  ];
+
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: "-30% 0px -30% 0px", // Triggers when element is 30% in view
-      threshold: 0.5
-    };
-
-    const handleIntersect = (entries: IntersectionObserverEntry[]): void => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const stepId = parseInt(entry.target.getAttribute('data-step-id')|| '1');
-          setActiveStep(stepId);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersect, observerOptions);
-    
-    // Register all step elements with the observer
-    stepsRef.current.forEach(ref => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => {
-      if (stepsRef.current) {
-        stepsRef.current.forEach(ref => {
-          if (ref) observer.unobserve(ref);
-        });
-      }
-    };
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Calculate progress for the vertical line
-  const getProgressHeight = () => {
-    if (activeStep === 1) return '25%';
-    if (activeStep === 2) return '50%';
-    if (activeStep === 3) return '75%';
-    if (activeStep === 4) return '100%';
-    return '0%';
-  };
-
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center">
-      <h2 className="text-3xl md:text-4xl lg:text-5xl text-center font-bold text-blue-500 mb-8 md:mb-16 max-w-3xl">
-        Features That Make A Real Difference
+    <section className="py-12 sm:py-16 bg-white text-center">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        Real Results from Real Companies
       </h2>
-      
-      <div className="relative w-full">
-        {/* Vertical line with dynamic progress */}
-        <div className="absolute left-1/2 md:left-[52.2%] top-16 bottom-16 md:top-20 md:bottom-20 transform -translate-x-1/2 w-1.5 bg-gray-200 z-0">
-          {/* Dynamic blue progress line */}
-          <div 
-            className="absolute top-0 left-0 right-0 bg-blue-600 rounded-t-full transition-all duration-500 ease-in-out"
-            style={{ height: getProgressHeight() }}
-          ></div>
-        </div>
-        
-        <div className="space-y-20 md:space-y-32 w-full relative">
-          {steps.map((step, index) => {
-            const isActive = step.id <= activeStep;
-            
-            return (
-              <div 
-                key={step.id} 
-                ref={g => stepsRef.current[index] = g} 
-                data-step-id={step.id}
-                className={`flex flex-col md:flex-row items-center justify-center relative transition-all duration-500 ease-in-out ${
-                  isActive ? 'opacity-100' : 'opacity-50'
-                }`}
-              >
-                {/* Left title section - right aligned on desktop */}
-                <div className="w-full md:w-2/5 mb-4 md:mb-0 text-center md:text-right md:pr-10 lg:pr-16">
-                  <h3 className={`text-2xl md:text-3xl lg:text-4xl font-semibold leading-tight transition-colors duration-500 ${
-                    isActive ? 'text-black' : 'text-gray-500'
-                  }`}>
-                    {step.title}
-                  </h3>
-                </div>
-                
-                {/* Center circle with number */}
-                <div className="z-10 mb-6 md:mb-0">
-                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-colors duration-500 ${
-                    isActive ? 'bg-blue-500' : 'bg-gray-500'
-                  }`}>
-                    <span className={`text-2xl md:text-3xl font-semibold ${
-                      isActive ? 'text-white' : 'text-gray-200'
-                    }`}>
-                      {step.id}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Right description box */}
-                <div className="w-full md:w-[30%] mt-4 text-left md:mt-0 md:ml-10 lg:ml-16">
-                  <div className={`rounded-2xl p-4 md:p-6 transition-colors duration-500 transform ${
-                    isActive ? 'bg-blue-500 scale-105' : 'bg-gray-200'
-                  }`}>
-                    <p className={`font-medium transition-colors duration-500 ${
-                      isActive ? 'text-white' : 'text-gray-500'
-                    }`}>
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
+      <p className="mt-2 text-gray-600 text-sm sm:text-base">
+        See how companies transformed hiring
+      </p>
+      <div className="mt-8 sm:mt-10 flex justify-center">
+        <div className="relative max-w-4xl w-full border rounded-3xl shadow-md px-4 sm:px-8 py-10 sm:py-12 bg-white min-h-[200px] sm:min-h-[250px]">
+          <div
+            key={currentIndex}
+            className="transition-opacity duration-700 ease-in-out opacity-100">
+            <p className="text-base sm:text-lg italic text-gray-700">
+              "{testimonials[currentIndex].text}"
+            </p>
+            <div className="mt-4 sm:mt-6 flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-600 text-white text-base sm:text-lg font-bold">
+                {testimonials[currentIndex].name.charAt(0)}
               </div>
-            );
-          })}
+              <div className="text-left">
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                  {testimonials[currentIndex].name}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {testimonials[currentIndex].title}
+                </p>
+                <p className="text-xs sm:text-sm text-blue-600">
+                  {testimonials[currentIndex].company}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <section className="py-12 sm:py-16 bg-white text-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className={`${stat.bg} rounded-xl shadow-sm p-4 sm:p-6 text-center transition-transform hover:scale-105`}>
+              <p className={`text-xl sm:text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="mt-2 text-gray-700 text-xs sm:text-sm">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </section>
   );
 };
