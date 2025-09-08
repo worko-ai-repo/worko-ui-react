@@ -1,46 +1,83 @@
-import React from "react";
-import { email, whatsapp, call } from "@Assets";
+import { ai_dashboard, communication_dashboard, talent_pool } from "@Assets";
+import { CheckCircle } from "lucide-react";
 
-function App() {
+// Hiring Process Section
+const CorporateCommunication = () => {
+  const processes = [
+    {
+      title: 'Smart AI Filtering: Beyond Keywords',
+      text: 'Our AI understands context, evaluates transferable skills, and identifies high-potential candidates.',
+      items: [
+        'Semantic understanding of job requirements',
+        'Cultural fit assessment based on company values',
+        '98% accuracy in candidate relevance',
+      ],
+      img: ai_dashboard,
+      alt: 'AI filtering dashboard',
+      bg: 'bg-blue-50',
+    },
+    {
+      title: 'Pre-Vetted Talent Pool Access',
+      text: 'Access a database of pre-screened, high-intent candidates evaluated for skills and aspirations.',
+      items: [
+        'Interview Ready Candidates',
+        'Communication and personality evaluations',
+        'Ready-to-interview candidate pipeline',
+      ],
+      img: talent_pool,
+      alt: 'Pre-vetted talent pool dashboard',
+      bg: 'bg-green-50',
+      reverse: true,
+    },
+    {
+      title: 'End-to-End Candidate Communication',
+      text: 'We handle all candidate touchpoints, ensuring no great candidate slips through.',
+      items: [
+        'Personalized email campaigns',
+        'WhatsApp follow-ups and reminders',
+        'Phone calls for high-priority candidates',
+      ],
+      img: communication_dashboard,
+      alt: 'Candidate communication dashboard',
+      bg: 'bg-blue-50',
+    },
+  ];
+
   return (
-    <section className="rounded-3xl bg-[#316BFF] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto flex flex-col items-center gap-[70px]">
-        {/* Header */}
-        <div className="flex flex-col items-center gap-8">
-          <h1 className="text-center text-white text-4xl md:text-[50.8px] font-bold leading-[54px] tracking-[0.5px] max-w-[832px]">How We Communicate with Candidates</h1>
-        </div>
-
-        {/* Communication Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Email Card */}
-          <div className="relative bg-[#57E1E1] rounded-[15px] p-[45px] min-h-[232.5px] overflow-hidden">
-            <h2 className="text-[#316BFF] text-left text-[26.25px] font-extrabold leading-[27px] tracking-[0.38px] mb-4">
-              Email
-              <br /> Communication:
-            </h2>
-            <p className="text-black text-left text-[15px] font-semibold leading-[18.75px] max-w-[292.5px]">Our AI-driven agents craft personalized emails and automate them so they land in the right inbox on time. We also track every interaction every step of the way. </p>
-            <img src={email} alt="Email Icon" className="absolute top-[-28px] right-[-24px] w-[116px] h-[116px]" />
+    <section id="features" className="py-12 sm:py-16">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 sm:mb-12 text-center">
+        How We Transform Your Hiring Process
+      </h2>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
+        {processes.map((process, idx) => (
+          <div
+            key={idx}
+            className={`grid text-left grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center ${
+              process.reverse ? 'md:grid-flow-dense' : ''
+            } animate-slide-in-${process.reverse ? 'right' : 'left'}`}
+          >
+            <div className={`${process.reverse ? 'md:order-2' : ''} flex justify-center`}>
+              <div className={`${process.bg} rounded-xl shadow-lg p-4`}>
+                <img src={process.img} alt={process.alt} width={400} height={300} className="rounded-lg object-cover" />
+              </div>
+            </div>
+            <div className={`${process.reverse ? 'md:order-1' : ''}`}>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">{process.title}</h3>
+              <p className="text-gray-600 text-left mb-4 sm:mb-6 text-sm sm:text-base">{process.text}</p>
+              <ul className="space-y-3">
+                {process.items.map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-gray-700 text-sm sm:text-base">
+                    <CheckCircle className="text-green-500 w-5 h-5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-
-          {/* WhatsApp Card */}
-          <div className="relative bg-white rounded-[15px] p-[45px]  min-h-[232.5px] overflow-hidden">
-            <h2 className="text-[#316BFF] text-[26.25px] text-left font-extrabold leading-[27px] tracking-[0.38px] mb-4">
-              WhatsApp <br /> Reminders:
-            </h2>
-            <p className="text-black text-left text-[15px]  font-semibold leading-[18.75px] max-w-[303.75px] mt-4">From sharing interview details to follow-ups, we can also engage with candidates through WhatsApp. It makes our communication fully personal. </p>
-            <img src={whatsapp} alt="WhatsApp Icon" className="absolute top-[-28px] right-[-24px] w-[114.61px] h-[99.97px] transform rotate-[22deg]" />
-          </div>
-
-          {/* Phone Card */}
-          <div className="relative bg-white md:col-span-2 rounded-[15px] w-full p-[45px] min-h-[232.5px] overflow-hidden">
-            <h2 className="text-[#316BFF] text-left text-[26.25px] font-extrabold leading-[27px] tracking-[0.38px] mb-4">Phone Calls:</h2>
-            <p className="text-black text-[15px] text-left font-semibold leading-[18.75px] max-w-[387px] mt-4">A phone call makes the interaction human. If they don’t respond to emails and messages, we directly call them to know how they want to move forward.</p>
-            <img src={call} alt="Phone Icon" className="absolute top-[-15px] right-[-10px] w-[114.61px] h-[99.97px] md:top-[3.5px] md:right-[44.5px] md:w-[206px] md:h-[206px] transform rotate-[-15deg]" />
-          </div>
-        </div>
+        ))}
       </div>
     </section>
   );
 }
 
-export default App;
+export default CorporateCommunication;

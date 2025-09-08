@@ -19,6 +19,8 @@ import logo_text from './worko-assets/logo-text.webp';
 import logo_text_bright from './worko-assets/logo-text-bright.webp';
 import job_frame from './worko-assets/Job_Frame.webp'
 import ref_frame from './worko-assets/Referral_Frame.webp'
+import corp_office_bg from './worko-assets/office-background.jpg';
+
 import student_male from './backgrounds/student_male.webp'
 import student from './backgrounds/student.webp'
 import student1 from './backgrounds/student1.webp'
@@ -70,6 +72,12 @@ import shield from './svgs/shield.svg';
 import time from './svgs/time.svg';
 import Bubble from './svgs/bubble.svg';
 import WavyLine from './svgs/wavyline.svg';
+import firstClub from './svgs/corp-firstclub.svg';
+import appsforbharat from './svgs/appsforbharat.svg';
+import meesho from './svgs/meesho.svg';
+import ai_dashboard from './svgs/corp-ai-dashboard.svg';
+import talent_pool from './svgs/corp-talent-pool.svg';
+import communication_dashboard from './svgs/corp-communication-dashboard.svg';
 export { 
     // Backgrounds
     bg_plexus,
@@ -125,6 +133,7 @@ export {
     ref_frame,
     worko_new,
     corporatehero,
+    corp_office_bg,
 
     //svgs
     coin,
@@ -135,4 +144,10 @@ export {
     time,
     Bubble,
     WavyLine,
+    meesho,
+    firstClub,
+    appsforbharat,
+    ai_dashboard,
+    talent_pool,
+    communication_dashboard
 };

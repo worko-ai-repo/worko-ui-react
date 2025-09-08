@@ -1,118 +1,92 @@
-import React from 'react';
-import { Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-interface PlanFeature {
-  text: string;
-}
-
-interface Plan {
-  name: string;
-  price: string;
-  additional?: string;
-  isRecommended?: boolean;
-  buttonVariant: 'primary' | 'secondary';
-  features: PlanFeature[];
-}
-
-const plans: Plan[] = [
-  {
-    name: 'Job Board',
-    price: '2%',
-    buttonVariant: 'secondary',
-    features: [
-      { text: 'Pay-As-You-Go: Pay only when candidates join.' },
-      { text: 'AI-Powered Filtering: Utilize our AI matching algorithm to screen candidates sourced externally.' },
-      { text: 'Enhanced Insights: Access candidate video interviews with evaluations on Communication, Personality, Aptitude, and Skills.' },
-      { text: 'Priority Support: Senior account manager for seamless collaboration.' },
-      { text: 'Custom Solutions: Product customization to meet your unique hiring needs.*' },
-    ],
-  },
-  {
-    name: 'Hiring Partner',
-    price: '3%',
-    additional: ' + Retainership*',
-    buttonVariant: 'secondary',
-    features: [
-      { text: 'Comprehensive Coverage: 60-day replacement' },
-      { text: 'Dedicated Recruitment Team: We act as your extended talent acquisition team.' },
-      { text: 'Complete Communication: End-to-end candidate engagement handled on your behalf.' },
-      { text: 'AI-Driven Solutions: Benefit from our AI matching algorithm for external candidate filtering. (2000 Free Credit)' },
-      { text: 'Enhanced Insights: Access candidate video interviews with evaluations on Communication, Personality, Aptitude, and Skills.' },
-      { text: 'Personalized Support: Senior dedicated account manager for seamless collaboration.' },
-      { text: 'Custom Solutions: Product customization to meet your unique hiring needs.*' },
-    ],
-  },
-  {
-    name: 'Co-Pilot',
-    price: '12%',
-    buttonVariant: 'secondary',
-    features: [
-      { text: 'Pay-As-You-Go: Pay only when candidates join.' },
-      { text: 'Dedicated Recruitment Team: We act as your extended talent acquisition team.' },
-      { text: 'Risk-Free Guarantee: 90-day replacement' },
-      { text: 'Complete Communication: End-to-end candidate engagement handled on your behalf.' },
-      { text: 'AI-Powered Efficiency: Use our AI matching algorithm to screen externally sourced candidates. (500 Free Credit)' },
-      { text: 'Enhanced Insights: Access candidate video interviews with evaluations on Communication, Personality, Aptitude, and Skills.' },
-      { text: 'Personalized Support: Senior dedicated account manager for seamless collaboration.' },
-    ],
-  },
-];
-
+import { Clock, MessageCircle, Rocket, ShieldCheck } from "lucide-react";
 
 function CorporatePlans() {
-  const navigate = useNavigate();
-
-  // Function to handle button click
-  const handleTryNowClick = (planName: string) => {
-    // Added the planName as query param.
-    navigate(`/corporate/connect-with-us?plan=${encodeURIComponent(planName)}`);
-  };
+  const plans = [
+    {
+      title: 'Job Board',
+      price: '2%',
+      desc: 'of CTC',
+      features: [
+        'Pay-As-You-Go model',
+        'AI-Powered candidate filtering',
+        'Enhanced Insights',
+        'Priority support',
+        'Custom Solutions',
+      ],
+      button: 'Try Now',
+      buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
+	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Job%20Board', 
+    },
+    {
+      title: 'Hiring Partner',
+      price: '3%',
+      desc: 'of CTC + Retainership*',
+      features: [
+        '60-day replacement guarantee',
+        'Dedicated recruitment team',
+        'End-to-end candidate communication',
+        '2000 free AI screening credits',
+        'Senior account manager',
+      ],
+      button: 'Try Now',
+      buttonStyle: 'bg-blue-600 hover:bg-blue-700 text-white',
+	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Hiring%20Partner', 
+      popular: true,
+    },
+    {
+      title: 'Co-Pilot',
+      price: '12%',
+      desc: 'of CTC',
+      features: [
+        '90-day replacement guarantee',
+        'Executive search capabilities',
+        'Complete hiring process management',
+        '500 free AI screening credits',
+        'Priority placement',
+      ],
+      button: 'Try Now',
+      buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
+	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Co-Pilot', 
+    },
+  ];
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8" id='corporatePlans'>
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
-          Flexible Plans For All Your Needs and Budgets
-        </h1>
-        
-        <div className="grid grid-cols-1 max-w-5xl mx-auto md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section id="pricing" className="bg-white py-12 sm:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Simple, Transparent Pricing</h2>
+        <p className="text-gray-600 mb-8 sm:mb-12 text-sm sm:text-base">
+          Pay only when you hire. No upfront costs, no hidden fees.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {plans.map((plan, index) => (
-            <div key={index} className="group cursor-pointer relative bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
-              {plan.isRecommended && (
-                <div className="absolute top-0 left-0 right-0 bg-[#4B7EFF] text-white text-center py-2 text-xs tracking-[3.5px]">
-                  RECOMMENDED
-                </div>
+            <div
+              key={index}
+              className={`border rounded-xl p-4 sm:p-6 shadow hover:shadow-lg transition-transform hover:scale-105 relative ${
+                plan.popular ? 'border-2 border-blue-600' : ''
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 text-xs sm:text-sm rounded-full">
+                  Most Popular
+                </span>
               )}
-              <div className="p-6 pt-8 border-2 border-gray-200 rounded-sm bg-white">
-                
-                <h2 className="text-xl font-medium text-gray-900 mt-2 text-left">{plan.name}</h2>
-                <div className="mb-8 text-left">
-                  <span className="text-sm font-medium">Pricing: </span>
-                  <span className="text-xl font-bold text-[#316BFF]">{plan.price}</span>
-                  <span className="text-sm font-medium"> of CTC {plan.additional}</span>
-                </div>
-                <button
-                  className={`w-full py-2 rounded text-center text-sm font-semibold tracking-wider transition-colors duration-300 ${
-                    plan.buttonVariant === 'primary'
-                      ? 'bg-[#4B7EFF] text-white w-full rounded-lg py-1 group-hover:bg-[#3A6AE8]'
-                      : 'bg-black text-gray-200 w-full rounded-lg py-1 group-hover:bg-[#316BFF]'
-                  }`}
-                  onClick={() => handleTryNowClick(plan.name)}
-                >
-                  Try now
-                </button>
-              </div>
-              <div className="px-6 pb-6">
-                <div className="text-xs">
-                  {plan.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-start gap-4 my-2">
-                      <Check className="text-[#4B7EFF] flex-shrink-0 mt-1" size={24} />
-                      <span className="text-gray-700 text-left">{feature.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <h3 className="text-lg sm:text-lg font-semibold mb-2">{plan.title}</h3>
+              <p className="font-medium mb-4 sm:mb-6 text-sm sm:text-base">
+                Pricing: <span className="text-blue-600 font-bold">{plan.price}</span> {plan.desc}
+              </p>
+              <ul className="text-xs sm:text-sm text-left space-y-2 mb-4 sm:mb-6">
+                {plan.features.map((feature, i) => (
+                  <li key={i}>✔️ {feature}</li>
+                ))}
+              </ul>
+              <a
+				  href={plan.buttonLink}
+				  target="_blank"
+				  rel="noopener noreferrer"
+				  className={`w-full ${plan.buttonStyle} py-2 rounded-lg text-sm sm:text-base transition-transform hover:scale-105 inline-block text-center`}
+				>
+				  {plan.button}
+				</a>
             </div>
           ))}
         </div>
@@ -122,3 +96,51 @@ function CorporatePlans() {
 }
 
 export default CorporatePlans;
+
+
+// CTA Banner Section
+export function CTABannerSection() {
+  return (
+    <section className="bg-gradient-to-r from-indigo-800 to-purple-700 text-white py-12 sm:py-16">
+      <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 animate-fade-in">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+          Ready to Stop Wasting Time on Irrelevant Resumes?
+        </h2>
+        <p className="text-base sm:text-lg mb-6 sm:mb-8 text-gray-200">
+          Join 50+ companies who transformed their hiring process.{' '}
+          <span className="font-semibold text-white">See results in your first week.</span>
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6 sm:mb-8">
+          <a
+            href="https://calendly.com/sarvesh-singh-worko/30min"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-transform hover:scale-105"
+          >
+            <Rocket className="w-4 sm:w-5 h-4 sm:h-5" />
+            Book Demo - Get Results in 7 Days
+          </a>
+          <a
+            href="https://wa.me/+918349484365"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 border border-gray-300 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-white hover:text-purple-700 transition-transform hover:scale-105"
+          >
+            <MessageCircle className="w-4 sm:w-5 h-4 sm:h-5" />
+            Chat with Our Team
+          </a>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-200">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-green-400" />
+            <span>No Setup Fees</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-yellow-400" />
+            <span>7-Day Results</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
