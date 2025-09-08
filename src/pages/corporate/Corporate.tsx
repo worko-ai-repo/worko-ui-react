@@ -1,15 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import CorporateCardsSection from "@Components/Corporate/CorporateCardsSection";
 import CompanyLogos from "@Components/Corporate/CompanyLogos";
 import CorporateHero from "@Components/Corporate/CorporateHero";
-import CorporatePlans from "@Components/Corporate/CorporatePlans";
+import CorporatePlans, { CTABannerSection } from "@Components/Corporate/CorporatePlans";
 import CorporateTable from "@Components/Corporate/CorporateTable";
 import CorporateStepper from "@Components/Corporate/CorporateStepper";
 import CorporateCommunication from "@Components/Corporate/CorporateCommunication";
 
 
 const Corporate = () => {
+  const [hires, setHires] = useState<number>(1);
+  const [salary, setSalary] = useState<number>(3);
+  const [menuOpen, setMenuOpen] = useState(false);
 
     const location = useLocation();
 
@@ -28,13 +31,14 @@ const Corporate = () => {
 
 return(
     <div className="w-full">
-        <CorporateHero />
+        <CorporateHero hires={hires} salary={salary} />
         <CorporateCardsSection />
         <CompanyLogos />
         <CorporateStepper />
         <CorporateCommunication />
+        <CorporateTable hires={hires} setHires={setHires} salary={salary} setSalary={setSalary} />
         <CorporatePlans />
-        <CorporateTable  />
+        <CTABannerSection />
     </div>
 )
 }

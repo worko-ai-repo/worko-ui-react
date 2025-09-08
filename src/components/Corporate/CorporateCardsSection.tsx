@@ -1,63 +1,76 @@
 import { document, lightening, shield, time } from "@Assets";
+import { AlertCircle, Search, XCircle } from "lucide-react";
 import React from "react";
 
 const CorporateCardsSection = () => {
   const features = [
     {
       title: "Get verified results ",
-      description:
-        "With 98% accuracy, every match you get will be backed by hard data.",
+      description: "With 98% accuracy, every match you get will be backed by hard data.",
       svg: <img src={shield} />,
     },
     {
       title: "Refine your matches",
-      description:
-        "Worko learns from your feedback and gets smarter with every hire.",
+      description: "Worko learns from your feedback and gets smarter with every hire.",
       svg: <img src={document} />,
     },
     {
       title: "Hire through referrals",
-      description:
-        "Tap into your employees’ referrals to find culturally-fit people.",
+      description: "Tap into your employees’ referrals to find culturally-fit people.",
       svg: <img src={lightening} />,
     },
     {
       title: "Save time and effort",
-      description:
-        "Cut hiring time from 23 hours to just 6 hours without affecting quality.",
+      description: "Cut hiring time from 23 hours to just 6 hours without affecting quality.",
       svg: <img src={time} />,
     },
   ];
 
   return (
     <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
-      <div className="flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-12 mb-8 sm:mb-10 md:mb-16">
-        <h2 className="text-center text-[#316BFF] text-3xl sm:text-4xl md:text-5xl max-w-4xl font-bold leading-snug md:leading-tight tracking-wide">
-          Tired of sifting through endless applications?{" "}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+          The ATS Trap: Why Keywords Kill Great Hires
         </h2>
-        <p className="w-full max-w-3xl px-4 text-center text-[#0D0D0D] text-base sm:text-lg md:text-xl font-medium leading-snug">
-          Worko uses advanced-level matching algorithms to instantly shortlist
-          pre-qualified, perfect-fit candidates from thousands of applications.{" "}
+        <p className="mt-2 sm:mt-3 text-base sm:text-lg text-gray-600">
+          Most companies think an ATS solves screening problems. Here&apos;s the reality.
         </p>
-      </div>
-
-      <div className="w-full flex justify-center items-center">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-4 lg:gap-6 justify-items-center">
-          {features.map((feature, index) => (
+        <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+          {[
+            {
+              icon: <AlertCircle className="w-6 h-6" />,
+              title: "ATS = Keyword Filters",
+              text: "Traditional ATS systems only match keywords, missing candidates with nuanced experience.",
+              border: "border-red-400",
+              bg: "bg-red-50",
+              color: "text-red-500",
+            },
+            {
+              icon: <Search className="w-6 h-6" />,
+              title: "Real Talent = Nuanced Experience",
+              text: "Top 5% candidates have diverse skills that keyword matching misses.",
+              border: "border-orange-400",
+              bg: "bg-orange-50",
+              color: "text-orange-500",
+            },
+            {
+              icon: <XCircle className="w-6 h-6" />,
+              title: "Result = Best Talent Rejected",
+              text: "Perfect candidates get filtered out due to non-matching keywords.",
+              border: "border-red-400",
+              bg: "bg-red-50",
+              color: "text-red-500",
+            },
+          ].map((card, index) => (
             <div
               key={index}
-              className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[235px] h-full py-4 sm:py-6 md:py-8 max-sm:px-0.5 sm:px-4 md:px-4 
-                 relative bg-white shadow-lg rounded-[12px] sm:rounded-[14px] md:rounded-[16px] 
-                 overflow-hidden border border-[#57E1E166] flex flex-col items-center justify-center 
-                 transform scale-90 sm:scale-100"
-            >
-              <div className="mb-4 scale-75 sm:mb-5 md:scale-100 md:mb-6">{feature.svg}</div>
-              <h3 className="text-center text-[#316BFF] text-sm sm:text-base md:text-lg font-bold leading-tight mb-1 sm:mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-center text-[#0D0D0D] text-xs sm:text-sm md:text-base font-medium leading-snug max-w-[90%]">
-                {feature.description}
-              </p>
+              className={`bg-white rounded-xl shadow-sm border-l-4 ${card.border} p-6 sm:p-8 text-left transition-transform hover:scale-105`}>
+              <div
+                className={`w-12 h-12 flex items-center justify-center rounded-full ${card.bg} ${card.color} mb-4 sm:mb-6`}>
+                {card.icon}
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{card.title}</h3>
+              <p className="text-gray-600 text-sm sm:text-base">{card.text}</p>
             </div>
           ))}
         </div>
