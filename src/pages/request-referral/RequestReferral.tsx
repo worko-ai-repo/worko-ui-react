@@ -241,7 +241,7 @@ const RequestReferral = () => {
 		switch (ModalType) {
 			case 'zeroReferral':
 				reset();
-				appHref(`/${import.meta.env.APP_PROXY_ANG}/candidate/subscription`);
+				appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/subscription`);
 				break;
 			case 'AlreadyRequested':
 				reset();
@@ -249,7 +249,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				appHref(`/${import.meta.env.APP_PROXY_ANG}/candidate/referral/awaiting`);
+				appHref(`/${import.meta.env.APP_PROXY_ANAPP_PROXY_DASH}/candidate/referral`);
 				break;
 			case 'RequestRejected':
 				reset();
