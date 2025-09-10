@@ -103,6 +103,7 @@ const CorporateSignup = () => {
       firstName: data.firstName,
       lastName: data.lastName,
       corporateUserType: data.corporateUserType,
+      
     };
   }
 
@@ -118,7 +119,6 @@ const CorporateSignup = () => {
       password: formData.password,
       username: formData.email,
       name: formData.name,
-      // phone_number: "+91" + this.userForm.get('phoneNumber')?.value
     };
     const { response, error } = await CognitoServiceObj.handleSignUp(signupData);
     if (error) {
@@ -128,6 +128,8 @@ const CorporateSignup = () => {
     if (response) {
       // Prepare data for DB
       const dbData = prepareDataforDB(response.userId);
+      // push the phn number to dbData if exists
+        dbData.phoneNumberDetails = formData.phoneNumberDetails;
       // debugger;
       const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>("/corporate-user/", dbData, true);
       if (dbError) {
