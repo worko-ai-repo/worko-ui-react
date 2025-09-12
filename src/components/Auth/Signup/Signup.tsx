@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import CustomButtonWithButton from "../../Shared/CustomButtonWithButton";
 import SignupForm from "./SignupForm";
-import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload, AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
@@ -59,9 +59,11 @@ const Signup = () => {
     }
   }, [isLoggedIn, navigateTo]);
 
-  const [cv, setCv] = useState<any>();
-  const [CompanyDetails, setCompanyDetails] = useState<CompanyShortDto>();
+  const [cv, setCv] = useState<FileList | null>(null);
+  const [CompanyDetails, setCompanyDetails] = useState<CompanyShortDto | undefined>(undefined);
   const [OpenReferralLoader, setOpenReferralLoader] = useState<boolean>(false);
+  const [resumeUserFileName, setResumeUserFileName] = useState<string>("");
+  const [resumeUserFileMimeType, setResumeUserFileMimeType] = useState<string>("");
   const [modalData, setModalData] = useState<{
     type: "none" | "error" | "warning" | "success" | "info";
     heading?: { message: string; type: "error" | "warning" | "success" | "info" };
@@ -69,10 +71,7 @@ const Signup = () => {
     buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
   } | null>(null);
 
-  let resumeUserFileName: string;
-  let resumeUserFileMimeType: string;
-
-  let formData: AuthSignupBaseDto = {
+  const [formData, setFormData] = useState<AuthSignupBaseDto>({
     name: "",
     emailId: "",
     ctc: 0,
@@ -84,14 +83,14 @@ const Signup = () => {
     checkboxChecked: false,
     acceptedTermsAndConditions: false,
     companySk: "",
-  };
+  });
 
   const options: ToggleOptionsDto[] = [
     { label: "Candidate/Job Seeker", value: "CAND" },
     { label: "Employee/Referee", value: "EMP" },
   ];
 
-  let CognitoResponse: CognitoSignupResponse;
+  const [CognitoResponse, setCognitoResponse] = useState<CognitoSignupResponse | null>(null);
   /**
    * check if the user is already logged in
    */
@@ -102,49 +101,107 @@ const Signup = () => {
   }, []);
 
   /**
-	 * metaDataFilter
-	 *
-	 * @description This function is used to filter the meta data according to the frame we are in
-	 *
-	 * [Error] An error occurred:
-TypeError: undefined is not an object (evaluating 'o.name')
-W — Signup-BwkRK2K6.js:1:2661
-(anonymous function) — Signup-BwkRK2K6.js:1:7207
-Z — Signup-BwkRK2K6.js:1:7879
-(anonymous function) — SignupForm-BfrptH4Q.js:205
-	(anonymous function) (Signup-BwkRK2K6.js:1:7814)
-	Z (Signup-BwkRK2K6.js:1:7879)
-	(anonymous function) (SignupForm-BfrptH4Q.js:42:1646)
-
-	 * @param data
-	 */
+   * metaDataFilter
+   *
+   * @description This function is used to filter the meta data according to the frame we are in
+   * Validates all required fields before processing
+   *
+   * @param data - Form data from the signup form
+   * @throws Error if required fields are missing or invalid
+   */
   const metaDataFilter = (data: AuthFormDto) => {
-    // Update the form data
-    formData.name = data.name;
-    formData.emailId = data.email;
-    formData.password = data.password;
-    formData.phoneNumber = data.phone;
-    formData.confirmPassword = data.confirmPassword;
-    formData.acceptedTermsAndConditions = data.termsAndConditions;
+    // Validate required fields
+    if (!data.name || data.name.trim().length === 0) {
+      throw new Error("Name is required");
+    }
+    if (!data.email || data.email.trim().length === 0) {
+      throw new Error("Email is required");
+    }
+    if (!data.password || data.password.trim().length === 0) {
+      throw new Error("Password is required");
+    }
+    if (!data.phone || data.phone.trim().length === 0) {
+      throw new Error("Phone number is required");
+    }
+    if (!data.termsAndConditions) {
+      throw new Error("Terms and conditions must be accepted");
+    }
+
+      // Update the form data with validated values
+    setFormData(prev => ({
+      ...prev,
+      name: data.name.trim(),
+      emailId: data.email.trim().toLowerCase(),
+      password: data.password,
+      phoneNumber: data.phone.trim(),
+      confirmPassword: data.confirmPassword,
+      acceptedTermsAndConditions: data.termsAndConditions
+    }));
 
     if (activeFrame === "CAND") {
-      formData.ectc = data.ectc ?? 0; // Default to 0 if data.ectc is undefined
-      formData.ctc = data.ctc ?? 0; // Default to 0 if data.ctc is undefined
+      // Validate CTC values
+      const ctc = data.ctc ?? 0;
+      const ectc = data.ectc ?? 0;
+      
+      if (ctc < 0 || ectc < 0) {
+        throw new Error("CTC values cannot be negative");
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        ectc: ectc,
+        ctc: ctc
+      }));
+      
+      // Handle CV file
       let resumeFile: File | null = null;
       if (data.cv && data.cv.length > 0) {
         resumeFile = data.cv[0] as File;
       }
+      
       if (resumeFile) {
-        resumeUserFileName = resumeFile.name;
-        resumeUserFileMimeType = resumeFile.type;
+        // Validate file type and size
+        if (resumeFile.type !== "application/pdf") {
+          throw new Error("Only PDF files are allowed for CV");
+        }
+        if (resumeFile.size > 2 * 1024 * 1024) {
+          throw new Error("CV file size must be less than 2MB");
+        }
+        
+        setResumeUserFileName(resumeFile.name);
+        setResumeUserFileMimeType(resumeFile.type);
+        setCv(data.cv);
+      } else {
+        throw new Error("CV file is required for candidates");
       }
-      //store it in local also
-      localStorage.setItem("resumeUserFileName", resumeUserFileName);
-      localStorage.setItem("resumeUserFileMimeType", resumeUserFileMimeType);
-      setCv(data.cv);
     } else {
-      formData.companySk = data.company;
+      // Validate company selection for employees
+      if (!data.company || data.company.trim().length === 0) {
+        throw new Error("Company selection is required for employees");
+      }
+      setFormData(prev => ({
+        ...prev,
+        companySk: data.company.trim()
+      }));
     }
+  };
+
+  // Build a processed snapshot from current submit data to avoid stale state usage
+  const buildProcessedForm = (data: AuthFormDto): AuthSignupBaseDto => {
+    const base: AuthSignupBaseDto = {
+      name: data.name.trim(),
+      emailId: data.email.trim().toLowerCase(),
+      password: data.password,
+      candidateOtp: "",
+      phoneNumber: data.phone.trim(),
+      confirmPassword: data.confirmPassword,
+      checkboxChecked: false,
+      acceptedTermsAndConditions: !!data.termsAndConditions,
+      ctc: activeFrame === "CAND" ? (data.ctc ?? 0) : 0,
+      ectc: activeFrame === "CAND" ? (data.ectc ?? 0) : 0,
+      companySk: activeFrame === "EMP" ? (data.company?.trim() ?? "") : "",
+    };
+    return base;
   };
 
   /**
@@ -328,55 +385,69 @@ Z — Signup-BwkRK2K6.js:1:7879
     setUploadedFile(file);
   };
   const CvS3MemAllocation = useCallback(
-    async (userdata: any) => {
+    async (userdata: any, emailIdForPatch: string) => {
+      // Validate required data
+      if (!userdata?.userId) {
+        throw new Error("User ID is required for CV upload");
+      }
+      if (!uploadedFile) {
+        throw new Error("CV file is required for upload");
+      }
+
+      // Derive name/mime from the selected file if not present in state
+      const derivedFileName = resumeUserFileName || uploadedFile.name;
+      const derivedMimeType = resumeUserFileMimeType || uploadedFile.type;
+      if (!derivedFileName || !derivedMimeType) {
+        throw new Error("CV file information is missing");
+      }
+
       const cvS3metaData = {
-        userId: CognitoResponse?.userId || userdata.userId, // Ensure `CognitoResponse` is valid
-        resumeUserFileName: resumeUserFileName || localStorage.getItem("resumeUserFileName"),
-        resumeFileMimeType: resumeUserFileMimeType || localStorage.getItem("resumeUserFileMimeType"),
+        userId: userdata.userId,
+        resumeUserFileName: derivedFileName,
+        resumeFileMimeType: derivedMimeType,
       };
-      // debugger;
+
       const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>("/file/gsu2u/USER_RESUME", cvS3metaData, true);
 
       if (error) {
-        throw error;
+        throw new Error(`Failed to get S3 upload URL: ${error.message}`);
+      }
+
+      if (!response?.awsS3SignedUrl) {
+        throw new Error("Invalid S3 upload response");
       }
 
       // Upload to S3
-      const metaData: FileUpload = {
-        file: uploadedFile,
-        awsS3Tag: response?.awsS3Tag,
-      };
-
-      const signedUrl: string = response?.awsS3SignedUrl || "";
-      // debugger;
-      /* 		console.log('signedUrl:', signedUrl);
-			console.log('metaData:', metaData);
-			console.log('cv:', uploadedFile); */
-      if (!metaData.file || metaData.file.size === 0) {
-        console.error("File is empty or undefined:", metaData.file);
-        return;
-      }
-
-      const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
+      const fileUploadHandler = await httpServiceObj.put<null>(
+        response.awsS3SignedUrl, 
+        uploadedFile, 
+        false, 
+        { 
+          awsS3Tag: response.awsS3Tag, 
+          fileType: derivedMimeType 
+        }, 
+        true
+      );
 
       if (fileUploadHandler.error) {
-        // throw fileUploadHandler.error;
-        console.error("Error uploading file:", fileUploadHandler);
-      } else {
-        // Patch the data to the backend
-        // debugger;
-        const finalEmail = formData.emailId.toLocaleLowerCase();
-        // console.log("FINAL EMAILLLLL->>>>" + finalEmail);
-        const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${finalEmail}/cv`, { resume: response?.cloudFileName }, true);
-
-        if (CvNamePatchRequest.status !== 200) {
-          throw CvNamePatchRequest.error;
-        } else {
-          toast.success("CV uploaded successfully", getToastOptions());
-        }
+        throw new Error(`Failed to upload file to S3: ${fileUploadHandler.error.message}`);
       }
+
+      // Patch the data to the backend
+      const finalEmail = emailIdForPatch.toLowerCase();
+      const CvNamePatchRequest = await httpServiceObj.patch<null>(
+        `/user/${finalEmail}/cv`, 
+        { resume: response.cloudFileName }, 
+        true
+      );
+
+      if (CvNamePatchRequest.error || CvNamePatchRequest.status !== 200) {
+        throw new Error(`Failed to update CV reference: ${CvNamePatchRequest.error?.message || 'Unknown error'}`);
+      }
+      
+      toast.success("CV uploaded successfully", getToastOptions());
     },
-    [cv, uploadedFile]
+    [uploadedFile, resumeUserFileName, resumeUserFileMimeType]
   );
 
   /**
@@ -385,92 +456,131 @@ Z — Signup-BwkRK2K6.js:1:7879
    * @description This function is used to add the data to the backend
    */
   const mutateDatatoBackend = useCallback(
-    async (ClientId: string) => {
-      // patch the formData from the secure storage
-      const localFormData = secureStorage.getItem<AuthFormDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA);
-      // debugger;
-      if (localFormData) {
-        formData.name = localFormData.name;
-        formData.emailId = localFormData.email;
-        formData.password = localFormData.password;
-        formData.phoneNumber = localFormData.phone;
-        formData.confirmPassword = localFormData.confirmPassword;
-        formData.acceptedTermsAndConditions = localFormData.termsAndConditions;
+    async (ClientId: string, processed: AuthSignupBaseDto) => {
+      // Validate ClientId
+      if (!ClientId || ClientId.trim().length === 0) {
+        throw new Error("Client ID is required");
       }
+
+      // Validate form data
+      if (!processed.name || !processed.emailId || !processed.phoneNumber) {
+        throw new Error("Required form data is missing");
+      }
+
       if (activeFrame === "CAND") {
-        // Add the data to the backend
-        //debugger
-        let candidateData: DevCandidateDto = {
-          name: formData.name,
-          email: formData.emailId,
-          number: "+91" + formData.phoneNumber,
-          userId: ClientId,
-          CTC: formData.ctc,
-          ECTC: formData.ectc,
-          acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
-        };
-        // Add the data to the backend
-        const { response, error } = await httpServiceObj.post("/user/register/candidate", candidateData, true);
-        if (error) {
-          throw error;
-        } else {
-          if (uploadedFile) {
-            await CvS3MemAllocation(response);
-          }
+        // Validate candidate-specific data
+        if (processed.ctc < 0 || processed.ectc < 0) {
+          throw new Error("CTC values cannot be negative");
         }
-      } else {
-        let employeeData: DevEmployeeDto = {
-          name: formData.name,
-          email: formData.emailId,
-          number: "+91" + formData.phoneNumber,
-          YOE: 0,
-          companyName: CompanyDetails?.name || "",
-          companySK: CompanyDetails?.id || "",
+
+        const candidateData: DevCandidateDto = {
+          name: processed.name.trim(),
+          email: processed.emailId.toLowerCase(),
+          number: "+91" + processed.phoneNumber,
           userId: ClientId,
-          acceptedTermsAndConditions: formData.acceptedTermsAndConditions, // Include the acceptedTermsAndConditions field
+          CTC: processed.ctc,
+          ECTC: processed.ectc,
+          acceptedTermsAndConditions: processed.acceptedTermsAndConditions,
         };
 
-        // Add the data to the backend
-        return await httpServiceObj.post("/user/register/employee", employeeData, true);
+        const { response, error } = await httpServiceObj.post("/user/register/candidate", candidateData, true);
+        
+        if (error) {
+          throw new Error(`Failed to register candidate: ${error.message}`);
+        }
+
+        if (uploadedFile) {
+          await CvS3MemAllocation(response, processed.emailId);
+        }
+        
+        return response;
+      } else {
+        // Validate employee-specific data
+        if (!CompanyDetails?.name || !CompanyDetails?.id) {
+          throw new Error("Company details are required for employee registration");
+        }
+
+        const employeeData: DevEmployeeDto = {
+          name: processed.name.trim(),
+          email: processed.emailId.toLowerCase(),
+          number: "+91" + processed.phoneNumber,
+          YOE: 0,
+          companyName: CompanyDetails.name,
+          companySK: CompanyDetails.id,
+          userId: ClientId,
+          acceptedTermsAndConditions: processed.acceptedTermsAndConditions,
+        };
+
+        const { response, error } = await httpServiceObj.post("/user/register/employee", employeeData, true);
+        
+        if (error) {
+          throw new Error(`Failed to register employee: ${error.message}`);
+        }
+        
+        return response;
       }
     },
-    [uploadedFile, activeFrame, CompanyDetails]
+    [uploadedFile, activeFrame, CompanyDetails, CvS3MemAllocation]
   );
 
   const runCognitoBasicSignup = async (data: AuthFormDto): Promise<boolean> => {
     try {
-      /*       if ((window as any).dataLayer) { //@TODO: Seo and Analytics
-        (window as any).dataLayer.push({ event: "signup_click", userType: activeFrame });
-      }
-      console.log("Signup button clicked by user type:", activeFrame); */
-
+      // Validate and filter form data
       metaDataFilter(data);
 
-      let signupform = {
-        password: formData.password,
-        username: formData.emailId.toLowerCase(),
-        name: formData.name,
-        phone_number: "+91" + formData.phoneNumber,
+      // Always use the latest submitted values snapshot to avoid stale state
+      const processed = buildProcessedForm(data);
+
+      const signupform = {
+        password: processed.password,
+        username: processed.emailId,
+        name: processed.name,
+        phone_number: "+91" + processed.phoneNumber,
       };
 
       const { response, error } = await CognitoServiceObj.handleSignUp(signupform);
 
       if (error) {
-        if (error.name === "UsernameExistsException") {
-          toast.error("User already exists", getToastOptions());
+        // Handle specific Cognito errors
+        if (error.name === "UserLambdaValidationException" && error.message.includes("PreSignUp")) {
+          toast.info("An account with this email already exists. Please sign in instead.", getToastOptions({}));
+          return false;
+         
+          /* // Don't show toast for existing users, continue with backend registration
+          console.log("User already exists in Cognito, proceeding with backend registration");
+          
+          // Try to get existing user ID or create a fallback
+          // This is a workaround for existing users
+          const { response } = await httpServiceObj.get<ApplicantDetails>(
+            `/admin/user/${processed.emailId}/detail`,
+            true,
+            {},
+            false,
+          );
+          
+          try {
+            // await mutateDatatoBackend(existingUserId, processed);
+            toast.info("Account updated successfully. Please sign in.", getToastOptions());
+            // Do NOT show OTP for existing users; finish early
+            return true;
+          } catch (backendError) {
+            console.error("Backend registration failed for existing user:", backendError);
+            toast.error("Account exists but setup failed. Please contact support.", getToastOptions());
+            return false;
+          } */
         } else {
           toast.error(error.message, getToastOptions());
+          return false;
         }
-        return false; // Explicitly return false
       }
 
       if (response?.userId) {
-        CognitoResponse = response;
+        setCognitoResponse(response);
 
-        // Safely handle the mutation process
         try {
+          // Use processed snapshot for backend mutation; ensure latest values were used to set state already
           await toast.promise(
-            mutateDatatoBackend(response.userId),
+            mutateDatatoBackend(response.userId, processed),
             {
               pending: "Registering user...",
               success: "User registered successfully",
@@ -479,19 +589,19 @@ Z — Signup-BwkRK2K6.js:1:7879
             getToastOptions()
           );
           toast.info("OTP sent to your email. Please verify it.", getToastOptions());
-          return true; // Explicitly return true on success
-        } catch (mutationError) {
+          return true;
+        } catch (mutationError: any) {
           console.error("Error during backend mutation:", mutationError);
-          return false; // Explicitly return false on mutation error
+          toast.error(`Registration failed: ${mutationError.message}`, getToastOptions());
+          return false;
         }
       }
 
-      return false; // If `response?.userId` is not present, return false
+      throw new Error("Invalid response from Cognito signup");
     } catch (err: any) {
-      // debugger;
-      console.log("An error occurred:", err);
-      toast.error("Something went wrong" + err, getToastOptions());
-      return false; // Explicitly return false on general error
+      console.error("Signup error:", err);
+      toast.error(`Signup failed: ${err.message}`, getToastOptions());
+      return false;
     }
   };
 
@@ -510,17 +620,29 @@ Z — Signup-BwkRK2K6.js:1:7879
   /**
    * useEffect
    *
-   * @description This hook is used to reset the state when the component is unmounted
+   * @description This hook is used to reset the state when the component is unmounted or activeFrame changes
    */
   useEffect(() => {
-    // Reset the state when the component is unmounted
-    return () => {
-      Object.keys(formData).forEach((key) => {
-        (formData as any)[key] = "";
-      });
-      setCv(undefined);
-      formData.companySk = "";
-    };
+    // Reset the state when the activeFrame changes
+    setFormData({
+      name: "",
+      emailId: "",
+      ctc: 0,
+      ectc: 0,
+      password: "",
+      candidateOtp: "",
+      phoneNumber: "",
+      confirmPassword: "",
+      checkboxChecked: false,
+      acceptedTermsAndConditions: false,
+      companySk: "",
+    });
+    setCv(null);
+    setCompanyDetails(undefined);
+    setResumeUserFileName("");
+    setResumeUserFileMimeType("");
+    setCognitoResponse(null);
+    setUploadedFile(null);
   }, [activeFrame]);
 
   return (
