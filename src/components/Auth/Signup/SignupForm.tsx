@@ -100,7 +100,6 @@ const SignupForm: React.FC<{
   }, [activeFrame, setValue, unregister]);
 
   const onSubmit = async (data: any) => {
-    secureStorage.setItem<AuthSignupBaseDto>(SecureStorageKeyEnum.AUTHACTIVEFORMDATA, data);
     if (isSigningUp) return; // Prevent multiple submissions
     setIsSigningUp(true);
 
