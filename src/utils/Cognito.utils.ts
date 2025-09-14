@@ -1,6 +1,21 @@
 import { Amplify } from "aws-amplify";
 import { Hub } from "@aws-amplify/core";
-import { AuthError, ConfirmSignUpInput, SignInInput, SignInOutput, confirmSignUp, fetchAuthSession, getCurrentUser, resendSignUpCode, signIn, signInWithRedirect, signOut, signUp, ResendSignUpCodeInput, updatePassword } from "@aws-amplify/auth";
+import {
+  AuthError,
+  ConfirmSignUpInput,
+  SignInInput,
+  SignInOutput,
+  confirmSignUp,
+  fetchAuthSession,
+  getCurrentUser,
+  resendSignUpCode,
+  signIn,
+  signInWithRedirect,
+  signOut,
+  signUp,
+  ResendSignUpCodeInput,
+  updatePassword,
+} from "@aws-amplify/auth";
 import Awsconfig from "../aws-config";
 import { BehaviorSubject } from "rxjs";
 import { AwsconfigDto } from "src/aws-config";
@@ -144,8 +159,14 @@ class CognitoService {
     const { tokens } = await fetchAuthSession();
     if (tokens) {
       if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
-        secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload["email"]?.toString().toLowerCase() || "");
-        secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS, tokens?.idToken?.payload || "");
+        secureStorage.setItem(
+          SecureStorageKeyEnum.USEREMAIL,
+          tokens?.idToken?.payload["email"]?.toString().toLowerCase() || ""
+        );
+        secureStorage.setItem(
+          SecureStorageKeyEnum.COGNITOUSERDETAILS,
+          tokens?.idToken?.payload || ""
+        );
       }
       return true;
     }
@@ -163,8 +184,14 @@ class CognitoService {
       const { tokens } = await fetchAuthSession();
       if (tokens) {
         if (!secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL)) {
-          secureStorage.setItem(SecureStorageKeyEnum.USEREMAIL, tokens?.idToken?.payload["email"]?.toString().toLowerCase() || "");
-          secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERDETAILS, tokens?.idToken?.payload || "");
+          secureStorage.setItem(
+            SecureStorageKeyEnum.USEREMAIL,
+            tokens?.idToken?.payload["email"]?.toString().toLowerCase() || ""
+          );
+          secureStorage.setItem(
+            SecureStorageKeyEnum.COGNITOUSERDETAILS,
+            tokens?.idToken?.payload || ""
+          );
         }
         return true;
       }
@@ -237,7 +264,10 @@ class CognitoService {
    * @param params - Old and new password
    * @returns Promise with response or error
    */
-  public async handleChangePassword(params: { oldPassword: string; newPassword: string }): Promise<AuthResponse> {
+  public async handleChangePassword(params: {
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<AuthResponse> {
     try {
       const user = await getCurrentUser();
       if (!user) {
@@ -356,6 +386,8 @@ class CognitoService {
           }
         }
         secureStorage.setItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE, roles);
+      } else {
+        secureStorage.setItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE, [UserRole.GENERAL_USER]);
       }
 
       for (let i = 0; i < localStorage.length; i++) {

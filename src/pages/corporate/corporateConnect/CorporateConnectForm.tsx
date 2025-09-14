@@ -1,11 +1,11 @@
-import httpServiceObj from '@Services/ApiHandler.service';
-import { validationRules } from '@Utils/FormValidator.utils';
-import { getToastOptions } from '@Utils/Toast.utils';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-import { ChevronDown } from 'lucide-react';
-import countryCodes from '@Utils/CountryCodes.utils';
+import httpServiceObj from "@Services/ApiHandler.service";
+import { validationRules } from "@Utils/FormValidator.utils";
+import { getToastOptions } from "@Utils/Toast.utils";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { ChevronDown } from "lucide-react";
+import countryCodes from "@Utils/CountryCodes.utils";
 
 export enum UserCorporatePaymentPlanEnum {
   JOB_BOARD = "JOB_BOARD",
@@ -39,7 +39,7 @@ const CorporateConnectForm = ({
   const [isVerifying, setVerifying] = useState(false);
   const [resendOtpVisible, setResendOtpVisible] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  
+
   const {
     register,
     watch,
@@ -49,18 +49,18 @@ const CorporateConnectForm = ({
     formState: { errors },
   } = useForm({
     defaultValues: {
-      otp: '',
-      name: '',
-      phone: '',
-      countryCode: '+91', // Default country code
-      email: '',
-      company: '',
-      designation: '',
-      message: '',
+      otp: "",
+      name: "",
+      phone: "",
+      countryCode: "+91", // Default country code
+      email: "",
+      company: "",
+      designation: "",
+      message: "",
       pricingPlan: "",
     },
-    mode: 'onChange',
-    criteriaMode: 'all',
+    mode: "onChange",
+    criteriaMode: "all",
   });
 
   // Set the selected plan when component mounts or selectedPlan changes
@@ -68,10 +68,10 @@ const CorporateConnectForm = ({
     // Parse URL parameters if available
     const searchParams = new URLSearchParams(window.location.search);
     const planFromUrl = searchParams.get("plan");
-    
+
     // Choose plan from URL or prop
     const planToUse = planFromUrl || selectedPlan;
-    
+
     if (planToUse && PLAN_NAME_MAP[planToUse]) {
       // Directly map the plan name to the enum value
       setValue("pricingPlan", PLAN_NAME_MAP[planToUse]);
@@ -82,14 +82,14 @@ const CorporateConnectForm = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.country-dropdown-container')) {
+      if (!target.closest(".country-dropdown-container")) {
         setShowCountryDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -100,10 +100,7 @@ const CorporateConnectForm = ({
   };
 
   // Send OTP / Verify OTP function
-  const handleEmailVerification = async (
-    isOtpVerification: boolean,
-    e: any
-  ) => {
+  const handleEmailVerification = async (isOtpVerification: boolean, e: any) => {
     e.preventDefault();
     if (!watch("email")) return;
 
@@ -111,13 +108,14 @@ const CorporateConnectForm = ({
       ? `/corporate/${watch("email")}/verify-otp`
       : `/corporate/${watch("email")}/request-otp`;
 
-    const payload = isOtpVerification
-      ? { otp: watch("otp") }
-      : { fullName: watch("name") };
+    const payload = isOtpVerification ? { otp: watch("otp") } : { fullName: watch("name") };
 
     setVerifying(true); // Disable button while verifying
-    const { response: dbResponse, error: dbError } =
-      await httpServiceObj.post<any>(constructedUrl, payload, true);
+    const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>(
+      constructedUrl,
+      payload,
+      true
+    );
     setVerifying(false);
 
     if (dbError) {
@@ -148,7 +146,7 @@ const CorporateConnectForm = ({
       ...data,
       phone: `${data.countryCode}${data.phone}`,
     };
-    
+
     await handleFormSubmit(formattedData);
   };
 
@@ -168,9 +166,7 @@ const CorporateConnectForm = ({
               {...register("name", validationRules.name)}
             />
             {errors.name && (
-              <p className="text-sm text-left text-red-500">
-                {errors.name.message?.toString()}
-              </p>
+              <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>
             )}
           </div>
 
@@ -180,15 +176,11 @@ const CorporateConnectForm = ({
             <input
               placeholder="Company name"
               type="text"
-              className={`input_primary auth_input ${
-                errors.company && "error"
-              }`}
+              className={`input_primary auth_input ${errors.company && "error"}`}
               {...register("company", validationRules.companyName)}
             />
             {errors.company && (
-              <p className="text-sm text-left text-red-500">
-                {errors.company.message?.toString()}
-              </p>
+              <p className="text-sm text-left text-red-500">{errors.company.message?.toString()}</p>
             )}
           </div>
         </div>
@@ -202,8 +194,7 @@ const CorporateConnectForm = ({
               className="input_primary font-light text-gray-400 auth_input"
               {...register("pricingPlan", {
                 required: "Plan selection is required",
-              })}
-            >
+              })}>
               <option value="" disabled>
                 Select a subscription
               </option>
@@ -228,21 +219,19 @@ const CorporateConnectForm = ({
               <div className="relative country-dropdown-container">
                 <div
                   className="input_primary auth_input !rounded-r-none !w-[80px] cursor-pointer flex items-center justify-between"
-                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                >
+                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}>
                   <span>{watch("countryCode")}</span>
                   <ChevronDown size={14} />
                 </div>
-                
+
                 {/* Dropdown list */}
                 {showCountryDropdown && (
                   <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
                     {countryCodes.map((item) => (
-                      <div 
-                        key={item.code} 
+                      <div
+                        key={item.code}
                         className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
-                        onClick={() => handleCountryCodeSelect(item.code)}
-                      >
+                        onClick={() => handleCountryCodeSelect(item.code)}>
                         <span className="font-medium">{item.code}</span>
                         <span className="text-gray-500">{item.country}</span>
                       </div>
@@ -250,7 +239,7 @@ const CorporateConnectForm = ({
                   </div>
                 )}
               </div>
-              
+
               {/* Phone Number Input */}
               <input
                 placeholder="Contact number"
@@ -259,9 +248,7 @@ const CorporateConnectForm = ({
                 {...register("phone", validationRules.phone)}
               />
             </div>
-            <p className="text-sm text-left text-red-500">
-              {errors.phone?.message}
-            </p>
+            <p className="text-sm text-left text-red-500">{errors.phone?.message}</p>
           </div>
 
           {/* Designation */}
@@ -270,9 +257,7 @@ const CorporateConnectForm = ({
             <input
               placeholder="Designation"
               type="text"
-              className={`input_primary auth_input ${
-                errors.designation && "error"
-              }`}
+              className={`input_primary auth_input ${errors.designation && "error"}`}
               {...register("designation", validationRules.designation)}
             />
             {errors.designation && (
@@ -306,30 +291,22 @@ const CorporateConnectForm = ({
                         setEmailVerified(false);
                         setResendOtpVisible(false);
                         setValue("otp", "");
-                      }}
-                    >
+                      }}>
                       Change Email
                     </button>
                   ) : (
                     <button
                       className="btn_primary py-1 px-3 text-xs active:scale-50"
                       disabled={isOtpSent || isVerifying}
-                      onClick={(e) => handleEmailVerification(false, e)}
-                    >
-                      {isVerifying
-                        ? "Sending..."
-                        : isEmailVerified
-                        ? "✅ Verified"
-                        : "Verify"}
+                      onClick={(e) => handleEmailVerification(false, e)}>
+                      {isVerifying ? "Sending..." : isEmailVerified ? "✅ Verified" : "Verify"}
                     </button>
                   )}
                 </div>
               )}
             </div>
             {errors.email && (
-              <p className="text-sm text-left text-red-500">
-                {errors.email.message?.toString()}
-              </p>
+              <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>
             )}
           </div>
 
@@ -345,15 +322,12 @@ const CorporateConnectForm = ({
                 {...register("otp", validationRules.otp)}
               />
               {errors.otp && (
-                <p className="text-sm text-left text-red-500">
-                  {errors.otp.message?.toString()}
-                </p>
+                <p className="text-sm text-left text-red-500">{errors.otp.message?.toString()}</p>
               )}
               <button
                 className="absolute btn_primary top-[33px] right-0 scale-75 disabled:!cursor-not-allowed active:scale-50"
                 disabled={isEmailVerified || isVerifying}
-                onClick={(e) => handleEmailVerification(true, e)}
-              >
+                onClick={(e) => handleEmailVerification(true, e)}>
                 {isVerifying ? "Verifying..." : "Verify OTP"}
               </button>
 
@@ -363,8 +337,7 @@ const CorporateConnectForm = ({
                   <button
                     className="text-blue-500 underline cursor-pointer disabled:!cursor-not-allowed"
                     disabled={isEmailVerified || isVerifying}
-                    onClick={(e) => handleEmailVerification(false, e)}
-                  >
+                    onClick={(e) => handleEmailVerification(false, e)}>
                     Resend
                   </button>
                 </p>
@@ -378,15 +351,11 @@ const CorporateConnectForm = ({
           <label className="block font-medium">Message</label>
           <textarea
             placeholder="Message"
-            className={`input_primary auth_input w-full ${
-              errors.message && "error"
-            }`}
+            className={`input_primary auth_input w-full ${errors.message && "error"}`}
             {...register("message", validationRules.default)}
           />
           {errors.message && (
-            <p className="text-sm text-left text-red-500">
-              {errors.message.message?.toString()}
-            </p>
+            <p className="text-sm text-left text-red-500">{errors.message.message?.toString()}</p>
           )}
         </div>
       </div>
@@ -399,10 +368,9 @@ const CorporateConnectForm = ({
           if (isFormValid && isEmailVerified) {
             handleSubmit(onSubmit)();
           } else {
-            toast.warn('Please verify the fields before submitting',getToastOptions());
+            toast.warn("Please verify the fields before submitting", getToastOptions());
           }
-        }}
-      >
+        }}>
         Submit
       </button>
     </form>
