@@ -342,6 +342,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         pageSize: 100,
         ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" } : {}),
+        ...(!isJobPage && { isVerified: 1 }),
       };
 
       const urlParams = new URLSearchParams(window.location.search);

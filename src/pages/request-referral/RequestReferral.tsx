@@ -249,7 +249,7 @@ const RequestReferral = () => {
 				setMessageEnabled(false);
 				break;
 			case 'RequestAccepted':
-				appHref(`/${import.meta.env.APP_PROXY_ANAPP_PROXY_DASH}/candidate/referral`);
+				appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/referral`);
 				break;
 			case 'RequestRejected':
 				reset();
