@@ -81,10 +81,10 @@ const Header = () => {
     } else if (userType?.includes(UserRole.ADMIN)) {
       return `/${proxy}/admin/ajobs`;
     } else {
-      if(userDetails?.lastAccessedDash === "CAND" ){
-        return `/${proxy}/candidate/profile`
-      }else{
-        return `/${proxy}/employee/profile`
+      if (userDetails?.lastAccessedDash === "CAND") {
+        return `/${proxy}/candidate/profile`;
+      } else {
+        return `/${proxy}/employee/profile`;
       }
     }
 
@@ -127,11 +127,11 @@ const Header = () => {
   return (
     <div
       className={`
-       h-16 w-full bg-white shadow-sm border-b border-gray-200"}
+       h-16 w-full bg-white  shadow-sm border-b border-gray-200"}
     `}>
       <header
         className={cn(
-          "z-[99999999999] fixed left-1/2 transform -translate-x-1/2 transition-[width,top] duration-500 ease-in-out",
+          "z-[999] fixed left-1/2 transform -translate-x-1/2 transition-[width,top] duration-500 ease-in-out",
           isScrolled
             ? `top-[10px] w-[95vw] bg-white/60 backdrop-blur-md shadow-xl rounded-full ${
                 isOpen && isScrolled ? "max-sm:rounded-b-none max-sm:rounded-t-3xl" : ""
@@ -166,15 +166,26 @@ const Header = () => {
           <nav className="hidden md:flex items-center justify-center flex-1 mx-8">
             <ul className="flex gap-6 list-none font-medium">
               {navItems.map((item) => (
-                <li key={item.label} className="relative group" onMouseEnter={() => setActiveDropdown(item.label)} onMouseLeave={() => setActiveDropdown(null)}>
-                  <a onClick={() => navigateTo(item.href || "#")} className="text-sm font-normal text-black-500 hover:text-blue-600 flex items-center gap-2 cursor-pointer py-2 relative transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full">
+                <li
+                  key={item.label}
+                  className="relative group"
+                  onMouseEnter={() => setActiveDropdown(item.label)}
+                  onMouseLeave={() => setActiveDropdown(null)}>
+                  <a
+                    onClick={() => navigateTo(item.href || "#")}
+                    className="text-sm font-normal text-black-500 hover:text-blue-600 flex items-center gap-2 cursor-pointer py-2 relative transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full">
                     {item.label}
-                    {item.subItems && <ChevronDown className="w-4 h-4 transition-transform duration-300" />}
+                    {item.subItems && (
+                      <ChevronDown className="w-4 h-4 transition-transform duration-300" />
+                    )}
                   </a>
                   {item.subItems && activeDropdown === item.label && (
                     <div className="absolute top-full left-0 bg-white shadow-lg rounded-md py-2 min-w-max z-25 border text-left border-gray-100">
                       {item.subItems.map((subItem) => (
-                        <a key={subItem.label} onClick={() => navigateTo(subItem.href)} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-600 cursor-pointer transition-colors duration-200">
+                        <a
+                          key={subItem.label}
+                          onClick={() => navigateTo(subItem.href)}
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-600 cursor-pointer transition-colors duration-200">
                           {subItem.label}
                         </a>
                       ))}
@@ -192,14 +203,22 @@ const Header = () => {
                 <div className="flex items-center gap-4 cursor-pointer px-4 py-2 rounded-lg max-h-14 group-hover:bg-blue-50 transition-colors duration-200">
                   <div onClick={() => appHref(profilePath)} className="cursor-pointer">
                     {userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
-                      <img onError={() => setImgError(true)} className="border border-gray-400 w-9 h-9 object-cover rounded-full" src={userDetails?.profileImageAwsS3SignedUrl} />
+                      <img
+                        onError={() => setImgError(true)}
+                        className="border border-gray-400 w-9 h-9 object-cover rounded-full"
+                        src={userDetails?.profileImageAwsS3SignedUrl}
+                      />
                     ) : userDetails?.fullName ? (
-                      <span className="text-gray-400 border border-gray-400 w-9 h-9 rounded-full flex items-center justify-center font-bold">{userDetails.fullName.charAt(0).toUpperCase()}</span>
+                      <span className="text-gray-400 border border-gray-400 w-9 h-9 rounded-full flex items-center justify-center font-bold">
+                        {userDetails.fullName.charAt(0).toUpperCase()}
+                      </span>
                     ) : (
                       <User className="text-gray-400 border border-gray-400 p-1 w-9 h-9 rounded-full" />
                     )}
                   </div>
-                  <i className="fas fa-chevron-down cursor-pointer text-gray-500" onClick={() => CognitoServiceObj.handleSignOut()}></i>
+                  <i
+                    className="fas fa-chevron-down cursor-pointer text-gray-500"
+                    onClick={() => CognitoServiceObj.handleSignOut()}></i>
                 </div>
 
                 {/* User Dropdown */}
@@ -208,18 +227,37 @@ const Header = () => {
                     <li className="flex items-center justify-between rounded-lg bg-white">
                       <div className="flex items-center w-full gap-2">
                         {/* Avatar */}
-                        <div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 font-bold overflow-hidden flex items-center justify-center text-gray-400">{userDetails?.profileImageAwsS3SignedUrl && !imgError ? <img className="w-full h-full object-cover" src={userDetails?.profileImageAwsS3SignedUrl} onError={() => setImgError(true)} alt="User Avatar" /> : userDetails?.fullName ? userDetails.fullName.charAt(0).toUpperCase() : <User className="w-4 h-4" />}</div>
+                        <div className="h-8 w-8 rounded-full border border-gray-400 bg-gray-100 font-bold overflow-hidden flex items-center justify-center text-gray-400">
+                          {userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
+                            <img
+                              className="w-full h-full object-cover"
+                              src={userDetails?.profileImageAwsS3SignedUrl}
+                              onError={() => setImgError(true)}
+                              alt="User Avatar"
+                            />
+                          ) : userDetails?.fullName ? (
+                            userDetails.fullName.charAt(0).toUpperCase()
+                          ) : (
+                            <User className="w-4 h-4" />
+                          )}
+                        </div>
 
                         {/* User Info */}
                         <div className="flex flex-col flex-1">
-                          <h5 className="text-sm font-semibold text-gray-900 capitalize mb-1">{userDetails?.fullName || "user"}</h5>
-                          {userType?.includes(UserRole.GENERAL_USER) || userType?.includes(UserRole.LINKEDIN) || userType?.includes(UserRole.ADMIN) ? (
+                          <h5 className="text-sm font-semibold text-gray-900 capitalize mb-1">
+                            {userDetails?.fullName || "user"}
+                          </h5>
+                          {userType?.includes(UserRole.GENERAL_USER) ||
+                          userType?.includes(UserRole.LINKEDIN) ||
+                          userType?.includes(UserRole.ADMIN) ? (
                             <div className="flex items-center justify-between w-full">
                               <span className="text-sm font-bold text-gray-500 max-w-[100px] truncate flex items-center">
                                 <img src={coin} className="inline mr-1 w-4 h-4 object-contain" />
                                 {userDetails?.referralCount || 0}
                               </span>
-                              <span className="cursor-pointer font-medium text-sm text-blue-500 hover:underline" onClick={() => appHref(`/${proxy}/candidate/subscription`)}>
+                              <span
+                                className="cursor-pointer font-medium text-sm text-blue-500 hover:underline"
+                                onClick={() => appHref(`/${proxy}/candidate/subscription`)}>
                                 + Referrals
                               </span>
                             </div>
@@ -237,13 +275,17 @@ const Header = () => {
 
                     {/* Personal Section */}
                     <li className="mb-2">
-                      <span className="text-sm font-semibold text-gray-400 cursor-default">Personal</span>
+                      <span className="text-sm font-semibold text-gray-400 cursor-default">
+                        Personal
+                      </span>
                     </li>
                     <li className="mb-1">
-                        <div onClick={() => appHref(profilePath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
-                          Edit Profile
-                        </div>
-                        {/* below is the code where we used evaluator earlier remove the above div with edit profile and uncomment below */}
+                      <div
+                        onClick={() => appHref(profilePath)}
+                        className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
+                        Edit Profile
+                      </div>
+                      {/* below is the code where we used evaluator earlier remove the above div with edit profile and uncomment below */}
                       {/* {!userType?.includes(UserRole.EVALUATOR) ? (
                         <div onClick={() => appHref(profilePath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
                           Edit Profile
@@ -255,7 +297,9 @@ const Header = () => {
                       )} */}
                     </li>
                     <li className="mb-1">
-                      <div onClick={() => appHref(dashPath)} className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
+                      <div
+                        onClick={() => appHref(dashPath)}
+                        className="block py-1 w-full text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer px-2 rounded hover:bg-blue-50 transition-colors duration-200">
                         Dashboard
                       </div>
                     </li>
@@ -264,7 +308,9 @@ const Header = () => {
 
                     {/* Actions Section */}
                     <li className="mb-2">
-                      <span className="text-sm font-semibold text-gray-400 cursor-default">Actions</span>
+                      <span className="text-sm font-semibold text-gray-400 cursor-default">
+                        Actions
+                      </span>
                     </li>
                     <li>
                       <a
@@ -282,7 +328,9 @@ const Header = () => {
             ) : (
               <div className="flex items-center gap-3">
                 <>
-                  <button className="btn_t1 login hover:!bg-blue-500/10 hover:border-blue-500 " onClick={() => navigateTo("/auth/login")}>
+                  <button
+                    className="btn_t1 login hover:!bg-blue-500/10 hover:border-blue-500 "
+                    onClick={() => navigateTo("/auth/login")}>
                     Login
                   </button>
                   <button className="btn_t1 signup" onClick={() => navigateTo("/auth/signup")}>
@@ -294,7 +342,9 @@ const Header = () => {
                   <div className="w-[1px] h-8 bg-blue-500 mx-2"></div>
                 </>
                 <div className="corporete-login">
-                  <button className="rounded-xl bg-sky-400/30 border-sky-600 hover:border-2 py-2 px-3 text-sm font-semibold text-blue-700" onClick={() => navigateTo("/auth/corporate/login")}>
+                  <button
+                    className="rounded-xl bg-sky-400/30 border-sky-600 hover:border-2 py-2 px-3 text-sm font-semibold text-blue-700"
+                    onClick={() => navigateTo("/auth/corporate/login")}>
                     For Employers
                   </button>
                 </div>
@@ -303,7 +353,9 @@ const Header = () => {
           </div>
 
           {/* Mobile menu button */}
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-gray-600 hover:text-gray-800">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 text-gray-600 hover:text-gray-800">
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -314,15 +366,26 @@ const Header = () => {
             {isLoggedIn && (
               <div className="flex flex-col items-start gap-4 p-4 border-b border-gray-200">
                 <div className="flex font-bold justify-between items-center w-full">
-                  <span className="flex-1 flex items-center cursor-pointer" onClick={() => appHref(profilePath)}>
+                  <span
+                    className="flex-1 flex items-center cursor-pointer"
+                    onClick={() => appHref(profilePath)}>
                     {userDetails?.profileImageAwsS3SignedUrl && !imgError ? (
-                      <img className="w-8 h-8 object-cover rounded-lg border border-gray-400" onError={() => setImgError(true)} src={userDetails?.profileImageAwsS3SignedUrl} alt="User Avatar" />
+                      <img
+                        className="w-8 h-8 object-cover rounded-lg border border-gray-400"
+                        onError={() => setImgError(true)}
+                        src={userDetails?.profileImageAwsS3SignedUrl}
+                        alt="User Avatar"
+                      />
                     ) : userDetails?.fullName ? (
-                      <span className="text-gray-400 border border-gray-400 w-8 h-8 rounded-full flex items-center justify-center">{userDetails.fullName.charAt(0).toUpperCase()}</span>
+                      <span className="text-gray-400 border border-gray-400 w-8 h-8 rounded-full flex items-center justify-center">
+                        {userDetails.fullName.charAt(0).toUpperCase()}
+                      </span>
                     ) : (
                       <User className="w-8 h-8 border border-gray-400 rounded-lg" />
                     )}
-                    <h4 className="text-lg font-semibold capitalize px-2">{userDetails?.fullName || "user"}</h4>
+                    <h4 className="text-lg font-semibold capitalize px-2">
+                      {userDetails?.fullName || "user"}
+                    </h4>
                   </span>
                   <LogOut
                     className="cursor-pointer text-red-500 w-5 h-5"
@@ -336,7 +399,9 @@ const Header = () => {
                   <img src={coin} className="inline mr-1 w-4 h-4 object-contain" />
                   {userDetails?.referralCount || 0} Referrals Left
                 </span>
-                <a className="text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => appHref(dashPath)}>
+                <a
+                  className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                  onClick={() => appHref(dashPath)}>
                   Dashboard
                 </a>
               </div>
@@ -352,12 +417,21 @@ const Header = () => {
                     }}
                     className="flex justify-between items-center w-full text-left text-base cursor-pointer py-2 text-gray-700 hover:text-blue-600">
                     {item.label}
-                    {item.subItems && <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === item.label ? "rotate-180" : ""}`} />}
+                    {item.subItems && (
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform duration-300 ${
+                          activeDropdown === item.label ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
                   </button>
                   {item.subItems && activeDropdown === item.label && (
                     <div className="mt-2 pl-4">
                       {item.subItems.map((subItem) => (
-                        <button key={subItem.label} onClick={() => navigateTo(subItem.href)} className="block py-2 text-gray-600 hover:text-blue-600 w-full text-left">
+                        <button
+                          key={subItem.label}
+                          onClick={() => navigateTo(subItem.href)}
+                          className="block py-2 text-gray-600 hover:text-blue-600 w-full text-left">
                           {subItem.label}
                         </button>
                       ))}
@@ -369,10 +443,14 @@ const Header = () => {
 
             {!isLoggedIn && (
               <div className="flex flex-col items-center p-4 w-[300px] mx-auto gap-3">
-                <button className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors duration-200" onClick={() => navigateTo("/auth/login")}>
+                <button
+                  className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors duration-200"
+                  onClick={() => navigateTo("/auth/login")}>
                   Login
                 </button>
-                <button className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200" onClick={() => navigateTo("/auth/signup")}>
+                <button
+                  className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200"
+                  onClick={() => navigateTo("/auth/signup")}>
                   Sign Up
                 </button>
               </div>

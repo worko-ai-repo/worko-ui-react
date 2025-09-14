@@ -63,6 +63,9 @@ const CorporateSignup = () => {
     if (["EXPIRED", "ACCEPTED", "DELETED"].includes(response?.inviteStatus)) {
       showModalsError("invalid");
     }
+    if(response?.evaluatorCognitoUserId ){
+      navigateTo("/auth/resetpassword", { state: { from: "corporate-signup", email: response.email } });
+    }
     return response;
   };
 
