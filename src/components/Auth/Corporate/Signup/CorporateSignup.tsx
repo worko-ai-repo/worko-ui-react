@@ -21,6 +21,7 @@ const CorporateSignup = () => {
     message: string;
     buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
   } | null>(null);
+  const [hasProcessedExisting, setHasProcessedExisting] = useState<boolean>(false);
 
   // Function to show error modals
   const showModalsError = (caseType: string) => {
@@ -53,19 +54,52 @@ const CorporateSignup = () => {
     }
   };
 
+  // Function to save data to DynamoDB for existing evaluator
+  const saveExistingEvaluatorData = async (formData: any) => {
+    try {
+      const dbData: any = {
+        cognitoUserId: data.evaluatorCognitoUserId,
+        companyId: data.companyId,
+        email: data.email,
+        inviteId: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        corporateUserType: data.corporateUserType,
+      };
+
+      // Add phone number if provided
+      if (formData?.phoneNumberDetails) {
+        dbData.phoneNumberDetails = formData.phoneNumberDetails;
+      }
+
+      const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>("/corporate-user/", dbData, true);
+      
+      if (dbError) {
+        toast.error("Failed to save user data. Please try again later.", getToastOptions());
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      toast.error("Something went wrong while saving data. Please try again later.", getToastOptions());
+      return false;
+    }
+  };
+
   // Fetch data function
   const fetchData = async () => {
     const { response, error, status } = await httpServiceObj.get<any>(`/corporate-invite/${id}`, true);
-    // debugger;
+    
     if (status === 404) throw new Error("Invalid Request");
     if (error) throw new Error("Error fetching data" + error);
 
     if (["EXPIRED", "ACCEPTED", "DELETED"].includes(response?.inviteStatus)) {
       showModalsError("invalid");
     }
-    if(response?.evaluatorCognitoUserId ){
-      navigateTo("/auth/resetpassword", { state: { from: "corporate-signup", email: response.email } });
-    }
+    
+    // Don't navigate immediately if evaluatorCognitoUserId exists
+    // Let the form handle it after data submission
+    
     return response;
   };
 
@@ -78,9 +112,6 @@ const CorporateSignup = () => {
     enabled: !!id, // Only run query if `id` exists
   });
 
-  /*   useEffect(() => {
-    console.log("Data fetched:", data);
-  }, [data]); */
   // Handle errors in useEffect to prevent infinite loop
   useEffect(() => {
     if (error) {
@@ -99,42 +130,59 @@ const CorporateSignup = () => {
    */
   function prepareDataforDB(cognitoId: string): any {
     return {
-      cognitoUserId: cognitoId, // This is the cognito id of the user
+      cognitoUserId: cognitoId,
       companyId: data.companyId,
       email: data.email,
       inviteId: data.id,
       firstName: data.firstName,
       lastName: data.lastName,
       corporateUserType: data.corporateUserType,
-      
     };
   }
 
   /**
-   * handleFormSubmit
-   *
-   * @param data
-   * @returns
+   * handleFormSubmit - Updated to handle existing evaluator case
    */
   async function handleFormSubmit(formData: any) {
-    // signup in Cognito
+    // Check if evaluatorCognitoUserId exists - handle existing evaluator
+    if (data?.evaluatorCognitoUserId) {
+      const saved = await saveExistingEvaluatorData(formData);
+      if (saved) {
+        // Navigate to forgot password page after successful data save
+        navigateTo("/auth/resetpassword", { 
+          state: { 
+            from: "corporate-signup", 
+            email: data.email 
+          } 
+        });
+      }
+      return;
+    }
+
+    // Original signup flow for new users
     const signupData = {
       password: formData.password,
       username: formData.email,
       name: formData.name,
     };
+    
     const { response, error } = await CognitoServiceObj.handleSignUp(signupData);
+    
     if (error) {
       toast.error(error.message, getToastOptions());
       return;
     }
+    
     if (response) {
       // Prepare data for DB
       const dbData = prepareDataforDB(response.userId);
-      // push the phn number to dbData if exists
+      // Add phone number to dbData if exists
+      if (formData?.phoneNumberDetails) {
         dbData.phoneNumberDetails = formData.phoneNumberDetails;
-      // debugger;
+      }
+      
       const { response: dbResponse, error: dbError } = await httpServiceObj.post<any>("/corporate-user/", dbData, true);
+      
       if (dbError) {
         toast.error("Something went wrong. Please try again later.", getToastOptions());
       } else {
@@ -148,21 +196,52 @@ const CorporateSignup = () => {
       }
     }
   }
+
+  // Auto-handle existing evaluator: save to DB and redirect to reset password
+  useEffect(() => {
+    const handleExisting = async () => {
+      if (!data?.evaluatorCognitoUserId || hasProcessedExisting) return;
+      setHasProcessedExisting(true);
+      const saved = await saveExistingEvaluatorData(undefined);
+      if (saved) {
+        navigateTo("/auth/resetpassword", {
+          state: {
+            from: "corporate-signup",
+            email: data.email,
+            pagetype: "CORP",
+          },
+        });
+      } else {
+        setHasProcessedExisting(false);
+      }
+    };
+    handleExisting();
+  }, [data?.evaluatorCognitoUserId]);
+
   return (
     <div id="Authlayout" className="h-[100vh] flex justify-center items-center w-full bg-white relative overflow-hidden">
       <div className="absolute bottom-0 -left-48 w-[25vw] h-[20vw] rounded-[10vh] rotate-[245deg] z-10 bg-gradient-to-b from-cyan-400 to-blue-500"></div>
-      <div className="absolute top-0 -right-48 w-[25vw] h-[20vw]   rounded-[10vh] rotate-[65deg] z-10 bg-gradient-to-b from-cyan-400 to-blue-500"></div>
+      <div className="absolute top-0 -right-48 w-[25vw] h-[20vw] rounded-[10vh] rotate-[65deg] z-10 bg-gradient-to-b from-cyan-400 to-blue-500"></div>
+      
       {/* worko logo */}
       <div className="absolute top-4 center-4 z-20">
         <img src={logo_text} alt="Worko Logo" className="w-32 h-auto" />
       </div>
+      
       {isLoading && !data ? (
         <MainLoader />
+      ) : data && data.evaluatorCognitoUserId ? (
+        // Show loader or message while processing existing evaluator
+        <div className="flex flex-col items-center justify-center gap-4 z-20">
+          <MainLoader />
+          <p className="text-gray-600 text-center">Setting up your account...</p>
+        </div>
       ) : (
-        <div className=" flex items-center justify-center gap-4 z-20 w-min">
-          {/* <div className="min-h-[500px] px-8 pt-8 pb-16 sm:px-14 flex justify-between rounded-3xl w-full items-center bg-white shadow"> */}
-          <CorporateSignupForm inviteData={data} handleFormSubmit={handleFormSubmit} />
-          {/* </div> */}
+        <div className="flex items-center justify-center gap-4 z-20 w-min">
+          <CorporateSignupForm 
+            inviteData={data} 
+            handleFormSubmit={handleFormSubmit}
+          />
         </div>
       )}
 

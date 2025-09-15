@@ -48,6 +48,17 @@ const CorporateSignupForm = ({
       setValue("accessType", corporateUserType);
       setValue("email", inviteData.email);
       setValue("company", inviteData.companyName);
+      const resolvedCountryCode =
+        inviteData?.phoneNumberDetails?.countryCode ||
+        (inviteData?.phoneCountryCode ? `+${inviteData.phoneCountryCode}` : undefined) ||
+        inviteData?.countryCode ||
+        "+91";
+      const resolvedPhoneNumber =
+        inviteData?.phoneNumberDetails?.phoneNumber ||
+        inviteData?.phoneNumber?.toString?.() ||
+        "";
+      setValue("phoneNumberDetails.countryCode", resolvedCountryCode);
+      setValue("phoneNumberDetails.phoneNumber", resolvedPhoneNumber);
     }
   }, [inviteData]);
 
