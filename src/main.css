@@ -143,18 +143,26 @@ label {
 
 /* Scrollbar Track */
 ::-webkit-scrollbar {
-	width: 10px;
+	width: 5px;
 	/* Width of the scrollbar */
-	height: 10px;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
+	height: 5px;
+	cursor: pointer;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
 	background: rgb(5, 124, 203);
-	background: linear-gradient(120deg, rgba(5, 124, 203, 1) 0%, rgba(69, 91, 255, 1) 37%, rgba(154, 205, 255, 1) 76%);
-	border-radius: 10px;
+	background: linear-gradient(
+	  120deg,
+	  rgb(99, 193, 255) 0%,
+	  rgb(99, 193, 255) 37%,
+	  rgba(154, 205, 255, 1) 76%
+	);
 	/* Rounded corners */
-}
+	border-radius: 10px;
+	cursor: pointer;
+  }
+  
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {

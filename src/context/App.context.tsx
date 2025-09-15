@@ -62,6 +62,8 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
   const [PendingApply, setPendingApply] = useState<continueReferralRequestDataDto<T> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // Transient CV file (in-memory only)
+  const [tempCvFile, setTempCvFile] = useState<File | null>(null);
   // Fetch user details based on user type
   const fetchUserDetails = async (
     userType: string[] | undefined,
@@ -199,6 +201,8 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
       setIsModalOpen,
       checkUserLoggedIn,
       fetchCorporateCompanyDetails,
+      tempCvFile,
+      setTempCvFile,
     }),
     [
       isLoggedIn,
@@ -212,7 +216,8 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
       isModalOpen,
       setIsModalOpen,
       checkUserLoggedIn,
-	  fetchCorporateCompanyDetails,
+      fetchCorporateCompanyDetails,
+      tempCvFile,
     ]
   );
 

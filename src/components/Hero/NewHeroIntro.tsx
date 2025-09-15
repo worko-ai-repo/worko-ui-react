@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { generateJobSlug } from "@Utils/JobUriSlug.utils";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "@Context/App.context";
 import JobListDropdown, { DropDownSelectedJobData } from "./JobListDropdown";
 
 interface jobOpportunitiesDto {
@@ -34,6 +35,7 @@ interface JobCategories {
 
 export default function SmoothHeroIntro() {
   const nav = useNavigate();
+  const { setTempCvFile } = useAppContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<JobCategories["name"]>("Design"); // default category
@@ -147,18 +149,32 @@ export default function SmoothHeroIntro() {
     e.stopPropagation();
     setDragActive(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type === "application/pdf") {
-      const fileURL = URL.createObjectURL(file);
-      window.open(fileURL, "_blank");
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed", getToastOptions({}));
+      return;
     }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File size must be less than 2MB", getToastOptions({}));
+      return;
+    }
+    setTempCvFile(file);
+    nav("/auth/signup");
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
-      const fileURL = URL.createObjectURL(file);
-      window.open(fileURL, "_blank");
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed", getToastOptions({}));
+      return;
     }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File size must be less than 2MB", getToastOptions({}));
+      return;
+    }
+    setTempCvFile(file);
+    nav("/auth/signup");
   };
 
   // --- Scroll buttons ---

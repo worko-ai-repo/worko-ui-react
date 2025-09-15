@@ -19,8 +19,19 @@ import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import CompanyPageFallback from "@Components/Fallback/CompanyPage.fallback";
-import { job_listing_promo, job_listing_promo_1, job_listing_promo_2, job_listing_promo_3 } from "@Assets";
-import { CompanyCardListSkeleton, CompanyCardSkeleton, JobCardListSkeleton, JobCardSkeleton, JobPageFilterSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
+import {
+  job_listing_promo,
+  job_listing_promo_1,
+  job_listing_promo_2,
+  job_listing_promo_3,
+} from "@Assets";
+import {
+  CompanyCardListSkeleton,
+  CompanyCardSkeleton,
+  JobCardListSkeleton,
+  JobCardSkeleton,
+  JobPageFilterSkeleton,
+} from "@Components/Loader/Skeleton/SkeletonLoader";
 import { NormalizedUser } from "@Utils/NormalizeUser";
 
 const CompanyJobContent = () => {
@@ -28,7 +39,23 @@ const CompanyJobContent = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [uploadResume, setUploadResume] = useState(false);
   const { isLoggedIn }: { isLoggedIn: boolean } = useAppContext();
-  const { setJobFilters, companyJobData, setSearchText, handleSearch, searchText, resetSearch, companyPageMode, isLoading, companyRefData, isError, hasNextPage, isFetchingNextPage, fetchNextPage, isProfileInclomplete,setIsProfileInclomplete } = useCompanyContext();
+  const {
+    setJobFilters,
+    companyJobData,
+    setSearchText,
+    handleSearch,
+    searchText,
+    resetSearch,
+    companyPageMode,
+    isLoading,
+    companyRefData,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isProfileInclomplete,
+    setIsProfileInclomplete,
+  } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -58,11 +85,13 @@ const CompanyJobContent = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const query = params.get("searchText");
-    if (query){ setSearchText(query);
-    setJobFilters((prev) => ({ ...prev, searchText: query }));
-    if (searchInputRef.current) {
-      searchInputRef.current.value = query;
-    }}
+    if (query) {
+      setSearchText(query);
+      setJobFilters((prev) => ({ ...prev, searchText: query }));
+      if (searchInputRef.current) {
+        searchInputRef.current.value = query;
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -79,7 +108,7 @@ const CompanyJobContent = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isDashboardUser = params.get("dashboard") === "USER";
-    if(isDashboardUser && searchInputRef.current) {
+    if (isDashboardUser && searchInputRef.current) {
       searchInputRef.current.value = "";
     }
     setIsDisabled(isDashboardUser);
@@ -98,7 +127,8 @@ const CompanyJobContent = () => {
   ];
 
   return (
-    <div className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
+    <div
+      className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
       {/* Search Bar */}
       <div className={`min-h-[50px] px-3 sm-px-0 p-1 flex justify-center gap-2 mb-5 sm:max-w-full`}>
         <div className="flex-1 md:max-w-[1000px] relative Search_content flex flex-row flex-nowrap">
@@ -115,7 +145,11 @@ const CompanyJobContent = () => {
               ref={searchInputRef}
               onChange={(e) => setSearchText(e.target.value)}
               className="text-gray-500 relative outline-none w-full text-xs border rounded-s-lg px-3 pl-10 py-2 bg-[#FAFAFA]"
-              placeholder={companyPageMode === CompanyPageModeEnum.JOB ? "Search for Job" : "Search for Company"}
+              placeholder={
+                companyPageMode === CompanyPageModeEnum.JOB
+                  ? "Search for Job"
+                  : "Search for Company"
+              }
             />
             {searchText && (
               <button
@@ -130,23 +164,30 @@ const CompanyJobContent = () => {
               </button>
             )}
           </div>
-          <button onClick={handleSearch} className="w-[80px] sm:min-w-max text-xs sm:text-base md:text-lg bg-gradient-to-b from-sky-400 to-blue-600 rounded-e-lg px-3 py-2 text-white flex justify-center items-center">
+          <button
+            onClick={handleSearch}
+            className="w-[80px] sm:min-w-max text-xs sm:text-base md:text-lg bg-gradient-to-b from-sky-400 to-blue-600 rounded-e-lg px-3 py-2 text-white flex justify-center items-center">
             <i className="fa-solid fa-magnifying-glass sm:hidden"></i>
-            <span className="hidden sm:inline text-sm">{companyPageMode === CompanyPageModeEnum.JOB ? "Search Job" : "Search Company"}</span>
+            <span className="hidden sm:inline text-sm">
+              {companyPageMode === CompanyPageModeEnum.JOB ? "Search Job" : "Search Company"}
+            </span>
           </button>
         </div>
 
         {/* Filters Button (Mobile) */}
-        <button onClick={toggleFilters} className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
+        <button
+          onClick={toggleFilters}
+          className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
           Filters <i className="fa-solid fa-filter"></i>
         </button>
       </div>
 
       {/* Jobs Section */}
-      <div className={`w-[90vw] min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
+      <div
+        className={`w-[90vw] min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
         {/* Filters Section */}
         <div
-          className={`absolute w-full top-0 bottom-0 max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
+          className={`absolute w-full bottom-0 max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
           ${isFiltersOpen ? "left-0" : "-left-full"} md:left-0 ${styles.Company_Content_Filters}`}>
           <Suspense fallback={<JobPageFilterSkeleton />}>
             <JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
@@ -161,9 +202,15 @@ const CompanyJobContent = () => {
             ) : companyJobData && companyJobData.length > 0 ? (
               <>
                 {companyJobData.flatMap((job, index) => {
-                  const finalCompanyName = job?.externalJobId ? job.companyName : job.companyDetails?.name;
-                  const Finallocations = !job?.location?.fullLocation?.length ? "Not Disclosed" : job?.location?.fullLocation.join(", ");
-                  const finalLogoUrl = job?.companyDetails?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` : job?.companyDetails?.logoUrl;
+                  const finalCompanyName = job?.externalJobId
+                    ? job.companyName
+                    : job.companyDetails?.name;
+                  const Finallocations = !job?.location?.fullLocation?.length
+                    ? "Not Disclosed"
+                    : job?.location?.fullLocation.join(", ");
+                  const finalLogoUrl = job?.companyDetails?.logo
+                    ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}`
+                    : job?.companyDetails?.logoUrl;
 
                   const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
                   const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
@@ -191,21 +238,21 @@ const CompanyJobContent = () => {
                         FullJob: job,
                         companyId: job.companyId,
                         jobUrl: job.jobUrl,
-                        showSalary:job?.displaySalaryRange ?? true,
-                        experience:  formatRange(
-                              job.experienceRange?.min ?? 0,
-                              job.experienceRange?.max ?? 0,
-                              "experience"
-                            ),
+                        showSalary: job?.displaySalaryRange ?? true,
+                        experience: formatRange(
+                          job.experienceRange?.min ?? 0,
+                          job.experienceRange?.max ?? 0,
+                          "experience"
+                        ),
                         workmode: job?.workMode || "Not Disclosed",
                       }}
                     />
                   );
 
-                  if (((index + 1) % 8 === 0) && isLoggedIn) {
+                  if ((index + 1) % 8 === 0 && isLoggedIn) {
                     const promoIndex = Math.floor(index / 8) % promoImages.length;
                     const promoImage = promoImages[promoIndex];
-                  
+
                     return [
                       jobCard,
                       <img
@@ -220,7 +267,9 @@ const CompanyJobContent = () => {
                             ? "You are already viewing jobs posted by Worko"
                             : "Click to view jobs posted by Worko and share with your friends to earn rewards!"
                         }
-                        className={`${isDisabled ? "hidden" : "block"} w-full rounded-[20px] md:rounded-[15px] md:h-[250px] cursor-pointer active:scale-95`}
+                        className={`${
+                          isDisabled ? "hidden" : "block"
+                        } w-full rounded-[20px] md:rounded-[15px] md:h-[250px] cursor-pointer active:scale-95`}
                       />,
                     ];
                   }
@@ -232,22 +281,29 @@ const CompanyJobContent = () => {
                   {isFetchingNextPage ? (
                     <JobCardSkeleton />
                   ) : hasNextPage ? (
-                    <div className="NextPage btn_secondary cursor-pointer animate-pulse active:scale-95" onClick={() => fetchNextPage()}>
+                    <div
+                      className="NextPage btn_secondary cursor-pointer animate-pulse active:scale-95"
+                      onClick={() => fetchNextPage()}>
                       Find More Jobs
                     </div>
                   ) : companyJobData.length > 0 ? (
-                    <p className="text-lg font-medium text-gray-500">Looks like we hit a dead end. Try changing the filters and searching again.</p>
+                    <p className="text-lg font-medium text-gray-500">
+                      Looks like we hit a dead end. Try changing the filters and searching again.
+                    </p>
                   ) : null}
                 </div>
               </>
             ) : isError ? (
-              <p className="text-2xl relative font-medium text-gray-500 top-[43%]">"Something went wrong."</p>
+              <p className="text-2xl relative font-medium text-gray-500 top-[43%]">
+                "Something went wrong."
+              </p>
             ) : (
               <CompanyPageFallback mode="JOB" />
             )}
           </div>
         ) : (
-          <div className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ${styles.Company_Content_Companies}`}>
+          <div
+            className={`relative grid grid-rows-[min-content] grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] pt-4 bg-[#F2F4F5] ${styles.Company_Content_Companies}`}>
             {isLoading ? (
               <CompanyCardListSkeleton count={12} />
             ) : companyRefData && companyRefData.length > 0 ? (
@@ -263,21 +319,16 @@ const CompanyJobContent = () => {
                 </div>
               </>
             ) : isError ? (
-              <p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">"Something went wrong."</p>
+              <p className="text-2xl font-medium text-gray-500 w-full absolute h-full flex items-center justify-center mx-auto">
+                "Something went wrong."
+              </p>
             ) : (
               <CompanyPageFallback mode="REFERRAL" />
             )}
           </div>
         )}
       </div>
-      {
-        uploadResume && ( 
-          <UpdateResumeModal
-            onClose={() =>setUploadResume(false)}
-            />
-        )
-
-      }
+      {uploadResume && <UpdateResumeModal onClose={() => setUploadResume(false)} />}
       {isProfileInclomplete && (
         <MessageModal
           type="error"

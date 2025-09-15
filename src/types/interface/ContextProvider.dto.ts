@@ -23,4 +23,9 @@ export interface AppContextType<T> {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   checkUserLoggedIn: () => Promise<void>;
   fetchCorporateCompanyDetails: () => Promise<void>;
+  /**
+   * Transient CV file selected on hero/login. Persist only in-memory across navigation.
+   */
+  tempCvFile: File | null;
+  setTempCvFile: React.Dispatch<React.SetStateAction<File | null>>;
 }

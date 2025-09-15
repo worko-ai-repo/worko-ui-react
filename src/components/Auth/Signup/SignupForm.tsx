@@ -17,6 +17,7 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import { useNavigate } from "react-router-dom";
 import { CompanyShortDto } from "@Interfaces/JobsAndCompany.dto";
 const MessageModal = React.lazy(() => import("@Components/Modals/MessageModal"));
+import { useAppContext } from "@Context/App.context";
 
 /**
  * @Interface LinkedInSignupForm
@@ -55,6 +56,7 @@ const SignupForm: React.FC<{
 }> = ({ activeFrame, runCognitoBasicSignup, handleVerifyOtp, setCompanyName, onFileUpload }) => {
   const navTo = useNavigate();
   const signUpWithLinkedIn = useLinkedInSignup();
+  const { tempCvFile } = useAppContext();
   const [otpError, setOtpError] = useState(false); // Use lowercase for setter
   const [ViewTerms, setViewTerms] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -76,13 +78,27 @@ const SignupForm: React.FC<{
     reset,
     formState: { errors, isValid },
   } = useForm({
-    defaultValues: { name: null, phone: "", whatsappActive: false, company: undefined, cv: "", email: "", password: "", confirmPassword: "", termsAndConditions: false, ctc: 0, ectc: 0 },
+    defaultValues: {
+      name: null,
+      phone: "",
+      whatsappActive: false,
+      company: undefined,
+      cv: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      termsAndConditions: false,
+      ctc: 0,
+      ectc: 0,
+    },
     mode: "onChange",
   });
+  const [selectedCvName, setSelectedCvName] = useState<string>("");
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       onFileUpload(file); // Pass file to parent
+      setSelectedCvName(file.name);
     }
   };
   useEffect(() => {
@@ -98,6 +114,15 @@ const SignupForm: React.FC<{
     //Reset the form state when the active frame changes
     reset(undefined, { keepValues: false });
   }, [activeFrame, setValue, unregister]);
+
+  // Prefill selected CV name from context if present
+  useEffect(() => {
+    if (tempCvFile && activeFrame === "CAND") {
+      setSelectedCvName(tempCvFile.name);
+      // Bypass cv input validation when context file exists
+      clearErrors("cv");
+    }
+  }, [tempCvFile, activeFrame, clearErrors]);
 
   const onSubmit = async (data: any) => {
     if (isSigningUp) return; // Prevent multiple submissions
@@ -192,24 +217,39 @@ const SignupForm: React.FC<{
   return (
     <div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
       <form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
-        <div className={"mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "}>
+        <div
+          className={
+            "mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "
+          }>
           {/* Name */}
           <div>
             <label className="hidden sm:block font-medium">Name</label>
-            <input placeholder="Enter Name" disabled={isOtpSent} type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
-            {errors.name && <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>}
+            <input
+              placeholder="Enter Name"
+              disabled={isOtpSent}
+              type="text"
+              className={`input_primary auth_input  ${errors.name && "error"}`}
+              {...register("name", validationRules.name)}
+            />
+            {errors.name && (
+              <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>
+            )}
           </div>
 
           {/* Phone Number */}
           <div className="relative ">
             <label className=" hidden sm:block font-medium">Phone</label>
-            <span className="z-20 absolute left-3 top-[11px] sm:top-[40.5px] text-[1rem] text-[#416f99] font-semibold">+91</span>
+            <span className="z-20 absolute left-3 top-[11px] sm:top-[40.5px] text-[1rem] text-[#416f99] font-semibold">
+              +91
+            </span>
             <input
               disabled={isOtpSent}
               type="text"
               placeholder="Enter Phone Number"
               maxLength={10}
-              className={`appearance-none input_primary auth_input  ${errors.phone && "error"} pl-10`}
+              className={`appearance-none input_primary auth_input  ${
+                errors.phone && "error"
+              } pl-10`}
               {...register("phone", validationRules.phone)}
               onChange={(e) => {
                 let value = e.target.value.replace(/\D/g, ""); // Non-numeric remove
@@ -217,46 +257,91 @@ const SignupForm: React.FC<{
                 setValue("phone", value, { shouldValidate: true });
               }}
             />
-            {errors.phone && <p className="text-sm text-left text-red-500">{errors.phone.message?.toString()}</p>}
+            {errors.phone && (
+              <p className="text-sm text-left text-red-500">{errors.phone.message?.toString()}</p>
+            )}
 
             <label className="flex items-center justify-start text-xs gap-2 mt-2">
-              <input disabled={isOtpSent} type="checkbox" className=" text-[7px] bg-white " {...register("whatsappActive")} />
-              This number has active <i className="fa-brands text-xs text-[#00fa53] fa-whatsapp"></i> WhatsApp
+              <input
+                disabled={isOtpSent}
+                type="checkbox"
+                className=" text-[7px] bg-white "
+                {...register("whatsappActive")}
+              />
+              This number has active{" "}
+              <i className="fa-brands text-xs text-[#00fa53] fa-whatsapp"></i> WhatsApp
             </label>
           </div>
           {/* Email */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Email</label>
-            <input placeholder="Enter Email" disabled={isOtpSent} type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
+            <input
+              placeholder="Enter Email"
+              disabled={isOtpSent}
+              type="email"
+              className={`input_primary auth_input  ${errors.email && "error"}`}
+              {...register("email", validationRules.personalEmail)}
+            />
             {!isEditingEmail && isOtpSent && (
-              <button type="button" onClick={handleEditEmail} className=" text-left  w-full text-xs text-blue-500">
+              <button
+                type="button"
+                onClick={handleEditEmail}
+                className=" text-left  w-full text-xs text-blue-500">
                 Edit Email
               </button>
             )}
             {isEditingEmail && (
-              <button type="button" onClick={handleSaveEmail} className=" w-full text-xs text-left text-green-500">
+              <button
+                type="button"
+                onClick={handleSaveEmail}
+                className=" w-full text-xs text-left text-green-500">
                 Save
               </button>
             )}
 
-            {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
+            {errors.email && (
+              <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>
+            )}
           </div>
 
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
             <div className="relative ">
-              <label className="hidden sm:block cursor-pointer font-medium" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
-                Upload CV (<i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs" />
+              <label
+                className="hidden sm:block cursor-pointer font-medium"
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                Upload CV (
+                <i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs" />
                 &nbsp; View file requirements)
               </label>
-              <input disabled={isOtpSent} type="file" className="input_primary auth_input appearance-none cursor-pointer" {...register("cv", { validate: validateCV })} accept=".pdf" onChange={handleFileChange} />
+              <div className="relative">
+                <input
+                  disabled={isOtpSent}
+                  type="file"
+                  className="input_primary auth_input appearance-none cursor-pointer text-transparent"
+                  {...register("cv", { validate: (value: any) => (tempCvFile ? true : validateCV(value)) })}
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
+                <div className="absolute inset-0 pointer-events-none flex items-center pl-3">
+                  <span className="text-gray-500 truncate">
+                    {(selectedCvName || tempCvFile?.name) ? (selectedCvName || tempCvFile?.name) : "Choose file"}
+                  </span>
+                </div>
+              </div>
               <Upload
-                onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()} // Trigger input click
+                onClick={() =>
+                  (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()
+                } // Trigger input click
                 className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1"
               />
               <p className="sm:hidden text-left text-xs text-gray-500">
                 Note: Click{" "}
-                <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                <u
+                  className="text-blue-500 cursor-pointer"
+                  data-tooltip-id="my-tooltip"
+                  data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
                   Here
                 </u>{" "}
                 Before Uploading Any File
@@ -267,8 +352,18 @@ const SignupForm: React.FC<{
             <div>
               {/* Company Name */}
               <label className="hidden sm:block font-medium">Company Name</label>
-              <CompanyInput errors={errors} setValue={setValue} clearErrors={clearErrors} setCompanyName={setCompanyName} isOtpSent={isOtpSent} />
-              {errors.company && <p className="text-sm text-left text-red-500">{errors.company.message?.toString()}</p>}
+              <CompanyInput
+                errors={errors}
+                setValue={setValue}
+                clearErrors={clearErrors}
+                setCompanyName={setCompanyName}
+                isOtpSent={isOtpSent}
+              />
+              {errors.company && (
+                <p className="text-sm text-left text-red-500">
+                  {errors.company.message?.toString()}
+                </p>
+              )}
             </div>
           )}
 
@@ -277,25 +372,51 @@ const SignupForm: React.FC<{
             <>
               <div className="relative">
                 <label className="hidden sm:block font-medium w-fit">Current CTC (In LPA)</label>
-                <input placeholder="Enter current CTC in LPA" disabled={isOtpSent} type="text" className={`input_primary auth_input  ${errors.ctc && "error"}`} {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })} />
+                <input
+                  placeholder="Enter current CTC in LPA"
+                  disabled={isOtpSent}
+                  type="text"
+                  className={`input_primary auth_input  ${errors.ctc && "error"}`}
+                  {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })}
+                />
                 <p
                   // Trigger input click
                   className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
                   LPA
                 </p>
-                {!errors.ctc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
-                {errors.ctc && <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>}
+                {!errors.ctc && (
+                  <label className="hidden text-[10px] sm:block font-medium w-fit">
+                    Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)
+                  </label>
+                )}
+                {errors.ctc && (
+                  <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>
+                )}
               </div>
               <div className="relative">
                 <label className="hidden sm:block font-medium">Expected CTC (In LPA)</label>
-                <input placeholder="Enter expected CTC in LPA" disabled={isOtpSent} type="text" className={`input_primary auth_input  ${errors.ectc && "error"}`} {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })} />
+                <input
+                  placeholder="Enter expected CTC in LPA"
+                  disabled={isOtpSent}
+                  type="text"
+                  className={`input_primary auth_input  ${errors.ectc && "error"}`}
+                  {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })}
+                />
                 <p
                   // Trigger input click
                   className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
                   LPA
                 </p>
-                {!errors.ectc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
-                {errors.ectc && <p className="text-sm text-left text-red-500">{errors.ectc.message?.toString()}</p>}
+                {!errors.ectc && (
+                  <label className="hidden text-[10px] sm:block font-medium w-fit">
+                    Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)
+                  </label>
+                )}
+                {errors.ectc && (
+                  <p className="text-sm text-left text-red-500">
+                    {errors.ectc.message?.toString()}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -303,25 +424,60 @@ const SignupForm: React.FC<{
           {/* Password */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Password</label>
-            <input placeholder="Enter Password" disabled={isOtpSent} type={showPassword ? "text" : "password"} className={`input_primary auth_input  ${errors.password && "error"}`} {...register("password", validationRules.password)} />
-            <span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
+            <input
+              placeholder="Enter Password"
+              disabled={isOtpSent}
+              type={showPassword ? "text" : "password"}
+              className={`input_primary auth_input  ${errors.password && "error"}`}
+              {...register("password", validationRules.password)}
+            />
+            <span
+              className="absolute right-3 top-2 sm:top-9 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <i className="fa-regular fa-eye-slash mt-2"></i>
+              ) : (
+                <i className="fa-regular fa-eye mt-2"></i>
+              )}
             </span>
-            {errors.password && <p className="text-sm text-left text-red-500">{errors.password.message?.toString()}</p>}
+            {errors.password && (
+              <p className="text-sm text-left text-red-500">
+                {errors.password.message?.toString()}
+              </p>
+            )}
           </div>
           {/* Confirm Password */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Confirm Password</label>
-            <input placeholder="Confirm Password " disabled={isOtpSent} type={showConfirmPassword ? "text" : "password"} className={`input_primary auth_input  ${errors.confirmPassword && "error"}`} {...register("confirmPassword", validationRules.confirmPassword(watch))} />
-            <span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-              {showConfirmPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
+            <input
+              placeholder="Confirm Password "
+              disabled={isOtpSent}
+              type={showConfirmPassword ? "text" : "password"}
+              className={`input_primary auth_input  ${errors.confirmPassword && "error"}`}
+              {...register("confirmPassword", validationRules.confirmPassword(watch))}
+            />
+            <span
+              className="absolute right-3 top-2 sm:top-9 cursor-pointer"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+              {showConfirmPassword ? (
+                <i className="fa-regular fa-eye-slash mt-2"></i>
+              ) : (
+                <i className="fa-regular fa-eye mt-2"></i>
+              )}
             </span>
-            {errors.confirmPassword && <p className="text-sm text-left text-red-500">{errors.confirmPassword.message?.toString()}</p>}
+            {errors.confirmPassword && (
+              <p className="text-sm text-left text-red-500">
+                {errors.confirmPassword.message?.toString()}
+              </p>
+            )}
           </div>
         </div>
 
         {/* OTP */}
-        <div className={`relative  w-min justify-self-center transition-opacity ease-in-out delay-150 duration-300 ${isOtpSent ? "h-auto opacity-100 " : " opacity-0 h-0 pointer-events-none"}`}>
+        <div
+          className={`relative  w-min justify-self-center transition-opacity ease-in-out delay-150 duration-300 ${
+            isOtpSent ? "h-auto opacity-100 " : " opacity-0 h-0 pointer-events-none"
+          }`}>
           <label className="block font-medium text-center">OTP</label>
           <OTPInput
             length={6}
@@ -331,7 +487,9 @@ const SignupForm: React.FC<{
             }} // Clear error as the user types
           />
           {resendOtp && (
-            <p className="text-sm text-blue-500 text-center cursor-pointer mt-1 active:scale-95	 " onClick={handleResendOtp}>
+            <p
+              className="text-sm text-blue-500 text-center cursor-pointer mt-1 active:scale-95	 "
+              onClick={handleResendOtp}>
               Resend OTP
             </p>
           )}
@@ -340,12 +498,23 @@ const SignupForm: React.FC<{
 
         {/* Terms and Conditions */}
         <div className="flex gap-2  mt-5 text-xs items-center justify-center  ">
-          <input disabled={isOtpSent} type="checkbox" {...register("termsAndConditions", validationRules.termsAndConditions)} checked={watch("termsAndConditions")} />
-          <p className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer" onClick={() => !isOtpSent && setViewTerms(true)}>
+          <input
+            disabled={isOtpSent}
+            type="checkbox"
+            {...register("termsAndConditions", validationRules.termsAndConditions)}
+            checked={watch("termsAndConditions")}
+          />
+          <p
+            className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer"
+            onClick={() => !isOtpSent && setViewTerms(true)}>
             I accept the <span className="text-blue-500 cursor-pointer">Terms and Conditions</span>
           </p>
         </div>
-        {errors.termsAndConditions && <div className="text-sm text-red-500 text-center">{errors.termsAndConditions.message?.toString()}</div>}
+        {errors.termsAndConditions && (
+          <div className="text-sm text-red-500 text-center">
+            {errors.termsAndConditions.message?.toString()}
+          </div>
+        )}
 
         {ViewTerms && (
           <MessageModal
@@ -381,16 +550,28 @@ const SignupForm: React.FC<{
         {/* Buttons */}
         <div className="flex flex-wrap justify-center items-center gap-2  my-5 ">
           {isOtpSent ? (
-            <button type="button" onClick={() => handleFinalVerification()} className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
+            <button
+              type="button"
+              onClick={() => handleFinalVerification()}
+              className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
               Confirm Verification
             </button>
           ) : (
-            <button type="submit" onClick={() => trigger("company")} className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
+            <button
+              type="submit"
+              onClick={() => trigger("company")}
+              className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
               Verify & Signup
             </button>
           )}
-          <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] " type="button" onClick={() => signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")}>
-            <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign up with Linkedin
+          <button
+            className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] "
+            type="button"
+            onClick={() =>
+              signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")
+            }>
+            <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>
+            Or sign up with Linkedin
           </button>
         </div>
 
