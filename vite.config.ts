@@ -8,14 +8,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, "./environments", "APP_");
 
   // Safely get APP_MODE from loaded env
-  const isStaging = env.APP_MODE === "STAGING";
-
-  const base_URL = isStaging ? `/` : `/v0/`;
+  const isDev = env.APP_MODE === "DEVELOPMENT";
+  
+  const base_URL = isDev ? `/v0/` : `/`;
 
   // below to run in local above to use when deploy
-  // const base_URL = isStaging ? `/v0/` : `/`;
-  console.log("Is staging:", isStaging);
-  console.log("APP_MODE:", base_URL);
+  // const base_URL = isDev ? `/v0/` : `/`;
+  // console.log("Is staging:", isDev);
+  // console.log("APP_MODE:", base_URL);
 
   return {
     base: base_URL,

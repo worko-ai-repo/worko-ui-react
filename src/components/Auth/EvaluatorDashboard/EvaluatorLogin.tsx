@@ -173,7 +173,7 @@ useEffect(() => {
       setError('');
 
       const emailToUse = emailParam || evaluatorEmail;
-      console.log('Initializing authentication for:', evaluatorEmail);
+      // console.log('Initializing authentication for:', evaluatorEmail);
 
       // Use signup-first strategy from PasswordlessAuthService
       const result = await PasswordlessAuthService.initializeAuth(emailToUse);
@@ -186,7 +186,7 @@ useEffect(() => {
       setIsNewUser(result.isNewUser || false);
       setStep('otp');
 
-      console.log(result.isNewUser ? 'New user flow initiated' : 'Existing user flow initiated');
+      // console.log(result.isNewUser ? 'New user flow initiated' : 'Existing user flow initiated');
     } catch (error: any) {
       console.error('Initialize auth error:', error);
       setError(error.message);
@@ -206,14 +206,14 @@ useEffect(() => {
 
       if (isNewUser && !requiresSignInOTP) {
         // Step 1: Confirm SignUp for new user
-        console.log('Confirming signup for new user');
+        // console.log('Confirming signup for new user');
         const confirmResult = await PasswordlessAuthService.confirmSignUp(evaluatorEmail, otp);
 
         if (!confirmResult.success) {
           throw new Error(confirmResult.error || 'Signup confirmation failed');
         }
 
-        console.log('Signup confirmed successfully');
+        // console.log('Signup confirmed successfully');
 
         // Step 2: Now initiate SignIn so that token can be generated
         const signInInit = await PasswordlessAuthService.signIn(evaluatorEmail);
@@ -221,14 +221,14 @@ useEffect(() => {
           throw new Error(signInInit.error || 'Failed to initiate sign-in');
         }
 
-        console.log('Sign-in OTP triggered after signup confirmation');
+        // console.log('Sign-in OTP triggered after signup confirmation');
         setOtp('');
         setRequiresSignInOTP(true); // This will show OTP input again
         return;
       }
 
       // Step 3: Confirm SignIn (for both new and existing users now)
-      console.log('Confirming sign in');
+      // console.log('Confirming sign in');
       const signInResult = await PasswordlessAuthService.confirmSignIn(otp);
 
       if (!signInResult.success) {
@@ -244,16 +244,17 @@ useEffect(() => {
       const accessToken = PasswordlessAuthService.getAccessToken();
       if (!accessToken) throw new Error('Access token not found after sign in');
 
-      console.log('Sign in confirmed successfully');
+      // console.log('Sign in confirmed successfully');
 
+      
       // Step 4: Now check backend for registration
       const groupCheck = await EvaluatorService.checkEvaluatorGroup(evaluatorEmail);
 
       if (!groupCheck.inGroup) {
-        console.log('User authenticated but not in DB, show name input');
+        // console.log('User authenticated but not in DB, show name input');
         setStep('name');
       } else {
-        console.log('User exists in DB, redirecting');
+        // console.log('User exists in DB, redirecting');
         await redirectToDashboard();
       }
 
@@ -264,6 +265,17 @@ useEffect(() => {
       setIsLoading(false);
     }
   };
+
+  const refreshToken = async () => {
+  try {
+    const session = await fetchAuthSession({ forceRefresh: true });
+    const accessToken = session.tokens?.accessToken;
+    return accessToken;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    throw error;
+  }
+};
 
   const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,7 +291,7 @@ useEffect(() => {
         throw new Error('User not authenticated. Please try again.');
       }
 
-      console.log('Registering evaluator in database');
+      // console.log('Registering evaluator in database');
 
       // Register evaluator in database
       const registerResult = await EvaluatorService.registerEvaluator({
@@ -292,7 +304,8 @@ useEffect(() => {
         throw new Error(registerResult.error || 'Failed to register evaluator');
       }
 
-      console.log('Evaluator registered successfully');
+      // console.log('Evaluator registered successfully');
+      refreshToken()
       await redirectToDashboard();
     } catch (error: any) {
       console.error('Name submission error:', error);
@@ -320,7 +333,7 @@ useEffect(() => {
       // Fetch job applications to verify everything is working
       try {
         const jobApplications = await EvaluatorService.getJobApplications(evaluatorEmail);
-        console.log('Job applications fetched:', jobApplications.data);
+        // console.log('Job applications fetched:', jobApplications.data);
       } catch (error) {
         console.warn('Failed to fetch job applications:', error);
       }
@@ -347,7 +360,7 @@ useEffect(() => {
         const result = await PasswordlessAuthService.resendSignUpCode(evaluatorEmail);
         setOtpCooldown(30);
         if (!result.success) throw new Error(result.error || 'Failed to resend signup code');
-        console.log('Resent signup confirmation code');
+        // console.log('Resent signup confirmation code');
       } else {
         // For existing users, reinitiate the sign-in process
         const result = await PasswordlessAuthService.resendSignInOTP(evaluatorEmail);
@@ -355,7 +368,7 @@ useEffect(() => {
         if (!result.success) {
           throw new Error(result.error || 'Failed to resend verification code');
         }
-        console.log('New OTP sent for existing user');
+        // console.log('New OTP sent for existing user');
       }
     } catch (error: any) {
       console.error('Resend OTP error:', error);
