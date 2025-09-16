@@ -53,7 +53,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       value: [] // This can be populated with suggested skills
     },
     {
-      options: ['0-5L', '5-10L', '10-15L', '15-20L', '20-25L', '25-30L', '30-35L', '35-40L', '40-45L', '45-50L', '50-70L', '70-1Cr', '1-5Cr','5-10Cr+'],
+      options: ['0-5L', '5-10L', '10-15L', '15-20L', '20-25L', '25-30L', '30-35L', '35-40L', '40-45L', '45-50L', '50-70L', '70-100L', '1-500L','5-1000L'],
       value: [
         '0-5',
         '5-10',

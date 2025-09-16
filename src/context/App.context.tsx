@@ -29,6 +29,7 @@ export interface CorporateUserDetail extends AuthLoginForGeneralUserDto {
   SK: string;
   GSI1PK: string;
   GSI1SK: string;
+  cvDuplicacyAccess?: boolean;
 }
 
 /**
