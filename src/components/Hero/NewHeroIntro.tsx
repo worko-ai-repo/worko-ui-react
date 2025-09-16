@@ -35,7 +35,7 @@ interface JobCategories {
 
 export default function SmoothHeroIntro() {
   const nav = useNavigate();
-  const { setTempCvFile } = useAppContext();
+  const { setTempCvFile,isLoggedIn } = useAppContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<JobCategories["name"]>("Design"); // default category
@@ -237,7 +237,8 @@ export default function SmoothHeroIntro() {
           </div>
 
           {/* Upload CV */}
-          <div className="max-w-2xl mx-auto relative  ">
+          {!isLoggedIn && 
+                    <div className="max-w-2xl mx-auto relative  ">
             <div className="border-2  border-gray bg-[#F0F4FF] z-10 rounded-lg">
               <div className="p-8 relative ">
                 <div className="text-center">
@@ -257,6 +258,7 @@ export default function SmoothHeroIntro() {
               </div>
             </div>
           </div>
+          }
         </div>
 
         {/* Categories + Jobs */}

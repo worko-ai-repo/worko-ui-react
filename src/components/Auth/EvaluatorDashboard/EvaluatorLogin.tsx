@@ -238,15 +238,36 @@ useEffect(() => {
       const currentUser = await PasswordlessAuthService.getCurrentUser();
       if (!currentUser) throw new Error('User not authenticated after sign in');
 
+      const sessionBefore = await fetchAuthSession();
+      const accessTokenBefore = sessionBefore.tokens?.accessToken?.toString();
+      const idTokenBefore = sessionBefore.tokens?.idToken?.toString();
+      console.log("🔓 Access Token (before refresh):", accessTokenBefore);
+      console.log("🔓 ID Token (before refresh):", idTokenBefore);
+
       // Optionally refresh session or fetch tokens if your service supports it
       // await CognitoServiceObj.refreshSession();  // Uncomment if you have such method
+      const sessionRefresh = await fetchAuthSession({ forceRefresh: true });
+      console.log("session with forceRefresh:", sessionRefresh);
+      await CognitoServiceObj.setAccessToken();
+      await new Promise((res) => setTimeout(res, 5000));
+      
+      const sessionAfter = await fetchAuthSession();
+      const accessTokenAfter = sessionAfter.tokens?.accessToken?.toString();
+      const idTokenAfter = sessionAfter.tokens?.idToken?.toString();
+      console.log("🔄 Access Token (after refresh):", accessTokenAfter);
+      console.log("🔄 ID Token (after refresh):", idTokenAfter);
+
+      await new Promise((res) => setTimeout(res, 5000));
 
       const accessToken = PasswordlessAuthService.getAccessToken();
       if (!accessToken) throw new Error('Access token not found after sign in');
-
+      console.log(accessToken)
       console.log('Sign in confirmed successfully');
 
+      await new Promise((res) => setTimeout(res, 5000));
+      console.log("Access token after sign-in:", currentUser,accessToken);
       // Step 4: Now check backend for registration
+      debugger;
       const groupCheck = await EvaluatorService.checkEvaluatorGroup(evaluatorEmail);
 
       if (!groupCheck.inGroup) {
@@ -264,6 +285,17 @@ useEffect(() => {
       setIsLoading(false);
     }
   };
+
+  const refreshToken = async () => {
+  try {
+    const session = await fetchAuthSession({ forceRefresh: true });
+    const accessToken = session.tokens?.accessToken;
+    return accessToken;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    throw error;
+  }
+};
 
   const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,6 +325,7 @@ useEffect(() => {
       }
 
       console.log('Evaluator registered successfully');
+      // refreshToken()
       await redirectToDashboard();
     } catch (error: any) {
       console.error('Name submission error:', error);
