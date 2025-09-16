@@ -32,7 +32,7 @@ export interface NormalizedUser {
   cvExtractParsed?: cvExtractParsed | null;
   lastAccessedDash?: string; // @Todo make it enum
   referralCount?: number;
-
+  cvDuplicacyAccess: boolean;
   // Shared
   createdAt: string;
 }
@@ -72,7 +72,7 @@ export function normalizeUserData(raw: Partial<CorporateUserDetail | AuthLoginFo
     about:  raw.about ?? "",
     lastAccessedDash:  raw.lastAccessedDash ?? "",
     referralCount:  raw.referralCount ?? 0,
-
+    cvDuplicacyAccess:  (raw as any)?.cvDuplicacyAccess ?? false,
 
     createdAt: raw.createdAt ?? new Date().toISOString(),
   };
