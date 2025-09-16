@@ -190,7 +190,7 @@ const CorporateSignup = () => {
           type: "success",
           heading: { message: "Signup Successful", type: "success" },
           message: "You have successfully signed up. You will be redirected to the login page in 5 seconds.",
-          buttons: [{ label: "Go to Login", action: () => navigateTo("/login") }],
+          buttons: [{ label: "Go to Login", action: () => navigateTo("/auth/corporate/login") }],
         });
         setTimeout(() => navigateTo("/auth/corporate/login"), 5000);
       }

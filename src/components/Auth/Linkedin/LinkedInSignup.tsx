@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { AuthSessionDto } from "./LinkedInSignupForm";
-import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, FileUpload, AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import {
+  AuthFormDto,
+  AuthSignupBaseDto,
+  DevEmployeeDto,
+  CognitoSignupResponse,
+  DevCandidateDto,
+  AwsS3FileUploadResponse,
+  FileUpload,
+  AuthLoginForGeneralUserDto,
+} from "@Interfaces/Auth.dto";
 import { toast } from "react-toastify";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import httpServiceObj from "@Services/ApiHandler.service";
@@ -70,7 +79,11 @@ const LinkedInSignup = () => {
       // Update state
       setUserEmail(email);
       setUserName(name);
-      setGroupType(Array.isArray(groups) ? groups.filter((group): group is string => typeof group === "string") : []);
+      setGroupType(
+        Array.isArray(groups)
+          ? groups.filter((group): group is string => typeof group === "string")
+          : []
+      );
       setUserId(id);
 
       return {
@@ -151,7 +164,11 @@ const LinkedInSignup = () => {
   };
   const cvS3Mutation = useMutation({
     mutationFn: async (cvS3metaData: any) => {
-      const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>("/file/gsu2u/USER_RESUME", cvS3metaData, true);
+      const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>(
+        "/file/gsu2u/USER_RESUME",
+        cvS3metaData,
+        true
+      );
       if (error) {
         throw new Error("Failed to allocate S3 memory");
       }
@@ -181,14 +198,24 @@ const LinkedInSignup = () => {
     };
 
     const signedUrl: string = response?.awsS3SignedUrl || "";
-    const fileUploadHandler = await httpServiceObj.put<null>(signedUrl, metaData.file, false, { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType }, true);
+    const fileUploadHandler = await httpServiceObj.put<null>(
+      signedUrl,
+      metaData.file,
+      false,
+      { awsS3Tag: metaData.awsS3Tag, fileType: resumeUserFileMimeType },
+      true
+    );
 
     if (fileUploadHandler.error) {
       throw fileUploadHandler.error;
     } else {
       // Patch the data to the backend
       // debugger;
-      const CvNamePatchRequest = await httpServiceObj.patch<null>(`/user/${formData.emailId}/cv`, { resume: response?.cloudFileName }, true);
+      const CvNamePatchRequest = await httpServiceObj.patch<null>(
+        `/user/${formData.emailId}/cv`,
+        { resume: response?.cloudFileName },
+        true
+      );
 
       if (CvNamePatchRequest.status !== 200) {
         throw CvNamePatchRequest.error;
@@ -221,10 +248,21 @@ const LinkedInSignup = () => {
           ECTC: formData.ectc,
         };
         // Add the data to the backend
-        const { response, error } = await httpServiceObj.post("/user/register/candidate", candidateData, true);
+        const { response, error } = await httpServiceObj.post(
+          "/user/register/candidate",
+          candidateData,
+          true
+        );
         if (error) {
           throw error;
         } else {
+          await httpServiceObj.patch(
+            `/user/${candidateData.email}/experience`,
+            { isEmailVerified: true },
+            true,
+            {},
+            false
+          );
           await CvS3MemAllocation();
         }
       } else {
@@ -243,12 +281,20 @@ const LinkedInSignup = () => {
         };
 
         // Add the data to the backend
-        const { status, error } = await httpServiceObj.post("/user/register/employee", employeeData, true);
+        const { status, error } = await httpServiceObj.post(
+          "/user/register/employee",
+          employeeData,
+          true
+        );
         if (error) {
           throw error;
         }
         if (status === 200) {
-          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${formData.emailId}/details`, true, {});
+          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(
+            `/user/${formData.emailId}/details`,
+            true,
+            {}
+          );
 
           if (userError) {
             toast.error("Error: " + userError, getToastOptions());
@@ -324,12 +370,20 @@ const LinkedInSignup = () => {
           <div className="px-2 gap-2 py-5 sm:py-6  w-full flex flex-col ">
             {/* Header and toggle button */}
             <div className="  relative header flex justify-between px-[5%]  flex-wrap w-full  items-center ">
-              <p className="font-semibold text-sm md:text-xl text-gray-900 self-center my-2 "> Create your account as {activeFrame === "EMP" ? "employee" : "candidate"} </p>
+              <p className="font-semibold text-sm md:text-xl text-gray-900 self-center my-2 ">
+                {" "}
+                Create your account as {activeFrame === "EMP" ? "employee" : "candidate"}{" "}
+              </p>
               <LinkedinIcon className="  bg-blue-500 text-white p-2 rounded-lg box-content " />
             </div>
             {/* Signup form */}
             <div className="scale-90 sm:scale-100  flex flex-1 sm:mx-auto sm:w-[90%] ">
-              <LinkedInSignupForm activeFrame={activeFrame} handleDataMutationtoDb={handleDataMutationtoDb} setCompanyName={setCompanyDetails} fetchLinkedinSessionData={fetchLinkedinSessionData} />
+              <LinkedInSignupForm
+                activeFrame={activeFrame}
+                handleDataMutationtoDb={handleDataMutationtoDb}
+                setCompanyName={setCompanyDetails}
+                fetchLinkedinSessionData={fetchLinkedinSessionData}
+              />
             </div>
           </div>
         </div>
