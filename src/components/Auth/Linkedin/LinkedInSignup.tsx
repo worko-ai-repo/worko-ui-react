@@ -257,7 +257,7 @@ const LinkedInSignup = () => {
           throw error;
         } else {
           await httpServiceObj.patch(
-            `/user/${candidateData.email}/experience`,
+            `/user/${candidateData.email}/details`,
             { isEmailVerified: true },
             true,
             {},
