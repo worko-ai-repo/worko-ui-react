@@ -65,7 +65,7 @@ export default function SmoothHeroIntro() {
           const finalLogoUrl = job?.logo ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}` : job?.companyDetails?.logoUrl;
           const jobType = job.typeofEmployment ? job.typeofEmployment.replace(/_/g, " ") : "N/A";
           const companyLogoUrl = job?.externalJobId ? job?.companyLogoUrl : finalLogoUrl;
-          console.log("Company Logo URL:", jobType);
+          // console.log("Company Logo URL:", jobType);
           const isLogoAvailable = companyLogoUrl && companyLogoUrl.trim() !== "";
           return {
             id: job.id,

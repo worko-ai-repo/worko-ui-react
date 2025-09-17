@@ -66,7 +66,7 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 			setSearchText('');
 			setCompanyName('');
 			setValue('company', '');
-            console.log("null is set as company") 
+            // console.log("null is set as company") 
 		}
 		setIsOpen(false);
 	};

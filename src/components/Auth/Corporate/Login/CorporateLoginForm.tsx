@@ -91,7 +91,7 @@ const CorporateLoginForm = () => {
       }
     } catch (error: any) {
       // toast.error(error?.message || 'Something went wrong', getToastOptions({ autoClose: false }));
-      console.log("Error during sign-in:", error);
+      // console.log("Error during sign-in:", error);
       // CognitoServiceObj.handleSignOut();
     }
   };

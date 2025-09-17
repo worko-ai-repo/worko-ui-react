@@ -72,7 +72,7 @@ class PasswordlessAuth {
      */
     private configureAmplify(): void {
         if (!this.isConfigured) {
-            console.log('Configuring Amplify for evaluator authentication');
+            // console.log('Configuring Amplify for evaluator authentication');
             Amplify.configure(evaluatorAmplifyConfig);
             this.isConfigured = true;
         }
@@ -125,7 +125,7 @@ class PasswordlessAuth {
         this.configureAmplify();
 
         try {
-            console.log('Initializing evaluator authentication for:', email);
+            // console.log('Initializing evaluator authentication for:', email);
 
             // Strategy: Always try signup first, fallback to signin if user exists
             try {
@@ -140,18 +140,18 @@ class PasswordlessAuth {
                 });
 
                 if (signUpResult.nextStep?.signUpStep === 'CONFIRM_SIGN_UP') {
-                    console.log('New user - signup successful, starting verification flow');
+                    // console.log('New user - signup successful, starting verification flow');
                     return {
                         success: true,
                         isNewUser: true
                     };
                 }
             } catch (signUpError: any) {
-                console.log('SignUp error:', signUpError);
+                // console.log('SignUp error:', signUpError);
 
                 if (this.isUserExistsError(signUpError)) {
                     // Existing user flow: SignIn -> OTP -> Get Token
-                    console.log('User exists - switching to passwordless sign-in flow');
+                    // console.log('User exists - switching to passwordless sign-in flow');
 
                     try {
                         const signInResult = await signIn({
@@ -162,7 +162,7 @@ class PasswordlessAuth {
                         });
 
                         if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE') {
-                            console.log('OTP challenge initiated for existing user');
+                            // console.log('OTP challenge initiated for existing user');
                             return {
                                 success: true,
                                 isNewUser: false
@@ -211,7 +211,7 @@ class PasswordlessAuth {
             });
 
             if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE') {
-                console.log('OTP challenge initiated for sign-in');
+                // console.log('OTP challenge initiated for sign-in');
                 return { success: true };
             } else {
                 return { success: false, error: 'Unexpected sign-in step' };
@@ -238,7 +238,7 @@ class PasswordlessAuth {
             });
 
             if (confirmResult.nextStep?.signUpStep === 'DONE') {
-                console.log('Signup confirmed successfully');
+                // console.log('Signup confirmed successfully');
                 return { success: true };
             } else {
                 return { success: false, error: 'Signup confirmation failed' };
@@ -271,7 +271,7 @@ class PasswordlessAuth {
             });
 
             if (signInResult.isSignedIn) {
-                console.log('Sign in confirmed successfully');
+                // console.log('Sign in confirmed successfully');
 
                 // Get user details
                 const user = await getCurrentUser();
@@ -317,7 +317,7 @@ class PasswordlessAuth {
             await resendSignUpCode({
                 username: email
             });
-            console.log('Signup confirmation code resent');
+            // console.log('Signup confirmation code resent');
             return { success: true };
         } catch (error: any) {
             console.error('Resend signup code error:', error);
@@ -342,7 +342,7 @@ class PasswordlessAuth {
             });
 
             if (signInResult.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE') {
-                console.log('New OTP sent for existing user');
+                // console.log('New OTP sent for existing user');
                 return { success: true };
             } else {
                 return { success: false, error: 'Failed to resend OTP' };
@@ -434,7 +434,7 @@ class PasswordlessAuth {
 					}
 				}
 			};
-			console.log('Configuring Amplify for evaluator authentication');
+			// console.log('Configuring Amplify for evaluator authentication');
 			Amplify.configure(evaluatorAmplifyConfig);
 		} else {
 			// Reset to default configuration

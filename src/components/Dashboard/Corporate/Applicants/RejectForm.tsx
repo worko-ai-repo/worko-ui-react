@@ -15,7 +15,7 @@ const RejectionForm: React.FC = () => {
   } = useForm<RejectionFormData>();
 
   const onSubmit = (data: RejectionFormData) => {
-    console.log('Rejection submitted:', data);
+    // console.log('Rejection submitted:', data);
   };
 
   return (

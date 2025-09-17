@@ -97,7 +97,7 @@ export default function JobForm({
   }, [register]);
 
   const onSubmit = (data: JobFormSchema) => {
-    console.log('Valid form submitted:', data);
+    // console.log('Valid form submitted:', data);
     onClose();
   };
 

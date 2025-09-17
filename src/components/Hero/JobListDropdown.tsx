@@ -86,7 +86,7 @@ const JobListDropdown: React.FC<JobListDropdownProps> = ({ onSelect, placeholder
             dropdownVisible ? "rounded-b-none" : ""
           }`}
         />
-        <button className="absolute right-2 top-2 h-10 w-16 rounded-xl flex items-center justify-center text-blue-500 hover:bg-blue-100 transition-colors duration-200" onClick={() => console.log("Search clicked")}>
+        <button className="absolute right-2 top-2 h-10 w-16 rounded-xl flex items-center justify-center text-blue-500 hover:bg-blue-100 transition-colors duration-200" onClick={() => console.log("")}>
           <Search className="h-18 w-8" />
         </button>
 

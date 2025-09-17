@@ -32,7 +32,7 @@ const EvaluatorForm: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const onSubmit = (data: FormValues) => {
-    console.log('Submitted Evaluator Data:', data.evaluators[activeTab]);
+    // console.log('Submitted Evaluator Data:', data.evaluators[activeTab]);
   };
 
   const handleRemoveTab = (index: number) => {
