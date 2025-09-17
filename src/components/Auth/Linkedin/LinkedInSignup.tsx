@@ -286,17 +286,17 @@ const LinkedInSignup = () => {
           employeeData,
           true
         );
+        await httpServiceObj.patch(
+          `/user/${employeeData.email}/details`,
+          { isAlreadyVerifiedInCognito: true, isEmailVerified: true },
+          true,
+          {},
+          false
+        );
         if (error) {
           throw error;
         }
         if (status === 200) {
-          await httpServiceObj.patch(
-            `/user/${employeeData.email}/details`,
-            { isAlreadyVerifiedInCognito: true, isEmailVerified: true },
-            true,
-            {},
-            false
-          );
           const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(
             `/user/${formData.emailId}/details`,
             true,

@@ -60,7 +60,7 @@ const CorporateStepper = () => {
   }, []);
 
   return (
-    <section className="py-12 sm:py-16 bg-white text-center">
+    <section className="py-12 sm:py-16 border-t bg-white text-center">
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
         Real Results from Real Companies
       </h2>

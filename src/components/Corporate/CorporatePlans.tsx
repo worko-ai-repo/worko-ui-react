@@ -112,10 +112,9 @@ export function CTABannerSection() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6 sm:mb-8">
           <a
-            href="https://calendly.com/sarvesh-singh-worko/30min"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#corporate-hero-form"
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-transform hover:scale-105"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <Rocket className="w-4 sm:w-5 h-4 sm:h-5" />
             Book Demo - Get Results in 7 Days
