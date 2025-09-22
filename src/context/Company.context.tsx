@@ -385,11 +385,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-      if(isLoggedIn){
-        updatedFilters.fromS3Vector = true;
-      }else{
-        updatedFilters.fromS3Vector = false;
-      }   
+
+      updatedFilters.fromS3Vector = isLoggedIn;  
       updatedFilters.includeCompanyDetails=true;
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
       try {
