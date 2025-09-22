@@ -7,6 +7,7 @@ import CorporatePlans, { CTABannerSection } from "@Components/Corporate/Corporat
 import CorporateTable from "@Components/Corporate/CorporateTable";
 import CorporateStepper from "@Components/Corporate/CorporateStepper";
 import CorporateCommunication from "@Components/Corporate/CorporateCommunication";
+import { HiddenCostSection } from "@Components/Corporate/HiddenCostSection";
 
 
 const Corporate = () => {
@@ -34,8 +35,9 @@ return(
         <CorporateHero hires={hires} salary={salary} />
         <CorporateCardsSection />
         <CompanyLogos />
-        <CorporateStepper />
+        <HiddenCostSection />
         <CorporateCommunication />
+        <CorporateStepper />
         <CorporateTable hires={hires} setHires={setHires} salary={salary} setSalary={setSalary} />
         <CorporatePlans />
         <CTABannerSection />
