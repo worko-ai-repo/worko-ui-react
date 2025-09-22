@@ -339,7 +339,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
-        pageSize: 100,
+        pageSize: 30, //earlier it was 100
         ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" } : {}),
         ...(!isJobPage && { isVerified: 1 }),
@@ -385,9 +385,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-
+      if(isLoggedIn){
+        updatedFilters.dashboard = "USER";
+      }      
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
-
       try {
         const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
         if (error) throw error;
