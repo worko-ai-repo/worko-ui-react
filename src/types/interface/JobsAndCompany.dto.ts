@@ -133,6 +133,7 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   industryName?: string;
   status?: string;
   fromS3Vector?:boolean;
+  includeCompanyDetails?:boolean;
 }
 
 /**
