@@ -203,12 +203,12 @@ const AppRoutes = createBrowserRouter(
     { path: "*", element: <PageNotFound /> },
   ],
   //uncomment below to run in local
-  {
-    ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
-  }
+  // {
+  //   ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
+  // }
   //uncomment below to while deploy
-    // {
-    // ...(import.meta.env.APP_MODE != "DEVELOPMENT" ? {} : {basename: "/v0/" }),
-    // }
+    {
+    ...(import.meta.env.APP_MODE != "DEVELOPMENT" ? {} : {basename: "/v0/" }),
+    }
 );
 export default AppRoutes;
