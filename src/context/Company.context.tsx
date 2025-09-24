@@ -385,9 +385,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-
-      updatedFilters.fromS3Vector = isLoggedIn;  
-      updatedFilters.includeCompanyDetails=true;
+      if(isJobPage){
+        updatedFilters.fromS3Vector = isLoggedIn;  
+        updatedFilters.includeCompanyDetails=true;
+      }
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
       try {
         const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
