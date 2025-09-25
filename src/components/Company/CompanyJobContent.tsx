@@ -55,6 +55,7 @@ const CompanyJobContent = () => {
     fetchNextPage,
     isProfileInclomplete,
     setIsProfileInclomplete,
+    setS3VectorPageNumber,
   } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
@@ -283,7 +284,11 @@ const CompanyJobContent = () => {
                   ) : hasNextPage ? (
                     <div
                       className="NextPage btn_secondary cursor-pointer animate-pulse active:scale-95"
-                      onClick={() => fetchNextPage()}>
+                      onClick={() => {
+                        // Increment page number first to ensure payload carries updated value
+                        setS3VectorPageNumber((prev) => prev + 1);
+                        fetchNextPage();
+                      }}>
                       Find More Jobs
                     </div>
                   ) : companyJobData.length > 0 ? (

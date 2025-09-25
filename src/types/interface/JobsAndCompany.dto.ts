@@ -71,6 +71,11 @@ export interface JobDto extends CompanyDto {
     min: number;
     max: number;
   };
+  initialMatchingScoreDetails:{
+    finalScore:number;
+    jobId:string;
+    matchRank:number;
+  }
   noticePeriod?: number;
   numOfOpenings?: number;
   salaryRange?: {
@@ -118,6 +123,9 @@ export interface JobDto extends CompanyDto {
  * @description This interface is used to define the structure of the JobFiltersDto object
  */
 export interface JobFiltersDto extends BaseApiFiltersDto {
+  s3VectorPageNumber ?: number; // For pagination in s3 vector search,
+  fromS3Vector?:boolean;
+  includeCompanyDetails?: boolean;
   experienceRange?: { min: number; max: number };
   location?: string;
   salaryRange?: { min: number; max: number };

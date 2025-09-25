@@ -7,8 +7,25 @@ import { ContextProviderProps } from "@Interfaces/ContextProvider.dto";
 import { CompanyContextType, CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
 import { generateFilterForRender, invalidateFilterCache } from "@Utils/GenerateFiltersForRender";
 import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { createContext, useState, useContext, useCallback, useLayoutEffect, useMemo, useEffect, useRef } from "react";
-import { CompanyShortDto, FilterOptionForRender, GlobalApiQueryResponseDto, JobDto, JobFiltersDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import {
+  createContext,
+  useState,
+  useContext,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
+import {
+  CompanyShortDto,
+  FilterOptionForRender,
+  GlobalApiQueryResponseDto,
+  JobDto,
+  JobFiltersDto,
+  JobMatchingScoreDto,
+  UserBasicDetailsDto,
+} from "@Interfaces/JobsAndCompany.dto";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
@@ -24,7 +41,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const { isLoggedIn } = useAppContext();
   const location = useLocation();
 
-  const initialMode = location.pathname.includes("job") ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
+  const initialMode = location.pathname.includes("job")
+    ? CompanyPageModeEnum.JOB
+    : CompanyPageModeEnum.REFERRAL;
 
   // States
   const [companyPageMode, setCompanyPageMode] = useState<CompanyPageModeEnum>(initialMode);
@@ -32,12 +51,18 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [companyJobData, setCompanyJobData] = useState<JobDto[] | undefined>();
   const [companyRefData, setCompanyRefData] = useState<CompanyShortDto[] | undefined>();
   const [searchText, setSearchText] = useState<string>("");
+  const [s3VectorPageNumber, setS3VectorPageNumber] = useState<number>(1);
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
-  const [defaultFiltersState, setDefaultFiltersState] = useState<{ userDesignation: string; coreSkills?: any; YOE?: any }>();
+  const [defaultFiltersState, setDefaultFiltersState] = useState<{
+    userDesignation: string;
+    coreSkills?: any;
+    YOE?: any;
+  }>();
   const [isInitialFilterSet, setIsInitialFilterSet] = useState<boolean>(false);
   const [defaultCoreSkills, setDefaultCoreSkills] = useState<string[] | undefined>([]);
+  const pagesCountRef = useRef<number>(0);
 
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI;
   const APP_API_URI = import.meta.env.APP_API_URI;
@@ -52,19 +77,24 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     return {
       pageSize: 10,
       sortOrder: "descending",
-
-      ...(defaultFiltersState?.userDesignation && { jobTitle: defaultFiltersState.userDesignation }),
+      ...(defaultFiltersState?.userDesignation && {
+        jobTitle: defaultFiltersState.userDesignation,
+      }),
       ...(defaultFiltersState?.coreSkills && { coreSkills: defaultFiltersState.coreSkills }),
       ...(defaultFiltersState?.YOE !== undefined && { YOE: defaultFiltersState.YOE }),
     };
   }, [defaultFiltersState]);
 
   const [jobFilterForRender, setJobFilterForRender] = useState<FilterOptionForRender[]>([]);
-  const isCorporate = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE)?.includes(UserRole.CORPORATE);
+  const isCorporate = secureStorage
+    .getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE)
+    ?.includes(UserRole.CORPORATE);
 
   // useLayoutEffect to check if we are on job page or referral page
   useLayoutEffect(() => {
-    const mode = location.pathname.includes("job") ? CompanyPageModeEnum.JOB : CompanyPageModeEnum.REFERRAL;
+    const mode = location.pathname.includes("job")
+      ? CompanyPageModeEnum.JOB
+      : CompanyPageModeEnum.REFERRAL;
     if (location.pathname.includes("job") && isLoggedIn && !isCorporate) {
       fetchUserBasicDetails();
     }
@@ -74,6 +104,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     setCompanyJobData([]);
     setCompanyRefData([]);
     resetFiltersValues();
+    // Reset s3 pagination on mode change
+    setS3VectorPageNumber(1);
     // Reset the filter options cache when mode changes
     invalidateFilterCache();
   }, [location.pathname, companyPageMode]);
@@ -103,13 +135,26 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     };
   }, []);
 
+  // Track loaded pages count for stable pagination computations
+  useEffect(() => {
+    // data may be undefined before query initialization
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyData: any = (undefined as unknown) as any;
+    pagesCountRef.current = (anyData && anyData.pages && anyData.pages.length) || pagesCountRef.current;
+  }, []);
+
   // Fetch User Basic Details Function
   const fetchUserBasicDetails = useCallback(async () => {
     if (companyPageMode !== CompanyPageModeEnum.JOB) return;
 
     setIsUserDetailsLoading(true);
     try {
-      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+        `${APP_API_URI}/user/basic-details`,
+        true,
+        {},
+        true
+      );
 
       if (error) throw error;
 
@@ -119,7 +164,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
-      if (response?.cvExtract && response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
+      if (
+        response?.cvExtract &&
+        response?.cvExtractParsed &&
+        (designation || coreSkills?.length || response?.YOE)
+      ) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
@@ -155,6 +204,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     setJobFilters((prev) => ({ ...prev, searchText }));
     // Reset the filter options cache when searching
     invalidateFilterCache();
+    // Reset pagination for fresh search
+    setS3VectorPageNumber(1);
     queryClient.invalidateQueries({ queryKey: ["GET", companyPageMode] });
   };
 
@@ -168,6 +219,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
     });
     // Reset the filter options cache when resetting search
     invalidateFilterCache();
+    // Reset pagination when clearing search
+    setS3VectorPageNumber(1);
     queryClient.invalidateQueries({ queryKey: ["GET", companyPageMode] });
   };
 
@@ -330,7 +383,16 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    */
 
   const CompanyQueryHandler = useCallback(
-    async ({ pageParam = null, filters, fallbackLevel = 1 }: { pageParam?: string | null; filters: JobFiltersDto; fallbackLevel?: 1 | 2 | 3 }) => {
+    async ({
+      pageParam = null,
+      filters,
+      fallbackLevel = 1,
+    }: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pageParam?: any;
+      filters: JobFiltersDto;
+      fallbackLevel?: 1 | 2 | 3;
+    }): Promise<any> => {
       // Check if we are on the job page
       const isJobPage = location.pathname.includes("job");
       // If pageParam is null, it's a new filter request
@@ -339,31 +401,47 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
-        pageSize: 100,
-        ...(pageParam && { lastKey: pageParam }),
-        ...(isJobPage && filters.sortOrder ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" } : {}),
+        pageSize: 30,
+        // Only attach lastKey for non-job pages; job uses s3VectorPageNumber
+        ...(pageParam && ((!isLoggedIn && isJobPage) || !isJobPage) ? { lastKey: pageParam } : {}),
+        ...(isJobPage && filters.sortOrder
+          ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
+          : {}),
         ...(!isJobPage && { isVerified: 1 }),
       };
 
       const urlParams = new URLSearchParams(window.location.search);
       const coreSkillsFromParams = urlParams.get("coreSkills")?.split(",");
-      if (isLoggedIn && isJobPage) updatedFilters.coreSkills = coreSkillsFromParams ?? defaultCoreSkills; // Use coreSkills from URL params or defaultCoreSkills if not available
-
-      const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } = filters;
-
-      // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
-      const hasAnyOtherFilter = Object.values(rest).some((value) => value !== undefined && value !== null);
-      if (hasAnyOtherFilter && !coreSkillsFromParams) {
-        delete updatedFilters.jobTitle;
-        delete updatedFilters.YOE;
-        delete updatedFilters.coreSkills;
-        console.info("Removed default filters because at least one other filter is present.");
-      } else if (hasAnyOtherFilter || coreSkillsFromParams) {
-        // If coreSkillsFromParams is present, keep it in the updatedFilters
-        updatedFilters.coreSkills = coreSkillsFromParams;
-        delete updatedFilters.jobTitle;
-        delete updatedFilters.YOE;
+      // Determine effective coreSkills priority for job page:
+      // explicit filter > URL param > default user core skills (if logged in)
+      if (isJobPage) {
+        const hasExplicitCoreSkills = Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0;
+        const hasParamCoreSkills = Array.isArray(coreSkillsFromParams) && coreSkillsFromParams.length > 0;
+        if (hasExplicitCoreSkills) {
+          updatedFilters.coreSkills = filters.coreSkills;
+        } else if (hasParamCoreSkills) {
+          updatedFilters.coreSkills = coreSkillsFromParams;
+        } else if (isLoggedIn) {
+          updatedFilters.coreSkills = defaultCoreSkills;
+        }
       }
+
+      const {
+        jobTitle,
+        YOE,
+        coreSkills,
+        pageSize,
+        sortOrder,
+        status,
+        lastKey,
+        s3VectorPageNumber,
+        fromS3Vector,
+        includeCompanyDetails,
+        ...rest
+      } = filters;
+
+      // Persist default jobTitle and YOE unless explicitly overridden.
+      // YOE will be removed only if experienceRange is present (handled below).
 
       // Step 7 → If any filter includes 'experience Range' in its key, remove YOE
       if (filters.experienceRange) {
@@ -385,16 +463,33 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-
+      if (isJobPage) {
+        updatedFilters.fromS3Vector = isLoggedIn;
+        updatedFilters.includeCompanyDetails = true;
+        // Derive from pages count ref to avoid race with async setState
+        const derivedPageNumber = isFiltering ? 1 : Math.max(1, pagesCountRef.current + 1);
+        updatedFilters.s3VectorPageNumber = derivedPageNumber;
+      }
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
 
       try {
-        const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
+        const { response, error } = await httpServiceObj.get<
+          typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any
+        >(apiUrl, true, updatedFilters, isJobPage);
         if (error) throw error;
         // Decide the filterMetaData based on the page mode
-        const finalFilterMetaData = isJobPage ? filterMetaData.jobFilter : filterMetaData.referralFilter;
+        const finalFilterMetaData = isJobPage
+          ? filterMetaData.jobFilter
+          : filterMetaData.referralFilter;
         // recursively fetch job if default Filters were applied and no data was returned
-        if (response.data.length <= 5 && ("YOE" in updatedFilters || "coreSkills" in updatedFilters || "jobTitle" in updatedFilters) && isJobPage && isFiltering) {
+        if (
+          response.data.length <= 1 &&
+          ("YOE" in updatedFilters ||
+            "coreSkills" in updatedFilters ||
+            "jobTitle" in updatedFilters) &&
+          isJobPage &&
+          isFiltering
+        ) {
           setCompanyJobData([]); //  Clear stale jobs immediately
 
           const newFilters = { ...updatedFilters };
@@ -406,13 +501,25 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             delete newFilters.jobTitle;
             return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
           } else if (fallbackLevel === 3) {
-            generateFilterForRender([], companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
+            generateFilterForRender(
+              [],
+              companyPageMode,
+              finalFilterMetaData,
+              setJobFilterForRender,
+              isFiltering
+            );
             return { data: [], nextPage: null };
           }
         }
 
         // Generate filters for rendering
-        generateFilterForRender(response.data, companyPageMode, finalFilterMetaData, setJobFilterForRender, isFiltering);
+        generateFilterForRender(
+          response.data,
+          companyPageMode,
+          finalFilterMetaData,
+          setJobFilterForRender,
+          isFiltering
+        );
 
         // Update API data status
         setApiHasData(response.data.length > 0);
@@ -441,24 +548,28 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
         return {
           data: response,
-          nextPage: response.pagination?.lastKey,
+          nextPage: (isJobPage && isLoggedIn) ?  response.pagination?.s3VectorLastKey : response.pagination?.lastKey,
         };
       } catch (error) {
         console.error("Error fetching company/job data:", error);
         throw error;
       }
     },
-    [companyPageMode, fetchJobMatchingScores, isLoggedIn]
+    [companyPageMode, fetchJobMatchingScores, isLoggedIn, s3VectorPageNumber, defaultCoreSkills]
   );
   const shouldEnableQuery = () => {
     if (!companyPageMode || jobFilters.pageSize! <= 0) return false; // If page mode is not set or pageSize is 0, return false
-    if (companyPageMode !== CompanyPageModeEnum.REFERRAL && companyPageMode !== CompanyPageModeEnum.JOB) return false; // If page mode is not valid, return false
+    if (
+      companyPageMode !== CompanyPageModeEnum.REFERRAL &&
+      companyPageMode !== CompanyPageModeEnum.JOB
+    )
+      return false; // If page mode is not valid, return false
     // if(!hasNextPage) return false;
     // @Todo- fix this
     if (isLoggedIn && companyPageMode === CompanyPageModeEnum.REFERRAL) {
       return true;
     }
-    if (isLoggedIn && !defaultFiltersState && !isCorporate ) return false; // If logged in, ensure userDesignation is present
+    if (isLoggedIn && !defaultFiltersState && !isCorporate) return false; // If logged in, ensure userDesignation is present
     if (!isInitialFilterSet && companyPageMode === CompanyPageModeEnum.JOB) return false;
     return true;
     // enabled:!!companyPageMode && jobFilters.pageSize! > 0 &&
@@ -471,16 +582,23 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    *
    * @description - This hook is used to fetch data from the API
    */
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } = useInfiniteQuery({
-    queryKey: ["GET", companyPageMode, jobFilters],
-    queryFn: ({ pageParam }) => CompanyQueryHandler({ pageParam, filters: jobFilters }),
-    getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
-    initialPageParam: null,
-    enabled: shouldEnableQuery(),
-    retry: 0,
-    // Removed keepPreviousData as it is not supported in useInfiniteQuery
-    // staleTime: 1000 * 60 , // 5 seconds
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } =
+    useInfiniteQuery({
+      queryKey: ["GET", companyPageMode, jobFilters],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      queryFn: ({ pageParam }: any) => CompanyQueryHandler({ pageParam, filters: jobFilters }) as any,
+      getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
+      initialPageParam: null,
+      enabled: shouldEnableQuery(),
+      retry: 0,
+      // Removed keepPreviousData as it is not supported in useInfiniteQuery
+      // staleTime: 1000 * 60 , // 5 seconds
+    });
+
+  // Keep pagesCountRef in sync with query data
+  useEffect(() => {
+    pagesCountRef.current = data?.pages?.length ?? 0;
+  }, [data?.pages?.length]);
 
   /**
    * Context Value
@@ -511,8 +629,27 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       isProfileInclomplete,
       setIsProfileInclomplete,
       setIsInitialFilterSet,
+      setS3VectorPageNumber,
     }),
-    [companyPageMode, jobFilterForRender, companyJobData, searchText, isLoading, isUserDetailsLoading, companyRefData, apiHasData, isError, hasNextPage, fetchNextPage, isFetchingNextPage, resetFiltersValues, isProfileInclomplete, setIsProfileInclomplete, setIsInitialFilterSet]
+    [
+      companyPageMode,
+      jobFilterForRender,
+      companyJobData,
+      searchText,
+      isLoading,
+      isUserDetailsLoading,
+      companyRefData,
+      apiHasData,
+      isError,
+      hasNextPage,
+      fetchNextPage,
+      isFetchingNextPage,
+      resetFiltersValues,
+      isProfileInclomplete,
+      setIsProfileInclomplete,
+      setIsInitialFilterSet,
+      setS3VectorPageNumber,
+    ]
   );
 
   return (
