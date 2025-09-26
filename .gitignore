@@ -23,8 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-
-#Ignore all .env files
-/environments/.env.development
-/environments/.env.staging
-/environments/.env.production
