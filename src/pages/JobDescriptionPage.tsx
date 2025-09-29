@@ -507,18 +507,19 @@ const JobDescription = () => {
           }
         } */
         setCurrStep(0);
-        const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
-        if (profilePer) {
-          const cvCurPerc = profilePer?.candidate[2]?.curPerc;
-          setCurrStep(1);
-          if (cvCurPerc === 0) {
-            setGaugeEnabled(false);
-            setMessageEnabled(true);
-            setModalType("profileCompletion");
-            setLoader(false);
-            return;
-          }
-        }
+        // this was commented because backend no longer needs profilePercentage
+        // const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
+        // if (profilePer) {
+        //   const cvCurPerc = profilePer?.candidate[2]?.curPerc;
+        //   setCurrStep(1);
+        //   if (cvCurPerc === 0) {
+        //     setGaugeEnabled(false);
+        //     setMessageEnabled(true);
+        //     setModalType("profileCompletion");
+        //     setLoader(false);
+        //     return;
+        //   }
+        // }
         // Step 2: Apply for the job
         updateExternalJobApplication();
       }
