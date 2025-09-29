@@ -12,6 +12,8 @@ import {
   ReferralRequestFormDto,
 } from "@Pages/request-referral/RequestReferral";
 import { NormalizedUser, normalizeUserData } from "@Utils/NormalizeUser";
+import { toast } from "react-toastify";
+import { getToastOptions } from "@Utils/Toast.utils";
 
 // Corporate User Interface
 export interface CorporateUserDetail extends AuthLoginForGeneralUserDto {
@@ -127,6 +129,15 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
         await httpServiceObj.get<any>(`/company/${userDetails?.companyId}`, true, {});
       if (userCompanyError) {
         console.error("Error fetching company details: ", userCompanyError);
+        return;
+      }
+      const userResponse = userCompanyResponse?.[0] || {};
+      if (userResponse?.isDeleted === true) {
+        toast.error(
+          "Your account has been deactivated. Please contact support for assistance.",
+          getToastOptions({ autoClose: false })
+        );
+        CognitoServiceObj.handleSignOut();
         return;
       }
       if (userCompanyResponse) {

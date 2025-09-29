@@ -129,7 +129,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
       const designation = response?.candidateExperience?.designation;
       const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
 
-      if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
+      if (response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
         setOpenReferralLoader(false);
         return true;
       } else {

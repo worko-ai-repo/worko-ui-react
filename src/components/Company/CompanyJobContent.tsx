@@ -126,6 +126,8 @@ const CompanyJobContent = () => {
     job_listing_promo_2,
     job_listing_promo_3,
   ];
+  const showLoadingSkeleton =
+    isLoading || (!companyJobData && !isError) || (companyJobData?.length === 0 && !isError);
 
   return (
     <div
@@ -198,7 +200,7 @@ const CompanyJobContent = () => {
         {/* Jobs/Referral Section */}
         {companyPageMode === CompanyPageModeEnum.JOB ? (
           <div className="w-full px-2 pt-4 sm:px-4 bg-[#F2F4F5] sm:min-w-[525px] rounded-2xl flex flex-col items-center justify-start sm:pb-6 flex-wrap gap-2 mx-auto min-h-[350px]">
-            {isLoading ? (
+            {showLoadingSkeleton ? (
               <JobCardListSkeleton count={5} />
             ) : companyJobData && companyJobData.length > 0 ? (
               <>

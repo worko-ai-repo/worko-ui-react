@@ -139,8 +139,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   useEffect(() => {
     // data may be undefined before query initialization
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyData: any = (undefined as unknown) as any;
-    pagesCountRef.current = (anyData && anyData.pages && anyData.pages.length) || pagesCountRef.current;
+    const anyData: any = undefined as unknown as any;
+    pagesCountRef.current =
+      (anyData && anyData.pages && anyData.pages.length) || pagesCountRef.current;
   }, []);
 
   // Fetch User Basic Details Function
@@ -164,11 +165,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
-      if (
-        response?.cvExtract &&
-        response?.cvExtractParsed &&
-        (designation || coreSkills?.length || response?.YOE)
-      ) {
+      if (response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
@@ -415,8 +412,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       // Determine effective coreSkills priority for job page:
       // explicit filter > URL param > default user core skills (if logged in)
       if (isJobPage) {
-        const hasExplicitCoreSkills = Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0;
-        const hasParamCoreSkills = Array.isArray(coreSkillsFromParams) && coreSkillsFromParams.length > 0;
+        const hasExplicitCoreSkills =
+          Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0;
+        const hasParamCoreSkills =
+          Array.isArray(coreSkillsFromParams) && coreSkillsFromParams.length > 0;
         if (hasExplicitCoreSkills) {
           updatedFilters.coreSkills = filters.coreSkills;
         } else if (hasParamCoreSkills) {
@@ -548,7 +547,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
         return {
           data: response,
-          nextPage: (isJobPage && isLoggedIn) ?  response.pagination?.s3VectorLastKey : response.pagination?.lastKey,
+          nextPage:
+            isJobPage && isLoggedIn
+              ? response.pagination?.s3VectorLastKey
+              : response.pagination?.lastKey,
         };
       } catch (error) {
         console.error("Error fetching company/job data:", error);
@@ -582,18 +584,26 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
    *
    * @description - This hook is used to fetch data from the API
    */
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error } =
-    useInfiniteQuery({
-      queryKey: ["GET", companyPageMode, jobFilters],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      queryFn: ({ pageParam }: any) => CompanyQueryHandler({ pageParam, filters: jobFilters }) as any,
-      getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
-      initialPageParam: null,
-      enabled: shouldEnableQuery(),
-      retry: 0,
-      // Removed keepPreviousData as it is not supported in useInfiniteQuery
-      // staleTime: 1000 * 60 , // 5 seconds
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ["GET", companyPageMode, jobFilters],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    queryFn: ({ pageParam }: any) => CompanyQueryHandler({ pageParam, filters: jobFilters }) as any,
+    getNextPageParam: (lastPage) => lastPage.nextPage || undefined, // Pass lastKey as nextPageParam
+    initialPageParam: null,
+    enabled: shouldEnableQuery(),
+    retry: 0,
+    // Removed keepPreviousData as it is not supported in useInfiniteQuery
+    // staleTime: 1000 * 60 , // 5 seconds
+  });
 
   // Keep pagesCountRef in sync with query data
   useEffect(() => {
@@ -617,7 +627,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       searchText,
       resetSearch,
       handleSearch,
-      isLoading: isLoading || isUserDetailsLoading,
+      isLoading: isLoading || isFetching || isUserDetailsLoading,
       companyRefData,
       apiHasData,
       isError,

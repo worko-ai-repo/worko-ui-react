@@ -69,15 +69,6 @@ const CorporateLoginForm = () => {
             toast.error("Error: " + error, getToastOptions({ autoClose: false }));
             CognitoServiceObj.handleSignOut();
           }
-          const userResponse = dynamoResponse?.[0] || {};
-          if (userResponse?.isDeleted === true) {
-            toast.error(
-              "Your account has been deactivated. Please contact support for assistance.",
-              getToastOptions({ autoClose: false })
-            );
-            CognitoServiceObj.handleSignOut();
-            return;
-          }
           await checkUserLoggedIn();
           await handleRememberDevice();
           await currentSession();

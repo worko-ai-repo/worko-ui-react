@@ -255,7 +255,7 @@ const Signup = () => {
           const coreSkills = response?.coreSkills?.map((skill) => skill.skillName);
 
           // If either designation or coreSkills exist, update filters
-          if (response?.cvExtract && (designation || coreSkills?.length || response?.YOE)) {
+          if (response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
             setOpenReferralLoader(false);
             initiateFinalRedirection();
           } else {

@@ -85,7 +85,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
       if (error) throw error;
 
-      const hasRelevantData = (response?.cvExtract && response?.cvExtractParsed)
+      const hasRelevantData = (response?.cvExtractParsed)
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());

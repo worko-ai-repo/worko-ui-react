@@ -4,7 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 
 import httpServiceObj from "@Services/ApiHandler.service";
 import MainLoader from "@Components/Loader/Loader";
-import { CompanyDto, JobApplicationExternalDto, JobApplicationInternalDto, JobDto, JobMatchingScoreDto, UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
+import {
+  CompanyDto,
+  JobApplicationExternalDto,
+  JobApplicationInternalDto,
+  JobDto,
+  JobMatchingScoreDto,
+  UserBasicDetailsDto,
+} from "@Interfaces/JobsAndCompany.dto";
 import MessageModal from "@Components/Modals/MessageModal";
 import { MessagePopupProps } from "@Components/Modals/MessageModal";
 import RequestReferralMessage from "@Components/ReferralRequest/RequestReferralMessage";
@@ -23,18 +30,35 @@ import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 import { NormalizedUser } from "@Utils/NormalizeUser";
 
+interface initialMatchingScoreDetails {
+  finalScore: number;
+  jobId: string;
+  matchRank: number;
+}
+
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
 
 const fetchUserBasicDetails = async () => {
-  const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
+  const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+    `${import.meta.env.APP_API_URI}/user/basic-details`,
+    true,
+    {},
+    true
+  );
   if (error) throw error;
   return response;
 };
 
 const JobDescription = () => {
   // check if the use is logged in
-  const { setPendingApply, isLoggedIn, userDetails } = useAppContext() as { PendingApply: continueReferralRequestDataDto | null; setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>; isLoggedIn: boolean; userDetails: NormalizedUser; setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>> };
+  const { setPendingApply, isLoggedIn, userDetails } = useAppContext() as {
+    PendingApply: continueReferralRequestDataDto | null;
+    setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>;
+    isLoggedIn: boolean;
+    userDetails: NormalizedUser;
+    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  };
 
   // navigate to a different page
   const nav = useNavigate();
@@ -46,7 +70,16 @@ const JobDescription = () => {
   const [isLoader, setLoader] = useState(false); // Show loader when the form is submitted
   const [MessageEnabled, setMessageEnabled] = useState(false); // Show message when the form is submitted
   const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
-  const [ModalType, setModalType] = useState<"zeroReferral" | "profileCompletion" | "AlreadyRequested" | "RequestAccepted" | "RequestRejected" | "Error_250" | "Error_251" | "Max_tries">("zeroReferral"); // Current step of the loader
+  const [ModalType, setModalType] = useState<
+    | "zeroReferral"
+    | "profileCompletion"
+    | "AlreadyRequested"
+    | "RequestAccepted"
+    | "RequestRejected"
+    | "Error_250"
+    | "Error_251"
+    | "Max_tries"
+  >("zeroReferral"); // Current step of the loader
   const [gaugeEnabled, setGaugeEnabled] = useState(false); // Show gauge when the form is submitted
   const [gaugeScore, setGaugeScore] = useState(0); // Show gauge when the form is submitted
   const [IsFeedbackOpen, setIsFeedbackOpen] = useState(false); // Show feedback modal when the form is submitted
@@ -69,7 +102,7 @@ const JobDescription = () => {
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | -1>(-1);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
-  const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto >({
+  const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto>({
     id: "",
     userId: "",
     jobId: "",
@@ -93,49 +126,82 @@ const JobDescription = () => {
     queryFn: fetchUserBasicDetails,
     refetchOnWindowFocus: false,
   });
-  
 
+  async function fetchMatchingScore(job: JobDto) {
+    try {
+      const { response: finalScoreData, error: finalScoreError } = await httpServiceObj.get<{
+        initialMatchingScoreDetails: initialMatchingScoreDetails;
+      }>(
+        `${APP_JOBS_API_URI}/job/${job.externalJobId ? job.externalJobId : job.id}/s3-vector`,
+        true,
+        {
+          coreSkills: job?.coreSkills ? job?.coreSkills.join(",") : "",
+        },
+        true
+      );
+
+      if (finalScoreError) throw finalScoreError;
+      if (finalScoreData && job) {
+        // Patch that score in finalScore of the job finalscore
+        job.initialMatchingScoreDetails = finalScoreData.initialMatchingScoreDetails;
+      }
+    } catch (error) {
+      console.error("Error fetching matching score:", error);
+    }
+  }
   useEffect(() => {
     if (!isSuccess || !data) return;
-  
-    const designation = data?.candidateExperience?.designation;
-    const coreSkills = data?.coreSkills?.map((s) => s.skillName);
-    const yoe = data?.YOE;
-    const isProfileComplete = (data?.cvExtract && data?.cvExtractParsed) && (designation || coreSkills?.length > 0 || yoe);
-  
-    if (isProfileComplete) {
+
+    const processUserData = async () => {
+      const designation = data?.candidateExperience?.designation;
+      const coreSkills = data?.coreSkills?.map((s) => s.skillName);
+      const yoe = data?.YOE;
+      const isProfileComplete =
+      data?.cvExtract && data?.cvExtractParsed && (designation || coreSkills?.length > 0 || yoe);
       const jobDescription = jobDataState ?? jobData ?? null;
-      const cvExtract = data?.cvExtract || null;
-  
-      if (cvExtract && jobDescription) {
-        const {totalScore , coreSkillsScore , softSkillsScore , experienceScore , responsibilitiesScore } = compareResumeWithJD(jobDescription, data);
-        // console.log("Matching Score:", matchingScore);
-  
-        setJobMatchDetails((prev) => ({
-          ...prev,
-          id: prev?.id || "",
-          userId: prev?.userId || "",
-          jobId: prev?.jobId || "",
-          jdMatchErrorCode: prev?.jdMatchErrorCode || 0,
-          jdMatchErrorDesc: prev?.jdMatchErrorDesc || "",
-          matchingScore: totalScore,
-          scoreDetails: {
-            coreSkills: coreSkillsScore,
-            experience: experienceScore,
-            roleAndResponsibilities: responsibilitiesScore,
-            softSkills: softSkillsScore,
-          },
-          createdAt: prev?.createdAt || "",
-          updatedAt: prev?.updatedAt || "",
-          isTriggered: prev?.isTriggered || false,
-        }));
+      if (jobDescription && !jobDescription.initialMatchingScoreDetails)
+        await fetchMatchingScore(jobDataState ?? jobData ?? ({} as JobDto));
+
+      if (isProfileComplete) {
+        const cvExtract = data?.cvExtractParsed || null;
+
+        if (cvExtract && jobDescription) {
+          const {
+            totalScore,
+            coreSkillsScore,
+            softSkillsScore,
+            experienceScore,
+            responsibilitiesScore,
+          } = compareResumeWithJD(jobDescription, data);
+          // console.log("Matching Score:", matchingScore);
+
+          setJobMatchDetails((prev) => ({
+            ...prev,
+            id: prev?.id || "",
+            userId: prev?.userId || "",
+            jobId: prev?.jobId || "",
+            jdMatchErrorCode: prev?.jdMatchErrorCode || 0,
+            jdMatchErrorDesc: prev?.jdMatchErrorDesc || "",
+            matchingScore: totalScore,
+            scoreDetails: {
+              coreSkills: coreSkillsScore,
+              experience: experienceScore,
+              roleAndResponsibilities: responsibilitiesScore,
+              softSkills: softSkillsScore,
+            },
+            createdAt: prev?.createdAt || "",
+            updatedAt: prev?.updatedAt || "",
+            isTriggered: prev?.isTriggered || false,
+          }));
+        }
+      } else {
+        setShowApplyModal(true);
+        showModalsError("NoBasicDetails");
       }
-    } else {
-      setShowApplyModal(true);
-      showModalsError("NoBasicDetails");
-    }
+    };
+
+    processUserData();
   }, [isSuccess, data, jobDataState]);
-  
 
   // This effect will run when the component mounts or when jobid changes
   // It will set the jobDataState from location state if available
@@ -153,11 +219,21 @@ const JobDescription = () => {
     if (!isLoggedIn || !jobDataState) return;
 
     try {
-      const userEmail = secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
-      const { response ,status} = await httpServiceObj.get<{ data: (JobApplicationExternalDto[] | JobApplicationInternalDto[]) ; pagination: object }>(
-        `${APP_JOBS_API_URI}/${jobDataState?.externalJobId ? 'external-' : "" }job-application/${jobid}/${userEmail}`,true, {}, true);
-        if (status === 404) {
-         setApplicationStatus(false); // Set application status to true if data is present
+      const userEmail =
+        secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
+      const { response, status } = await httpServiceObj.get<{
+        data: JobApplicationExternalDto[] | JobApplicationInternalDto[];
+        pagination: object;
+      }>(
+        `${APP_JOBS_API_URI}/${
+          jobDataState?.externalJobId ? "external-" : ""
+        }job-application/${jobid}/${userEmail}`,
+        true,
+        {},
+        true
+      );
+      if (status === 404) {
+        setApplicationStatus(false); // Set application status to true if data is present
       } else {
         setApplicationStatus(true);
       }
@@ -190,7 +266,16 @@ const JobDescription = () => {
     }, [location.hash, nav, isLoggedIn, PendingApply]);
  */
   // Function to show error modals
-  const showModalsError = (caseType: "isExternalJobApplied" | "expired_in" | "application_success" | "application_failure" | "redundant" | "badScore" | "NoBasicDetails") => {
+  const showModalsError = (
+    caseType:
+      | "isExternalJobApplied"
+      | "expired_in"
+      | "application_success"
+      | "application_failure"
+      | "redundant"
+      | "badScore"
+      | "NoBasicDetails"
+  ) => {
     switch (caseType) {
       case "isExternalJobApplied":
         setModalData({
@@ -222,7 +307,8 @@ const JobDescription = () => {
         setModalData({
           type: "error",
           heading: { message: "Invite Expired", type: "error" },
-          message: "The invite you are trying to access has expired. Please contact the company for a new invite.",
+          message:
+            "The invite you are trying to access has expired. Please contact the company for a new invite.",
           buttons: [{ label: "Back to Home", action: () => null }],
         });
         break;
@@ -278,7 +364,8 @@ const JobDescription = () => {
         setModalData({
           type: "error",
           heading: { message: "Failed to apply", type: "error" },
-          message: "It looks like you've managed to submit an application before the matching scores were fully processed. While your score generation is in process, please note that bypassing standard checks won’t affect the evaluation process. Matching insights will be available shortly. Kindly try again in a few minutes.",
+          message:
+            "It looks like you've managed to submit an application before the matching scores were fully processed. While your score generation is in process, please note that bypassing standard checks won’t affect the evaluation process. Matching insights will be available shortly. Kindly try again in a few minutes.",
           buttons: [
             {
               label: "OK",
@@ -294,7 +381,8 @@ const JobDescription = () => {
         setModalData({
           type: "error",
           heading: { message: "Profile Incomplete", type: "error" },
-          message: "It looks like your profile is incomplete. Please click the button below to update your resume.",
+          message:
+            "It looks like your profile is incomplete. Please click the button below to update your resume.",
           buttons: [
             {
               label: "Update Resume",
@@ -330,7 +418,8 @@ const JobDescription = () => {
         setModalData({
           type: "warning",
           heading: { message: "Low Score Detected!", type: "warning" },
-          message: "Your matching score is low. We recommend improving your profile before applying. If you still want to apply, please click on the button below.",
+          message:
+            "Your matching score is low. We recommend improving your profile before applying. If you still want to apply, please click on the button below.",
           buttons: [
             {
               label: "Apply Anyway",
@@ -364,7 +453,12 @@ const JobDescription = () => {
   } = useQuery({
     queryKey: ["jobData", jobid],
     queryFn: async () => {
-      const { response, error } = await httpServiceObj.get<JobDto>(`${APP_JOBS_API_URI}/job/${jobid}`, true, {}, true);
+      const { response, error } = await httpServiceObj.get<JobDto>(
+        `${APP_JOBS_API_URI}/job/${jobid}`,
+        true,
+        {},
+        true
+      );
 
       if (error) throw new Error(error.message);
       return response;
@@ -377,7 +471,10 @@ const JobDescription = () => {
     if (jobData && !jobData.externalJobId) {
       const fetchCompanyDetails = async () => {
         try {
-          const { response, error } = await httpServiceObj.get<[CompanyDto]>(`/company/${jobData.companyId}`, true);
+          const { response, error } = await httpServiceObj.get<[CompanyDto]>(
+            `/company/${jobData.companyId}`,
+            true
+          );
 
           if (error) throw new Error(error.message);
           if (response)
@@ -399,7 +496,8 @@ const JobDescription = () => {
 
   if (isLoading) return <MainLoader />;
 
-  if (error) return <div>Error loading job: {error instanceof Error ? error.message : "Unknown error"}</div>;
+  if (error)
+    return <div>Error loading job: {error instanceof Error ? error.message : "Unknown error"}</div>;
 
   if (isLoading) return <div>Loading job data...</div>;
 
@@ -433,7 +531,9 @@ const JobDescription = () => {
         };
       }
 
-      const constructUrl = jobDataState?.externalJobId ? `${APP_JOBS_API_URI}/external-job-application/` : `${APP_JOBS_API_URI}/job-application/`;
+      const constructUrl = jobDataState?.externalJobId
+        ? `${APP_JOBS_API_URI}/external-job-application/`
+        : `${APP_JOBS_API_URI}/job-application/`;
 
       const result = (await toast.promise(
         httpServiceObj.post(constructUrl, payload, true, {}, true),
@@ -482,8 +582,14 @@ const JobDescription = () => {
         data: null,
       };
       setPendingApply(continueReferralRequestData);
-      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferralRequestData);
-      localStorage.setItem("continueReferralRequestData", JSON.stringify(continueReferralRequestData));
+      secureStorage.setItem(
+        SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS,
+        continueReferralRequestData
+      );
+      localStorage.setItem(
+        "continueReferralRequestData",
+        JSON.stringify(continueReferralRequestData)
+      );
       nav("/auth/login");
       return;
     } else {
@@ -495,7 +601,7 @@ const JobDescription = () => {
         showModalsError("isExternalJobApplied");
       } else {
         // If the scores are very Low then warn the user
-       /*  if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
+        /*  if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
           if (jobMatchDetails.matchingScore < 0) {
             setShowApplyModal(true);
             showModalsError("badScore");
@@ -507,7 +613,10 @@ const JobDescription = () => {
           }
         } */
         setCurrStep(0);
-        const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
+        const { response: profilePer } = await httpServiceObj.get<any>(
+          `/user/${userDetails.email}/profilePercentage`,
+          true
+        );
         if (profilePer) {
           const cvCurPerc = profilePer?.candidate[2]?.curPerc;
           setCurrStep(1);
@@ -543,13 +652,30 @@ const JobDescription = () => {
     <div className="w-full ">
       {jobDataState && (
         <Suspense fallback={<MainLoader />}>
-          <HeadBanner jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails} />
-          <JobJD jobData={jobDataState} applicationStatus={applicationStatus} handleApplyClick={handleApplyClick} jobMatchDetails={jobMatchDetails} />
+          <HeadBanner
+            jobData={jobDataState}
+            applicationStatus={applicationStatus}
+            handleApplyClick={handleApplyClick}
+            jobMatchDetails={jobMatchDetails}
+          />
+          <JobJD
+            jobData={jobDataState}
+            applicationStatus={applicationStatus}
+            handleApplyClick={handleApplyClick}
+            jobMatchDetails={jobMatchDetails}
+          />
         </Suspense>
       )}
 
       {isLoader && <ReferralLoader step={currStep} />}
-      {MessageEnabled && <RequestReferralMessage Type={ModalType} gaugeScore={gaugeScore} gaugeEnabled={gaugeEnabled} onClose={() => ModalAction()} />}
+      {MessageEnabled && (
+        <RequestReferralMessage
+          Type={ModalType}
+          gaugeScore={gaugeScore}
+          gaugeEnabled={gaugeEnabled}
+          onClose={() => ModalAction()}
+        />
+      )}
       {IsFeedbackOpen && (
         <FeedbackModal
           title={FeedbackInfo?.title || ""}
@@ -563,7 +689,9 @@ const JobDescription = () => {
       )}
 
       {/* Will show modal after clicking apply on external job. */}
-      {showApplyModal && modalData && <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />}
+      {showApplyModal && modalData && (
+        <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />
+      )}
       {updateResume && <UpdateResumeModal onClose={() => setUpdateResume(false)} />}
     </div>
   );
