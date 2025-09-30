@@ -339,7 +339,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
-        pageSize: 30, //earlier it was pagesize 100
+        pageSize: 100,
         ...(pageParam && { lastKey: pageParam }),
         ...(isJobPage && filters.sortOrder ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" } : {}),
         ...(!isJobPage && { isVerified: 1 }),
@@ -385,11 +385,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-      if(isJobPage){
-        updatedFilters.fromS3Vector = isLoggedIn;  
-        updatedFilters.includeCompanyDetails=true;
-      }
+
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
+
       try {
         const { response, error } = await httpServiceObj.get<typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any>(apiUrl, true, updatedFilters, isJobPage);
         if (error) throw error;
