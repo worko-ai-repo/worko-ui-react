@@ -493,8 +493,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
 
           const newFilters = { ...updatedFilters };
           if (fallbackLevel === 1) {
-            delete newFilters.YOE;
-            delete newFilters.coreSkills;
+            // delete newFilters.YOE;
+            // delete newFilters.coreSkills;
             return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
           } else if (fallbackLevel === 2) {
             delete newFilters.jobTitle;
