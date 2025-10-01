@@ -19,7 +19,7 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
 
   return (
     <div className="flex justify-center items-center sm:scale-y-85">
-      <div className={`rounded-3xl p-5 h-full  ${frameId === 'outro' ? 'lg:translate-y-20': ''} ${styles.frame_inner_container}`}>
+      <div className={`rounded-3xl p-5 h-full  ${frameId === 'outro' ? 'lg:translate-y-0': ''} ${styles.frame_inner_container}`}>
         <div className={"bg-white rounded-3xl h-auto relative md:mx-0 lg:mx-5 " + styles.frame_main_content}>
           {/* Blue Header */}
           <div className="rounded-t-3xl w-full bg-blue-600 h-[60px]" />

@@ -32,6 +32,7 @@ import job_listing_promo from './backgrounds/Job_listing_promo.webp'
 import job_listing_promo_1 from './backgrounds/Job_listing_promo_1.webp'
 import job_listing_promo_2 from './backgrounds/Job_listing_promo_2.webp'
 import job_listing_promo_3 from './backgrounds/Job_listing_promo_3.webp'
+import CTA_Banner from './backgrounds/CTA_Banner.png'
 
 import auth_bg from './backgrounds/auth_bg.webp'
 import auth_bg2 from './backgrounds/auth_bg2.webp'
@@ -102,7 +103,7 @@ export {
     job_listing_promo_1,
     job_listing_promo_2,
     job_listing_promo_3,
-
+    CTA_Banner,
     employee_hero,
     employee_hero_mobile,
     employee_stepper_1_cursor,

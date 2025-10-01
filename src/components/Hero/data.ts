@@ -21,8 +21,6 @@ export const testimonials = [
 			{ icon: student1, student_name: 'Amit', student_comp: 'AMAZON', content: "I really valued the transparency and dedication of the Worko team. Before, I struggled to get traction in my job search, but Worko changed that. They guided me to opportunities that matched my skills and experience, providing support every step of the way. Thanks to their efforts, I landed several strong interviews and ultimately secured a great job." },
 			{ icon: student1, student_name: 'Neha', student_comp: 'Rapido', content: 'Worko not only helped me secure referrals at my dream companies but also provided invaluable support during the interview process. The Interview Handholding service from a senior employee was immensely helpful and aided me greatly in my preparation' },
 			{ icon: student1, student_name: 'Raj', student_comp: 'Phonepe', content:"Worko turned my job search around completely. Their referral system opened doors to companies I'd only dreamed of working for, and their interview prep was spot on tailored advice that helped me nail tough questions. With their guidance, I went from no callbacks to securing a fantastic position in phonepe." },
-			
-			
 		],
 	},
 	{
@@ -54,12 +52,12 @@ export const EmployeeTestimonials = [
 	},
 ]
 
-
 export const floatingStats = [
-    { text: "AI", subText: "powered", position: "top-12 left-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
-    { text: "2000+", subText: "candidate", position: "top-40 left-16 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
-    { text: "1000+", subText: "Jobs", position: "top-72 left-40 bg-[#0038F0F0]-to-t from-[#299DF2BF]-500 to-teal-500 outline outline-1 outline-offset-[-1px] outline-teal-300 " },
-    { text: "100+", subText: "Companies", position: "top-16 right-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
-    { text: "Earn", subText: "With", position: "top-40 right-16 bg-gradient-to-r from-red-500 to-pink-500" },
-    { text: "AI", subText: "powered", position: "top-72 right-40 bg-gradient-to-br from-blue-700/95 to-sky-500/75" },
-  ];
+	{ text: "Earn by Referring", subText: "Cash rewards when your friend gets hired.", position: "top-12 left-8 -rotate-4 bg-gradient-to-br from-blue-700 to-sky-500 z-[50]", icon: "Referral" },
+	{ text: "Real-Time Alerts", subText: "Real-time status + feedback on every application. No more silence.", position: "top-44 left-16 rotate-2 bg-gradient-to-br from-blue-700 to-sky-500 z-50", icon: "lightening" },
+	{ text: "5000+ Active Jobs", subText: "Real jobs, real interviews, real offers.", position: "top-80 left-4 -rotate-2 bg-gradient-to-r from-red-500 to-pink-500 outline outline-1 outline-offset-[-1px] outline-teal-300 z-50", icon: "Job" },
+	{ text: "300+ Companies+", subText: " Only active, vetted companies.", position: "top-40 right-12 rotate-3 bg-gradient-to-br from-blue-700 to-sky-500 z-50", icon: "Home" },
+	{ text: "Know Where You Stand", subText: "Live updates on every application.", position: "top-80 right-4 -rotate-1 bg-gradient-to-r from-red-500 to-pink-500 outline outline-1 outline-offset-[-1px] outline-teal-300 z-50", icon: "time" },
+	{ text: "Right Jobs, Right Now", subText: "Stop guessing, start matching.", position: "top-96 right-20 rotate-1 bg-gradient-to-br from-blue-700 to-sky-500 z-50", icon: "Filter" },
+	{ text: "Insider Guidance", subText: "Get tips from employees inside the company — know what interviews are really like.", position: "top-42 right-4 -rotate-3 bg-gradient-to-br from-blue-700 to-sky-500 z-50", icon: "Support" },
+];
