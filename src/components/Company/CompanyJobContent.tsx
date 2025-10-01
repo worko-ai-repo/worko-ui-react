@@ -127,7 +127,7 @@ const CompanyJobContent = () => {
     job_listing_promo_3,
   ];
   const showLoadingSkeleton =
-    isLoading || (!companyJobData && !isError) || (companyJobData?.length === 0 && !isError);
+    isLoading || (!companyJobData && !isError) /* || (companyJobData?.length === 0 && !isError) */;
 
   return (
     <div
