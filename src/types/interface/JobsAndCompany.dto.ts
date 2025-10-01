@@ -140,8 +140,8 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   industry?: string;
   industryName?: string;
   status?: string;
-  fromS3Vector?:boolean;
-  includeCompanyDetails?:boolean;
+  // fromS3Vector?:boolean;
+  // includeCompanyDetails?:boolean;
 }
 
 /**
