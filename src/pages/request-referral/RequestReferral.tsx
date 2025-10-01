@@ -196,19 +196,20 @@ const RequestReferral = () => {
 
 		//  Step 2: Check Profile Completion
 		setCurrStep(1);
-		const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
-		if (profilePer) {
-			const totalPercentage = profilePer?.candidate.reduce((sum: any, element: any) => sum + element.curPerc, 0);
-			const cvCurPerc = profilePer?.candidate[2]?.curPerc;
+		// this was commented because backend no longer needs profilePercentage
+		// const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
+		// if (profilePer) {
+		// 	const totalPercentage = profilePer?.candidate.reduce((sum: any, element: any) => sum + element.curPerc, 0);
+		// 	const cvCurPerc = profilePer?.candidate[2]?.curPerc;
 
-			if (cvCurPerc === 0) {
-				setGaugeEnabled(false)
-				setMessageEnabled(true);
-				setModalType('profileCompletion');
-				setLoader(false);
-				return;
-			}
-		}
+		// 	if (cvCurPerc === 0) {
+		// 		setGaugeEnabled(false)
+		// 		setMessageEnabled(true);
+		// 		setModalType('profileCompletion');
+		// 		setLoader(false);
+		// 		return;
+		// 	}
+		// }
 
 		//  Step 3: Create Referral Request
 		setCurrStep(2);

@@ -64,7 +64,7 @@ const EvaluatorLogin: React.FC = () => {
 //     CognitoServiceObj.configureForEvaluator({
 //       //@todo remove this line
 //       userPoolId: import.meta.env.APP_COGNITO_USER_POOL_ID,
-//       userPoolClientId: import.meta.env.APP_EVALUATOR_USER_POOL_CLIENT_ID"
+//       userPoolClientId: import.meta.env.APP_EVALUATOR_USER_POOL_CLIENT_ID
 //     });
 //     initializeAuth();
 //   }, [evaluatorEmail]);
