@@ -11,6 +11,7 @@ import ProtectedRoute from "@Services/SessionValidator.service";
 import { UserRole } from "@Interfaces/RoleBasedAccessControl";
 import NewHeroIntro from "@Components/Hero/NewHeroIntro";
 
+
 // Lazy Load Components
 const Hero = lazy(() => import("@Pages/hero/Hero"));
 const About = lazy(() => import("@Pages/About/About"));
@@ -26,7 +27,16 @@ const TermsOfUse = lazy(() => import("@Pages/terms/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("@Pages/privacy-policy/PrivacyPolicy"));
 const ContactUs = lazy(() => import("@Pages/contact-us/ContactUs"));
 const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/UnderConstruction"));
-const underConstructionPaths = ["faqs", "blogs", "pricing", "employee/*", "candidate/*", "profile/*", "support"];
+const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
+const underConstructionPaths = [
+  "faqs",
+  "blogs",
+  "pricing",
+  "employee/*",
+  "candidate/*",
+  "profile/*",
+  "support",
+];
 
 // Create routes for under construction pages
 const underConstructionRoutes = underConstructionPaths.map((path) => ({
@@ -44,7 +54,13 @@ const AppRoutes = createBrowserRouter(
     {
       path: "/",
       errorElement: <ErrorFallback />,
-      element: <ProtectedRoute requiredRoles={[UserRole.ADMIN , UserRole.CORPORATE , UserRole.GENERAL_USER]} tokenRequired={false} element={<MainLayout />} />,
+      element: (
+        <ProtectedRoute
+          requiredRoles={[UserRole.ADMIN, UserRole.CORPORATE, UserRole.GENERAL_USER]}
+          tokenRequired={false}
+          element={<MainLayout />}
+        />
+      ),
       children: [
         {
           index: true,
@@ -179,6 +195,27 @@ const AppRoutes = createBrowserRouter(
       ],
     },
     {
+      path: "/post-signup-form",
+      errorElement: <ErrorFallback />,
+      element: (
+        <ProtectedRoute
+          requiredRoles={[UserRole.ADMIN, UserRole.GENERAL_USER]}
+          tokenRequired={true}
+          element={<MainLayout />}
+        />
+      ),
+      children: [
+        {
+          index: true,
+          element: (
+            <Suspense fallback={<MainLoader />}>
+              <JobRecommendationForm />
+            </Suspense>
+          ),
+        },
+      ],
+    },
+    {
       path: "auth/*",
       element: (
         <Suspense fallback={<MainLoader />}>
@@ -194,20 +231,20 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
-    {
+    /* {
       path:"test" ,
       element: (
-        <NewHeroIntro />
+        <JobRecommendationForm />
       ),
-    },
+    }, */
     { path: "*", element: <PageNotFound /> },
   ],
   //uncomment below to run in local
   // {
   //   ...(import.meta.env.APP_MODE != "STAGING" ? {} : {basename: "/v0/" }),
   // }
-    {
-    ...(import.meta.env.APP_MODE != "DEVELOPMENT" ? {} : {basename: "/v0/" }),
+  {
+    ...(import.meta.env.APP_MODE != "DEVELOPMENT" ? {} : { basename: "/v0/" }),
   }
 );
 export default AppRoutes;

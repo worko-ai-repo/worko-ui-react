@@ -8,9 +8,9 @@ import { AwsS3FileUploadResponse, FileUpload } from "@Interfaces/Auth.dto";
 import { toast } from "react-toastify";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
-import { getCurrentUser, GetCurrentUserOutput } from '@aws-amplify/auth';
+import { getCurrentUser, GetCurrentUserOutput } from "@aws-amplify/auth";
 import ResumeDropzone from "@Components/Shared/ResumeDropZone";
-
+import { useAppContext } from "@Context/App.context";
 
 interface CvS3MetaData {
   userId: string;
@@ -19,6 +19,7 @@ interface CvS3MetaData {
 }
 
 const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
+  const {userDetails} = useAppContext();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showFinaltick, setShowFinalTick] = useState(false);
@@ -62,7 +63,10 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
         if (nextStep >= 4) {
           setShowFinalTick(true);
           clearInterval(interval);
-          setTimeout(() => {onClose();window.location.reload();}, 2000); // small delay before closing
+          setTimeout(() => {
+            onClose();
+            window.location.reload();
+          }, 2000); // small delay before closing
           return 4;
         }
         return nextStep as 0 | 1 | 2 | 3 | 4;
@@ -70,7 +74,6 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
       step++;
     }, 1000); // show each step for 1s
   };
-
 
   const retryCountRef = useRef(0); // Persist retry count across function calls
 
@@ -81,11 +84,16 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
         setSecondStepEnabled(true);
       }
 
-      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+        `${import.meta.env.APP_API_URI}/user/basic-details`,
+        true,
+        {},
+        true
+      );
 
       if (error) throw error;
 
-      const hasRelevantData = (response?.cvExtractParsed)
+      const hasRelevantData = response?.cvExtractParsed;
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());
@@ -98,7 +106,10 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
           setCurrentStep((prev) => (prev < 4 ? ((prev + 1) as 0 | 1 | 2 | 3 | 4) : prev));
           setTimeout(attemptCheck, 8000);
         } else {
-          toast.warning("Could not retrieve user details after multiple attempts. Please write to us at support@worko.ai", getToastOptions());
+          toast.warning(
+            "Could not retrieve user details after multiple attempts. Please write to us at support@worko.ai",
+            getToastOptions()
+          );
           setShowFinalTick(true);
           setRetrySteps(true);
           // reset all fields
@@ -126,17 +137,21 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     }
 
     const resumeUserFileMimeType = selectedFile.type;
-    const user:GetCurrentUserOutput = await getCurrentUser();
+    const user: GetCurrentUserOutput = await getCurrentUser();
 
-    const userId =user.userId;
+    const userId = user.userId;
 
     const cvS3metaData: CvS3MetaData = {
       userId,
-      resumeUserFileName: selectedFile?.name ?? 'unnamed_resume',
-      resumeFileMimeType: resumeUserFileMimeType ?? 'application/pdf', // Default to PDF if not provided
+      resumeUserFileName: selectedFile?.name ?? "unnamed_resume",
+      resumeFileMimeType: resumeUserFileMimeType ?? "application/pdf", // Default to PDF if not provided
     };
 
-    const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>("/file/gsu2u/USER_RESUME", cvS3metaData, true);
+    const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>(
+      "/file/gsu2u/USER_RESUME",
+      cvS3metaData,
+      true
+    );
 
     if (error) {
       console.error("Error getting signed URL:", error);
@@ -152,7 +167,13 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    const uploadResult = await httpServiceObj.put<null>(signedUrl, selectedFile, false, { awsS3Tag, fileType: resumeUserFileMimeType }, true);
+    const uploadResult = await httpServiceObj.put<null>(
+      signedUrl,
+      selectedFile,
+      false,
+      { awsS3Tag, fileType: resumeUserFileMimeType },
+      true
+    );
 
     if (uploadResult.error) {
       console.error("Error uploading file:", uploadResult.error);
@@ -161,7 +182,15 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
     // PATCH resume name to user
     const finalEmail = secureStorage.getItem(SecureStorageKeyEnum.USEREMAIL);
-    const patchResult = await httpServiceObj.patch<null>(`/user/${finalEmail}/cv`, { resume: response?.cloudFileName }, true);
+    const patchResult = await httpServiceObj.patch<null>(
+      `/user/${finalEmail}/cv`,
+      {
+        isCvExtracted: false,
+        resume: response?.cloudFileName,
+        userCvFileName: `${userDetails?.fullName}_resume.pdf`.toLowerCase(),
+      },
+      true
+    );
 
     if (patchResult.status !== 200) {
       console.error("Error patching CV name:", patchResult.error);
@@ -175,13 +204,24 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="overflow-y-hidden fixed inset-0 flex items-center justify-center bg-black/50 w-full backdrop-blur-sm z-50  ">
-      <div id={secondStepEnabled ? styles.updateResumeHeader : undefined} className={` max-sm:w-11/12 bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform scale-95 opacity-1 animate-fadeIn w-full max-sm:min-h-[200px] min-h-[300px] ax-w-full sm:max-w-xl `}>
+      <div
+        id={secondStepEnabled ? styles.updateResumeHeader : undefined}
+        className={` max-sm:w-11/12 bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform scale-95 opacity-1 animate-fadeIn w-full max-sm:min-h-[200px] min-h-[300px] ax-w-full sm:max-w-xl `}>
         {secondStepEnabled && (
           <div className="">
             <div className="absolute bottom-0 w-full">
-              <svg className={styles.waves} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+              <svg
+                className={styles.waves}
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                viewBox="0 24 150 28"
+                preserveAspectRatio="none"
+                shape-rendering="auto">
                 <defs>
-                  <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                  <path
+                    id="gentle-wave"
+                    d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+                  />
                 </defs>
                 <g className={styles.parallax}>
                   <use xlinkHref="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7)" />
@@ -219,7 +259,9 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
                 )}
               </div>
             ) : (
-              <div className="content relative top-16 text-2xl font-semibold animate-pulse left-0 ">{content[currentStep]}</div>
+              <div className="content relative top-16 text-2xl font-semibold animate-pulse left-0 ">
+                {content[currentStep]}
+              </div>
             )}
           </div>
         )}
@@ -228,13 +270,14 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
           <div className="uploadCvBox w-11/12 mx-auto mt-8 mb-8">
             <h2 className="text-xl font-semibold text-blue-300 mb-5">Update Your Resume</h2>
             <ResumeDropzone
-      fileName={fileName}
-      fileError={fileError}
-      onFileSelect={handleFileSelect}
-      onUpdateResume={handleUpdateResume}
-    />
+              fileName={fileName}
+              fileError={fileError}
+              onFileSelect={handleFileSelect}
+              onUpdateResume={handleUpdateResume}
+            />
             <small className="flex mt-2  gap-1 text-left text-xs text-gray-500  ">
-              <TriangleAlert className="text-yellow-500 inline text-xs w-5 " /> Your Cv must be in readable format and should not contain any scanned document
+              <TriangleAlert className="text-yellow-500 inline text-xs w-5 " /> Your Cv must be in
+              readable format and should not contain any scanned document
             </small>
           </div>
         )}

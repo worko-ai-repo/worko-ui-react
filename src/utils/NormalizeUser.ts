@@ -22,6 +22,7 @@ export interface NormalizedUser {
 
   // General User only
   profileImageAwsS3SignedUrl?: string;
+  CV?: string; // Base64 encoded CV file content
   cvUrl?: string;
   CTC?: number;
   ECTC?: number;
@@ -63,6 +64,7 @@ export function normalizeUserData(raw: Partial<CorporateUserDetail | AuthLoginFo
 
     // General
     profileImageAwsS3SignedUrl:  raw.profileImageAwsS3SignedUrl ?? "",
+    CV:  raw.CV ?? "",
     cvUrl:  raw.cvAwsS3SignedUrl ?? "",
     CTC:  raw.CTC ?? 0,
     ECTC:  raw.ECTC ?? 0,

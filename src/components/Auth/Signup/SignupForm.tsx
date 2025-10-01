@@ -88,8 +88,8 @@ const SignupForm: React.FC<{
       password: "",
       confirmPassword: "",
       termsAndConditions: false,
-      ctc: 0,
-      ectc: 0,
+    /*   ctc: 0,
+      ectc: 0, */
     },
     mode: "onChange",
   });
@@ -306,7 +306,7 @@ const SignupForm: React.FC<{
 
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
-            <div className="relative ">
+            <div className={`relative ${tempCvFile ? "hidden" : ""}`}>
               <label
                 className="hidden sm:block cursor-pointer font-medium"
                 data-tooltip-id="my-tooltip"
@@ -320,13 +320,17 @@ const SignupForm: React.FC<{
                   disabled={isOtpSent}
                   type="file"
                   className="input_primary auth_input appearance-none cursor-pointer text-transparent"
-                  {...register("cv", { validate: (value: any) => (tempCvFile ? true : validateCV(value)) })}
+                  {...register("cv", {
+                    validate: (value: any) => (tempCvFile ? true : validateCV(value)),
+                  })}
                   accept=".pdf"
                   onChange={handleFileChange}
                 />
                 <div className="absolute inset-0 pointer-events-none flex items-center pl-3">
                   <span className="text-gray-500 truncate">
-                    {(selectedCvName || tempCvFile?.name) ? (selectedCvName || tempCvFile?.name) : "Choose file"}
+                    {selectedCvName || tempCvFile?.name
+                      ? selectedCvName || tempCvFile?.name
+                      : "Choose file"}
                   </span>
                 </div>
               </div>
@@ -365,60 +369,6 @@ const SignupForm: React.FC<{
                 </p>
               )}
             </div>
-          )}
-
-          {/* CTC */}
-          {activeFrame === "CAND" && (
-            <>
-              <div className="relative">
-                <label className="hidden sm:block font-medium w-fit">Current CTC (In LPA)</label>
-                <input
-                  placeholder="Enter current CTC in LPA"
-                  disabled={isOtpSent}
-                  type="text"
-                  className={`input_primary auth_input  ${errors.ctc && "error"}`}
-                  {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })}
-                />
-                <p
-                  // Trigger input click
-                  className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
-                  LPA
-                </p>
-                {!errors.ctc && (
-                  <label className="hidden text-[10px] sm:block font-medium w-fit">
-                    Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)
-                  </label>
-                )}
-                {errors.ctc && (
-                  <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>
-                )}
-              </div>
-              <div className="relative">
-                <label className="hidden sm:block font-medium">Expected CTC (In LPA)</label>
-                <input
-                  placeholder="Enter expected CTC in LPA"
-                  disabled={isOtpSent}
-                  type="text"
-                  className={`input_primary auth_input  ${errors.ectc && "error"}`}
-                  {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })}
-                />
-                <p
-                  // Trigger input click
-                  className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
-                  LPA
-                </p>
-                {!errors.ectc && (
-                  <label className="hidden text-[10px] sm:block font-medium w-fit">
-                    Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)
-                  </label>
-                )}
-                {errors.ectc && (
-                  <p className="text-sm text-left text-red-500">
-                    {errors.ectc.message?.toString()}
-                  </p>
-                )}
-              </div>
-            </>
           )}
 
           {/* Password */}
@@ -554,34 +504,40 @@ const SignupForm: React.FC<{
               type="button"
               onClick={() => handleFinalVerification()}
               className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
-              Confirm Verification
+              {tempCvFile ? "Show Jobs" : "Confirm Verification"}
             </button>
           ) : (
             <button
               type="submit"
               onClick={() => trigger("company")}
               className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
-              Verify & Signup
+              {tempCvFile ? "Confirm details" : "Verify & Signup"}
             </button>
           )}
-          <button
-            className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] "
-            type="button"
-            onClick={() =>
-              signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")
-            }>
-            <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>
-            Or sign up with Linkedin
-          </button>
+          {!tempCvFile && (
+            <button
+              className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[300px] sm:max-w-[300px] "
+              type="button"
+              onClick={() =>
+                signUpWithLinkedIn(activeFrame === "CAND" ? "candidateSignUp" : "employeeSignUp")
+              }>
+              <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>
+              Or sign up with Linkedin
+            </button>
+          )}
         </div>
 
         {/* Already have an account? */}
-        <p className="text-center sm:mt-4">
-          Already have an account?{" "}
-          <div onClick={() => navTo("/auth/login")} className="inline cursor-pointer text-blue-500">
-            Sign In
-          </div>
-        </p>
+        {!tempCvFile && (
+          <p className="text-center sm:mt-4">
+            Already have an account?{" "}
+            <div
+              onClick={() => navTo("/auth/login")}
+              className="inline cursor-pointer text-blue-500">
+              Sign In
+            </div>
+          </p>
+        )}
       </form>
     </div>
   );

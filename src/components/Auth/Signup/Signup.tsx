@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import CustomButtonWithButton from "../../Shared/CustomButtonWithButton";
 import SignupForm from "./SignupForm";
-import { AuthFormDto, AuthSignupBaseDto, DevEmployeeDto, CognitoSignupResponse, DevCandidateDto, AwsS3FileUploadResponse, AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
+import {
+  AuthFormDto,
+  AuthSignupBaseDto,
+  DevEmployeeDto,
+  CognitoSignupResponse,
+  DevCandidateDto,
+  AwsS3FileUploadResponse,
+  AuthLoginForGeneralUserDto,
+} from "@Interfaces/Auth.dto";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
@@ -28,7 +36,8 @@ interface ToggleOptionsDto {
 
 const Signup = () => {
   const navigateTo = useNavigate();
-  const { setPendingApply, PendingApply, isLoggedIn, setUpdateCheck,setUserDetails } = useAppContext();
+  const { setPendingApply, tempCvFile, PendingApply, isLoggedIn, setUpdateCheck, setUserDetails } =
+    useAppContext();
   const appHref = useCrossAppAuth();
   const location = useLocation(); // Get location object
   // Remove initialFrame variable
@@ -68,14 +77,18 @@ const Signup = () => {
     type: "none" | "error" | "warning" | "success" | "info";
     heading?: { message: string; type: "error" | "warning" | "success" | "info" };
     message: string;
-    buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
+    buttons?: {
+      label: string;
+      action: () => void;
+      type?: "primary" | "danger" | "warning" | "success";
+    }[];
   } | null>(null);
 
   const [formData, setFormData] = useState<AuthSignupBaseDto>({
     name: "",
     emailId: "",
-    ctc: 0,
-    ectc: 0,
+/*     ctc: 0,
+    ectc: 0, */
     password: "",
     candidateOtp: "",
     phoneNumber: "",
@@ -109,7 +122,7 @@ const Signup = () => {
    * @param data - Form data from the signup form
    * @throws Error if required fields are missing or invalid
    */
-  const metaDataFilter = (data: AuthFormDto) => {
+  const metaDataFilter = (data: AuthFormDto): File | null => {
     // Validate required fields
     if (!data.name || data.name.trim().length === 0) {
       throw new Error("Name is required");
@@ -127,38 +140,40 @@ const Signup = () => {
       throw new Error("Terms and conditions must be accepted");
     }
 
-      // Update the form data with validated values
-    setFormData(prev => ({
+    // Update the form data with validated values
+    setFormData((prev) => ({
       ...prev,
       name: data.name.trim(),
       emailId: data.email.trim().toLowerCase(),
       password: data.password,
       phoneNumber: data.phone.trim(),
       confirmPassword: data.confirmPassword,
-      acceptedTermsAndConditions: data.termsAndConditions
+      acceptedTermsAndConditions: data.termsAndConditions,
     }));
 
     if (activeFrame === "CAND") {
       // Validate CTC values
-      const ctc = data.ctc ?? 0;
+/*       const ctc = data.ctc ?? 0;
       const ectc = data.ectc ?? 0;
-      
+
       if (ctc < 0 || ectc < 0) {
         throw new Error("CTC values cannot be negative");
-      }
-      
-      setFormData(prev => ({
+      } */
+
+      setFormData((prev) => ({
         ...prev,
-        ectc: ectc,
-        ctc: ctc
+      /*   ectc: ectc,
+        ctc: ctc, */
       }));
-      
-      // Handle CV file
+
+      // Handle CV file: prefer uploaded from form; fallback to tempCvFile from context
       let resumeFile: File | null = null;
       if (data.cv && data.cv.length > 0) {
         resumeFile = data.cv[0] as File;
+      } else if (tempCvFile) {
+        resumeFile = tempCvFile;
       }
-      
+
       if (resumeFile) {
         // Validate file type and size
         if (resumeFile.type !== "application/pdf") {
@@ -167,10 +182,14 @@ const Signup = () => {
         if (resumeFile.size > 2 * 1024 * 1024) {
           throw new Error("CV file size must be less than 2MB");
         }
-        
+
         setResumeUserFileName(resumeFile.name);
         setResumeUserFileMimeType(resumeFile.type);
-        setCv(data.cv);
+        // Do not rely on async state for upload flow; return the file instead
+        if (data.cv && data.cv.length > 0) {
+          setCv(data.cv);
+        }
+        return resumeFile;
       } else {
         throw new Error("CV file is required for candidates");
       }
@@ -179,10 +198,11 @@ const Signup = () => {
       if (!data.company || data.company.trim().length === 0) {
         throw new Error("Company selection is required for employees");
       }
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        companySk: data.company.trim()
+        companySk: data.company.trim(),
       }));
+      return null;
     }
   };
 
@@ -197,9 +217,9 @@ const Signup = () => {
       confirmPassword: data.confirmPassword,
       checkboxChecked: false,
       acceptedTermsAndConditions: !!data.termsAndConditions,
-      ctc: activeFrame === "CAND" ? (data.ctc ?? 0) : 0,
-      ectc: activeFrame === "CAND" ? (data.ectc ?? 0) : 0,
-      companySk: activeFrame === "EMP" ? (data.company?.trim() ?? "") : "",
+      /* ctc: activeFrame === "CAND" ? data.ctc ?? 0 : 0,
+      ectc: activeFrame === "CAND" ? data.ectc ?? 0 : 0, */
+      companySk: activeFrame === "EMP" ? data.company?.trim() ?? "" : "",
     };
     return base;
   };
@@ -211,12 +231,22 @@ const Signup = () => {
    */
   const initiateFinalRedirection = () => {
     // Retrieve pending referral data from context and secure storage
-    let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+    let pendingReferral =
+      PendingApply ||
+      secureStorage.getItem<continueReferralRequestDataDto>(
+        SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS
+      );
 
     // Sync PendingApply and secureStorage
-    if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+    if (
+      PendingApply &&
+      !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+    ) {
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
-    } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+    } else if (
+      !PendingApply &&
+      secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+    ) {
       setPendingApply(pendingReferral);
     }
 
@@ -227,7 +257,9 @@ const Signup = () => {
       const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
       const finalActiveFrame = AuthActiveFrame ? (AuthActiveFrame as SignupMode) : activeFrame;
       // prefer local over state
-      finalActiveFrame === "CAND" ? navigateTo("/jobs", { replace: true }) : appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`); // Redirect to the home page
+      finalActiveFrame === "CAND"
+        ? navigateTo("/jobs", { replace: true })
+        : appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`); // Redirect to the home page
     }
   };
   /**
@@ -244,10 +276,16 @@ const Signup = () => {
         if (activeFrame === "EMP") {
           initiateFinalRedirection();
         } else {
-          if (retryCount === 0) {
+          window.location.href = "/post-signup-form";
+         /*  if (retryCount === 0) {
             setOpenReferralLoader(true);
           }
-          const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${APP_API_URI}/user/basic-details`, true, {}, true);
+          const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+            `${APP_API_URI}/user/basic-details`,
+            true,
+            {},
+            true
+          );
 
           if (error) throw error;
 
@@ -269,12 +307,15 @@ const Signup = () => {
               setOpenReferralLoader(false);
               // console.log("Max retries reached for checkBasicDetails");
               // Optional: Show a message to the user that we couldn't get their details
-              toast.warning("Could not retrieve user details after multiple attempts", getToastOptions());
+              toast.warning(
+                "Could not retrieve user details after multiple attempts",
+                getToastOptions()
+              );
               setTimeout(() => {
                 (window.location.href = `/jobs`), { replace: true };
               }, 5000); // Redirect to the jobs page after 5 seconds
             }
-          }
+          } */
         }
       } catch (error) {
         console.error("Error fetching user basic details:", error);
@@ -282,8 +323,15 @@ const Signup = () => {
         setModalData({
           type: "error",
           heading: { message: "Something Went Wrong", type: "error" },
-          message: "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
-          buttons: [{ label: "Go To Dashboard", action: () => appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/profile?returnUrl=${params}`) }],
+          message:
+            "We encountered some issue while analysing your cv, Plese enter few details manually in your profile , It will help us understand your better & upload your cv again",
+          buttons: [
+            {
+              label: "Go To Dashboard",
+              action: () =>
+                appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/profile?returnUrl=${params}`),
+            },
+          ],
         });
       }
     };
@@ -310,7 +358,11 @@ const Signup = () => {
          */
         if (response?.isSignedIn) {
           const email = data.email.toLowerCase();
-          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(
+            `/user/${email}/details`,
+            true,
+            {}
+          );
 
           if (userError) {
             toast.error("Error: " + userError, getToastOptions());
@@ -385,18 +437,18 @@ const Signup = () => {
     setUploadedFile(file);
   };
   const CvS3MemAllocation = useCallback(
-    async (userdata: any, emailIdForPatch: string) => {
+    async (userdata: any, emailIdForPatch: string, file: File) => {
       // Validate required data
       if (!userdata?.userId) {
         throw new Error("User ID is required for CV upload");
       }
-      if (!uploadedFile) {
+      if (!file) {
         throw new Error("CV file is required for upload");
       }
 
       // Derive name/mime from the selected file if not present in state
-      const derivedFileName = resumeUserFileName || uploadedFile.name;
-      const derivedMimeType = resumeUserFileMimeType || uploadedFile.type;
+      const derivedFileName = resumeUserFileName || file.name;
+      const derivedMimeType = resumeUserFileMimeType || file.type;
       if (!derivedFileName || !derivedMimeType) {
         throw new Error("CV file information is missing");
       }
@@ -407,7 +459,11 @@ const Signup = () => {
         resumeFileMimeType: derivedMimeType,
       };
 
-      const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>("/file/gsu2u/USER_RESUME", cvS3metaData, true);
+      const { response, error } = await httpServiceObj.post<AwsS3FileUploadResponse>(
+        "/file/gsu2u/USER_RESUME",
+        cvS3metaData,
+        true
+      );
 
       if (error) {
         throw new Error(`Failed to get S3 upload URL: ${error.message}`);
@@ -419,13 +475,13 @@ const Signup = () => {
 
       // Upload to S3
       const fileUploadHandler = await httpServiceObj.put<null>(
-        response.awsS3SignedUrl, 
-        uploadedFile, 
-        false, 
-        { 
-          awsS3Tag: response.awsS3Tag, 
-          fileType: derivedMimeType 
-        }, 
+        response.awsS3SignedUrl,
+        file,
+        false,
+        {
+          awsS3Tag: response.awsS3Tag,
+          fileType: derivedMimeType,
+        },
         true
       );
 
@@ -436,18 +492,24 @@ const Signup = () => {
       // Patch the data to the backend
       const finalEmail = emailIdForPatch.toLowerCase();
       const CvNamePatchRequest = await httpServiceObj.patch<null>(
-        `/user/${finalEmail}/cv`, 
-        { resume: response.cloudFileName }, 
+        `/user/${finalEmail}/cv`,
+        {
+          isCvExtracted: false,
+          resume: response.cloudFileName,
+          userCvFileName: (`${userdata.name}_resume.pdf`).toLowerCase(),
+        },
         true
       );
 
       if (CvNamePatchRequest.error || CvNamePatchRequest.status !== 200) {
-        throw new Error(`Failed to update CV reference: ${CvNamePatchRequest.error?.message || 'Unknown error'}`);
+        throw new Error(
+          `Failed to update CV reference: ${CvNamePatchRequest.error?.message || "Unknown error"}`
+        );
       }
-      
+
       toast.success("CV uploaded successfully", getToastOptions());
     },
-    [uploadedFile, resumeUserFileName, resumeUserFileMimeType]
+    [resumeUserFileName, resumeUserFileMimeType]
   );
 
   /**
@@ -456,7 +518,7 @@ const Signup = () => {
    * @description This function is used to add the data to the backend
    */
   const mutateDatatoBackend = useCallback(
-    async (ClientId: string, processed: AuthSignupBaseDto) => {
+    async (ClientId: string, processed: AuthSignupBaseDto, selectedFile: File | null) => {
       // Validate ClientId
       if (!ClientId || ClientId.trim().length === 0) {
         throw new Error("Client ID is required");
@@ -468,31 +530,34 @@ const Signup = () => {
       }
 
       if (activeFrame === "CAND") {
-        // Validate candidate-specific data
+/*         // Validate candidate-specific data
         if (processed.ctc < 0 || processed.ectc < 0) {
           throw new Error("CTC values cannot be negative");
         }
-
+ */
         const candidateData: DevCandidateDto = {
           name: processed.name.trim(),
           email: processed.emailId.toLowerCase(),
           number: "+91" + processed.phoneNumber,
           userId: ClientId,
-          CTC: processed.ctc,
-          ECTC: processed.ectc,
+          /* CTC: processed.ctc,
+          ECTC: processed.ectc, */
           acceptedTermsAndConditions: processed.acceptedTermsAndConditions,
         };
 
-        const { response, error } = await httpServiceObj.post("/user/register/candidate", candidateData, true);
-        
+        const { response, error } = await httpServiceObj.post(
+          "/user/register/candidate",
+          candidateData,
+          true
+        );
+
         if (error) {
           throw new Error(`Failed to register candidate: ${error.message}`);
         }
-
-        if (uploadedFile) {
-          await CvS3MemAllocation(response, processed.emailId);
+        if (selectedFile) {
+          await CvS3MemAllocation(response, processed.emailId, selectedFile);
         }
-        
+
         return response;
       } else {
         // Validate employee-specific data
@@ -511,22 +576,26 @@ const Signup = () => {
           acceptedTermsAndConditions: processed.acceptedTermsAndConditions,
         };
 
-        const { response, error } = await httpServiceObj.post("/user/register/employee", employeeData, true);
-        
+        const { response, error } = await httpServiceObj.post(
+          "/user/register/employee",
+          employeeData,
+          true
+        );
+
         if (error) {
           throw new Error(`Failed to register employee: ${error.message}`);
         }
-        
+
         return response;
       }
     },
-    [uploadedFile, activeFrame, CompanyDetails, CvS3MemAllocation]
+    [activeFrame, CompanyDetails, CvS3MemAllocation]
   );
 
   const runCognitoBasicSignup = async (data: AuthFormDto): Promise<boolean> => {
     try {
       // Validate and filter form data
-      metaDataFilter(data);
+      const selectedFile = metaDataFilter(data);
 
       // Always use the latest submitted values snapshot to avoid stale state
       const processed = buildProcessedForm(data);
@@ -543,9 +612,12 @@ const Signup = () => {
       if (error) {
         // Handle specific Cognito errors
         if (error.name === "UserLambdaValidationException" && error.message.includes("PreSignUp")) {
-          toast.info("An account with this email already exists. Please sign in instead.", getToastOptions({}));
+          toast.info(
+            "An account with this email already exists. Please sign in instead.",
+            getToastOptions({})
+          );
           return false;
-         
+
           /* // Don't show toast for existing users, continue with backend registration
           console.log("User already exists in Cognito, proceeding with backend registration");
           
@@ -580,7 +652,7 @@ const Signup = () => {
         try {
           // Use processed snapshot for backend mutation; ensure latest values were used to set state already
           await toast.promise(
-            mutateDatatoBackend(response.userId, processed),
+            mutateDatatoBackend(response.userId, processed, selectedFile),
             {
               pending: "Registering user...",
               success: "User registered successfully",
@@ -627,8 +699,8 @@ const Signup = () => {
     setFormData({
       name: "",
       emailId: "",
-      ctc: 0,
-      ectc: 0,
+/*       ctc: 0,
+      ectc: 0, */
       password: "",
       candidateOtp: "",
       phoneNumber: "",
@@ -653,15 +725,31 @@ const Signup = () => {
         <div className="px-2 gap-2 py-5 sm:py-6  w-full flex flex-col ">
           {/* Header and toggle button */}
           <div className="  relative header flex justify-around flex-wrap w-full  items-center ">
-            <p className="font-semibold text-sm md:text-xl text-gray-900 self-end "> Create your account as </p>
+            <p className="font-semibold text-sm md:text-xl text-gray-900 self-end ">
+              {" "}
+              {!tempCvFile ? "Create your account as" : "A few details for verification"}
+            </p>
             {/* onToggleChange={setActiveFrame} activeFrame={activeFrame} */}
-            <div className="w-[90vw] lg:w-fit   min-w-[50%] lg:pl-16 ">
-              <CustomButtonWithButton options={options} activeFrame={activeFrame} setActiveFrame={setActiveFrame} />
-            </div>
+            {!tempCvFile && (
+              <div className="w-[90vw] lg:w-fit min-w-[50%] lg:pl-16 ">
+                <CustomButtonWithButton
+                  options={options}
+                  activeFrame={activeFrame}
+                  setActiveFrame={setActiveFrame}
+                />
+              </div>
+            )}
           </div>
           {/* Signup form */}
           <div className="scale-90 sm:scale-100  flex mt-2 flex-1 sm:mx-auto sm:w-[85%] ">
-            <SignupForm activeFrame={activeFrame} runCognitoBasicSignup={runCognitoBasicSignup} handleVerifyOtp={handleVerifyOtp} verifyOtp={verifyOtp} onFileUpload={handleFileUpload} setCompanyName={setCompanyDetails} />
+            <SignupForm
+              activeFrame={activeFrame}
+              runCognitoBasicSignup={runCognitoBasicSignup}
+              handleVerifyOtp={handleVerifyOtp}
+              verifyOtp={verifyOtp}
+              onFileUpload={handleFileUpload}
+              setCompanyName={setCompanyDetails}
+            />
           </div>
         </div>
       </div>

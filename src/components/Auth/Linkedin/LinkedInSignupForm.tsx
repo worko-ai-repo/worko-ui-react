@@ -90,7 +90,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false, ctc: 0, ectc: 0 },
+    defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false,/*  ctc: 0, ectc: 0 */ },
     mode: "all",
   });
 
@@ -119,7 +119,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 
     try {
       if (activeFrame === "EMP") return true;
-
+      
       if (retryCount === 0) setOpenReferralLoader(true);
 
       const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
@@ -190,7 +190,7 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
       const success = await handleDataMutationtoDb(data);
       if (success) {
         toast.success("Account created successfully", getToastOptions());
-        await checkBasicDetails();
+        // await checkBasicDetails();
         // Redirect to referral page if pending referral found or pending Apply job found
         let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
@@ -202,7 +202,11 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-          activeFrame === "EMP" ? (appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`)) : navigate("/jobs", { replace: true });
+          if (activeFrame === "EMP") {
+            appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`);
+          } else {
+            window.location.href = "/post-signup-form";
+          }
         }
       }
     } catch (error) {
@@ -321,33 +325,6 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
               {errors.department && <p className="text-sm text-left text-red-500">{errors.department.message?.toString()}</p>}
             </div>
           )}
-                  {/* CTC */}
-        {activeFrame === "CAND" && (
-          <>
-            <div className="relative">
-              <label className="hidden sm:block font-medium w-fit">Current CTC (In LPA)</label>
-              <input placeholder="Enter current CTC in LPA" type="text" className={`input_primary auth_input  ${errors.ctc && "error"}`} {...register("ctc", { ...validationRules.ctc, valueAsNumber: true })} />
-              <p
-                // Trigger input click
-                className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
-                LPA
-              </p>
-              {!errors.ctc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
-              {errors.ctc && <p className="text-sm text-left text-red-500">{errors.ctc.message?.toString()}</p>}
-            </div>
-            <div className="relative">
-              <label className="hidden sm:block font-medium">Expected CTC (In LPA)</label>
-              <input placeholder="Enter expected CTC in LPA" type="text" className={`input_primary auth_input  ${errors.ectc && "error"}`} {...register("ectc", { ...validationRules.ctc, valueAsNumber: true })} />
-              <p
-                // Trigger input click
-                className="absolute right-4 top-3 sm:top-10 h-5 w-5 active:scale-90 text-gray-400 z-1">
-                LPA
-              </p>
-              {!errors.ectc && <label className="hidden text-[10px] sm:block font-medium w-fit">Enter your annual salary in LPA format (e.g., enter 17.5 for 17,50,000/-)</label>}
-              {errors.ectc && <p className="text-sm text-left text-red-500">{errors.ectc.message?.toString()}</p>}
-            </div>
-          </>
-        )}
         </div>
 
         {/* Terms and Conditions */}
