@@ -4,12 +4,13 @@ import {
   cloudUpload,
   dash_lines,
   Referral,
-  lightening,
+  lightning_white,
   Job,
   Home,
-  time,
-  Filter,
+  time_white,
+  filter_white,
   Support,
+  film,
 } from "@Assets";
 import { floatingStats } from "./data";
 import { toast } from "react-toastify";
@@ -27,11 +28,11 @@ interface JobCategories {
 export default function SmoothHeroIntro() {
   const statIcons: Record<string, string> = {
     Referral,
-    lightening,
+    lightning_white,
     Job,
     Home,
-    time,
-    Filter,
+    time_white,
+    filter_white,
     Support,
   };
   const nav = useNavigate();
@@ -127,21 +128,22 @@ export default function SmoothHeroIntro() {
   // jobs list moved to LatestJobOpportunities component
 
   return (
-    <div className=" min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
-      {floatingStats.map((stat, index) => (
-        
+    <div className="min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
+      {floatingStats.map((stat, index) => (       
           <div
-            className={`absolute ${stat.position} w-auto max-w-[200px] group cursor-pointer z-[${
+            className={`hidden lg:block absolute ${stat.position} min-w-[90px] max-w-[110px] min-h-[90px] max-h-[110px] group cursor-pointer z-[${
               stat.position.includes("z-") ? stat.position.split("z-")[1] : "50"
             }]`}>
-            <div className="relative flex items-center justify-center rounded-lg border px-4 py-2 bg-blue-500 shadow-lg transition-all duration-300 hover:scale-125 animate-scale-pulse">
-              <div className="text-[12px] font-semibold leading-tight text-center text-white">
+            <div className="relative flex items-center justify-evenly rounded-lg border px-0.5 py-2 bg-gradient-to-t from-violet-600 to-sky-400 shadow-lg transition-all duration-300 hover:scale-125 animate-scale-pulse min-w-[100px] max-w-[120px] min-h-[100px] max-h-[120px] gap-0">
+              {/* {stat.icon} */}
+              <img src={stat.icon} alt="" className="w-[30px] h-[30px] max-w-[30px] object-contain inline-block p-0.5"/>
+              <div className="flex-1 text-[10px] font-semibold leading-tight text-center text-white text-wrap">               
                 {stat.text}
               </div>
 
               {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max max-w-[250px] z-[100]">
-                <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max max-w-[150px] z-[999999999999999999999]">
+                <div className="bg-gray-900 text-white text-[8px] rounded-lg px-3 py-2 shadow-xl">
                   {stat.subText}
                   {/* Tooltip Arrow */}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
@@ -149,20 +151,19 @@ export default function SmoothHeroIntro() {
               </div>
             </div>
           </div>
-
       ))}
       <div className="container section-wrapper mx-auto px-4 py-0">
         <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 
         {/* Hero Text */}
         <div className="text-center mb-12">
-          <div className="section-wrapper max-sm:!pt-10  !pb-0 text-sm  font-bold ">
+          <div className="section-wrapper !py-0 max-sm:!pt-10 !pb-0 text-sm  font-bold ">
             <Reveal
               IsDual={false}
               CName="scale_up"
               threshold={0.5}
               PCName="mb-7 mx-auto text-4xl lg:text-[64px] md:w-2/3 h-auto">
-              <h1 className="  text-center leading-[1.2]  ">
+              <h1 className="text-center leading-[1.2]">
                 Increase your chances of getting a job by
               </h1>
             </Reveal>
@@ -172,7 +173,7 @@ export default function SmoothHeroIntro() {
               </p>
             </Reveal>
             <h2 className="text-gray-600 max-w-[300px] sm:max-w-[500px] mx-auto mb-8  mt-5">
-              Preparing yourself for success in the interview.
+              {/* Preparing yourself for success in the interview. */}
             </h2>
           </div>
 
@@ -189,10 +190,10 @@ export default function SmoothHeroIntro() {
           {/* Upload CV */}
           {!isLoggedIn && (
             <div className="max-w-2xl mx-auto relative  ">
-              <div className="border-2  border-gray bg-[#F0F4FF] z-10 rounded-lg">
+              <div className="border-2 border-dashed border-blue-500 bg-[#F0F4FF] z-10 rounded-lg">
                 <div className="p-8 relative ">
                   <div className="text-center">
-                    <div className="absolute top-0 left-0 right-0 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-lg text-sm font-medium mb-6 inline-block">
+                    <div className="absolute top-0 left-0 right-0 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-lg text-sm font-medium mb-6 inline-block border-b-2 border-dashed border-blue-500">
                       Upload your cv for instant job matches
                     </div>
 
@@ -223,6 +224,7 @@ export default function SmoothHeroIntro() {
                           className="hidden"
                           onChange={handleFileUpload}
                         />
+                        <p className="text-xs text-gray-400 mt-1">Support file type: .pdf, (2MB max)</p>
                       </div>
                     </div>
                   </div>

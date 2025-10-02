@@ -90,6 +90,10 @@ import meesho from './svgs/meesho.svg';
 import ai_dashboard from './svgs/corp-ai-dashboard.svg';
 import talent_pool from './svgs/corp-talent-pool.svg';
 import communication_dashboard from './svgs/corp-communication-dashboard.svg';
+import filter_white from "./svgs/filter_white.svg"
+import lightning_white from "./svgs/lightning_white.svg"
+import time_white from "./svgs/time_white.svg"
+import film from "./svgs/film.svg"
 export { 
     // Backgrounds
     bg_plexus,
@@ -172,5 +176,9 @@ export {
     appsforbharat,
     ai_dashboard,
     talent_pool,
-    communication_dashboard
+    communication_dashboard,
+    filter_white,
+    lightning_white,
+    time_white,
+    film,
 };
