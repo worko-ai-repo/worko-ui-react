@@ -129,7 +129,7 @@ export default function SmoothHeroIntro() {
   return (
     <div
       ref={containerRef}
-      className=" min-h-screen bg-white relative  rounded-b-[40px] overflow-hidden">
+      className=" min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
       {floatingStats.map((stat, index) => (
         <Reveal
           key={index}
@@ -160,7 +160,7 @@ export default function SmoothHeroIntro() {
         </Reveal>
       ))}
 
-      <div className="container mx-auto px-4 py-0">
+      <div className="container section-wrapper mx-auto px-4 py-0">
         <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 
         {/* Hero Text */}
