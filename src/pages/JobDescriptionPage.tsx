@@ -132,7 +132,7 @@ const JobDescription = () => {
       const { response: finalScoreData, error: finalScoreError } = await httpServiceObj.get<{
         initialMatchingScoreDetails: initialMatchingScoreDetails;
       }>(
-        `${APP_JOBS_API_URI}/job/${job.externalJobId ? job.externalJobId : job.id}/s3-vector`,
+        `${APP_JOBS_API_URI}/job/${job?.id}/s3-vector`,
         true,
         {
           coreSkills: job?.coreSkills ? job?.coreSkills.join(",") : "",

@@ -11,6 +11,39 @@
 }
 
 /* ----------------------------------------------------------------------
+   Pulse Scale Effect
+   - Scales up from 0 to 1, then continuously pulses between 95% and 105%
+------------------------------------------------------------------------ */
+.pulse_scale {
+  transform: scale(0);
+  transition: transform 0.8s ease;
+}
+
+.pulse_scale.visibleCname {
+  transform: scale(1);
+  animation: pulse-animation 2s ease-in-out infinite;
+}
+
+@keyframes pulse-animation {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Alternative with 95% to 105% range */
+@keyframes pulse-animation-alt {
+  0%, 100% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ----------------------------------------------------------------------
    Slide Up Effect
    - Moves the element upwards from 175px to its normal position when visible
 ------------------------------------------------------------------------ */

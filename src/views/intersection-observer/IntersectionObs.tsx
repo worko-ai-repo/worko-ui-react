@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './intersectionObs.scss';
 
-type AnimationType = 'fade' | 'cascade' | 'slide_up' | 'scale_up'; // Extendable list
+type AnimationType = 'fade' | 'cascade' | 'slide_up' | 'scale_up' | 'pulse_scale'; // Extendable list
 type SubClassAnimation = 'fade' | 'slide' | 'zoom' | 'rotate'; // Extendable list
 
 interface RevealProps {

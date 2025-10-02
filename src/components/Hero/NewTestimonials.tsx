@@ -261,7 +261,7 @@ const NewTestimonials: React.FC<TestimonialsProps> = ({
 
           <button
             type="button"
-            onClick={() => window.location.href = '/jobs'}
+            onClick={() => window.location.href = '/auth/signup?mode=CAND'}
             className="mt-6 inline-flex h-14 w-full md:w-auto items-center justify-center rounded-full bg-white px-8 text-lg font-semibold text-[#0b1220] shadow-sm transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
             Get A Job
           </button>

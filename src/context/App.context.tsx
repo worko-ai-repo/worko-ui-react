@@ -88,6 +88,14 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
           throw new Error(error.message);
         }
         userResponse = response?.[0] || {};
+        if (userResponse?.isDeleted === true) {
+          toast.error(
+            "Your account has been deactivated. Please contact support for assistance.",
+            getToastOptions({ autoClose: false })
+          );
+          CognitoServiceObj.handleSignOut();
+          return;
+        }
       } else {
         const { response, error } = await httpServiceObj.get<[Partial<CorporateUserDetail>]>(
           `/user/${userEmail}/details`,
@@ -129,15 +137,6 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
         await httpServiceObj.get<any>(`/company/${userDetails?.companyId}`, true, {});
       if (userCompanyError) {
         console.error("Error fetching company details: ", userCompanyError);
-        return;
-      }
-      const userResponse = userCompanyResponse?.[0] || {};
-      if (userResponse?.isDeleted === true) {
-        toast.error(
-          "Your account has been deactivated. Please contact support for assistance.",
-          getToastOptions({ autoClose: false })
-        );
-        CognitoServiceObj.handleSignOut();
         return;
       }
       if (userCompanyResponse) {

@@ -127,39 +127,30 @@ export default function SmoothHeroIntro() {
   // jobs list moved to LatestJobOpportunities component
 
   return (
-    <div
-      ref={containerRef}
-      className=" min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
+    <div className=" min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
       {floatingStats.map((stat, index) => (
-        <Reveal
-          key={index}
-          IsDual={false}
-          CName="scale_up"
-          threshold={0.5}
-          PCName="mb-7 mx-auto text-4xl lg:text-[64px] h-auto">
+        
           <div
-            ref={(el) => (floatingRefs.current[index] = el)}
-            className={`max-lg:hidden bg-white absolute ${stat.position} text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-300 ease-out w-28  flex flex-col justify-center items-center overflow-hidden cursor-default z-50`}
-            style={{ transform: `rotate(${Math.random() * 45}deg)` }}>
-            <div className="flex items-center w-[90%] gap-1">
-              {/* {stat.icon && (
-                <img
-                  src={statIcons[stat.icon as keyof typeof statIcons]}
-                  alt=""
-                  className="w-2 h-2 shrink-0"
-                />
-              )} */}
-              <div className="text-[12px] font-semibold leading-tight text-center px-1 ">
+            className={`absolute ${stat.position} w-auto max-w-[200px] group cursor-pointer z-[${
+              stat.position.includes("z-") ? stat.position.split("z-")[1] : "50"
+            }]`}>
+            <div className="relative flex items-center justify-center rounded-lg border px-4 py-2 bg-blue-500 shadow-lg transition-all duration-300 hover:scale-125 animate-scale-pulse">
+              <div className="text-[12px] font-semibold leading-tight text-center text-white">
                 {stat.text}
               </div>
-            </div>
-            <div className="text-[7px] font-normal text-gray-100 mt-0.5 px-1 leading-3 text-center ">
-              {stat.subText}
+
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max max-w-[250px] z-[100]">
+                <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl">
+                  {stat.subText}
+                  {/* Tooltip Arrow */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
             </div>
           </div>
-        </Reveal>
-      ))}
 
+      ))}
       <div className="container section-wrapper mx-auto px-4 py-0">
         <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 

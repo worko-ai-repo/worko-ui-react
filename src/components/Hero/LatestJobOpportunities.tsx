@@ -47,16 +47,17 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
   const [failedJobLogos, setFailedJobLogos] = useState<Record<string, boolean>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const uri = import.meta.env.APP_JOBS_API_URI || "https://jobs.worko.ai";
-
+  const filters = {
+    pageSize: 25,
+    sortOrder: "desc",
+    dashboard: "USER",
+    includeCompanyDetails: true,
+    status:'PUBLISHED'
+  };
+  
   const { data: allJobs = [], isLoading } = useQuery({
     queryKey: ["jobs", "all"],
     queryFn: async () => {
-      const filters = {
-        pageSize: 100,
-        sortOrder: "desc",
-        dashboard: "USER",
-        includeCompanyDetails: true,
-      };
       const { response, error } = await httpServiceObj.get<GlobalApiQueryResponseDto<JobDto>>(
         `${uri}/job`,
         true,
@@ -99,7 +100,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
         }) || []
       );
     },
-    staleTime: 60_000,
+    enabled: !!filters,
   });
 
   const { groupedJobs, jobCategories } = useMemo(() => {
