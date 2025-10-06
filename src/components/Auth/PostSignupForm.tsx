@@ -11,6 +11,11 @@ import { getToastOptions } from "@Utils/Toast.utils";
 import { toast } from "react-toastify";
 import CVParsingPopup from "@Components/Modals/CVParsingPopup";
 import { useNavigate } from "react-router-dom";
+import secureStorage from "@Utils/SecureStorage.utils";
+import { continueReferralRequestDataDto } from "@Pages/request-referral/RequestReferral";
+import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
+import { SignupMode } from "./Signup/Signup";
+import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 
 interface FormData {
   coreSkills: string[];
@@ -145,8 +150,8 @@ export default function JobRecommendationForm() {
   const departmentInputRef = useRef<HTMLInputElement>(null);
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { userDetails } = useAppContext();
-
+  const { userDetails ,PendingApply , setPendingApply} = useAppContext();
+  const appHref = useCrossAppAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: ["fetchSkills"],
     queryFn: getUserSkills,
@@ -395,10 +400,49 @@ export default function JobRecommendationForm() {
     }
   };
 
+    /**
+   * initiateFinalRedirection
+   *
+   * @description This function is used to redirect the user to the final page after the signup process is completed
+   */
+  const initiateFinalRedirection = () => {
+    // Retrieve pending referral data from context and secure storage
+    let pendingReferral =
+      PendingApply ||
+      secureStorage.getItem<continueReferralRequestDataDto>(
+        SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS
+      );
+
+    // Sync PendingApply and secureStorage
+    if (
+      PendingApply &&
+      !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+    ) {
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+    } else if (
+      !PendingApply &&
+      secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+    ) {
+      setPendingApply(pendingReferral);
+    }
+
+    if (PendingApply) {
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+      window.location.href = PendingApply.url; // Redirect to the referral page
+    } else {
+      
+      const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
+      // prefer local over state
+      AuthActiveFrame === "CAND"
+        ? nav("/jobs", { replace: true })
+        : appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`); // Redirect to the home page
+    }
+  };
+
   const handleNavigation = () => {
     toast.success("Your profile is ready! Redirecting to job matches...", getToastOptions());
     setTimeout(() => {
-      nav("/jobs");
+      initiateFinalRedirection();
     }, 1500);
   };
 

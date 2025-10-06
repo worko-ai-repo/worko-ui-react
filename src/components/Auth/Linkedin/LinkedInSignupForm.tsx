@@ -202,11 +202,12 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-          if (activeFrame === "EMP") {
-            appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`);
-          } else {
-            window.location.href = "/post-signup-form";
-          }
+           window.location.href = "/post-signup-form";
+          // if (activeFrame === "EMP") {
+          //   appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`);
+          // } else {
+          //   window.location.href = "/post-signup-form";
+          // }
         }
       }
     } catch (error) {

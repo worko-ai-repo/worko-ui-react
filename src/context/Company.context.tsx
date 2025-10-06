@@ -165,7 +165,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
-      if (response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
+      if (response?.CTC && response?.isCvExtracted === true && (designation || coreSkills?.length || response?.YOE)) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),

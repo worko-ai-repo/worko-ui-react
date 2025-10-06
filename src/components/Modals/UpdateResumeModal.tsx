@@ -93,7 +93,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
       if (error) throw error;
 
-      const hasRelevantData = response?.cvExtractParsed;
+      const hasRelevantData = response && 'isCvExtracted' in response && response.isCvExtracted === true;
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());
@@ -200,7 +200,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     toast.success("CV uploaded successfully", getToastOptions());
     setSecondStepEnabled(true);
     await attemptCheck(); // Start the check after successful upload
-  }, [selectedFile]);
+  }, [selectedFile, userDetails?.fullName]);
 
   return (
     <div className="overflow-y-hidden fixed inset-0 flex items-center justify-center bg-black/50 w-full backdrop-blur-sm z-50  ">

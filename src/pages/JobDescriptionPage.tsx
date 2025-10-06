@@ -156,13 +156,13 @@ const JobDescription = () => {
       const designation = data?.candidateExperience?.designation;
       const coreSkills = data?.coreSkills?.map((s) => s.skillName);
       const yoe = data?.YOE;
-      const isProfileComplete = data?.cvExtractParsed && (designation || coreSkills?.length > 0 || yoe);
+      const isProfileComplete = data?.CTC && data?.isCvExtracted === true && (designation || coreSkills?.length > 0 || yoe);
       const jobDescription = jobDataState ?? jobData ?? null;
       if (jobDescription && !jobDescription.initialMatchingScoreDetails)
         await fetchMatchingScore(jobDataState ?? jobData ?? ({} as JobDto));
 
       if (isProfileComplete) {
-        const cvExtract = data?.cvExtractParsed || null;
+        const cvExtract = data?.isCvExtracted === true;
 
         if (cvExtract && jobDescription) {
           const {

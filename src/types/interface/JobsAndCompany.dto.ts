@@ -280,6 +280,7 @@ export interface cvExtractParsed {
 export interface UserBasicDetailsDto {
   CTC: number;
   ECTC: number;
+  isCvExtracted?: boolean;
   location: string;
   userType: string[];
   noticePeriod: number;
