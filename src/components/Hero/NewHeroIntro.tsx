@@ -129,29 +129,61 @@ export default function SmoothHeroIntro() {
 
   return (
     <div className="min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
-      {floatingStats.map((stat, index) => (       
+      
+      {/* {floatingStats.map((stat, index) => (       
           <div
             className={`hidden lg:block absolute ${stat.position} min-w-[90px] max-w-[110px] min-h-[90px] max-h-[110px] group cursor-pointer z-[${
               stat.position.includes("z-") ? stat.position.split("z-")[1] : "50"
             }]`}>
             <div className="relative flex items-center justify-evenly rounded-lg border px-0.5 py-2 bg-gradient-to-t from-violet-600 to-sky-400 shadow-lg transition-all duration-300 hover:scale-125 animate-scale-pulse min-w-[100px] max-w-[120px] min-h-[100px] max-h-[120px] gap-0">
-              {/* {stat.icon} */}
+
               <img src={stat.icon} alt="" className="w-[30px] h-[30px] max-w-[30px] object-contain inline-block p-0.5"/>
               <div className="flex-1 text-[10px] font-semibold leading-tight text-center text-white text-wrap">               
                 {stat.text}
               </div>
 
-              {/* Tooltip */}
+
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max max-w-[150px] z-[999999999999999999999]">
                 <div className="bg-gray-900 text-white text-[8px] rounded-lg px-3 py-2 shadow-xl">
                   {stat.subText}
-                  {/* Tooltip Arrow */}
+
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                 </div>
               </div>
             </div>
           </div>
+      ))} */}
+
+      {floatingStats.map((stat, index) => (
+      <div
+        key={index}
+        className={`hidden lg:block absolute ${stat.position} min-w-[70px] max-w-[80px] min-h-[70px] max-h-[80px] group cursor-pointer z-${
+          stat.position.includes("z-") ? stat.position.split("z-")[1] : "50"
+        }`}
+      >
+
+        <div className="relative flex-col items-center justify-evenly rounded-lg border px-0.5 py-2 bg-gradient-to-t from-violet-600 to-sky-400 shadow-lg transition-all duration-300 hover:scale-125 animate-scale-pulse min-w-[80px] max-w-[80px] min-h-[80px] max-h-[80px] gap-0">
+          <img
+            src={stat.icon}
+            alt=""
+            className="w-[30px] h-[30px] max-w-[30px] object-contain inline-block p-0.5"
+          />
+          <div className="flex-1 text-[10px] font-semibold leading-tight text-center text-white text-wrap">
+            {stat.text}
+          </div>
+        </div>
+
+
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max max-w-[150px] z-50">
+          <div className="bg-gray-900 text-white text-[8px] rounded-lg px-3 py-2 shadow-xl relative">
+            {stat.subText}
+
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+          </div>
+        </div>
+      </div>
       ))}
+
       <div className="container section-wrapper mx-auto px-4 py-0">
         <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 

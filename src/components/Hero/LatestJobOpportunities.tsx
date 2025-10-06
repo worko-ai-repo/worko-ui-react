@@ -178,7 +178,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
         </h2>
         <div
           className={`flex space-x-2 ${
-            displayedJobs.length > 5 ? "" : "opacity-30 pointer-events-none"
+            displayedJobs.length > 2 ? "" : "opacity-30 pointer-events-none"
           }`}>
           <button
             onClick={() => scroll("left")}
@@ -195,7 +195,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
 
       <div className=" flex gap-4 max-sm:flex-col">
         {/* Categories */}
-        <div className="shrink-0 ">
+        <div className="shrink-0 min-w-[22rem] max-w-[22rem]">
           {/* Desktop view - vertical list */}
           <div className="hidden sm:block space-y-2 max-h-[350px] overflow-auto ">
         {jobCategories.map((category, index) => (
