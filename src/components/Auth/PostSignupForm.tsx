@@ -109,6 +109,7 @@ interface UserProfile {
 
   userPreferredDepartments: string[]; // default: []
 }
+
 export default function JobRecommendationForm() {
   const nav = useNavigate();
   const {
@@ -134,7 +135,8 @@ export default function JobRecommendationForm() {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [noticePeriod, setNoticePeriod] = useState("");
   const [experience, setExperience] = useState(0);
-  const [salary, setSalary] = useState(0);
+  const [salary, setSalary] = useState<number | null>(null);
+  const [ctcTouched, setCtcTouched] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
@@ -150,12 +152,13 @@ export default function JobRecommendationForm() {
   const departmentInputRef = useRef<HTMLInputElement>(null);
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { userDetails ,PendingApply , setPendingApply} = useAppContext();
+  const { userDetails, PendingApply, setPendingApply } = useAppContext();
   const appHref = useCrossAppAuth();
+  
   const { data, isLoading, error } = useQuery({
     queryKey: ["fetchSkills"],
     queryFn: getUserSkills,
-    enabled:  !!userDetails , // Disable automatic query on mount
+    enabled: !!userDetails, // Disable automatic query on mount
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -219,6 +222,7 @@ export default function JobRecommendationForm() {
       toast.error(err.message || err, getToastOptions());
     }
   }
+
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
@@ -299,6 +303,8 @@ export default function JobRecommendationForm() {
   const validateLocations = () => selectedLocations.length > 0;
   const validateNoticePeriod = () => noticePeriod !== "";
   const validateDepartments = () => selectedDepartments.length > 0;
+  const validateSalary = () => ctcTouched && salary !== null && salary > -1;
+  const validateExperience = () => experience >= 0;
 
   const addSkill = (skill: string) => {
     if (!selectedSkills.includes(skill) && selectedSkills.length < 18) {
@@ -367,6 +373,19 @@ export default function JobRecommendationForm() {
   };
 
   const onSubmit = async (data: FormData) => {
+    // Validate all required fields
+    const isSkillsValid = validateSkills();
+    const isLocationsValid = validateLocations();
+    const isNoticePeriodValid = validateNoticePeriod();
+    const isDepartmentsValid = validateDepartments();
+    const isSalaryValid = validateSalary();
+
+    // If any validation fails, stop submission
+    if (!isSkillsValid || !isLocationsValid || !isNoticePeriodValid || !isDepartmentsValid || !isSalaryValid) {
+      toast.error("Please fill all required fields", getToastOptions());
+      return;
+    }
+
     try {
       const dataForRequest: UserProfile = {
         coreSkills: selectedSkills.map((skill) => ({ skillName: skill, years: 0 })),
@@ -400,7 +419,7 @@ export default function JobRecommendationForm() {
     }
   };
 
-    /**
+  /**
    * initiateFinalRedirection
    *
    * @description This function is used to redirect the user to the final page after the signup process is completed
@@ -430,7 +449,6 @@ export default function JobRecommendationForm() {
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
       window.location.href = PendingApply.url; // Redirect to the referral page
     } else {
-      
       const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
       // prefer local over state
       AuthActiveFrame === "CAND"
@@ -787,7 +805,9 @@ export default function JobRecommendationForm() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>0</span>
-                        <span className="font-medium text-gray-900">{salary} Lakhs</span>
+                        <span className="font-medium text-gray-900">
+                          {salary === null ? "Not set" : `${salary} Lakhs`}
+                        </span>
                         <span>500</span>
                       </div>
                       {isLoading ? (
@@ -797,21 +817,33 @@ export default function JobRecommendationForm() {
                           type="range"
                           min="0"
                           max="500"
-                          value={salary}
+                          value={salary ?? 0}
                           onChange={(e) => {
                             const value = Number(e.target.value);
+                            if (!ctcTouched) setCtcTouched(true);
                             setSalary(value);
                             setValue("salary", value);
                           }}
+                          onMouseDown={() => setCtcTouched(true)}
+                          onTouchStart={() => setCtcTouched(true)}
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                           style={{
-                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${
-                              (salary / 500) * 100
-                            }%, #e5e7eb ${(salary / 500) * 100}%, #e5e7eb 100%)`,
+                            background: salary === null 
+                              ? '#e5e7eb'
+                              : `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${
+                                  (salary / 500) * 100
+                                }%, #e5e7eb ${(salary / 500) * 100}%, #e5e7eb 100%)`,
                           }}
                         />
                       )}
                     </div>
+                    {hasSubmitted && !validateSalary() && (
+                      <p className="text-sm text-red-500">
+                        {!ctcTouched 
+                          ? "Please set your current CTC" 
+                          : "Please select a valid CTC amount"}
+                      </p>
+                    )}
                   </div>
 
                   {/* Preferred Department */}
@@ -885,17 +917,17 @@ export default function JobRecommendationForm() {
                 {/* Desktop Suggestion Box */}
                 {!isLoading && !isMobile && !isTablet && (
                   <div className="lg:col-span-1 ">
-                      <div className="grid grid-rows-2 h-full gap-4 ">
-                        <div>
-                          {/* Row 1: Core Skills */}
-                          <div>{activeField === "coreSkills" && <SuggestionBox />}</div>
-                          {/* Row 2: Location */}
-                          <div>{activeField === "location" && <SuggestionBox />}</div>
-                        </div>
-
-                        {/* Row 3: Department */}
-                        <div>{activeField === "department" && <SuggestionBox />}</div>
+                    <div className="grid grid-rows-2 h-full gap-4 ">
+                      <div>
+                        {/* Row 1: Core Skills */}
+                        <div>{activeField === "coreSkills" && <SuggestionBox />}</div>
+                        {/* Row 2: Location */}
+                        <div>{activeField === "location" && <SuggestionBox />}</div>
                       </div>
+
+                      {/* Row 3: Department */}
+                      <div>{activeField === "department" && <SuggestionBox />}</div>
+                    </div>
                   </div>
                 )}
               </div>

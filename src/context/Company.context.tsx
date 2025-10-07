@@ -492,23 +492,23 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           setCompanyJobData([]); //  Clear stale jobs immediately
 
           const newFilters = { ...updatedFilters };
-          if (fallbackLevel === 1) {
-            delete newFilters.YOE;
-            // delete newFilters.coreSkills;
-            return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
-          } else if (fallbackLevel === 2) {
-            delete newFilters.jobTitle;
-            return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
-          } else if (fallbackLevel === 3) {
-            generateFilterForRender(
-              [],
-              companyPageMode,
-              finalFilterMetaData,
-              setJobFilterForRender,
-              isFiltering
-            );
-            return { data: [], nextPage: null };
-          }
+          // if (fallbackLevel === 1) {
+          //   delete newFilters.YOE;
+          //   // delete newFilters.coreSkills;
+          //   return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
+          // } else if (fallbackLevel === 2) {
+          //   delete newFilters.jobTitle;
+          //   return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
+          // } else if (fallbackLevel === 3) {
+          //   generateFilterForRender(
+          //     [],
+          //     companyPageMode,
+          //     finalFilterMetaData,
+          //     setJobFilterForRender,
+          //     isFiltering
+          //   );
+          //   return { data: [], nextPage: null };
+          // }
         }
 
         // Generate filters for rendering
