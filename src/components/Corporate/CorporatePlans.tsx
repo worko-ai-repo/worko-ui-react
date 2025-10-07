@@ -31,7 +31,7 @@ function CorporatePlans() {
           description: 'Our advanced AI analyzes resumes beyond keywords, evaluating skills, experience relevance, cultural fit, and career progression to deliver 98% relevant candidates.'
         },
         {
-          name: 'IATS (Integrated Applicant Tracking System)',
+          name: 'IATS (Intelligent Applicant Tracking System)',
           description: 'Complete applicant tracking system with pipeline management, candidate communication tools, interview scheduling, and hiring analytics - all integrated seamlessly into one platform.'
         },
         {
@@ -70,7 +70,7 @@ function CorporatePlans() {
           description: 'Specialized executive search for C-level, VP, and senior management positions with access to passive candidates and executive networks.'
         },
         {
-          name: 'IATS (Integrated Applicant Tracking System)',
+          name: 'IATS (Intelligent Applicant Tracking System)',
           description: 'Complete applicant tracking system with pipeline management, candidate communication tools, interview scheduling, and hiring analytics - all integrated seamlessly into one platform.'
         },
         {
