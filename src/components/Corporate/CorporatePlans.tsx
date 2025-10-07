@@ -52,7 +52,7 @@ function CorporatePlans() {
       buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=Job%20Board`,
     },
     {
-      title: 'Co-Pilot',
+      title: 'Hiring Co-Pilot',
       price: '3%',
       desc: 'of CTC + Retainership*',
       suitableFor: 'Companies seeking comprehensive long-term hiring solutions with dedicated recruitment support.',
@@ -92,7 +92,7 @@ function CorporatePlans() {
       popular: true,
     },
     {
-      title: 'Hiring Partner',
+      title: 'Full Recruitment',
       price: '8.5 to 15%',
       desc: 'of CTC',
       suitableFor: 'Organizations with ad-hoc hiring requirements needing flexible, full-service recruitment solutions for specialized or urgent positions.',
