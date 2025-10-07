@@ -13,6 +13,8 @@ const PageNotFound = lazy(() => import('@Pages/errors/404/PageNotFound'));
 const LinkedInSignup = lazy(() => import('@Components/Auth/Linkedin/LinkedInSignup'));
 const ForgotPassword = lazy(() => import('@Components/Auth/Reset-Password/ForgotPassword'));
 const CorporateSignup = lazy(() => import('@Components/Auth/Corporate/Signup/CorporateSignup'));
+const AgencyLogin = lazy(() => import('@Components/Auth/Agency/Login/AgencyLogin'));
+const AgencySignup = lazy(() => import('@Components/Auth/Agency/Signup/AgencySignup'));
 
 const Auth = () => {
 	return (<AuthProvider>
@@ -29,6 +31,8 @@ const Auth = () => {
 					<Route path="/corporate/signup/:id" element={<CorporateSignup />} />
 					<Route path="/corporate/login" element={<CorporateLogin />} />
 					<Route path="/evaluator-dashboard/login" element={<EvaluatorLogin />} />
+					<Route path="/agency/login" element={<AgencyLogin />} />
+					<Route path="/agency/signup" element={<AgencySignup />} />
 				</Route>
 				{/* <Route path="/corporate/signup/:id" element={<CorporateSignup />} />
 				<Route path="/corporate/login" element={<CorporateLogin />} /> */}
