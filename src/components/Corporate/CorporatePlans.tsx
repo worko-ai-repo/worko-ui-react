@@ -2,7 +2,7 @@ import { Clock, MessageCircle, Rocket, ShieldCheck } from "lucide-react";
 
 
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function CorporatePlans() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -128,6 +128,22 @@ function CorporatePlans() {
     },
   ];
 
+  useEffect(() => {
+    if (!plans || plans.length === 0) return;
+
+    setExpandedItems(prev => {
+      const initial = { ...prev };
+      plans.forEach((_, index) => {
+        const key = `${index}-suitable`;
+        if (!(key in initial)) {
+          initial[key] = true;
+        }
+      });
+      return initial;
+    });
+  }, []); 
+
+
   return (
     <section id="pricing" className="bg-white py-12 sm:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
@@ -170,7 +186,7 @@ function CorporatePlans() {
                   )}
                 </div>
                 {expandedItems[`${planIndex}-suitable`] && (
-                  <div className="px-2 text-xs text-gray-900 text-left font-bold leading-relaxed mt-1">
+                  <div className="px-2 text-xs text-gray-900 text-left leading-relaxed mt-1">
                     {plan.suitableFor}
                   </div>
                 )}

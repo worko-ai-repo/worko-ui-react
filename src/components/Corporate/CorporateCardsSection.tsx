@@ -1,5 +1,5 @@
 import { document, lightening, shield, time } from "@Assets";
-import { AlertCircle, ArrowRight, Gift, Infinity, LucideCircleDollarSign, Search, XCircle } from "lucide-react";
+import { AlertCircle, ArrowRight, Gift, IndianRupee, Infinity, LucideCircleDollarSign, Search, XCircle } from "lucide-react";
 import React from "react";
 
 const CorporateCardsSection = () => {
@@ -42,13 +42,13 @@ const CorporateCardsSection = () => {
               icon: <Gift className="w-6 h-6 text-white" />,
               title: "Free ATS Included",
               text: "Get a complete Applicant Tracking System at no extra cost. Manage your entire hiring pipeline seamlessly with advanced features.",
-              subText: "$0 Setup cost",
+              subText: "₹0 Setup cost",
               border: "border-green-400",
               bg: "bg-green-500",
               color: "text-green-500",
             },
             {
-              icon: <LucideCircleDollarSign className="text-white w-6 h-6" />,
+              icon: <IndianRupee className="text-white w-6 h-6" />,
               title: "Only 2% of CTC",
               text: "Pay only when you hire. No upfront costs, no hidden fees. Just 2% of the candidate's annual package upon successful placement.",
               subText: "Success based pricing",
