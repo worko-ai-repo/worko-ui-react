@@ -449,11 +449,7 @@ export default function JobRecommendationForm() {
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
       window.location.href = PendingApply.url; // Redirect to the referral page
     } else {
-      const AuthActiveFrame = localStorage.getItem("AuthActiveFrame");
-      // prefer local over state
-      AuthActiveFrame === "CAND"
-        ? nav("/jobs", { replace: true })
-        : appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`); // Redirect to the home page
+        nav("/jobs", { replace: true })
     }
   };
 
