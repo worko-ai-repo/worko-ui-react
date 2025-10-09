@@ -306,7 +306,7 @@ const SignupForm: React.FC<{
 
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
-            <div className={`relative ${tempCvFile ? "hidden" : ""}`}>
+            <div className={`relative`}>
               <label
                 className="hidden sm:block cursor-pointer font-medium"
                 data-tooltip-id="my-tooltip"
