@@ -135,7 +135,8 @@ const JobDescription = () => {
         `${APP_JOBS_API_URI}/job/${job?.id}/s3-vector`,
         true,
         {
-          coreSkills: job?.coreSkills ? job?.coreSkills.join(",") : "",
+          coreSkills: data?.coreSkills?.map((skill) => skill.skillName).join(",") || "",
+          YOE: data?.YOE || 0,
         },
         true
       );

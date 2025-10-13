@@ -469,8 +469,21 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         const derivedPageNumber = isFiltering ? 1 : Math.max(1, pagesCountRef.current + 1);
         updatedFilters.s3VectorPageNumber = derivedPageNumber;
       }
+      //sanitize the filters by removing null or undefined values
+      Object.keys(updatedFilters).forEach((key) => {
+        if (updatedFilters[key as keyof JobFiltersDto] === null) {
+          delete updatedFilters[key as keyof JobFiltersDto];
+        }
+        if (updatedFilters[key as keyof JobFiltersDto] === undefined) {
+          delete updatedFilters[key as keyof JobFiltersDto];
+        }
+        if (Array.isArray(updatedFilters[key as keyof JobFiltersDto])) {
+          if ((updatedFilters[key as keyof JobFiltersDto] as []).length === 0) {
+            delete updatedFilters[key as keyof JobFiltersDto];
+          }
+        }
+      });
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
-
       try {
         const { response, error } = await httpServiceObj.get<
           typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any
