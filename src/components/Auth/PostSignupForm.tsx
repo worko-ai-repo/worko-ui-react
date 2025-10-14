@@ -460,9 +460,9 @@ export default function JobRecommendationForm() {
       setPendingApply(pendingReferral);
     }
 
-    if (PendingApply) {
+    if (pendingReferral) {
       secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
-      window.location.href = PendingApply.url; // Redirect to the referral page
+      window.location.href = pendingReferral.url; // Redirect to the referral page
     } else {
       nav("/jobs", { replace: true });
     }
