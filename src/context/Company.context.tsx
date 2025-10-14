@@ -55,6 +55,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
+const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{
     userDesignation: string;
     coreSkills?: any;
@@ -179,6 +180,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
+        if (response && !("CTC" in response)|| !response?.YOE || coreSkills?.length === 0){
+          setIsProfileIncompWithoutCV(true);
+        } 
         setIsProfileInclomplete(true);
         setDefaultFiltersState({
           userDesignation: "", // Ensure userDesignation is always a string
@@ -653,6 +657,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       setIsProfileInclomplete,
       setIsInitialFilterSet,
       setS3VectorPageNumber,
+      isProfileIncompWithoutCV,
+      setIsProfileIncompWithoutCV,
     }),
     [
       companyPageMode,
@@ -672,6 +678,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       setIsProfileInclomplete,
       setIsInitialFilterSet,
       setS3VectorPageNumber,
+      isProfileIncompWithoutCV,
+      setIsProfileIncompWithoutCV,
     ]
   );
 

@@ -56,6 +56,8 @@ const CompanyJobContent = () => {
     isProfileInclomplete,
     setIsProfileInclomplete,
     setS3VectorPageNumber,
+    isProfileIncompWithoutCV,
+    setIsProfileIncompWithoutCV,
   } = useCompanyContext();
 
   const toggleFilters = () => setIsFiltersOpen(!isFiltersOpen);
@@ -127,7 +129,7 @@ const CompanyJobContent = () => {
     job_listing_promo_3,
   ];
   const showLoadingSkeleton =
-    isLoading || (!companyJobData && !isError) /* || (companyJobData?.length === 0 && !isError) */;
+    isLoading || (!companyJobData && !isError); /* || (companyJobData?.length === 0 && !isError) */
 
   return (
     <div
@@ -336,26 +338,47 @@ const CompanyJobContent = () => {
         )}
       </div>
       {uploadResume && <UpdateResumeModal onClose={() => setUploadResume(false)} />}
-      {isProfileInclomplete && (
-        <MessageModal
-          type="error"
-          size="lg"
-          heading={{ type: "error", message: "Profile Incomplete" }}
-          message="It looks like your profile is incomplete. Please click the button below to update your resume."
-          onClose={() => {}}
-          showCloseButton={false}
-          buttons={[
-            {
-              label: "Update Resume",
-              action: () => {
-                setIsProfileInclomplete(false);
-                setUploadResume(true);
+      {isProfileInclomplete &&
+        (isProfileIncompWithoutCV ? (
+          <MessageModal
+            type="error"
+            size="lg"
+            heading={{ type: "error", message: "Profile Incomplete" }}
+            message="It looks like your profile is incomplete. Please click the button below to update your profile."
+            onClose={() => {}}
+            showCloseButton={false}
+            buttons={[
+              {
+                label: "Update Profile",
+                action: () => {
+                  setIsProfileInclomplete(false);
+                  setIsProfileIncompWithoutCV(false);
+                  window.location.href = `/post-signup-form`;
+                },
+                type: "primary",
               },
-              type: "primary",
-            },
-          ]}
-        />
-      )}
+            ]}
+          />
+        ) : (
+          <MessageModal
+            type="error"
+            size="lg"
+            heading={{ type: "error", message: "Profile Incomplete" }}
+            message="It looks like your profile is incomplete. Please click the button below to update your resume."
+            onClose={() => {}}
+            showCloseButton={false}
+            buttons={[
+              {
+                label: "Update Resume",
+                action: () => {
+                  setIsProfileInclomplete(false);
+                  setUploadResume(true);
+                },
+                type: "primary",
+              },
+            ]}
+          />
+        ))}
     </div>
   );
 };

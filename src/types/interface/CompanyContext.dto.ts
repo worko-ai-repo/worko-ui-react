@@ -41,6 +41,10 @@ export type CompanyContextType = {
     
     setIsProfileInclomplete: React.Dispatch<React.SetStateAction<boolean>>;
 
+    setIsProfileIncompWithoutCV: React.Dispatch<React.SetStateAction<boolean>>;
+
+    isProfileIncompWithoutCV: boolean;
+
     setS3VectorPageNumber : React.Dispatch<React.SetStateAction<number>>;
 
     fetchNextPage: () => void;

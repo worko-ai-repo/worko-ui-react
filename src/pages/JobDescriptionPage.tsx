@@ -157,7 +157,11 @@ const JobDescription = () => {
       const designation = data?.candidateExperience?.designation;
       const coreSkills = data?.coreSkills?.map((s) => s.skillName);
       const yoe = data?.YOE;
-      const isProfileComplete = data && ("CTC" in data) && data?.isCvExtracted === true && (designation || coreSkills?.length > 0 || yoe);
+      const isProfileComplete =
+        data &&
+        "CTC" in data &&
+        data?.isCvExtracted === true &&
+        (designation || coreSkills?.length > 0 || yoe);
       const jobDescription = jobDataState ?? jobData ?? null;
       if (jobDescription && !jobDescription.initialMatchingScoreDetails)
         await fetchMatchingScore(jobDataState ?? jobData ?? ({} as JobDto));
@@ -195,6 +199,28 @@ const JobDescription = () => {
           }));
         }
       } else {
+        if(!coreSkills || coreSkills.length === 0 || !yoe || !(
+          "CTC" in data
+        )){
+          // If core skills or yoe or CTC is missing, prompt to update profile
+          const continueReferralRequestData = {
+            type: "referral",
+            url: window.location.href,
+            data: null,
+          };
+          setPendingApply(continueReferralRequestData);
+          secureStorage.setItem(
+            SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS,
+            continueReferralRequestData
+          );
+          localStorage.setItem(
+            "continueReferralRequestData",
+            JSON.stringify(continueReferralRequestData)
+          );
+          setShowApplyModal(true);
+          showModalsError("NoBasicDetailsWithoutCv");
+          return;
+        }
         setShowApplyModal(true);
         showModalsError("NoBasicDetails");
       }
@@ -275,6 +301,7 @@ const JobDescription = () => {
       | "redundant"
       | "badScore"
       | "NoBasicDetails"
+      | "NoBasicDetailsWithoutCv"
   ) => {
     switch (caseType) {
       case "isExternalJobApplied":
@@ -388,6 +415,25 @@ const JobDescription = () => {
               label: "Update Resume",
               action: () => {
                 setUpdateResume(true);
+                setModalData(null);
+                setShowApplyModal(false);
+              },
+              type: "primary",
+            },
+          ],
+        });
+        break;
+      case "NoBasicDetailsWithoutCv":
+        setModalData({
+          type: "error",
+          heading: { message: "Profile Incomplete", type: "error" },
+          message:
+            "It looks like your profile is incomplete. Please click the button below to update your Profile.",
+          buttons: [
+            {
+              label: "Update Profile",
+              action: () => {
+                window.location.href = "/post-signup-form";
                 setModalData(null);
                 setShowApplyModal(false);
               },
