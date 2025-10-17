@@ -48,7 +48,12 @@ interface LinkedInSignupForm {
   fetchLinkedinSessionData: () => Promise<AuthSessionDto>;
 }
 
-const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleDataMutationtoDb, setCompanyName, fetchLinkedinSessionData }) => {
+const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({
+  activeFrame,
+  handleDataMutationtoDb,
+  setCompanyName,
+  fetchLinkedinSessionData,
+}) => {
   const appHref = useCrossAppAuth();
   const [ViewTerms, setViewTerms] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -58,7 +63,11 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     type: "none" | "error" | "warning" | "success" | "info";
     heading?: { message: string; type: "error" | "warning" | "success" | "info" };
     message: string;
-    buttons?: { label: string; action: () => void; type?: "primary" | "danger" | "warning" | "success" }[];
+    buttons?: {
+      label: string;
+      action: () => void;
+      type?: "primary" | "danger" | "warning" | "success";
+    }[];
   } | null>(null);
 
   const navigate = useNavigate();
@@ -90,7 +99,17 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: { name: "", phone: "", whatsappActive: false, company: undefined, cv: "", email: "", companyEmailId: "", department: "", termsAndConditions: false,/*  ctc: 0, ectc: 0 */ },
+    defaultValues: {
+      name: "",
+      phone: "",
+      whatsappActive: false,
+      company: undefined,
+      cv: "",
+      email: "",
+      companyEmailId: "",
+      department: "",
+      termsAndConditions: false /*  ctc: 0, ectc: 0 */,
+    },
     mode: "all",
   });
 
@@ -119,10 +138,15 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 
     try {
       if (activeFrame === "EMP") return true;
-      
+
       if (retryCount === 0) setOpenReferralLoader(true);
 
-      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(`${import.meta.env.APP_API_URI}/user/basic-details`, true, {}, true);
+      const { response, error } = await httpServiceObj.get<UserBasicDetailsDto>(
+        `${import.meta.env.APP_API_URI}/user/basic-details`,
+        true,
+        {},
+        true
+      );
 
       if (error) throw error;
 
@@ -139,7 +163,10 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           return checkBasicDetails(retryCount + 1); // Recursive retry
         } else {
           setOpenReferralLoader(false);
-          toast.warning("Could not retrieve user details after multiple attempts", getToastOptions());
+          toast.warning(
+            "Could not retrieve user details after multiple attempts",
+            getToastOptions()
+          );
           return false;
         }
       }
@@ -149,9 +176,14 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
       setModalData({
         type: "error",
         heading: { message: "Something Went Wrong", type: "error" },
-        message: "We encountered some issue while analysing your CV. Please enter a few details manually in your profile.",
+        message:
+          "We encountered some issue while analysing your CV. Please enter a few details manually in your profile.",
         buttons: [
-          { label: "Go To Dashboard", action: () => (appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/profile?returnUrl=${params}`)) },
+          {
+            label: "Go To Dashboard",
+            action: () =>
+              appHref(`/${import.meta.env.APP_PROXY_DASH}/candidate/profile?returnUrl=${params}`),
+          },
         ],
       });
       return false;
@@ -192,7 +224,11 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
         toast.success("Account created successfully", getToastOptions());
         // await checkBasicDetails();
         // Redirect to referral page if pending referral found or pending Apply job found
-        let pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+        let pendingReferral =
+          PendingApply ||
+          secureStorage.getItem<continueReferralRequestDataDto>(
+            SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS
+          );
 
         // Sync PendingApply and SecureStorage
         if (PendingApply) {
@@ -202,12 +238,12 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           setPendingApply(pendingReferral);
           window.location.href = pendingReferral.url; // Redirect if referral found in storage
         } else {
-           window.location.href = "/post-signup-form";
-          // if (activeFrame === "EMP") {
-          //   appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`);
-          // } else {
-          //   window.location.href = "/post-signup-form";
-          // }
+          //  window.location.href = "/post-signup-form";
+          if (activeFrame === "EMP") {
+            appHref(`/${import.meta.env.APP_PROXY_DASH}/employee/profile`);
+          } else {
+            window.location.href = "/post-signup-form";
+          }
         }
       }
     } catch (error) {
@@ -245,23 +281,37 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
   return (
     <div className="mx-auto  bg-white flex justify-center items-center w-[100%] ">
       <form onSubmit={handleSubmit(onSubmit)} className="min-w-full ">
-        <div className={"mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "}>
+        <div
+          className={
+            "mainForm  min-w-full grid grid-rows-[min-content] sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))]  md:gap-x-14 w-full px-2 sm:px-3  rounded-2xl mx-auto sm:py-2 min-h-[150px] items-baseline max-sm:gap-4 md:[grid-auto-rows:min-content] "
+          }>
           {/* Name */}
           <div>
             <label className="hidden sm:block font-medium">Name</label>
-            <input placeholder="Enter Name" type="text" className={`input_primary auth_input  ${errors.name && "error"}`} {...register("name", validationRules.name)} />
-            {errors.name && <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>}
+            <input
+              placeholder="Enter Name"
+              type="text"
+              className={`input_primary auth_input  ${errors.name && "error"}`}
+              {...register("name", validationRules.name)}
+            />
+            {errors.name && (
+              <p className="text-sm text-left text-red-500">{errors.name.message?.toString()}</p>
+            )}
           </div>
 
           {/* Phone Number */}
           <div className="relative ">
             <label className=" hidden sm:block font-medium">Phone</label>
-            <span className="z-20 absolute left-3 top-[11px] sm:top-[40.5px] text-[1rem] text-[#416f99] font-semibold">+91</span>
+            <span className="z-20 absolute left-3 top-[11px] sm:top-[40.5px] text-[1rem] text-[#416f99] font-semibold">
+              +91
+            </span>
             <input
               type="text"
               placeholder="Enter Phone Number"
               maxLength={10}
-              className={`appearance-none input_primary auth_input  ${errors.phone && "error"} pl-10`}
+              className={`appearance-none input_primary auth_input  ${
+                errors.phone && "error"
+              } pl-10`}
               {...register("phone", validationRules.phone)}
               onChange={(e) => {
                 let value = e.target.value.replace(/\D/g, ""); // Non-numeric remove
@@ -269,32 +319,59 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
                 setValue("phone", value, { shouldValidate: true });
               }}
             />
-            {errors.phone && <p className="text-sm text-left text-red-500">{errors.phone.message?.toString()}</p>}
+            {errors.phone && (
+              <p className="text-sm text-left text-red-500">{errors.phone.message?.toString()}</p>
+            )}
 
             <label className="flex items-center justify-start text-xs gap-2 mt-2">
-              <input type="checkbox" className=" text-[7px] bg-white " {...register("whatsappActive")} />
-              This number has active <i className="fa-brands text-xs text-[#00fa53] fa-whatsapp"></i> WhatsApp
+              <input
+                type="checkbox"
+                className=" text-[7px] bg-white "
+                {...register("whatsappActive")}
+              />
+              This number has active{" "}
+              <i className="fa-brands text-xs text-[#00fa53] fa-whatsapp"></i> WhatsApp
             </label>
           </div>
           {/* Email */}
           <div className="relative">
             <label className="hidden sm:block font-medium">Email</label>
-            <input placeholder="Enter Email" disabled type="email" className={`input_primary auth_input  ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
-            {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
+            <input
+              placeholder="Enter Email"
+              disabled
+              type="email"
+              className={`input_primary auth_input  ${errors.email && "error"}`}
+              {...register("email", validationRules.personalEmail)}
+            />
+            {errors.email && (
+              <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>
+            )}
           </div>
 
           {/* COMPANY OR CV */}
           {activeFrame === "CAND" ? (
             <div className="relative ">
-              <label className="hidden sm:block font-medium" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
-                Upload CV (<i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"></i>
+              <label
+                className="hidden sm:block font-medium"
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                Upload CV (
+                <i className="fa-solid fa-circle-info animate-pulse cursor-pointer text-xs"></i>
                 &nbsp; View file requirements)
               </label>
-              <input type="file" className="input_primary auth_input  appearance-none cursor-pointer  " {...register("cv", { validate: validateCV })} accept=".pdf" />
+              <input
+                type="file"
+                className="input_primary auth_input  appearance-none cursor-pointer  "
+                {...register("cv", { validate: validateCV })}
+                accept=".pdf"
+              />
               <Upload className="absolute right-4 top-3 sm:top-10 h-5 w-5 cursor-pointer active:scale-90 text-gray-400 z-1" />
               <p className="sm:hidden text-left text-xs text-gray-500">
                 Note: Click{" "}
-                <u className="text-blue-500 cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
+                <u
+                  className="text-blue-500 cursor-pointer"
+                  data-tooltip-id="my-tooltip"
+                  data-tooltip-content="Upload <2MB pdf & password protected/scanned file is not supported.">
                   Here
                 </u>{" "}
                 Before Uploading Any File
@@ -305,8 +382,17 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
             <div>
               {/* Company Name */}
               <label className="hidden sm:block font-medium">Company Name</label>
-              <CompanyInput errors={errors} setValue={setValue} clearErrors={clearErrors} setCompanyName={setCompanyName} />
-              {errors.company && <p className="text-sm text-left text-red-500">{errors.company.message?.toString()}</p>}
+              <CompanyInput
+                errors={errors}
+                setValue={setValue}
+                clearErrors={clearErrors}
+                setCompanyName={setCompanyName}
+              />
+              {errors.company && (
+                <p className="text-sm text-left text-red-500">
+                  {errors.company.message?.toString()}
+                </p>
+              )}
             </div>
           )}
 
@@ -314,24 +400,48 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
           {activeFrame === "EMP" && (
             <div className="relative">
               <label className="hidden sm:block font-medium">Work Email</label>
-              <input placeholder="Enter Work Email" type="email" className={`input_primary auth_input  ${errors.companyEmailId && "error"}`} {...register("companyEmailId", validationRules.corporateEmail)} />
-              {errors.companyEmailId && <p className="text-sm text-left text-red-500">{errors.companyEmailId.message?.toString()}</p>}
+              <input
+                placeholder="Enter Work Email"
+                type="email"
+                className={`input_primary auth_input  ${errors.companyEmailId && "error"}`}
+                {...register("companyEmailId", validationRules.corporateEmail)}
+              />
+              {errors.companyEmailId && (
+                <p className="text-sm text-left text-red-500">
+                  {errors.companyEmailId.message?.toString()}
+                </p>
+              )}
             </div>
           )}
           {/* department */}
           {activeFrame === "EMP" && (
             <div className="relative">
               <label className="hidden sm:block font-medium">Department</label>
-              <input placeholder="Enter Department" type="text" className={`input_primary auth_input  ${errors.department && "error"}`} {...register("department", validationRules.department)} />
-              {errors.department && <p className="text-sm text-left text-red-500">{errors.department.message?.toString()}</p>}
+              <input
+                placeholder="Enter Department"
+                type="text"
+                className={`input_primary auth_input  ${errors.department && "error"}`}
+                {...register("department", validationRules.department)}
+              />
+              {errors.department && (
+                <p className="text-sm text-left text-red-500">
+                  {errors.department.message?.toString()}
+                </p>
+              )}
             </div>
           )}
         </div>
 
         {/* Terms and Conditions */}
         <div className="flex gap-2  mt-5 text-xs items-center justify-center">
-          <input type="checkbox" {...register("termsAndConditions", validationRules.termsAndConditions)} checked={watch("termsAndConditions")} />
-          <p className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer" onClick={() => setViewTerms(true)}>
+          <input
+            type="checkbox"
+            {...register("termsAndConditions", validationRules.termsAndConditions)}
+            checked={watch("termsAndConditions")}
+          />
+          <p
+            className="block md:w-auto text-sm sm:text-md text-left font-medium cursor-pointer"
+            onClick={() => setViewTerms(true)}>
             I accept the <span className="text-blue-500 cursor-pointer">Terms and Conditions</span>
           </p>
         </div>
@@ -369,7 +479,9 @@ const LinkedInSignupForm: React.FC<LinkedInSignupForm> = ({ activeFrame, handleD
 
         {/* Buttons */}
         <div className="flex flex-wrap justify-center items-center gap-2  my-5 ">
-          <button type="submit" className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
+          <button
+            type="submit"
+            className=" btn_primary text-white px-4 py-2 border-none rounded-md w-[300px] disabled:!bg-gray-500 disabled:!cursor-not-allowed disabled:!pointer-events-all  ">
             Create Account
           </button>
         </div>
