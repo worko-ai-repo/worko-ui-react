@@ -129,7 +129,7 @@ export default function SmoothHeroIntro() {
 
   return (
     <div className="min-h-screen bg-white relative rounded-b-[40px] overflow-hidden">
-      <section className="section-wrapper">
+      <section className="section-wrapper max-sm:pt-0">
         {floatingStats.map((stat, index) => (
           <div
             key={index}
@@ -159,17 +159,17 @@ export default function SmoothHeroIntro() {
           </div>
         ))}
 
-        <div className="container section-wrapper mx-auto px-4 py-0">
+        <div className="container section-wrapper mx-auto px-4 max-sm:pt-0   py-0">
           <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 
           {/* Hero Text */}
           <div className="text-center mb-12">
-            <div className="section-wrapper !py-0 max-sm:!pt-10 !pb-0 text-sm  font-bold ">
+            <div className="section-wrapper !py-0 max-sm:!pt-10  !pb-0 text-sm  font-bold ">
               <Reveal
                 IsDual={false}
                 CName="scale_up"
                 threshold={0.5}
-                PCName="mb-7 mx-auto text-4xl lg:text-[64px] md:w-2/3 h-auto">
+                PCName="mb-7 mx-auto text-4xl lg:text-[64px] md:w-fit lg:w-2/3 h-auto">
                 <h1 className="text-center leading-[1.2]">
                   Increase your chances of getting a job by
                 </h1>
