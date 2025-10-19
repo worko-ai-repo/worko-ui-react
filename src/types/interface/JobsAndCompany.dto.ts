@@ -135,6 +135,7 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   softSkills?: string[];
   technicalSkills?: string[];
   companyId?: string;
+  companyName?: string[];
   jobTitle?: string;
   YOE?: number;
   industry?: string;

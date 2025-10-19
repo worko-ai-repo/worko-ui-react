@@ -17,7 +17,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       options: [], // This can be populated with suggested locations
       value: [], // This can be populated with suggested locations
     },
-    {
+    /* {
       options: ["Internship", "Full Time", "Part Time"],
       value: ["INTERNSHIP", "FULL_TIME", "PART_TIME"],
       paramKey: "typeofEmployment",
@@ -30,7 +30,7 @@ export const filterMetaData: { jobFilter: FilterMetadata[]; referralFilter: Filt
       paramKey: "workMode",
       placeholder: "Work Mode",
       selectType: "normal",
-    },
+    }, */
     {
       paramKey: "coreSkills",
       placeholder: "Core Skills",

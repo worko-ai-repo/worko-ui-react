@@ -33,7 +33,7 @@ export const generateFilterForRender = (
   setJobFilterForRender: React.Dispatch<React.SetStateAction<FilterOptionForRender[]>>,
   isFiltering: boolean = false // Only resets cache if explicitly required
 ) => {
-  let customOrder = ["location", "coreSkills", "experienceRange", "department", "technicalSkills", "softSkills", "companyName", "salaryRange", "typeofEmployment", "workMode", "dashboard"];
+  let customOrder = ["location", "coreSkills", "experienceRange", "department", "technicalSkills", "softSkills", "companyName", "salaryRange", /* "typeofEmployment", "workMode", */ "dashboard"];
   const jobPageParams = ["location", "coreSkills", "softSkills", "technicalSkills", "companyName", "department"];
   const companyPageParam = ["industry", "companyName"];
   try {

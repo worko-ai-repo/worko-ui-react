@@ -55,7 +55,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
-const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean>(false);
+  const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{
     userDesignation: string;
     coreSkills?: any;
@@ -166,7 +166,12 @@ const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean
       if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
-      if (response && ("CTC" in response) && response?.isCvExtracted === true && (designation || coreSkills?.length || response?.YOE)) {
+      if (
+        response &&
+        "CTC" in response &&
+        response?.isCvExtracted === true &&
+        (designation || coreSkills?.length || response?.YOE)
+      ) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
@@ -180,9 +185,9 @@ const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean
           ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
-        if (response && !("CTC" in response)|| !response?.YOE || coreSkills?.length === 0){
+        if ((response && !("CTC" in response)) || !response?.YOE || coreSkills?.length === 0) {
           setIsProfileIncompWithoutCV(true);
-        } 
+        }
         setIsProfileInclomplete(true);
         setDefaultFiltersState({
           userDesignation: "", // Ensure userDesignation is always a string
@@ -426,6 +431,31 @@ const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean
           updatedFilters.coreSkills = coreSkillsFromParams;
         } else if (isLoggedIn) {
           updatedFilters.coreSkills = defaultCoreSkills;
+        }
+        const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } =
+          filters;
+        console.log("Filters received in Job Page:", filters);
+        // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
+        const hasAnyOtherFilter = Object.values(rest).some(
+          (value) => value !== undefined && value !== null
+        );
+        //check if rest has searchText or companyId
+        const hasSearchOrCompanyId = !!(rest.searchText || rest.companyName);
+
+        if (hasSearchOrCompanyId) {
+          //then delete all default filters
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
+          delete updatedFilters.coreSkills;
+        } else if (hasAnyOtherFilter && !coreSkillsFromParams) {
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
+          console.info("Removed default filters because at least one other filter is present.");
+        } else if (hasAnyOtherFilter || coreSkillsFromParams) {
+          // If coreSkillsFromParams is present, keep it in the updatedFilters
+          updatedFilters.coreSkills = coreSkillsFromParams;
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
         }
       }
 
