@@ -274,7 +274,8 @@ const Signup = () => {
     const attemptCheck = async () => {
       try {
         if (activeFrame === "EMP") {
-          initiateFinalRedirection();
+           initiateFinalRedirection();
+          //  window.location.href = "/post-signup-form";
         } else {
           window.location.href = "/post-signup-form";
          /*  if (retryCount === 0) {

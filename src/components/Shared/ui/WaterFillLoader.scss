@@ -18,46 +18,47 @@
   box-shadow: 0 0 0 5px #4973ff;
   border-radius: 50%;
   overflow: hidden;
+  background: #f0f0f0;
+}
 
-  .wave {
-    position: relative;
-    width: 100%;
-    height: 100%;
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transition: transform 0.5s ease-out;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 200%;
+    height: 200%;
     background: #2C74B3;
-    border-radius: 50%;
-    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+  }
 
-    &::before,
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 200%;
-      height: 200%;
-      transform: translate(-50%, -75%);
-    }
+  &::before {
+    border-radius: 45%;
+    animation: animate 5s linear infinite;
+  }
 
-    &::before {
-      border-radius: 45%;
-      background: rgba(255, 255, 255, 1);
-      animation: animate 5s linear infinite;
-    }
-
-    &::after {
-      border-radius: 40%;
-      background: rgba(255, 255, 255, 0.5);
-      animation: animate 10s linear infinite;
-    }
+  &::after {
+    border-radius: 40%;
+    background: rgba(44, 116, 179, 0.8);
+    animation: animate 10s linear infinite;
   }
 }
 
 @keyframes animate {
   0% {
-    transform: translate(-50%, -75%) rotate(0deg);
+    transform: translateX(-50%) rotate(0deg);
   }
   100% {
-    transform: translate(-50%, -75%) rotate(360deg);
+    transform: translateX(-50%) rotate(360deg);
   }
 }
 

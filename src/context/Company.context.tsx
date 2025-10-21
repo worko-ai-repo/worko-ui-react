@@ -55,6 +55,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
   const [apiHasData, setApiHasData] = useState<boolean>(false);
   const [isUserDetailsLoading, setIsUserDetailsLoading] = useState<boolean>(false);
   const [isProfileInclomplete, setIsProfileInclomplete] = useState<boolean>(false);
+  const [isProfileIncompWithoutCV, setIsProfileIncompWithoutCV] = useState<boolean>(false);
   const [defaultFiltersState, setDefaultFiltersState] = useState<{
     userDesignation: string;
     coreSkills?: any;
@@ -165,7 +166,12 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       if (response) setUserBasicDetails(response);
 
       // If either designation or coreSkills exist, update filters
-      if (response?.cvExtractParsed && (designation || coreSkills?.length || response?.YOE)) {
+      if (
+        response &&
+        "CTC" in response &&
+        response?.isCvExtracted === true &&
+        (designation || coreSkills?.length || response?.YOE)
+      ) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
           ...(coreSkills?.length && { coreSkills }),
@@ -179,6 +185,9 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
+        if ((response && !("CTC" in response)) || !response?.YOE || coreSkills?.length === 0) {
+          setIsProfileIncompWithoutCV(true);
+        }
         setIsProfileInclomplete(true);
         setDefaultFiltersState({
           userDesignation: "", // Ensure userDesignation is always a string
@@ -423,6 +432,31 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         } else if (isLoggedIn) {
           updatedFilters.coreSkills = defaultCoreSkills;
         }
+        const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } =
+          filters;
+        console.log("Filters received in Job Page:", filters);
+        // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
+        const hasAnyOtherFilter = Object.values(rest).some(
+          (value) => value !== undefined && value !== null
+        );
+        //check if rest has searchText or companyId
+        const hasSearchOrCompanyId = !!(rest.searchText || rest.companyName);
+
+        if (hasSearchOrCompanyId) {
+          //then delete all default filters
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
+          delete updatedFilters.coreSkills;
+        } else if (hasAnyOtherFilter && !coreSkillsFromParams) {
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
+          console.info("Removed default filters because at least one other filter is present.");
+        } else if (hasAnyOtherFilter || coreSkillsFromParams) {
+          // If coreSkillsFromParams is present, keep it in the updatedFilters
+          updatedFilters.coreSkills = coreSkillsFromParams;
+          delete updatedFilters.jobTitle;
+          delete updatedFilters.YOE;
+        }
       }
 
       const {
@@ -469,8 +503,21 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         const derivedPageNumber = isFiltering ? 1 : Math.max(1, pagesCountRef.current + 1);
         updatedFilters.s3VectorPageNumber = derivedPageNumber;
       }
+      //sanitize the filters by removing null or undefined values
+      Object.keys(updatedFilters).forEach((key) => {
+        if (updatedFilters[key as keyof JobFiltersDto] === null) {
+          delete updatedFilters[key as keyof JobFiltersDto];
+        }
+        if (updatedFilters[key as keyof JobFiltersDto] === undefined) {
+          delete updatedFilters[key as keyof JobFiltersDto];
+        }
+        if (Array.isArray(updatedFilters[key as keyof JobFiltersDto])) {
+          if ((updatedFilters[key as keyof JobFiltersDto] as []).length === 0) {
+            delete updatedFilters[key as keyof JobFiltersDto];
+          }
+        }
+      });
       const apiUrl = isJobPage ? `${APP_JOBS_API_URI}/job/` : "/company";
-
       try {
         const { response, error } = await httpServiceObj.get<
           typeof isJobPage extends true ? GlobalApiQueryResponseDto<JobDto> : any
@@ -492,23 +539,23 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           setCompanyJobData([]); //  Clear stale jobs immediately
 
           const newFilters = { ...updatedFilters };
-          if (fallbackLevel === 1) {
-            delete newFilters.YOE;
-            // delete newFilters.coreSkills;
-            return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
-          } else if (fallbackLevel === 2) {
-            delete newFilters.jobTitle;
-            return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
-          } else if (fallbackLevel === 3) {
-            generateFilterForRender(
-              [],
-              companyPageMode,
-              finalFilterMetaData,
-              setJobFilterForRender,
-              isFiltering
-            );
-            return { data: [], nextPage: null };
-          }
+          // if (fallbackLevel === 1) {
+          //   delete newFilters.YOE;
+          //   // delete newFilters.coreSkills;
+          //   return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 2 });
+          // } else if (fallbackLevel === 2) {
+          //   delete newFilters.jobTitle;
+          //   return CompanyQueryHandler({ pageParam, filters: newFilters, fallbackLevel: 3 });
+          // } else if (fallbackLevel === 3) {
+          //   generateFilterForRender(
+          //     [],
+          //     companyPageMode,
+          //     finalFilterMetaData,
+          //     setJobFilterForRender,
+          //     isFiltering
+          //   );
+          //   return { data: [], nextPage: null };
+          // }
         }
 
         // Generate filters for rendering
@@ -640,6 +687,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       setIsProfileInclomplete,
       setIsInitialFilterSet,
       setS3VectorPageNumber,
+      isProfileIncompWithoutCV,
+      setIsProfileIncompWithoutCV,
     }),
     [
       companyPageMode,
@@ -659,6 +708,8 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       setIsProfileInclomplete,
       setIsInitialFilterSet,
       setS3VectorPageNumber,
+      isProfileIncompWithoutCV,
+      setIsProfileIncompWithoutCV,
     ]
   );
 

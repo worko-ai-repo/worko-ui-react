@@ -135,6 +135,7 @@ export interface JobFiltersDto extends BaseApiFiltersDto {
   softSkills?: string[];
   technicalSkills?: string[];
   companyId?: string;
+  companyName?: string[];
   jobTitle?: string;
   YOE?: number;
   industry?: string;
@@ -280,6 +281,7 @@ export interface cvExtractParsed {
 export interface UserBasicDetailsDto {
   CTC: number;
   ECTC: number;
+  isCvExtracted?: boolean;
   location: string;
   userType: string[];
   noticePeriod: number;

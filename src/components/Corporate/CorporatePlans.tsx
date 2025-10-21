@@ -1,54 +1,148 @@
 import { Clock, MessageCircle, Rocket, ShieldCheck } from "lucide-react";
 
+
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useEffect, useState } from "react";
+
 function CorporatePlans() {
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (planIndex: number, itemKey: string) => {
+    const key = `${planIndex}-${itemKey}`;
+    setExpandedItems(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   const plans = [
     {
       title: 'Job Board',
       price: '2%',
       desc: 'of CTC',
+      suitableFor: 'Startups and companies seeking intelligent sourcing solutions with cost-effective, results-driven recruitment technology.',
       features: [
-        'Pay-As-You-Go model',
-        'AI-Powered candidate filtering',
-        'Enhanced Insights',
-        'Priority support',
-        'Custom Solutions',
+        {
+          name: 'Pay-As-You-Go model',
+          description: 'Only pay when you successfully hire a candidate. No monthly subscriptions, no setup fees, no hidden costs. You invest only when you get results.'
+        },
+        {
+          name: 'AI-Powered candidate filtering',
+          description: 'Our advanced AI analyzes resumes beyond keywords, evaluating skills, experience relevance, cultural fit, and career progression to deliver 98% relevant candidates.'
+        },
+        {
+          name: 'IATS (Intelligent Applicant Tracking System)',
+          description: 'Complete applicant tracking system with pipeline management, candidate communication tools, interview scheduling, and hiring analytics - all integrated seamlessly into one platform.'
+        },
+        {
+          name: 'Enhanced Insights',
+          description: 'Get detailed analytics on your hiring funnel, candidate quality metrics, time-to-hire data, and market salary benchmarks to optimize your recruitment strategy.'
+        },
+        {
+          name: 'Priority support',
+          description: 'Dedicated customer success team available via email and chat during business hours. Get help with job posting optimization and platform guidance.'
+        },
+        {
+          name: 'Custom Solutions',
+          description: 'Tailored integrations with your existing ATS, custom reporting dashboards, and specialized filtering criteria based on your unique hiring requirements.'
+        }
       ],
       button: 'Try Now',
       buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
-	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Job%20Board', 
+      buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=Job%20Board`,
     },
     {
-      title: 'Hiring Partner',
+      title: 'Hiring Co-Pilot',
       price: '3%',
       desc: 'of CTC + Retainership*',
+      suitableFor: 'Companies seeking comprehensive long-term hiring solutions with dedicated recruitment support.',
       features: [
-        '60-day replacement guarantee',
-        'Dedicated recruitment team',
-        'End-to-end candidate communication',
-        '2000 free AI screening credits',
-        'Senior account manager',
+        {
+          name: '60-day replacement guarantee',
+          description: 'If a hired candidate leaves within 60 days for any reason, we\'ll find and provide a replacement candidate at no additional cost to ensure your hiring success.'
+        },
+        {
+          name: 'Dedicated recruitment team',
+          description: 'A specialized team of recruiters assigned exclusively to your account, understanding your company culture and specific hiring needs.'
+        },
+        {
+          name: 'Executive search capabilities',
+          description: 'Specialized executive search for C-level, VP, and senior management positions with access to passive candidates and executive networks.'
+        },
+        {
+          name: 'IATS (Intelligent Applicant Tracking System)',
+          description: 'Complete applicant tracking system with pipeline management, candidate communication tools, interview scheduling, and hiring analytics - all integrated seamlessly into one platform.'
+        },
+        {
+          name: 'End-to-end candidate communication',
+          description: 'We handle all candidate touchpoints including initial outreach, interview scheduling, follow-ups, offer negotiations, and onboarding coordination.'
+        },
+        {
+          name: '500 free AI screening credits',
+          description: 'Process up to 500 candidate profiles monthly with our AI screening at no extra cost, saving significant time on initial candidate evaluation.'
+        },
+        {
+          name: 'Senior account manager',
+          description: 'Dedicated senior account manager with 5+ years recruitment experience, providing strategic hiring advice and weekly progress reviews.'
+        }
       ],
       button: 'Try Now',
       buttonStyle: 'bg-blue-600 hover:bg-blue-700 text-white',
-	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Hiring%20Partner', 
+      buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=Co-Pilot`,
       popular: true,
     },
     {
-      title: 'Co-Pilot',
-      price: '12%',
+      title: 'Full Recruitment',
+      price: '8.5 to 15%',
       desc: 'of CTC',
+      suitableFor: 'Organizations with ad-hoc hiring requirements needing flexible, full-service recruitment solutions for specialized or urgent positions.',
       features: [
-        '90-day replacement guarantee',
-        'Executive search capabilities',
-        'Complete hiring process management',
-        '500 free AI screening credits',
-        'Priority placement',
+        {
+          name: '90-day replacement guarantee',
+          description: 'Extended 90-day guarantee for senior and executive roles. If the hired candidate doesn\'t work out, we provide a replacement with enhanced vetting process.'
+        },
+        {
+          name: 'Dedicated recruitment team',
+          description: 'A specialized team of recruiters assigned exclusively to your account, understanding your company culture and specific hiring needs.'
+        },
+        {
+          name: 'Executive search capabilities',
+          description: 'Specialized executive search for C-level, VP, and senior management positions with access to passive candidates and executive networks.'
+        },
+        {
+          name: 'Complete hiring process management',
+          description: 'Full-service recruitment including job description optimization, candidate sourcing, screening, interview coordination, reference checks, and offer negotiation.'
+        },
+        {
+          name: '500 free AI screening credits',
+          description: 'Monthly allocation of 500 AI screening credits for high-volume positions, with detailed candidate scoring and ranking reports.'
+        },
+        {
+          name: 'Senior account manager',
+          description: 'Dedicated senior account manager with 5+ years recruitment experience, providing strategic hiring advice and weekly progress reviews.'
+        }
       ],
       button: 'Try Now',
       buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
-	  buttonLink: 'https://worko.ai/corporate/connect-with-us?plan=Co-Pilot', 
+      buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=Hiring%20Partner`,
     },
   ];
+
+  useEffect(() => {
+    if (!plans || plans.length === 0) return;
+
+    setExpandedItems(prev => {
+      const initial = { ...prev };
+      plans.forEach((_, index) => {
+        const key = `${index}-suitable`;
+        if (!(key in initial)) {
+          initial[key] = true;
+        }
+      });
+      return initial;
+    });
+  }, []); 
+
 
   return (
     <section id="pricing" className="bg-white py-12 sm:py-16">
@@ -58,10 +152,10 @@ function CorporatePlans() {
           Pay only when you hire. No upfront costs, no hidden fees.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          {plans.map((plan, index) => (
+          {plans.map((plan, planIndex) => (
             <div
-              key={index}
-              className={`border rounded-xl p-4 sm:p-6 shadow hover:shadow-lg transition-transform hover:scale-105 relative ${
+              key={planIndex}
+              className={`border rounded-xl p-4 sm:p-6 shadow hover:shadow-lg transition-transform hover:scale-105 relative cursor-pointer ${
                 plan.popular ? 'border-2 border-blue-600' : ''
               }`}
             >
@@ -70,23 +164,69 @@ function CorporatePlans() {
                   Most Popular
                 </span>
               )}
+              
               <h3 className="text-lg sm:text-lg font-semibold mb-2">{plan.title}</h3>
-              <p className="font-medium mb-4 sm:mb-6 text-sm sm:text-base">
+              <p className="font-medium mb-4 text-sm sm:text-base">
                 Pricing: <span className="text-blue-600 font-bold">{plan.price}</span> {plan.desc}
               </p>
-              <ul className="text-xs sm:text-sm text-left space-y-2 mb-4 sm:mb-6">
-                {plan.features.map((feature, i) => (
-                  <li key={i}>✔️ {feature}</li>
+
+              {/* Suitable For Section */}
+              <div className="mb-4">
+                <div
+                  className="flex items-center justify-between gap-2 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                  onClick={() => toggleExpand(planIndex, 'suitable')}
+                >
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-sm font-bold text-gray-800">Suitable for:</span>
+                  </div>
+                  {expandedItems[`${planIndex}-suitable`] ? (
+                    <ChevronUp className="text-gray-400 flex-shrink-0 w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="text-gray-400 flex-shrink-0 w-4 h-4" />
+                  )}
+                </div>
+                {expandedItems[`${planIndex}-suitable`] && (
+                  <div className="px-2 text-xs text-gray-900 text-left leading-relaxed mt-1">
+                    {plan.suitableFor}
+                  </div>
+                )}
+              </div>
+
+              {/* Features List */}
+              <ul className="text-left space-y-1 mb-4 sm:mb-6">
+                {plan.features.map((feature, featureIndex) => (
+                  <li key={featureIndex} className="border-b border-gray-100 last:border-b-0">
+                    <div
+                      className="flex items-center justify-between gap-2 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                      onClick={() => toggleExpand(planIndex, `feature-${featureIndex}`)}
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-green-500 flex-shrink-0">✓</span>
+                        <span className="text-xs sm:text-sm">{feature.name}</span>
+                      </div>
+                      {expandedItems[`${planIndex}-feature-${featureIndex}`] ? (
+                        <ChevronUp className="text-gray-400 flex-shrink-0 w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="text-gray-400 flex-shrink-0 w-4 h-4" />
+                      )}
+                    </div>
+                    {expandedItems[`${planIndex}-feature-${featureIndex}`] && (
+                      <div className="px-6 pb-3 text-xs text-gray-600 leading-relaxed">
+                        {feature.description}
+                      </div>
+                    )}
+                  </li>
                 ))}
               </ul>
+
               <a
-				  href={plan.buttonLink}
-				  target="_blank"
-				  rel="noopener noreferrer"
-				  className={`w-full ${plan.buttonStyle} py-2 rounded-lg text-sm sm:text-base transition-transform hover:scale-105 inline-block text-center`}
-				>
-				  {plan.button}
-				</a>
+                href={plan.buttonLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full ${plan.buttonStyle} py-2 rounded-lg text-sm sm:text-base transition-transform hover:scale-105 inline-block text-center`}
+              >
+                {plan.button}
+              </a>
             </div>
           ))}
         </div>

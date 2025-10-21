@@ -1,104 +1,125 @@
+
+import WaterFillLoader from "@Components/Shared/ui/WaterFillLoader";
 import { Loader } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 
-import { toast } from "react-toastify";
-import { getToastOptions } from "@Utils/Toast.utils";
-import { useAppContext } from "@Context/App.context";
-import useSetInterval from "@Hooks/useSetInterval.hook";
-import profileService from "@Services/ProfileService";
-import WaterFillLoader from "@Components/Shared/ui/WaterFillLoader";
-
 interface CVParsingPopupProps {
+  isInitial: boolean;
   onClose: () => void;
   maxDurationMs?: number;
   checkIntervalMs?: number;
 }
 
-const CVParsingPopup: React.FC<CVParsingPopupProps> = ({ onClose, maxDurationMs = 40000, checkIntervalMs = 5000 }) => {
+const CVParsingPopup: React.FC<CVParsingPopupProps> = ({ 
+  isInitial = false, 
+  onClose, 
+  maxDurationMs = 40000, 
+  checkIntervalMs = 5000 
+}) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(Math.floor(maxDurationMs / 1000));
   const [visibleMessages, setVisibleMessages] = useState<{
     id: number;
     text: string;
-    position: number; // -1 (top), 0 (center), 1 (bottom)
+    position: number;
   }[]>([]);
   const [forceComplete, setForceComplete] = useState(false);
-  const { userDetails } = useAppContext();
+  const [allMessagesShown, setAllMessagesShown] = useState(false);
 
   const messageIdRef = useRef(0);
   const currentIndexRef = useRef(0);
-  // store numeric timeout ids (browser setTimeout returns number)
   const timeoutsRef = useRef<number[]>([]);
   const startTimeRef = useRef<number | null>(null);
   const hasClosedRef = useRef(false);
+  const cvCompletedRef = useRef(false);
+  const rotationIntervalRef = useRef<number | null>(null);
 
-  const messages = [
-    // "Matching your department",
-    // "Analyzing your core skills",
-    // "Analyzing your technical skills",
-    // "Fetching socials links",
-    // "Matching your locations",
-    // "Matching your Salary",
-    "Reading your CV…",
-    "Identifying your skills…",
-    "Mapping your work experience…",
-    "Checking your career progression",
-    "Understanding your strengths & expertise…",
-    "Refreshing your profile with updated insights",
+  const nomessages = [
+    "Reviewing your updated details…",
+    "Cross-checking your work experience & career progression…",
+    "Understanding your location preferences…",
+    "Confirming salary expectations & availability…",
+    "Analyzing your technical & soft skills…",
+    "Finding the most relevant job matches for you…",
   ];
+  
+  const initialMessage = [
+    "Scanning your CV…",
+    "Identifying your core skills…",
+    "Mapping your work experience…",
+    "Analysing your career progression…",
+    "Detecting your preferred job functions & departments…",
+    "Preparing your profile form",
+  ];
+  
+  const messages = isInitial ? initialMessage : nomessages;
 
-  // animation configuration — tweak these to change how smooth / how far
-  const TRANSITION_MS = 700; // must match the CSS transition below
-  const MOVE_DELAY = 50; // small delay before starting the move (lets the new node paint)
-  const OFFSET_PX = 56; // vertical offset for each slot (-1,0,1)
+  const TRANSITION_MS = 700;
+  const MOVE_DELAY = 50;
+  const OFFSET_PX = 56;
+  
+  // Calculate rotation speed based on CV completion status
+  const getRotationSpeed = () => {
+    if (cvCompletedRef.current) {
+      // Speed up to 2 seconds per message when CV is done
+      return 2000;
+    }
+    return 5000; // Normal speed
+  };
 
-// Initialize with first message at center position
-useEffect(() => {
-  if (messages.length > 0) {
-    setVisibleMessages([
-      {
-        id: messageIdRef.current++,
-        text: messages[0],
-        position: 0, // current message
-      },
-      {
-        id: messageIdRef.current++,
-        text: messages[1],
-        position: 1, // next message
-      },
-    ]);
-    currentIndexRef.current = 0;
-    setCurrentMessageIndex(0);
-  }
-  startTimeRef.current = Date.now();
-}, []);
-
-
-  // Rotation interval (single interval, uses ref to avoid stale closures)
+  // Initialize with first message
   useEffect(() => {
-const rotate = () => {
-  const nextIndex = currentIndexRef.current + 1;
+    if (messages.length > 0) {
+      setVisibleMessages([
+        {
+          id: messageIdRef.current++,
+          text: messages[0],
+          position: 0,
+        },
+        {
+          id: messageIdRef.current++,
+          text: messages[1],
+          position: 1,
+        },
+      ]);
+      currentIndexRef.current = 0;
+      setCurrentMessageIndex(0);
+    }
+    startTimeRef.current = Date.now();
+  }, []);
 
-  // Add next-next message at position 2 if exists
-  if (nextIndex + 1 < messages.length) {
-    setVisibleMessages((prev) => [
-      ...prev,
-      {
-        id: messageIdRef.current++,
-        text: messages[nextIndex + 1],
-        position: 2,
-      },
-    ]);
-  }
+  // Rotation logic
+  const rotate = () => {
+    const nextIndex = currentIndexRef.current + 1;
 
-  // Move all messages up by 1
-  const moveTimeout = window.setTimeout(() => {
-    setVisibleMessages((prev) =>
-      prev.map((m) => ({ ...m, position: m.position - 1 }))
-    );
-  }, MOVE_DELAY);
+    // Check if we've shown all messages
+    if (nextIndex >= messages.length) {
+      setAllMessagesShown(true);
+      if (rotationIntervalRef.current) {
+        window.clearInterval(rotationIntervalRef.current);
+      }
+      return;
+    }
 
-  // Remove messages off screen (position < 0)
+    // Add next-next message at position 2 if exists
+    if (nextIndex + 1 < messages.length) {
+      setVisibleMessages((prev) => [
+        ...prev,
+        {
+          id: messageIdRef.current++,
+          text: messages[nextIndex + 1],
+          position: 2,
+        },
+      ]);
+    }
+
+    // Move all messages up by 1
+    const moveTimeout = window.setTimeout(() => {
+      setVisibleMessages((prev) =>
+        prev.map((m) => ({ ...m, position: m.position - 1 }))
+      );
+    }, MOVE_DELAY);
+
+    // Remove messages off screen
     const removeTimeout = window.setTimeout(() => {
       setVisibleMessages((prev) => prev.filter(m => m.position >= -1));
     }, MOVE_DELAY + TRANSITION_MS + 20);
@@ -109,74 +130,87 @@ const rotate = () => {
     setCurrentMessageIndex(nextIndex);
   };
 
+  // Rotation interval with dynamic speed
+  useEffect(() => {
+    const startRotation = () => {
+      if (rotationIntervalRef.current) {
+        window.clearInterval(rotationIntervalRef.current);
+      }
+      rotationIntervalRef.current = window.setInterval(rotate, getRotationSpeed());
+    };
 
-    const timer = window.setInterval(rotate, 5000);
+    startRotation();
 
     return () => {
-      window.clearInterval(timer);
+      if (rotationIntervalRef.current) {
+        window.clearInterval(rotationIntervalRef.current);
+      }
       timeoutsRef.current.forEach((t) => window.clearTimeout(t));
       timeoutsRef.current = [];
     };
   }, []);
 
-  // Countdown timer (based on maxDurationMs)
+  // Update rotation speed when CV completes
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          window.clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(interval);
-  }, [maxDurationMs]);
-
-  // Polling using interval hook every checkIntervalMs
-  useSetInterval(async () => {
-    if (hasClosedRef.current) return;
-    const now = Date.now();
-    const start = startTimeRef.current ?? now;
-    const elapsed = now - start;
-
-    if (elapsed > maxDurationMs) {
-      setForceComplete(true);
-      hasClosedRef.current = true;
-      toast.error("Error fetching CV. Please try again. If the issue persists, contact admin.", getToastOptions());
-      onClose();
-      return;
+    if (cvCompletedRef.current) {
+      if (rotationIntervalRef.current) {
+        window.clearInterval(rotationIntervalRef.current);
+      }
+      rotationIntervalRef.current = window.setInterval(rotate, getRotationSpeed());
     }
+  }, [cvCompletedRef.current]);
 
-    try {
-      if (!userDetails?.email) return;
-      const response = await profileService.fetchUserData(userDetails.email, "details");
-      const isDone = Boolean(response?.[0]?.isCvExtracted && response?.[0]?.isCvExtracted === true  );
-      if (isDone) {
+  // Mock polling (replace with your actual API call)
+  useEffect(() => {
+    const pollInterval = window.setInterval(async () => {
+      if (hasClosedRef.current) return;
+      
+      const now = Date.now();
+      const start = startTimeRef.current ?? now;
+      const elapsed = now - start;
+
+      if (elapsed > maxDurationMs) {
         setForceComplete(true);
         hasClosedRef.current = true;
-        // small grace period to let the loader fill
-        window.setTimeout(() => {
-          toast.success("CV parsed successfully!", getToastOptions());
-          onClose();
-        }, 3000);
+        // alert("Error fetching CV. Please try again.");
+        onClose();
+        return;
       }
-    } catch {
-      // ignore individual poll errors, rely on timeout or next tick
+
+      // Simulate CV completion after 8 seconds for demo
+      if (elapsed > 8000 && !cvCompletedRef.current) {
+        cvCompletedRef.current = true;
+        setForceComplete(true);
+      }
+    }, checkIntervalMs);
+
+    return () => window.clearInterval(pollInterval);
+  }, [maxDurationMs, checkIntervalMs, onClose]);
+
+  // Close popup only after all messages are shown AND CV is complete
+  useEffect(() => {
+    if (allMessagesShown && cvCompletedRef.current) {
+      // Wait a bit after last message, then close
+      const closeTimeout = window.setTimeout(() => {
+        onClose();
+      }, 2000);
+
+      return () => window.clearTimeout(closeTimeout);
     }
-  }, checkIntervalMs);
+  }, [allMessagesShown, onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center z-[9999]">
-      <div className="relative bg-white/95 backdrop-blur-sm p-8 rounded-2xl w-[650px] max-w-full shadow-2xl border border-white/20 animate-fade-in-scale">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center z-50">
+      <div className="relative bg-white/95 backdrop-blur-sm p-8 rounded-2xl w-[650px] max-w-full shadow-2xl border border-white/20">
         
-        {/* Two-column layout */}
         <div className="flex flex-row gap-6 w-full">
           
           {/* Left Column: Loader */}
-          <div className="w-1/2 flex items-center justify-center h-60">
+          <div className="w-1/2 flex flex-col items-center justify-center h-60">
             <WaterFillLoader 
-            forceComplete={forceComplete}
+              forceComplete={forceComplete}
+              messageCount={messages.length}
+              currentMessageIndex={currentMessageIndex}
             />
           </div>
 
@@ -218,8 +252,8 @@ const rotate = () => {
                   }}
                 >
                   <span className="font-medium text-sm">{message.text}</span>
-                  <div className="w-8 h-8 rounded border bg-white flex items-center justify-center text-center">
-                    {/* <img src={infinitySquare} alt="" className="w-6 h-6" /> */}
+                  <div className="min-w-8 min-h-8 rounded border bg-white flex items-center justify-center text-center">
+                    <Loader className="w-4 h-4 text-blue-500 animate-spin" />
                   </div>
                 </div>
               );
@@ -240,11 +274,12 @@ const rotate = () => {
               ))}
             </div>
           </div>
-          <p className="text-gray-600 font-semibold text-base">Parsing your CV... Please wait.</p>
+          <p className="text-gray-600 font-semibold text-base">
+            {allMessagesShown ? "Finalizing..." : `${isInitial ? "Parsing your CV" : "Finding most suitable jobs"}... Please wait.`}
+          </p>
         </div>
       </div>
     </div>
-
   );
 };
 

@@ -8,6 +8,7 @@ import CognitoServiceObj from "@Utils/Cognito.utils";
 import { validationRules } from "@Utils/FormValidator.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
 import { getToastOptions } from "@Utils/Toast.utils";
+import { ExternalLink, Info } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -101,6 +102,13 @@ const CorporateLoginForm = () => {
       )}
       className="w-full ">
       <p className="font-semibold text-gray-700 text-2xl text-center ">Corporate Login </p>
+      <div className="bg-orange-100 p-3 mt-2 h-24 rounded-xl">
+        <Info className="mr-2  p-0.5 text-orange-500 inline-block" />
+        <span className="text-orange-500 leading-none  tracking-tighter font-semibold text-xs">
+          We create accounts exclusively through our corporate partnership program to get onboarded
+          . <br />Book a demo call now!
+        </span>
+      </div>
       <div className="mainForm min-w-full grid sm:grid-cols-[repeat(auto,_minmax(500px,500px))] grid-row-[min-content]   w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[250px] ">
         <div>
           <label className="block font-medium">Email</label>
@@ -144,6 +152,15 @@ const CorporateLoginForm = () => {
       <button type="submit" className="btn_primary w-[250px]">
         Login
       </button>
+      <div className="mt-2">
+        <div className="text-xs text-gray-500 ml-1 text-center">Dont have Login Credentials?</div>
+        <div
+        onClick={() => window.open("/corporate", "_blank")}
+        className="text-sm font-semibold cursor-pointer mt-2 text-blue-500 ">
+          <ExternalLink className="inline-block mr-1 mb-0.5 " size={12} />
+          Book a Demo Call Now
+        </div>
+      </div>
     </form>
   );
 };

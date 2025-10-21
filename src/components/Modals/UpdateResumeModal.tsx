@@ -11,6 +11,7 @@ import { UserBasicDetailsDto } from "@Interfaces/JobsAndCompany.dto";
 import { getCurrentUser, GetCurrentUserOutput } from "@aws-amplify/auth";
 import ResumeDropzone from "@Components/Shared/ResumeDropZone";
 import { useAppContext } from "@Context/App.context";
+import CVParsingPopup from "./CVParsingPopup";
 
 interface CvS3MetaData {
   userId: string;
@@ -93,7 +94,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
 
       if (error) throw error;
 
-      const hasRelevantData = response?.cvExtractParsed;
+      const hasRelevantData = response && 'isCvExtracted' in response && response.isCvExtracted === true;
 
       // Always show message for user
       // toast.info("Checking your profile details...", getToastOptions());
@@ -200,15 +201,19 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
     toast.success("CV uploaded successfully", getToastOptions());
     setSecondStepEnabled(true);
     await attemptCheck(); // Start the check after successful upload
-  }, [selectedFile]);
+  }, [selectedFile, userDetails?.fullName]);
 
   return (
     <div className="overflow-y-hidden fixed inset-0 flex items-center justify-center bg-black/50 w-full backdrop-blur-sm z-50  ">
       <div
         id={secondStepEnabled ? styles.updateResumeHeader : undefined}
-        className={` max-sm:w-11/12 bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform scale-95 opacity-1 animate-fadeIn w-full max-sm:min-h-[200px] min-h-[300px] ax-w-full sm:max-w-xl `}>
+        className={` max-sm:w-11/12 bg-white rounded-xl  overflow-hidden shadow-xl transform transition-transform opacity-1 animate-fadeIn w-full max-sm:min-h-[200px] min-h-[350px] ax-w-full sm:max-w-xl `}>
         {secondStepEnabled && (
-          <div className="">
+          <CVParsingPopup
+          isInitial={false}
+          onClose={()=>{onClose(); window.location.reload();}}
+        />
+      /*     <div className="">
             <div className="absolute bottom-0 w-full">
               <svg
                 className={styles.waves}
@@ -263,7 +268,7 @@ const UpdateResumeModal = ({ onClose }: { onClose: () => void }) => {
                 {content[currentStep]}
               </div>
             )}
-          </div>
+          </div> */
         )}
 
         {!secondStepEnabled && (

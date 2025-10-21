@@ -22,8 +22,8 @@ const PLAN_NAME_MAP: Record<string, UserCorporatePaymentPlanEnum> = {
 
 const planOptions = [
   { value: UserCorporatePaymentPlanEnum.JOB_BOARD, label: "Job Board" },
-  { value: UserCorporatePaymentPlanEnum.HIRING_PARTNER, label: "Hiring Partner" },
-  { value: UserCorporatePaymentPlanEnum.CO_PILOT, label: "Co-Pilot" },
+  { value: UserCorporatePaymentPlanEnum.HIRING_PARTNER, label: "Full Recruitment" },
+  { value: UserCorporatePaymentPlanEnum.CO_PILOT, label: "Hiring Co-Pilot" },
 ];
 
 const CorporateConnectForm = ({

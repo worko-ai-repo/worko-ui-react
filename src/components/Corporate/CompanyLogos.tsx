@@ -32,8 +32,8 @@ const CompanyLogos = () => {
           </button>
         </div>
         <div className="bg-blue-500 bg-opacity-60 rounded-2xl p-6 sm:p-8 animate-slide-right">
-          <h3 className="text-lg sm:text-xl font-semibold mb-4 ">Our 5-Parameter Analysis:</h3>
-          <ul className="space-y-3 text-gray-100 w-fit mx-auto text-sm sm:text-base">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4 text-left sm:text-center">Our 5-Parameter Analysis:</h3>
+          <ul className="space-y-3 text-gray-100 w-fit sm:mx-auto text-sm sm:text-base">
             {[
               "Skills & Technical Competency",
               "Experience Relevance & Depth",
