@@ -71,6 +71,37 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 		setIsOpen(false);
 	};
 
+	function CompanyAvatar({
+		company,
+		className,
+		nameFallbackClassName,
+	}: {
+		company: CompanyShortDto;
+		className?: string;
+		nameFallbackClassName?: string;
+	}) {
+		const [imgError, setImgError] = React.useState(false);
+		const finalLogoUrl = company?.logo
+			? `${import.meta.env.APP_WORKO_BASE_URL}/images/${company.logo}`
+			: company?.logoUrl;
+
+		if (finalLogoUrl && !imgError) {
+			return (
+				<img
+					src={finalLogoUrl as string}
+					alt={company.name}
+					className={className}
+					loading="lazy"
+					onError={() => setImgError(true)}
+				/>
+			);
+		}
+
+		return (
+			<Building2 className={nameFallbackClassName || "w-8 h-8 text-gray-400"} />
+		);
+	}
+
 	return (
 		<div className="w-full max-w-auto mx-auto">
 			<div className="relative" ref={dropdownRef}>
@@ -78,7 +109,11 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 					<input disabled={isOtpSent} type="text" value={searhText} onChange={handleInputChange} onFocus={() => setIsOpen(true)} readOnly={selectedCompany ? true : false} placeholder="Search for a company..." className={`input_primary auth_input w-full px-4 py-3 pl-14 text-sm border  ${errors.companyName && 'error'}`} />
 					{selectedCompany ? (
 						<div className="">
-							{selectedCompany.logo ? <img src={selectedCompany.logoUrl} alt={selectedCompany.name} className="bg-white object-contain absolute left-3 top-1.5 h-8 w-8 rounded" /> : <Building2 className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />}
+							<CompanyAvatar
+								company={selectedCompany}
+								className="bg-white object-contain absolute left-3 top-1.5 h-8 w-8 rounded"
+								nameFallbackClassName="absolute left-3 top-3.5 h-4 w-4 text-gray-400"
+							/>
 							<X
 								onClick={() => {
 									setSelectedCompany(null);
@@ -100,7 +135,11 @@ export default function CompanyInput({ errors, setValue, clearErrors, setCompany
 						) : companies && companies.length > 0 ? (
 							companies.map(company => (
 								<button key={company.SK} onClick={() => handleCompanySelect(company)} className="group  w-full px-4 py-2 text-left hover:bg-blue-400 hover:text-white  flex items-center gap-3 border-b border-gray-100 last:border-0">
-									{company.logo ? <img src={company.logoUrl} alt={company.name} className="bg-white object-contain w-8 h-8 rounded" /> : <Building2 className="w-8 h-8 text-gray-400" />}
+									<CompanyAvatar
+										company={company}
+										className="bg-white object-contain w-8 h-8 rounded"
+										nameFallbackClassName="w-8 h-8 text-gray-400"
+									/>
 									<div>
 										<div className="font-semibold group-hover:text-white  text-gray-600">{company.name}</div>
 									</div>
