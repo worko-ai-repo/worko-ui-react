@@ -21,6 +21,7 @@ const AgencyLoginForm:React.FC<AgencyLoginFormProps> = ({}) => {
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     // toast.success(data, getToastOptions({}))
+    window.location.href = "/agency-dashboard"
     console.log(data)
   }
 
