@@ -102,6 +102,7 @@ const JobDescription = () => {
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | -1>(-1);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
+  const [isProfileCheckComplete, setIsProfileCheckComplete] = useState(false); // Track profile check completion
   const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto>({
     id: "",
     userId: "",
@@ -198,10 +199,10 @@ const JobDescription = () => {
             isTriggered: prev?.isTriggered || false,
           }));
         }
+        // Mark profile check as complete only after all validations pass
+        setIsProfileCheckComplete(true);
       } else {
-        if(!coreSkills || coreSkills.length === 0 || !yoe || !(
-          "CTC" in data
-        )){
+        if (!coreSkills || coreSkills.length === 0 || !yoe || !("CTC" in data)) {
           // If core skills or yoe or CTC is missing, prompt to update profile
           const continueReferralRequestData = {
             type: "referral",
@@ -219,10 +220,14 @@ const JobDescription = () => {
           );
           setShowApplyModal(true);
           showModalsError("NoBasicDetailsWithoutCv");
+          // Don't mark as complete since profile is incomplete
+          setIsProfileCheckComplete(false);
           return;
         }
         setShowApplyModal(true);
         showModalsError("NoBasicDetails");
+        // Don't mark as complete since profile is incomplete
+        setIsProfileCheckComplete(false);
       }
     };
 
@@ -701,12 +706,14 @@ const JobDescription = () => {
             applicationStatus={applicationStatus}
             handleApplyClick={handleApplyClick}
             jobMatchDetails={jobMatchDetails}
+            isProfileCheckComplete={isProfileCheckComplete}
           />
           <JobJD
             jobData={jobDataState}
             applicationStatus={applicationStatus}
             handleApplyClick={handleApplyClick}
             jobMatchDetails={jobMatchDetails}
+            isProfileCheckComplete={isProfileCheckComplete}
           />
         </Suspense>
       )}

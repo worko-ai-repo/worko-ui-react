@@ -40,12 +40,16 @@ const getHTML = (html: string) => {
   return html;
 };
 
-export const JobRequirements: React.FC<JobRequirementsProps> = ({ jobDescription = "Not specified" }) => {
+export const JobRequirements: React.FC<JobRequirementsProps> = ({
+  jobDescription = "Not specified",
+}) => {
   const decode = getHTML(jobDescription);
   return (
     <div className={`mb-6 min-h-[250px] break-words text-wrap ${styles.job_description_container}`}>
       <h2 className="text-xl font-semibold mb-4 break-words text-wrap">Job description</h2>
-      <div className={`space-y-4 mb-4 break-words  ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: decode }}></div>
+      <div
+        className={`space-y-4 mb-4 break-words  ${styles.job_description}`}
+        dangerouslySetInnerHTML={{ __html: decode }}></div>
     </div>
   );
 };
@@ -57,13 +61,20 @@ interface AboutCompanyProps {
   companyName?: string;
 }
 
-export const AboutCompany: React.FC<AboutCompanyProps> = ({ paragraphs = [], aboutCompany = "", socialLinks = "", companyName }) => {
+export const AboutCompany: React.FC<AboutCompanyProps> = ({
+  paragraphs = [],
+  aboutCompany = "",
+  socialLinks = "",
+  companyName,
+}) => {
   const finalCompanyName = toTitleCase(companyName || "Company");
   return (
     <div className={`mb-6 min-h-[250px] ${styles.job_description_container}`}>
       <h2 className="text-xl font-semibold mb-4">About {finalCompanyName}</h2>
       {/* <h3 className="font-medium mb-2">Job Requirements:</h3> */}
-      <div className={`space-y-4 mb-4 ${styles.job_description}`} dangerouslySetInnerHTML={{ __html: aboutCompany }}></div>
+      <div
+        className={`space-y-4 mb-4 ${styles.job_description}`}
+        dangerouslySetInnerHTML={{ __html: aboutCompany }}></div>
       {/* {paragraphs.length > 0 && <p className="font-medium mb-4">We are not an option, we are a choice!</p>} @Todo Vaibhav why this is added? */}
 
       {socialLinks && socialLinks.length > 0 && (
@@ -132,9 +143,16 @@ interface JobDetailsProps {
   applicationStatus: boolean;
   onApply: () => void;
   jobMatchDetails: JobMatchingScoreDto | undefined;
+  isProfileCheckComplete: boolean;
 }
 
-const JobDetails: React.FC<JobDetailsProps> = ({ job, applicationStatus, onApply, jobMatchDetails }) => {
+const JobDetails: React.FC<JobDetailsProps> = ({
+  job,
+  applicationStatus,
+  onApply,
+  jobMatchDetails,
+  isProfileCheckComplete,
+}) => {
   // console.log(job);
   const [matchScore, setMatchScore] = useState<number | undefined>(0);
   const canApply = RBAC.can("apply_jobs");
@@ -172,17 +190,42 @@ const JobDetails: React.FC<JobDetailsProps> = ({ job, applicationStatus, onApply
   return (
     <div className="w-full min-h-full space-y-6">
       <div className="">
-        <JobRequirements jobDescription={job?.htmlJobDescription ? job.htmlJobDescription : job?.jobDescription} />
+        <JobRequirements
+          jobDescription={job?.htmlJobDescription ? job.htmlJobDescription : job?.jobDescription}
+        />
 
         <div className="flex justify-center items-center gap-2 mt-6">
           <button
             data-tooltip-id="my-tooltip"
-            data-tooltip-content={(isLoggedIn && canApply) ? (applicationStatus ? "You have already applied for this job" : "Click to apply for this job") : "Please login as candidate to apply for this job"}
+            data-tooltip-content={
+              !isProfileCheckComplete && isLoggedIn && canApply
+                ? "Please wait, validating your profile..."
+                : isLoggedIn && canApply
+                ? applicationStatus
+                  ? "You have already applied for this job"
+                  : "Click to apply for this job"
+                : "Please login as candidate to apply for this job"
+            }
             className={` disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-500 hover:bg-blue-600 
               text-white font-bold px-4 py-2 rounded-lg transition-colors`}
             onClick={onApply}
-            disabled={applicationStatus || job.status === "ARCHIVED" || job.status === "CLOSED" || !canApply}>
-            {(isLoggedIn && canApply) ? (applicationStatus ? "Already Applied" : job.status === "ARCHIVED" || job.status === "CLOSED" || displayMatchScore < 1 /* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */ ? `${displayMatchScore < 1 ? "Apply Now" : job.status}` : "Apply Now") : "Login to Apply"}
+            disabled={
+              applicationStatus ||
+              job.status === "ARCHIVED" ||
+              job.status === "CLOSED" ||
+              !canApply ||
+              (!isProfileCheckComplete && isLoggedIn && canApply)
+            }>
+            {isLoggedIn && canApply
+              ? applicationStatus
+                ? "Already Applied"
+                : job.status === "ARCHIVED" ||
+                  job.status === "CLOSED" ||
+                  displayMatchScore <
+                    1 /* If Not Applied then Check if the job is Archived or Closed or if the Score is not generated yet */
+                ? `${displayMatchScore < 1 ? "Apply Now" : job.status}`
+                : "Apply Now"
+              : "Login to Apply"}
           </button>
 
           <button onClick={handleShare} className="p-2 border border-gray-300 rounded-full">
