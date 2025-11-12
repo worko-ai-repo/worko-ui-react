@@ -599,9 +599,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           });
         }
           
-          const x = isJobPage && isLoggedIn && !isDashboardMode
-          ? response.pagination?.s3VectorLastKey
-          : response.pagination?.lastKey;
         return {
           data: response,
           nextPage:
