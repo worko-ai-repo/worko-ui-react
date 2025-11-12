@@ -403,13 +403,26 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       const isJobPage = location.pathname.includes("job");
       // If pageParam is null, it's a new filter request
       const isFiltering = pageParam === null;
-
+      const {
+        jobTitle,
+        YOE,
+        coreSkills,
+        pageSize,
+        sortOrder,
+        status,
+        lastKey,
+        s3VectorPageNumber,
+        fromS3Vector,
+        includeCompanyDetails,
+        ...rest
+      } = filters;
+      const isDashboardMode = 'dashboard' in rest;
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
         pageSize: 30,
         // Only attach lastKey for non-job pages; job uses s3VectorPageNumber
-        ...(pageParam && ((!isLoggedIn && isJobPage) || !isJobPage) ? { lastKey: pageParam } : {}),
+        ...(pageParam && (isDashboardMode || (!isLoggedIn && isJobPage) || !isJobPage) ? { lastKey: pageParam } : {}),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {}),
@@ -441,7 +454,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         );
         //check if rest has searchText or companyId
         const hasSearchOrCompanyId = !!(rest.searchText || rest.companyName);
-
         if (hasSearchOrCompanyId) {
           //then delete all default filters
           delete updatedFilters.jobTitle;
@@ -459,19 +471,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         }
       }
 
-      const {
-        jobTitle,
-        YOE,
-        coreSkills,
-        pageSize,
-        sortOrder,
-        status,
-        lastKey,
-        s3VectorPageNumber,
-        fromS3Vector,
-        includeCompanyDetails,
-        ...rest
-      } = filters;
+
 
       // Persist default jobTitle and YOE unless explicitly overridden.
       // YOE will be removed only if experienceRange is present (handled below).
@@ -502,6 +502,13 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         // Derive from pages count ref to avoid race with async setState
         const derivedPageNumber = isFiltering ? 1 : Math.max(1, pagesCountRef.current + 1);
         updatedFilters.s3VectorPageNumber = derivedPageNumber;
+      }
+      // if dashboard mode, remove fromS3Vector, s3VectorPageNumber and coreSkills filters
+
+      if(rest.dashboard){
+        delete updatedFilters.fromS3Vector
+        delete updatedFilters.s3VectorPageNumber
+        delete updatedFilters.coreSkills
       }
       //sanitize the filters by removing null or undefined values
       Object.keys(updatedFilters).forEach((key) => {
@@ -591,11 +598,14 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             return [...existingData, ...response.data];
           });
         }
-
+          
+          const x = isJobPage && isLoggedIn && !isDashboardMode
+          ? response.pagination?.s3VectorLastKey
+          : response.pagination?.lastKey;
         return {
           data: response,
           nextPage:
-            isJobPage && isLoggedIn
+            isJobPage && isLoggedIn && !isDashboardMode
               ? response.pagination?.s3VectorLastKey
               : response.pagination?.lastKey,
         };
