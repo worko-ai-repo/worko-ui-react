@@ -11,6 +11,7 @@ export enum UserRole {
   ADMIN = "admin",
   LINKEDIN = "linkedin",
   EVALUATOR = "evaluator",
+  AGENCY = "agency",
 }
 
 /**
@@ -35,4 +36,5 @@ export const RolePermissions: Record<UserRole, UserRolesActions[]> = {
   [UserRole.CORPORATE_RECRUITER]: ["view_jobs", "create_jobs"],
   [UserRole.LINKEDIN]: ["view_jobs", "apply_jobs"],
   [UserRole.GENERAL_USER]: ["view_jobs", "apply_jobs"],
+  [UserRole.AGENCY]: ["view_jobs", "apply_jobs"],
 };
