@@ -416,13 +416,16 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         includeCompanyDetails,
         ...rest
       } = filters;
-      const isDashboardMode = 'dashboard' in rest;
+      const isDashboardMode = "dashboard" in rest;
+      const shouldUseVectorSearch = isJobPage && isLoggedIn && !isDashboardMode;
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
         pageSize: 30,
         // Only attach lastKey for non-job pages; job uses s3VectorPageNumber
-        ...(pageParam && (isDashboardMode || (!isLoggedIn && isJobPage) || !isJobPage) ? { lastKey: pageParam } : {}),
+        ...(pageParam && (!shouldUseVectorSearch || !isJobPage)
+          ? { lastKey: pageParam }
+          : {}),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {}),
@@ -443,7 +446,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         } else if (hasParamCoreSkills) {
           updatedFilters.coreSkills = coreSkillsFromParams;
         } else if (isLoggedIn) {
-          updatedFilters.coreSkills = defaultCoreSkills;
+        updatedFilters.coreSkills = defaultCoreSkills;
         }
         const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } =
           filters;
@@ -496,19 +499,20 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-      if (isJobPage) {
-        updatedFilters.fromS3Vector = isLoggedIn;
+      if (shouldUseVectorSearch) {
+        updatedFilters.fromS3Vector = true;
         updatedFilters.includeCompanyDetails = true;
         // Derive from pages count ref to avoid race with async setState
         const derivedPageNumber = isFiltering ? 1 : Math.max(1, pagesCountRef.current + 1);
         updatedFilters.s3VectorPageNumber = derivedPageNumber;
+      } else {
+        delete updatedFilters.fromS3Vector;
+        delete updatedFilters.s3VectorPageNumber;
+        delete updatedFilters.includeCompanyDetails;
       }
-      // if dashboard mode, remove fromS3Vector, s3VectorPageNumber and coreSkills filters
-
-      if(rest.dashboard){
-        delete updatedFilters.fromS3Vector
-        delete updatedFilters.s3VectorPageNumber
-        delete updatedFilters.coreSkills
+      // if dashboard mode, remove vector specific and core skills filters
+      if (rest.dashboard) {
+        delete updatedFilters.coreSkills;
       }
       //sanitize the filters by removing null or undefined values
       Object.keys(updatedFilters).forEach((key) => {

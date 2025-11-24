@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { MapPin, Clock, ChevronDown, Home } from "lucide-react";
+import { MapPin, Clock, ChevronDown, Home, Briefcase } from "lucide-react";
 import { useForm } from "react-hook-form";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
@@ -461,9 +461,16 @@ export const JobCard = ({ job }: any) => {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Home size={16} className="md:w-3 md:h-3" />
+              <Briefcase size={16} className="md:w-3 md:h-3" />
               <span>
-                {workmode ? (workmode.includes("_") ? workmode.replace(/_/g, " ") : workmode) : ""}
+                {experience &&
+                typeof experience === "object" &&
+                experience.min !== undefined &&
+                experience.max !== undefined
+                  ? `${experience.min} - ${experience.max} yrs`
+                  : experience && typeof experience === "string" && experience.trim() !== ""
+                  ? experience
+                  : "NA"}
               </span>
             </div>
           </div>
