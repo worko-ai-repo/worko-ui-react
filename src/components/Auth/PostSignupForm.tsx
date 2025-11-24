@@ -277,30 +277,55 @@ export default function JobRecommendationForm() {
     };
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, field: ActiveField) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const value = e.currentTarget.value.trim();
+  const ENTER_KEYS = new Set([
+    "Enter",
+    "NumpadEnter",
+    "Done",
+    "Go",
+    "Search",
+    "Send",
+    "Next",
+  ]);
 
-      if (value) {
-        if (
-          field === "coreSkills" &&
-          !selectedSkills.includes(value) &&
-          selectedSkills.length < 18
-        ) {
-          addSkill(value);
-          setSkillsInputValue("");
-        } else if (
-          field === "location" &&
-          !selectedLocations.includes(value) &&
-          selectedLocations.length < 3
-        ) {
-          addLocation(value);
-          setLocationInputValue("");
-        } else if (field === "department" && !selectedDepartments.includes(value)) {
-          addDepartment(value);
-          setDepartmentInputValue("");
-        }
+  const isEnterLikeKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (ENTER_KEYS.has(event.key)) {
+      return true;
+    }
+
+    const nativeEvent = event.nativeEvent as KeyboardEvent;
+    return nativeEvent?.keyCode === 13 || nativeEvent?.which === 13;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, field: ActiveField) => {
+    if (!isEnterLikeKey(e)) {
+      return;
+    }
+
+    e.preventDefault();
+    const value = e.currentTarget.value.trim();
+
+    if (value) {
+      if (
+        field === "coreSkills" &&
+        !selectedSkills.includes(value) &&
+        selectedSkills.length < 18
+      ) {
+        addSkill(value);
+        setSkillsInputValue("");
+      } else if (
+        field === "location" &&
+        !selectedLocations.includes(value) &&
+        selectedLocations.length < 3
+      ) {
+        addLocation(value);
+        setLocationInputValue("");
+      } else if (
+        field === "department" &&
+        !selectedDepartments.includes(value) &&
+        selectedDepartments.length < 5
+      ) {
+        addDepartment(value);
+        setDepartmentInputValue("");
       }
     }
   };
@@ -649,6 +674,7 @@ export default function JobRecommendationForm() {
                             ? "border-blue-500 ring-2 ring-blue-500"
                             : "border-gray-300"
                         }`}
+                        enterKeyHint="done"
                         onChange={(e) => setSkillsInputValue(e.target.value)}
                         onFocus={() => handleFieldFocus("coreSkills")}
                         onBlur={handleFieldBlur}
@@ -711,6 +737,7 @@ export default function JobRecommendationForm() {
                             ? "border-blue-500 ring-2 ring-blue-500"
                             : "border-gray-300"
                         }`}
+                        enterKeyHint="done"
                         onChange={(e) => setLocationInputValue(e.target.value)}
                         onFocus={() => handleFieldFocus("location")}
                         onBlur={handleFieldBlur}
@@ -909,6 +936,7 @@ export default function JobRecommendationForm() {
                             ? "border-blue-500 ring-2 ring-blue-500"
                             : "border-gray-300"
                         }`}
+                        enterKeyHint="done"
                         onChange={(e) => setDepartmentInputValue(e.target.value)}
                         onFocus={() => handleFieldFocus("department")}
                         onBlur={handleFieldBlur}
@@ -939,13 +967,13 @@ export default function JobRecommendationForm() {
                     <div className="relative grid grid-rows-2 h-full gap-4 ">
                       <div>
                         {/* Row 1: Core Skills */}
-                        <div>{activeField === "coreSkills"  && <SuggestionBox />}</div>
+                        <div>{activeField === "coreSkills" && <SuggestionBox />}</div>
                         {/* Row 2: Location */}
                         <div className="absolute top-44">
                           {activeField === "location" && <SuggestionBox />}
                         </div>
                         <div className="absolute bottom-10">
-                          { activeField === "department"  && <SuggestionBox />}
+                          {activeField === "department" && <SuggestionBox />}
                         </div>
                       </div>
 
@@ -978,11 +1006,16 @@ export default function JobRecommendationForm() {
           </div>
         )}
         {/* finalLoader &&  */}
-        { finalLoader.isOpen && <CVParsingPopup isInitial={finalLoader.isInitial} onClose={() => {
-          finalLoader.isInitial ? 
-            setFinalLoader({isInitial:false,isOpen:false})
-          : (handleNavigation(), setFinalLoader({isInitial:false,isOpen:false}))
-        }} />}
+        {finalLoader.isOpen && (
+          <CVParsingPopup
+            isInitial={finalLoader.isInitial}
+            onClose={() => {
+              finalLoader.isInitial
+                ? setFinalLoader({ isInitial: false, isOpen: false })
+                : (handleNavigation(), setFinalLoader({ isInitial: false, isOpen: false }));
+            }}
+          />
+        )}
       </div>
     </div>
   );
