@@ -189,11 +189,19 @@ const CompanyJobContent = () => {
 
       {/* Jobs Section */}
       <div
-        className={`w-[90vw] min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
+        className={`relative w-full min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
+        {/* Mobile Filter Backdrop */}
+        {isFiltersOpen && (
+          <div
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 z-40 md:hidden"
+            onClick={toggleFilters}
+          />
+        )}
         {/* Filters Section */}
         <div
-          className={`absolute w-full bottom-0 max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50 
-          ${isFiltersOpen ? "left-0" : "-left-full"} md:left-0 ${styles.Company_Content_Filters}`}>
+          className={`fixed top-0 left-0 w-full max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50
+          ${isFiltersOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 ${styles.Company_Content_Filters}`}
+          style={{ height: '100vh' }}>
           <Suspense fallback={<JobPageFilterSkeleton />}>
             <JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
           </Suspense>
