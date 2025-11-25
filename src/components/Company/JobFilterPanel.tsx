@@ -65,8 +65,8 @@ useEffect(() => {
     
 
 	return (
-		<div className="no-scrl-web sticky top-20 overflow-auto max-h-[60vh] md:max-h-[65vh] lg:max-h-[80vh] xl:max-h-[85vh] 2xl:max-h-[90vh]">
-			<div className="border-[1px] border-gray-100 rounded-2xl p-5 bg-[#FAFAFA]">
+		<div className="no-scrl-web sticky top-20 overflow-auto max-h-[80vh] md:max-h-[80vh] lg:max-h-[80vh] xl:max-h-[85vh] 2xl:max-h-[90vh]">
+			<div className="sm:border-[1px] sm:border-gray-100 rounded-2xl p-5 sm:bg-[#FAFAFA]">
 				<div className="flex justify-between items-center mb-3">
 					<h3 className="text-lg font-semibold"
 					data-tooltip-id='my-tooltip'

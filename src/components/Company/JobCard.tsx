@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { MapPin, Clock, ChevronDown, Home } from "lucide-react";
+import { MapPin, Clock, ChevronDown, Home, Briefcase } from "lucide-react";
 import { useForm } from "react-hook-form";
 import GaugeComponent from "./Gauge";
 import CustomModal from "@Components/Modals/FormModal";
@@ -47,7 +47,27 @@ export interface ReferrFriendDto {
   };
 }
 export const JobCard = ({ job }: any) => {
-  const { isLogoAvailable, companyLogo, title, department, salary, location, employmentType, createdAt, matchPercentage, jobId, companyName, isExternalJob, badJob, FullJob, companyId, jobUrl, showSalary, experience, workmode } = job;
+  const {
+    isLogoAvailable,
+    companyLogo,
+    title,
+    department,
+    salary,
+    location,
+    employmentType,
+    createdAt,
+    matchPercentage,
+    jobId,
+    companyName,
+    isExternalJob,
+    badJob,
+    FullJob,
+    companyId,
+    jobUrl,
+    showSalary,
+    experience,
+    workmode,
+  } = job;
   const { isLoggedIn, PendingApply, setPendingApply } = useAppContext<ReferrFriendDto>();
   const [showModal, setShowModal] = useState(false);
   const [strengthLabel, setStrengthLabel] = useState<string>("Strong Match");
@@ -56,6 +76,10 @@ export const JobCard = ({ job }: any) => {
   const canApply = RBAC.can("apply_jobs");
   const nav = useNavigate();
   const locationHook = useLocation(); // Using location hook for checking URL changes
+
+  // Check if dashboard parameter is present
+  const urlParams = new URLSearchParams(locationHook.search);
+  const isDashboardMode = urlParams.has("dashboard");
 
   // Initialize react-hook-form
   const {
@@ -105,7 +129,11 @@ export const JobCard = ({ job }: any) => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const pendingData = PendingApply || secureStorage.getItem<continueReferralRequestDataDto<ReferrFriendDto>>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+      const pendingData =
+        PendingApply ||
+        secureStorage.getItem<continueReferralRequestDataDto<ReferrFriendDto>>(
+          SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS
+        );
 
       if (pendingData !== null && typeof pendingData === "object" && "data" in pendingData) {
         try {
@@ -144,9 +172,15 @@ export const JobCard = ({ job }: any) => {
         url: window.location.href,
       };
       // Store in both secure storage and localStorage
-      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, continueReferAndEarnRequestData);
+      secureStorage.setItem(
+        SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS,
+        continueReferAndEarnRequestData
+      );
       setPendingApply(continueReferAndEarnRequestData);
-      localStorage.setItem("continueReferAndEarnRequestData", JSON.stringify(continueReferAndEarnRequestData));
+      localStorage.setItem(
+        "continueReferAndEarnRequestData",
+        JSON.stringify(continueReferAndEarnRequestData)
+      );
 
       // Navigate to login
       nav("/auth/login");
@@ -155,7 +189,13 @@ export const JobCard = ({ job }: any) => {
 
     try {
       const result = (await toast.promise(
-        httpServiceObj.post(`${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`, payload, true, {}, true),
+        httpServiceObj.post(
+          `${import.meta.env.APP_JOBS_API_URI}/refer-and-earn`,
+          payload,
+          true,
+          {},
+          true
+        ),
         {
           pending: "Sharing job...",
         },
@@ -174,10 +214,16 @@ export const JobCard = ({ job }: any) => {
         throw new Error(error.message || "Failed to submit referral");
       }
 
-      toast.success("You just opened a new door for your friend  Fingers crossed for their success (and your reward!)", getToastOptions());
+      toast.success(
+        "You just opened a new door for your friend  Fingers crossed for their success (and your reward!)",
+        getToastOptions()
+      );
     } catch (error: any) {
       console.error("Error submitting referral:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to submit referral", getToastOptions());
+      toast.error(
+        error instanceof Error ? error.message : "Failed to submit referral",
+        getToastOptions()
+      );
     } finally {
       reset();
       setShowModal(false);
@@ -214,7 +260,9 @@ export const JobCard = ({ job }: any) => {
 
   useEffect(() => {
     // Update the strength label based on the match score
-    if (matchPercentage < 40) {
+    if (isDashboardMode) {
+      setStrengthLabel("--/--");
+    } else if (matchPercentage < 40) {
       setStrengthLabel("Poor Match");
     } else if (matchPercentage < 60) {
       setStrengthLabel("Moderate Match");
@@ -266,19 +314,39 @@ export const JobCard = ({ job }: any) => {
             {/* Top row with image, title, department, and salary */}
             <div className="flex w-full gap-4">
               {/* Image column */}
-              <div data-tooltip-id="my-tooltip" data-tooltip-content={companyName} className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">
-                {isLogoAvailable && !imgError ? <img src={companyLogo} onError={() => setImgError(true)} alt={title} className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]" /> : <div className="w-full text-wrap truncate text-[60%] font-extrabold text-sky-400 ">{companyName}</div>}
+              <div
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content={companyName}
+                className=" relative cursor-pointer flex-shrink-0 w-[70px] h-[70px]  rounded-[6.75px] sm:rounded-[9px] flex items-center justify-center border overflow-hidden">
+                {isLogoAvailable && !imgError ? (
+                  <img
+                    src={companyLogo}
+                    onError={() => setImgError(true)}
+                    alt={title}
+                    className="w-[60px] object-contain border h-[60px] sm:w-20 sm:h-20 rounded-[6.75px] sm:rounded-[9px]"
+                  />
+                ) : (
+                  <div className="w-full text-wrap truncate text-[60%] font-extrabold text-sky-400 ">
+                    {companyName}
+                  </div>
+                )}
               </div>
 
               {/* Content column */}
               <div className="flex flex-col flex-1 min-w-0">
                 <a href={getJobUrl()} rel="noopener noreferrer" className="block">
-                  <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">{title}</h2>
+                  <h2 className="text-xl text-left sm:text-2xl md:text-lg font-semibold text-[#0D0D0D] mb-1 truncate capitalize sm:overflow-visible sm:text-ellipsis sm:whitespace-normal">
+                    {title}
+                  </h2>
                 </a>
-                <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">{department}</p>
+                <p className="text-xs text-left md:text-[9px] text-[#313131] mb-1 capitalize ">
+                  {department}
+                </p>
 
                 {/* Salary */}
-                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">{showSalary ? `₹${salary}` : "Not Disclosed"}</div>
+                <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">
+                  {showSalary ? `₹${salary}` : "Not Disclosed"}
+                </div>
               </div>
             </div>
 
@@ -286,10 +354,24 @@ export const JobCard = ({ job }: any) => {
             <div className="flex flex-row justify-between mt-2 md:mt-1">
               {/* Tags - Flex-wrap on mobile */}
               <div className="flex flex-wrap gap-1 overflow-hidden">
-                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">{timeAgo}</span>
-                {isEarlyApplicant && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Be an early applicant</span>}
-                {!isExternalJob && <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">Posted Job by Worko</span>}
-                {badJob && <span className="px-3 py-1 max-h-[25px] bg-red-400 rounded-full text-xs md:text-[10.5px]  whitespace-nowrap animate-pulse text-white ">Removing irrelevant job...</span>}
+                <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                  {timeAgo}
+                </span>
+                {isEarlyApplicant && (
+                  <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                    Be an early applicant
+                  </span>
+                )}
+                {!isExternalJob && (
+                  <span className="px-3 py-1 max-h-[25px] bg-[#6DE5E5] rounded-full text-xs md:text-[10.5px] text-black whitespace-nowrap">
+                    Posted Job by Worko
+                  </span>
+                )}
+                {badJob && (
+                  <span className="px-3 py-1 max-h-[25px] bg-red-400 rounded-full text-xs md:text-[10.5px]  whitespace-nowrap animate-pulse text-white ">
+                    Removing irrelevant job...
+                  </span>
+                )}
               </div>
 
               {/* Gauge on mobile only */}
@@ -302,15 +384,20 @@ export const JobCard = ({ job }: any) => {
                 <div
                   className="w-[75%] h-[75%] sm:w-[85%] sm:h-[85%] 
       flex items-center justify-center  ">
-                  <GaugeComponent score={canApply ? matchPercentage : 0} />
+                  <GaugeComponent score={isDashboardMode ? 0 : canApply ? matchPercentage : 0} />
                 </div>
 
                 {/* Text Below Gauge */}
-                {(isLoggedIn &&  canApply) ? (
-                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
+                {isLoggedIn && canApply ? (
+                  <p className="text-[10px] sm:text-sm font-bold mt-1 whitespace-nowrap">
+                    {matchPercentage !== -1 ? strengthLabel : "Processing"}
+                  </p>
                 ) : (
                   <div className="flex  items-center  w-full gap-1 mt-1 text-center">
-                    <small className="text-[8px] sm:text-xs" data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
+                    <small
+                      className="text-[8px] sm:text-xs"
+                      data-tooltip-id="my-tooltip"
+                      data-tooltip-content="Please login to view scores">
                       Login to fetch your score
                     </small>
                   </div>
@@ -328,15 +415,19 @@ export const JobCard = ({ job }: any) => {
             <div
               className="w-full pt-2  h-full  border-3 border-[#6DE5E5] 
             flex items-center justify-center sm:scale-90">
-              <GaugeComponent score={canApply ? matchPercentage : 0} />
+              <GaugeComponent score={isDashboardMode ? 0 : canApply ? matchPercentage : 0} />
             </div>
 
             {/* Text Below Gauge */}
-            {(isLoggedIn && canApply) ? (
-              <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">{matchPercentage !== -1 ? strengthLabel : "Processing"}</p>
+            {isLoggedIn && canApply ? (
+              <p className="text-[10px] sm:text-sm font-bold whitespace-nowrap">
+                {matchPercentage !== -1 ? strengthLabel : "Processing"}
+              </p>
             ) : (
               <>
-                <small data-tooltip-id="my-tooltip" data-tooltip-content="Please login to view scores">
+                <small
+                  data-tooltip-id="my-tooltip"
+                  data-tooltip-content="Please login to view scores">
                   {" "}
                   Login to fetch your score
                 </small>
@@ -351,28 +442,53 @@ export const JobCard = ({ job }: any) => {
           <div className="flex flex-wrap gap-6 md:gap-4 text-xs md:text-[12px] text-[#313131]">
             <div className="flex items-center gap-1">
               <MapPin size={16} className="md:w-3 md:h-3" />
-              <span className="capitalize max-w-[100px] truncate cursor-pointer" data-tooltip-id="my-tooltip" data-tooltip-content={location} title={location}>
+              <span
+                className="capitalize max-w-[100px] truncate cursor-pointer"
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content={location}
+                title={location}>
                 {location}
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={16} className="md:w-3 md:h-3" />
-              <span>{employmentType ? (employmentType.includes("_") ? employmentType.replace(/_/g, " ") : employmentType) : ""}</span>
+              <span>
+                {employmentType
+                  ? employmentType.includes("_")
+                    ? employmentType.replace(/_/g, " ")
+                    : employmentType
+                  : ""}
+              </span>
             </div>
             <div className="flex items-center gap-1">
-              <Home size={16} className="md:w-3 md:h-3" />
-              <span>{workmode ? (workmode.includes("_") ? workmode.replace(/_/g, " ") : workmode) : ""}</span>
+              <Briefcase size={16} className="md:w-3 md:h-3" />
+              <span>
+                {experience &&
+                typeof experience === "object" &&
+                experience.min !== undefined &&
+                experience.max !== undefined
+                  ? `${experience.min} - ${experience.max} yrs`
+                  : experience && typeof experience === "string" && experience.trim() !== ""
+                  ? experience
+                  : "NA"}
+              </span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 sm:justify-end">
-            {(!isExternalJob && canApply) && (
-              <div className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9" data-tooltip-id="my-tooltip" data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
+            {!isExternalJob && canApply && (
+              <div
+                className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 md:flex-initial md:w-[140px] px-6 py-2 border border-[#0D0D0D] rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9"
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content="Refer a friend, and earn ₹5000 when they get hired!">
                 <button onClick={() => setShowModal(true)}>Refer A Friend</button>
               </div>
             )}
-            <button disabled={badJob} onClick={() => handleReferralNav()} className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
+            <button
+              disabled={badJob}
+              onClick={() => handleReferralNav()}
+              className="flex-1 max-sm:text-xs max-sm:min-w-[100px] max-sm:px-0 sm:mr-2 md:flex-initial md:w-[140px] px-6 py-2 bg-[#4B7EFF] text-white rounded-lg text-sm md:text-xs font-bold h-auto sm:h-9 disabled:cursor-not-allowed disabled:opacity-50">
               View Details
             </button>
           </div>
@@ -388,7 +504,10 @@ export const JobCard = ({ job }: any) => {
           onClose={() => setShowModal(false)}
           hideDefaultButtons={true}>
           <div className="text-center px-4">
-            <p className="text-gray-600 text-sm mb-4">Enter the details of the candidate you believe is a great fit for the role. If your referral gets hired, you'll receive a monetary reward as a bonus!</p>
+            <p className="text-gray-600 text-sm mb-4">
+              Enter the details of the candidate you believe is a great fit for the role. If your
+              referral gets hired, you'll receive a monetary reward as a bonus!
+            </p>
           </div>
           <form className="space-y-4 px-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
@@ -401,18 +520,29 @@ export const JobCard = ({ job }: any) => {
                 className="input_primary text-gray-500 w-full p-2 border rounded"
                 placeholder="Full Name"
               />
-              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
+              {errors.fullName && (
+                <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>
+              )}
             </div>
             <div>
-              <input type="email" {...register("email", validationRules.email)} className="input_primary text-gray-500 w-full p-2 border rounded" placeholder="E-Mail ID" />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+              <input
+                type="email"
+                {...register("email", validationRules.email)}
+                className="input_primary text-gray-500 w-full p-2 border rounded"
+                placeholder="E-Mail ID"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>
+              )}
             </div>
             <div>
               {/* Phone input with country code dropdown */}
               <div className="flex items-center">
                 {/* Country code dropdown */}
                 <div className="relative country-dropdown-container">
-                  <div className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0" onClick={() => setShowCountryDropdown(!showCountryDropdown)}>
+                  <div
+                    className="input_primary flex items-center gap-1 text-gray-500 p-2 border rounded cursor-pointer border-r-0"
+                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}>
                     <span>{phoneCountryCode}</span>
                     <ChevronDown size={14} />
                   </div>
@@ -421,7 +551,10 @@ export const JobCard = ({ job }: any) => {
                   {showCountryDropdown && (
                     <div className="absolute z-10 top-full left-0 mt-1 w-48 max-h-44 overflow-y-auto bg-white shadow-lg rounded border">
                       {countryCodes.map((item) => (
-                        <div key={item.code} className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2" onClick={() => handleCountryCodeSelect(item.code)}>
+                        <div
+                          key={item.code}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2"
+                          onClick={() => handleCountryCodeSelect(item.code)}>
                           <span className="font-medium">{item.code}</span>
                           <span className="text-gray-500">{item.country}</span>
                         </div>
@@ -444,15 +577,23 @@ export const JobCard = ({ job }: any) => {
                   placeholder="Contact Number"
                 />
               </div>
-              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message as string}</p>}
+              {errors.phone && (
+                <p className="text-red-500 text-xs mt-1">{errors.phone.message as string}</p>
+              )}
             </div>
             <div className="text-center mt-4">
-              <button type="submit" className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white font-semibold py-2 px-6 rounded w-full disabled:bg-blue-300"
+                disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit Referral"}
               </button>
             </div>
           </form>
-          <p className="text-gray-400 text-xs text-center mt-4 px-4">Your information is secure and will only be used to process your referral and communicate about the program.</p>
+          <p className="text-gray-400 text-xs text-center mt-4 px-4">
+            Your information is secure and will only be used to process your referral and
+            communicate about the program.
+          </p>
         </CustomModal>
       )}
     </div>

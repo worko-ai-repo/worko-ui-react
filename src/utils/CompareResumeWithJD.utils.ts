@@ -157,7 +157,7 @@ function calculateExperienceScore(
     typeof userBasicDetails.YOE !== "number" ||
     isNaN(userBasicDetails.YOE)
   ) {
-    return 0;
+    return 80;
   }
 
   try {
@@ -167,7 +167,7 @@ function calculateExperienceScore(
     // Validate range
     if (jdMinYOE < 0 || jdMaxYOE < 0 || jdMinYOE > jdMaxYOE) {
       console.warn("Invalid experience range:", { jdMinYOE, jdMaxYOE });
-      return 0;
+      return 80;
     }
 
     let experienceScore = 0;
