@@ -199,9 +199,11 @@ const CompanyJobContent = () => {
         )}
         {/* Filters Section */}
         <div
-          className={`fixed top-0 left-0 w-full max-w-[300px] md:relative md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50
-          ${isFiltersOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 ${styles.Company_Content_Filters}`}
-          style={{ height: '100vh' }}>
+          className={`fixed top-0 left-0 w-full max-w-[300px] md:sticky md:top-100  md:w-auto px-5 transition-all duration-500 ease-in-out bg-white z-50
+          ${isFiltersOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 ${
+            styles.Company_Content_Filters
+          }`}
+          style={{ height: "100vh" }}>
           <Suspense fallback={<JobPageFilterSkeleton />}>
             <JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
           </Suspense>
