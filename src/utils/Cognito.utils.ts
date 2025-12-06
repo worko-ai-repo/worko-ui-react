@@ -15,6 +15,7 @@ import {
   signUp,
   ResendSignUpCodeInput,
   updatePassword,
+  confirmSignIn,
 } from "@aws-amplify/auth";
 import Awsconfig from "../aws-config";
 import { BehaviorSubject } from "rxjs";
@@ -125,7 +126,7 @@ class CognitoService {
       this.authenticationSubject.next(true);
       secureStorage.setItem(SecureStorageKeyEnum.SIGNINDETAILS, "false");
       await this.setAccessToken();
-
+      console.log(authData)
       return { response: authData };
     } catch (error) {
       console.error("Error signing in:", error);
@@ -290,6 +291,26 @@ class CognitoService {
       return { error };
     }
   }
+
+  
+public async handleForceNewPassword(newPassword: string): Promise<AuthResponse<SignInOutput>> {
+  try {
+    const result = await confirmSignIn({
+      challengeResponse: newPassword,
+    });
+
+    this.authenticationSubject.next(true);
+    await this.setAccessToken();
+    debugger
+    return { response: result };
+  } catch (error) {
+    console.error("Error confirming new password:", error);
+    if (error instanceof AuthError) {
+      return { error };
+    }
+    throw error;
+  }
+}
 
   /**
    * Handles sign-up confirmation

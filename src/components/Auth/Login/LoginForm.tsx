@@ -16,6 +16,7 @@ import CustomModal from "@Components/Modals/FormModal";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { NormalizedUser, normalizeUserData } from "@Utils/NormalizeUser";
 import { UserRole } from "@Interfaces/RoleBasedAccessControl";
+import ChangePasswordModal from "@Components/Modals/ChangePasswordModal";
 
 /**
  * currentSession
@@ -72,6 +73,11 @@ const LoginForm = () => {
   const [confEmail, setConfEmail] = React.useState("");
   const [otp, setOtp] = React.useState("");
 
+  const [changePassword, setChangePassword] = React.useState<boolean>(false);
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
+  const [step, setStep] = React.useState<"otp" | "password">("otp");
   const {
     register,
     handleSubmit,
@@ -111,6 +117,14 @@ const LoginForm = () => {
         // Fetch stored user data and check if the user is a corporate user
         const userType = secureStorage.getItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE);
 
+        if(response?.nextStep?.signInStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"){
+          await handleSendOtpProcess(data.email)
+          console.log(response)
+          setChangePassword(true)
+          setConfEmail(data.email);
+          // toast.error("Please change your password before proceeding further otp", getToastOptions({}));
+          return
+        }
         /**
          * After successful sign-in, check if the user account is a corporate account.
          * If corporate, show a popup and log out the user.
@@ -179,7 +193,6 @@ const LoginForm = () => {
               } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
                 setPendingApply(pendingReferral);
               }
-              // debugger;
               if (PendingApply) {
                 secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
                 window.location.href = PendingApply.url; // Redirect to the referral page
@@ -196,6 +209,74 @@ const LoginForm = () => {
     }
   };
 
+  const handleChangePasswordSubmit = async (newPassword: string) => {
+    const email = confEmail;
+
+    try {
+      const { response, error } = await CognitoServiceObj.handleForceNewPassword(newPassword);
+
+      if (error) {
+        toast.error(error.message || "Failed to change password", getToastOptions({ autoClose: false }));
+        return;
+      }
+
+      const normalizedEmail = email.toLowerCase();
+      const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(
+        `/user/${normalizedEmail}/details`,
+        true,
+        {}
+      );
+
+      if (userError) {
+        toast.error("Error: " + userError, getToastOptions({ autoClose: false }));
+        return;
+      }
+
+      const user: NormalizedUser = normalizeUserData(userResponse?.[0] || {});
+      if (!user) {
+        toast.error("Error: No user data found", getToastOptions({ autoClose: false }));
+        return;
+      }
+
+      // Store user details
+      setUserDetails(user);
+      secureStorage.setItem(SecureStorageKeyEnum.LASTACCESSEDDASH, user.lastAccessedDash);
+      secureStorage.setItem(SecureStorageKeyEnum.USERNAME, user.fullName);
+      secureStorage.setItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS, user);
+
+      // Refresh session & broadcast
+      await handleRememberDevice();
+      await currentSession();
+      setUpdateCheck(true);
+
+      toast.success("Password changed and signed in successfully", getToastOptions({}));
+
+      setChangePassword(false);
+
+      // Keep the same redirect logic you use after normal login
+      setTimeout(() => {
+        let pendingReferral =
+          PendingApply || secureStorage.getItem<any>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+
+        if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+        } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+          setPendingApply(pendingReferral);
+        }
+
+        if (PendingApply) {
+          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+          window.location.href = PendingApply.url;
+        } else {
+          window.location.href = "/jobs";
+        }
+      }, 3000);
+    } catch (err: any) {
+      toast.error(err?.message || "Something went wrong while changing password", getToastOptions({ autoClose: false }));
+    }
+  };
+
+  
   // Simulate OTP verification
   const handleVerifyOtpProcess = async () => {
     try {
@@ -205,7 +286,6 @@ const LoginForm = () => {
       };
 
       // Call handleSignUpConfirmation and await the result
-      // debugger;
       await toast.promise(
         CognitoServiceObj.handleSignUpConfirmation(signupform),
         {
@@ -237,6 +317,48 @@ const LoginForm = () => {
     }
   };
 
+  const handleSendOtpProcess = async (confEmail:String) =>{
+    if(!confEmail){
+      toast.error("Email not found please login again",getToastOptions({}))
+      return
+    }
+    const payload = {
+      candidateRegisteredEmail: confEmail
+    }
+    try {
+      console.log(payload)
+      const {response, error} = await httpServiceObj.post<any>(`/user/request-otp/force-change-password`, payload, true, {}, false)
+      if(error){
+        toast.error(error.message,getToastOptions({}))
+        setChangePassword(false)
+        return
+      }
+      toast.success("OTP has been sent to your email",getToastOptions({}))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const confirmOtp = async (otp:string) =>{
+    const payload = {
+      candidateRegisteredEmail: confEmail,
+      otp:otp
+    }
+    try {
+      const {response, error} = await httpServiceObj.post<any>(`/user/verify-otp/force-change-password`, payload, true, {}, false)
+      if(error){
+        toast.error(error.message,getToastOptions({}))
+        return
+      }
+      if(response.verificationStatus) {
+        toast.success("OTP validated successfully",getToastOptions({}))
+        setStep("password")
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <div>
       <form
@@ -256,7 +378,7 @@ const LoginForm = () => {
           {/* Name */}
           <div className="w-full max-w-[350px] sm:max-w-[350px] ">
             <label className="font-medium hidden sm:block">Email</label>
-            <input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
+            <input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && "error"}`} {...register("email",validationRules.personalEmail)} />
             {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
           </div>
           {/* Password */}
@@ -321,6 +443,45 @@ const LoginForm = () => {
             <label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
           </div>
         </CustomModal>
+      )}
+
+      {/* change password */}
+      {changePassword && (
+        <ChangePasswordModal
+          type="info"
+          title={step === "password" ? "Change Password" : "Verify OTP"}
+          onSubmit={
+            step === "otp"
+              ? () => confirmOtp(otp)
+              : () => handleChangePasswordSubmit(password)
+          }
+          // onSubmit={()=>handleChangePasswordSubmit(confirmPassword)}
+          onClose={() => {
+            setChangePassword(false);
+            setStep("otp");
+            setOtp("");
+            setPassword("");
+            setConfirmPassword("");
+          }}
+          isdisabled={
+            step === "password"
+              ? !password || password !== confirmPassword
+              : otp.length !== 6
+          }
+          password={password}
+          setPassword={setPassword}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          showConfirmPassword={showConfirmPassword}
+          setShowConfirmPassword={setShowConfirmPassword}
+          setStep={setStep}
+          step={step}
+          setOtp={setOtp}
+          otp={otp}
+        >
+      </ChangePasswordModal>
       )}
     </div>
   );
