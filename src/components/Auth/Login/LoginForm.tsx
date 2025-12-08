@@ -63,7 +63,7 @@ const LoginForm = () => {
   const signUpWithLinkedIn = useLinkedInSignup();
 
   // Update Check from App Context to broadcast the changes
-  const { PendingApply, setUpdateCheck, setPendingApply ,setUserDetails} = useAppContext();
+  const { PendingApply, setUpdateCheck, setPendingApply, setUserDetails } = useAppContext();
 
   // States
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -104,7 +104,7 @@ const LoginForm = () => {
       const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
       // If error occurs, show the error message and reset the form
       if (error) {
-        toast.error(error.message, getToastOptions({ autoClose: false }));
+        toast.error(error.message, getToastOptions());
         reset(undefined, { keepValues: false });
         throw new Error(error.message);
       } else {
@@ -116,7 +116,10 @@ const LoginForm = () => {
          * If corporate, show a popup and log out the user.
          */
         if (userType?.includes(UserRole.CORPORATE)) {
-          toast.error("Oops! You don't have access to log in to this portal. Please contact support for assistance.", getToastOptions({ autoClose: false }));
+          toast.error(
+            "Oops! You don't have access to log in to this portal. Please contact support for assistance.",
+            getToastOptions({ autoClose: 3000 })
+          );
           CognitoServiceObj.handleSignOut();
           return;
         }
@@ -125,10 +128,13 @@ const LoginForm = () => {
          * If the account is not confirmed, prompt the user to confirm the email.
          */
         if (response?.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-          toast.error("Please confirm your email address before signing in.", getToastOptions({ autoClose: false }));
+          toast.error(
+            "Please confirm your email address before signing in.",
+            getToastOptions({ autoClose: 3000 })
+          );
           const { response, error } = await CognitoServiceObj.resendOtp({ username: data.email });
           if (error) {
-            toast.error(error.message, getToastOptions({ autoClose: false }));
+            toast.error(error.message, getToastOptions({ autoClose: 3000 }));
             reset(undefined, { keepValues: false });
           }
           setConfEmail(data.email);
@@ -140,10 +146,14 @@ const LoginForm = () => {
          */
         if (response?.isSignedIn) {
           const email = data.email.toLowerCase();
-          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(`/user/${email}/details`, true, {});
+          const { response: userResponse, error: userError } = await httpServiceObj.get<[{}]>(
+            `/user/${email}/details`,
+            true,
+            {}
+          );
 
           if (userError) {
-            toast.error("Error: " + userError, getToastOptions({ autoClose: false }));
+            toast.error("Error: " + userError, getToastOptions({ autoClose: 3000 }));
             reset(undefined, { keepValues: false });
             throw new Error();
           } else {
@@ -152,7 +162,7 @@ const LoginForm = () => {
             setUserDetails(user);
 
             if (!user) {
-              toast.error("Error: No user data found", getToastOptions({ autoClose: false }));
+              toast.error("Error: No user data found", getToastOptions({ autoClose: 3000 }));
               reset(undefined, { keepValues: false });
               throw new Error();
             }
@@ -171,17 +181,31 @@ const LoginForm = () => {
             toast.success("Successfully signed in", getToastOptions({}));
             setTimeout(() => {
               // Retrieve pending referral data from context and secure storage
-              let pendingReferral = PendingApply || secureStorage.getItem<any>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
+              let pendingReferral =
+                PendingApply ||
+                secureStorage.getItem<any>(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS);
 
               // Sync PendingApply and secureStorage
-              if (PendingApply && !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
-                secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
-              } else if (!PendingApply && secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)) {
+              if (
+                PendingApply &&
+                !secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+              ) {
+                secureStorage.setItem(
+                  SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS,
+                  PendingApply
+                );
+              } else if (
+                !PendingApply &&
+                secureStorage.getItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS)
+              ) {
                 setPendingApply(pendingReferral);
               }
               // debugger;
               if (PendingApply) {
-                secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, PendingApply);
+                secureStorage.setItem(
+                  SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS,
+                  PendingApply
+                );
                 window.location.href = PendingApply.url; // Redirect to the referral page
               } else {
                 window.location.href = "/jobs"; // Redirect to home page
@@ -191,7 +215,7 @@ const LoginForm = () => {
         }
       }
     } catch (error: any) {
-      toast.error(error?.message || "Something went wrong", getToastOptions({ autoClose: false }));
+      // toast.error(error?.message || "Something went wrong", getToastOptions({ autoClose: 3000 }));
       // CognitoServiceObj.handleSignOut();
     }
   };
@@ -252,45 +276,83 @@ const LoginForm = () => {
         )}
         className=" min-w-full h-full ">
         <div className="mainForm  min-w-full  grid grid-rows-[min-content] justify-items-center  sm:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-2 w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[350px] items-baseline ">
-          <p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 "> Nice to see you again </p>
+          <p className="font-bold text-xl mb-2 md:text-2xl text-gray-700 mx-auto text-left w-full  max-w-[350px] mt-2 ">
+            {" "}
+            Nice to see you again{" "}
+          </p>
           {/* Name */}
           <div className="w-full max-w-[350px] sm:max-w-[350px] ">
             <label className="font-medium hidden sm:block">Email</label>
-            <input type="text" placeholder="Enter Email" className={`input_primary auth_input ${errors.email && "error"}`} {...register("email", validationRules.personalEmail)} />
-            {errors.email && <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>}
+            <input
+              type="text"
+              placeholder="Enter Email"
+              className={`input_primary auth_input ${errors.email && "error"}`}
+              {...register("email", validationRules.personalEmail)}
+            />
+            {errors.email && (
+              <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>
+            )}
           </div>
           {/* Password */}
           <div className="relative w-full max-w-[350px] sm:max-w-[350px] ">
             <label className="hidden sm:block font-medium">Password</label>
-            <input type={showPassword ? "text" : "password"} placeholder="Enter Password" className={`input_primary auth_input ${errors.password && "error"}`} {...register("password", validationRules.password)} />
-            <span className="absolute right-3 top-2 sm:top-9 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <i className="fa-regular fa-eye-slash mt-2"></i> : <i className="fa-regular fa-eye mt-2"></i>}
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter Password"
+              className={`input_primary auth_input ${errors.password && "error"}`}
+              {...register("password", validationRules.password)}
+            />
+            <span
+              className="absolute right-3 top-2 sm:top-9 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <i className="fa-regular fa-eye-slash mt-2"></i>
+              ) : (
+                <i className="fa-regular fa-eye mt-2"></i>
+              )}
             </span>
-            {errors.password && <p className="text-sm text-left text-red-500">{errors.password.message?.toString()}</p>}
+            {errors.password && (
+              <p className="text-sm text-left text-red-500">
+                {errors.password.message?.toString()}
+              </p>
+            )}
           </div>
 
           {/* Remember me and ForgotPassword */}
           <div className="w-full max-w-[350px] sm:max-w-[350px] flex justify-between items-center my-2  ">
             <div className="flex items-center">
-              <ToggleBtn isToggleEnabled={isToggleEnabled} setIsToggleEnabled={() => setIsToggleEnabled(!isToggleEnabled)} />
+              <ToggleBtn
+                isToggleEnabled={isToggleEnabled}
+                setIsToggleEnabled={() => setIsToggleEnabled(!isToggleEnabled)}
+              />
               <label className="text-sm">Remember me</label>
             </div>
-            <a onClick={() => navigate("/auth/resetpassword", { state: { pagetype: "GEN" } })} className="cursor-pointer text-sm text-blue-500 ">
+            <a
+              onClick={() => navigate("/auth/resetpassword", { state: { pagetype: "GEN" } })}
+              className="cursor-pointer text-sm text-blue-500 ">
               Forgot password?
             </a>
           </div>
 
           {/* Submit Button */}
           <div className="w-full ">
-            <button type="submit" className="cursor-pointer btn_primary px-4 py-2 w-full max-w-[350px] sm:max-w-[350px] " disabled={!isValid || isSubmitting}>
+            <button
+              type="submit"
+              className="cursor-pointer btn_primary px-4 py-2 w-full max-w-[350px] sm:max-w-[350px] "
+              disabled={!isValid || isSubmitting}>
               Sign in
             </button>
           </div>
           <hr className="w-full my-5 max-w-[350px] " />
           {/* LinkedIn  */}
           <div className="w-full ">
-            <button className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] " disabled={isSubmitting} type="button" onClick={() => signUpWithLinkedIn("SignIn")}>
-              <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>Or sign in with Linkedin
+            <button
+              className="border px-4 py-2.5 rounded-lg bg-[#333333] text-white text-xs  w-full max-w-[350px] sm:max-w-[350px] "
+              disabled={isSubmitting}
+              type="button"
+              onClick={() => signUpWithLinkedIn("SignIn")}>
+              <i className="fa-brands fa-linkedin-in bg-[#0062ff] p-1 pb-0.5  rounded-sm   text-white mx-2 "></i>
+              Or sign in with Linkedin
             </button>
           </div>
 
@@ -298,7 +360,9 @@ const LoginForm = () => {
           <div className="w-full ">
             <p className="text-center text-sm mt-3 ">
               Don't have an account? &nbsp;
-              <div onClick={() => navigate("/auth/signup")} className="inline cursor-pointer text-blue-500 ">
+              <div
+                onClick={() => navigate("/auth/signup")}
+                className="inline cursor-pointer text-blue-500 ">
                 Sign up now
               </div>
             </p>
@@ -316,8 +380,17 @@ const LoginForm = () => {
           isdisabled={otp.length !== 6} // Disable if OTP is not entered
         >
           <div className="flex flex-col gap-3">
-            <p>An one time password has been sent to your registered email address.Please enter it in to verify your account.</p>
-            <input type="text" placeholder="Enter OTP" className={`input_primary auth_input ${otp.length !== 6 && "error"}`} value={otp} onChange={(e) => setOtp(e.target.value)} />
+            <p>
+              An one time password has been sent to your registered email address.Please enter it in
+              to verify your account.
+            </p>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              className={`input_primary auth_input ${otp.length !== 6 && "error"}`}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+            />
             <label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
           </div>
         </CustomModal>

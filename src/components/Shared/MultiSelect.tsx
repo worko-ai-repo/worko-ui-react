@@ -8,6 +8,10 @@ interface MultiSelectProps {
   type: 'normal' | 'freetext' | 'multiselect';
   options?: string[];
   apiValue?: string[];
+  /**
+   * When true, the dropdown will automatically open (used by external controllers like quick filters)
+   */
+  autoOpen?: boolean;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -17,6 +21,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   type,
   options = [],
   apiValue = [],
+  autoOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -31,6 +36,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   // Function to get display value from API value
   const getDisplayValue = (apiVal: string) => apiToDisplayMap[apiVal] || apiVal;
+
+  // Open the dropdown programmatically when requested
+  useEffect(() => {
+    if (autoOpen) {
+      setIsOpen(true);
+      inputRef.current?.focus();
+    }
+  }, [autoOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

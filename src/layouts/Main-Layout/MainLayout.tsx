@@ -1,11 +1,12 @@
-import { Outlet } from 'react-router-dom';
-import styles from '../layout.module.scss';
+import { Outlet } from "react-router-dom";
+import styles from "../layout.module.scss";
 
-import Header from '@Components/Header/Header';
-import Footer from '@Components/Footer/Footer';
-import ScrollToTop from '@Utils/ScrollToTop.utils';
-import DynamicBackgroundHandler from '@Utils/DynamicBackground';
-import useSeo from '@Hooks/useSeo.hooks';
+import Header from "@Components/Header/Header";
+import Footer from "@Components/Footer/Footer";
+import ScrollToTop from "@Utils/ScrollToTop.utils";
+import DynamicBackgroundHandler from "@Utils/DynamicBackground";
+import useSeo from "@Hooks/useSeo.hooks";
+import FooterNavbar from "@Components/FooterNavbar/FooterNavbar";
 
 /**
  * @function MainLayout
@@ -15,18 +16,19 @@ import useSeo from '@Hooks/useSeo.hooks';
  * @returns {JSX.Element} The JSX code for the MainLayout component
  */
 function MainLayout(): JSX.Element {
-	useSeo();
-	return (
-		<div id="MainLayout" className="bg-white">
-			<Header />
-				<ScrollToTop />
-				<main className={styles.main} id="main_container">
-					<DynamicBackgroundHandler />
-					<Outlet />
-				</main>
-			<Footer />
-		</div>
-	);
+  useSeo();
+  return (
+    <div id="MainLayout" className="bg-white">
+      <Header />
+      <ScrollToTop />
+      <main className={styles.main} id="main_container">
+        <DynamicBackgroundHandler />
+        <Outlet />
+      </main>
+      <FooterNavbar />
+      <Footer />
+    </div>
+  );
 }
 
 export default MainLayout;

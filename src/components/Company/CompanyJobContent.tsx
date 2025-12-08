@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import styles from "./company.module.scss";
 import { useCompanyContext } from "../../context/Company.context";
 import { formatRange } from "@Utils/RangeFormater.utils";
-import { X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
 import { useInView } from "react-intersection-observer";
 
@@ -33,10 +33,12 @@ import {
   JobPageFilterSkeleton,
 } from "@Components/Loader/Skeleton/SkeletonLoader";
 import { NormalizedUser } from "@Utils/NormalizeUser";
+import MobileQuickFilters from "./MobileQuickFilters";
 
 const CompanyJobContent = () => {
   const location = useLocation();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [autoOpenFilterKey, setAutoOpenFilterKey] = useState<string | null>(null);
   const [uploadResume, setUploadResume] = useState(false);
   const { isLoggedIn }: { isLoggedIn: boolean } = useAppContext();
   const {
@@ -65,6 +67,7 @@ const CompanyJobContent = () => {
   const { handleFilterChange } = useJobFilters();
   const { jobFilterForRender } = useCompanyContext();
   const [isDisabled, setIsDisabled] = useState(false);
+  const [showStickyFilter, setShowStickyFilter] = useState(false);
 
   // Debounced fetch function to prevent multiple rapid calls
   // Intersection Observer for Infinite Scroll
@@ -76,6 +79,14 @@ const CompanyJobContent = () => {
       }
     },
   });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyFilter(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (searchInputRef.current) {
@@ -117,6 +128,11 @@ const CompanyJobContent = () => {
     setIsDisabled(isDashboardUser);
   }, [location]);
 
+  const handleMobileQuickFilterClick = (paramKey: string) => {
+    setAutoOpenFilterKey(paramKey);
+    setIsFiltersOpen(true);
+  };
+
   const handleClick = () => {
     const lastFilter = jobFilterForRender[jobFilterForRender.length - 1];
 
@@ -133,9 +149,9 @@ const CompanyJobContent = () => {
 
   return (
     <div
-      className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-5 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
+      className={`min-h-[100vh] mb-[50px] grid rounded-lg gap-2 sm:max-w-[1380px] mx-auto ${styles.Company_Content}`}>
       {/* Search Bar */}
-      <div className={`min-h-[50px] px-3 sm-px-0 p-1 flex justify-center gap-2 mb-5 sm:max-w-full`}>
+      <div className={`min-h-[50px] px-3 sm-px-0 p-1 flex justify-center gap-2 sm:max-w-full`}>
         <div className="flex-1 md:max-w-[1000px] relative Search_content flex flex-row flex-nowrap">
           <div className="w-full relative display flex">
             <i className="fa-solid fa-magnifying-glass absolute z-10 top-3 left-3 text-gray-300"></i>
@@ -178,15 +194,30 @@ const CompanyJobContent = () => {
             </span>
           </button>
         </div>
-
+      </div>
+      <div className="flex items-center justify-between px-3 md:px-0 max-w-[90%] ">
         {/* Filters Button (Mobile) */}
+        {!showStickyFilter && (
+          <button
+            onClick={toggleFilters}
+            className="outline-none text-xs sm:text-base sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
+            <i className="fa-solid fa-filter"></i>
+          </button>
+        )}
+        {/* Mobile horizontal quick filters (no dropdown here) */}
+        <MobileQuickFilters onFilterClick={handleMobileQuickFilterClick} />
+      </div>
+      {/* Sticky Filter Button (Mobile) */}
+      {showStickyFilter && (
         <button
           onClick={toggleFilters}
-          className="outline-none text-xs sm:text-base min-w-24 sm:scale-100 border-[1px] border-gray-400 px-3 py-2 rounded-lg md:hidden font-semibold text-gray-600">
-          Filters <i className="fa-solid fa-filter"></i>
+          className="fixed bottom-24 right-6 z-50 md:hidden bg-purple-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center animate-fade-in"
+          style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+          aria-label="Open Filters"
+        >
+          <Filter className="w-7 h-7" />
         </button>
-      </div>
-
+      )}
       {/* Jobs Section */}
       <div
         className={`relative w-full min-h-[100vh] grid grid-cols-1 md:grid-cols-[minmax(200px,300px)_1fr] gap-5 ${styles.Company_Content_Jobs}`}>
@@ -205,7 +236,11 @@ const CompanyJobContent = () => {
           }`}
           style={{ height: "100vh" }}>
           <Suspense fallback={<JobPageFilterSkeleton />}>
-            <JobFilterPanel toggleFilters={toggleFilters} companyPageMode={companyPageMode} />
+            <JobFilterPanel
+              toggleFilters={toggleFilters}
+              companyPageMode={companyPageMode}
+              autoOpenFilterKey={autoOpenFilterKey}
+            />
           </Suspense>
         </div>
 
@@ -349,7 +384,7 @@ const CompanyJobContent = () => {
       </div>
       {uploadResume && <UpdateResumeModal onClose={() => setUploadResume(false)} />}
       {isProfileInclomplete &&
-        (isProfileIncompWithoutCV ? (
+        (!isProfileIncompWithoutCV ? (
           <MessageModal
             type="error"
             size="lg"

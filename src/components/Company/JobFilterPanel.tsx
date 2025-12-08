@@ -10,7 +10,16 @@ import { JobFilterPanelSkeleton, ReferralPageFilterSkeleton } from '@Components/
 import { useJobFilters } from '@Hooks/useJobFilter.hook';
 import { AuthLoginForGeneralUserDto } from '@Interfaces/Auth.dto';
 
-export const JobFilterPanel = ({ toggleFilters, companyPageMode }: { toggleFilters: () => void; companyPageMode: CompanyPageModeEnum }) => {
+interface JobFilterPanelProps {
+	toggleFilters: () => void;
+	companyPageMode: CompanyPageModeEnum;
+	/**
+	 * When provided, the matching filter's dropdown will auto-open (used by mobile quick filters)
+	 */
+	autoOpenFilterKey?: string | null;
+}
+
+export const JobFilterPanel = ({ toggleFilters, companyPageMode, autoOpenFilterKey }: JobFilterPanelProps) => {
 	const { setJobFilters, jobFilterForRender = [], resetFiltersValues,setIsInitialFilterSet } = useCompanyContext();
 	const { userDetails } = useAppContext<Partial<AuthLoginForGeneralUserDto>>();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -87,6 +96,7 @@ useEffect(() => {
 									type={filter.selectType}
 									options={filter.options}
 									apiValue={filter.value} // Actual API values
+									autoOpen={autoOpenFilterKey === filter.paramKey}
 								/>
 							</div>
 						))

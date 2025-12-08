@@ -47,7 +47,7 @@ export const getToastOptions = (
   type: keyof typeof toastVariants = "default"
 ): ToastOptions => ({
   position: "top-center",    // Toast appears at the top center of screen
-  autoClose: 5000,           // Automatically close after 5 seconds
+  autoClose: 1000,           // Automatically close after 5 seconds
   hideProgressBar: true,     // Don't show countdown progress bar
   closeOnClick: true,        // Close when clicked
   pauseOnHover: true,        // Pause autoClose timer when hovering

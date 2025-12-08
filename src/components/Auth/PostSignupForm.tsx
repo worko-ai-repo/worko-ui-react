@@ -150,19 +150,27 @@ export default function JobRecommendationForm() {
   const [skillsInputValue, setSkillsInputValue] = useState("");
   const [locationInputValue, setLocationInputValue] = useState("");
   const [departmentInputValue, setDepartmentInputValue] = useState("");
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isWaitingForCV, setIsWaitingForCV] = useState(false);
+  const [retryAttempted, setRetryAttempted] = useState(false);
+  const [isManualMode, setIsManualMode] = useState(false);
 
   const skillsInputRef = useRef<HTMLInputElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const departmentInputRef = useRef<HTMLInputElement>(null);
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { userDetails, PendingApply, setPendingApply } = useAppContext();
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const shouldRetryRef = useRef(false);
+  const retryInitiatedRef = useRef(false);
+  const { userDetails, PendingApply, setPendingApply, setUpdateCheck } = useAppContext();
   const appHref = useCrossAppAuth();
-
+ 
   const { isLoading } = useQuery({
     queryKey: ["fetchSkills"],
     queryFn: getUserSkills,
-    enabled: !!userDetails, // Disable automatic query on mount
+    enabled: !!userDetails, // Only run when userDetails is available
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
@@ -171,8 +179,101 @@ export default function JobRecommendationForm() {
   async function getUserSkills() {
     try {
       if (!userDetails?.CV) {
-        throw new Error("No CV found for the user.Please fill the form manually.");
+        // If already in manual mode, skip CV fetching
+        if (isManualMode) {
+          return;
+        }
+
+        // If retry has already been initiated, don't start it again
+        if (retryInitiatedRef.current) {
+          return;
+        }
+
+        // If this is the first attempt and not already waiting, trigger refetch and start countdown
+        if (!retryAttempted && !isWaitingForCV) {
+          retryInitiatedRef.current = true; // Mark that retry has been initiated
+          toast.warn("Opps! It looks like we hit the roadblock. Trying to fetch your CV again...", getToastOptions());
+          setUpdateCheck((prev) => !prev);
+          setIsWaitingForCV(true);
+          setCountdown(10);
+          shouldRetryRef.current = true;
+
+          // Start countdown timer
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+          }
+          countdownIntervalRef.current = setInterval(() => {
+            setCountdown((prev) => {
+              if (prev === null || prev <= 1) {
+                if (countdownIntervalRef.current) {
+                  clearInterval(countdownIntervalRef.current);
+                  countdownIntervalRef.current = null;
+                }
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+
+          // Schedule retry after 10 seconds
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+          }
+          retryTimeoutRef.current = setTimeout(() => {
+            setIsWaitingForCV(false);
+            setCountdown(null);
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current);
+              countdownIntervalRef.current = null;
+            }
+            setRetryAttempted(true);
+            shouldRetryRef.current = false;
+            // Retry after countdown
+            getUserSkills();
+          }, 10000);
+          return;
+        } else if (retryAttempted) {
+          // First retry failed, move to manual mode
+          setIsWaitingForCV(false);
+          setCountdown(null);
+          setRetryAttempted(false);
+          shouldRetryRef.current = false;
+          retryInitiatedRef.current = false; // Reset for future use
+          setIsManualMode(true);
+          
+          // Clear all timers
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+          }
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+          }
+          
+          toast.info("CV not found. Please enter your details manually.", getToastOptions());
+          // Continue with manual mode - use default suggestions
+          return;
+        }
+        // If already waiting, just return (don't start another countdown)
+        return;
       } else {
+        // CV is available, proceed with parsing
+        setIsWaitingForCV(false);
+        setCountdown(null);
+        setRetryAttempted(false);
+        setIsManualMode(false);
+        shouldRetryRef.current = false;
+        retryInitiatedRef.current = false; // Reset retry initiation flag
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        }
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+
         const { response, status } = await httpServiceObj.post<CvParseResponse>(
           "/user/parseCv",
           {
@@ -225,7 +326,10 @@ export default function JobRecommendationForm() {
         }
       }
     } catch (err: any) {
-      toast.error(err.message || err, getToastOptions());
+      // Only show error if not waiting for CV retry
+      if (!isWaitingForCV) {
+        toast.error(err.message || err, getToastOptions());
+      }
     }
   }
 
@@ -274,18 +378,38 @@ export default function JobRecommendationForm() {
       if (blurTimeoutRef.current) {
         clearTimeout(blurTimeoutRef.current);
       }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
     };
   }, []);
 
-  const ENTER_KEYS = new Set([
-    "Enter",
-    "NumpadEnter",
-    "Done",
-    "Go",
-    "Search",
-    "Send",
-    "Next",
-  ]);
+  // Watch for CV availability during countdown
+  useEffect(() => {
+    if (isWaitingForCV && userDetails?.CV) {
+      // CV became available during countdown, cancel countdown and retry immediately
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      setIsWaitingForCV(false);
+      setCountdown(null);
+      setRetryAttempted(false);
+      setIsManualMode(false);
+      shouldRetryRef.current = false;
+      retryInitiatedRef.current = false; // Reset retry initiation flag
+      getUserSkills();
+    }
+  }, [userDetails?.CV, isWaitingForCV]);
+
+  const ENTER_KEYS = new Set(["Enter", "NumpadEnter", "Done", "Go", "Search", "Send", "Next"]);
 
   const isEnterLikeKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (ENTER_KEYS.has(event.key)) {
@@ -305,11 +429,7 @@ export default function JobRecommendationForm() {
     const value = e.currentTarget.value.trim();
 
     if (value) {
-      if (
-        field === "coreSkills" &&
-        !selectedSkills.includes(value) &&
-        selectedSkills.length < 18
-      ) {
+      if (field === "coreSkills" && !selectedSkills.includes(value) && selectedSkills.length < 18) {
         addSkill(value);
         setSkillsInputValue("");
       } else if (
@@ -546,11 +666,18 @@ export default function JobRecommendationForm() {
   };
 
   /**
-   * Effect to show the loader whrn the component mounts
+   * Effect to show the loader when the component mounts
+   * But don't show it if we're waiting for CV retry (to keep countdown visible)
    */
   useEffect(() => {
-    setFinalLoader({ isInitial: true, isOpen: true });
-  }, [isLoading]);
+    // Only show finalLoader if we're loading AND not waiting for CV retry
+    if (isLoading && !isWaitingForCV) {
+      setFinalLoader({ isInitial: true, isOpen: true });
+    } else if (!isLoading && !isWaitingForCV) {
+      // Close loader when loading completes (unless we're waiting for CV)
+      setFinalLoader((prev) => ({ ...prev, isOpen: false }));
+    }
+  }, [isLoading, isWaitingForCV]);
 
   return (
     <div className="min-h-screen p-4 md:p-6">
@@ -563,6 +690,24 @@ export default function JobRecommendationForm() {
               waiting right away for you
             </h1>
           </div>
+
+          {/* Countdown Timer Banner */}
+          {isWaitingForCV && countdown !== null && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900">CV not found. Trying again...</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Retrying in <span className="font-bold text-blue-900">{countdown}</span> second
+                    {countdown !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="animate-pulse space-y-6">
@@ -810,7 +955,7 @@ export default function JobRecommendationForm() {
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>0</span>
                         <span className="font-medium text-gray-900">{experience} years</span>
-                        <span>100</span>
+                        <span>30</span>
                       </div>
                       {isLoading ? (
                         <div className="w-full h-2 rounded bg-gray-200 animate-pulse" />
@@ -818,7 +963,7 @@ export default function JobRecommendationForm() {
                         <input
                           type="range"
                           min="0"
-                          max="100"
+                          max="30"
                           value={experience}
                           onChange={(e) => {
                             const value = Number(e.target.value);
@@ -1005,8 +1150,8 @@ export default function JobRecommendationForm() {
             </div>
           </div>
         )}
-        {/* finalLoader &&  */}
-        {finalLoader.isOpen && (
+        {/* Don't show finalLoader when waiting for CV retry - keep countdown visible */}
+        {finalLoader.isOpen && !isWaitingForCV && (
           <CVParsingPopup
             isInitial={finalLoader.isInitial}
             onClose={() => {

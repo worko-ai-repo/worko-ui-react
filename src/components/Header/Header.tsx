@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Menu, X, ChevronDown, LogOut, User } from "lucide-react";
 import { coin, logo_text } from "@Assets";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
 import CognitoServiceObj from "@Utils/Cognito.utils";
 import secureStorage from "@Utils/SecureStorage.utils";
@@ -17,22 +17,25 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  {
+  /* {
     label: "For Candidate",
     subItems: [
       { label: "Jobs", href: "/jobs" },
       { label: "Request Referral", href: "/referrals" },
       { label: "Request Guidance", href: "/guidance" },
     ],
-  },
+  }, */
+  { label: "Jobs", href: "/jobs" },
+  { label: "Guidance", href: "/guidance" },
+  { label: "Refer-n-Earn", href: "/jobs?dashboard=USER" },
   { label: "For Employee", href: "/for-employee" },
   { label: "For Corporate", href: "/corporate" },
-  { label: "About Us", href: "/about" },
 ];
 
 const Header = () => {
   const appHref = useCrossAppAuth();
   const navigateTo = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, userDetails, setUpdateCheck } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -54,6 +57,10 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   // Effect to handle click outside of header to close mobile menu
   useEffect(() => {
@@ -351,13 +358,20 @@ const Header = () => {
               </div>
             )}
           </div>
+          <div className=" flex items-center ">
+            <button
+              className="md:hidden rounded-lg bg-sky-500/20 border-sky-600 hover:border-2 py-2 px-2 text-xs font-semibold text-blue-700"
+              onClick={() => navigateTo("/auth/corporate/login")}>
+              For Employers
+            </button>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-gray-600 hover:text-gray-800">
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="md:hidden p-1 border rounded-lg ml-2 font-light text-gray-600 hover:text-gray-800">
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}

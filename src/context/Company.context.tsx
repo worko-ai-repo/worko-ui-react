@@ -170,7 +170,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         response &&
         "CTC" in response &&
         response?.isCvExtracted === true &&
-        (designation || coreSkills?.length || response?.YOE)
+        (coreSkills?.length || response?.YOE)
       ) {
         setDefaultFiltersState({
           userDesignation: designation || "", // Ensure userDesignation is always a string
@@ -185,7 +185,13 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           ...(response?.YOE && { YOE: response.YOE }),
         }));
       } else {
-        if ((response && !("CTC" in response)) || !response?.YOE || coreSkills?.length === 0) {
+        if (
+          (response &&
+            (!("isCvExtracted" in response) ||
+              response.isCvExtracted === false )) ||
+          !response?.YOE ||
+          coreSkills?.length === 0
+        ) {
           setIsProfileIncompWithoutCV(true);
         }
         setIsProfileInclomplete(true);
@@ -417,15 +423,13 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         ...rest
       } = filters;
       const isDashboardMode = "dashboard" in rest;
-      const shouldUseVectorSearch = isJobPage && isLoggedIn && !isDashboardMode;
+      const shouldUseVectorSearch = isJobPage && isLoggedIn && !isDashboardMode && !isCorporate;
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
         ...filters,
         pageSize: 30,
         // Only attach lastKey for non-job pages; job uses s3VectorPageNumber
-        ...(pageParam && (!shouldUseVectorSearch || !isJobPage)
-          ? { lastKey: pageParam }
-          : {}),
+        ...(pageParam && (!shouldUseVectorSearch || !isJobPage) ? { lastKey: pageParam } : {}),
         ...(isJobPage && filters.sortOrder
           ? { sortOrder: filters.sortOrder === "asc" ? "asc" : "desc" }
           : {}),
@@ -446,7 +450,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         } else if (hasParamCoreSkills) {
           updatedFilters.coreSkills = coreSkillsFromParams;
         } else if (isLoggedIn) {
-        updatedFilters.coreSkills = defaultCoreSkills;
+          updatedFilters.coreSkills = defaultCoreSkills;
         }
         const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } =
           filters;
@@ -473,8 +477,6 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           delete updatedFilters.YOE;
         }
       }
-
-
 
       // Persist default jobTitle and YOE unless explicitly overridden.
       // YOE will be removed only if experienceRange is present (handled below).
@@ -602,11 +604,11 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
             return [...existingData, ...response.data];
           });
         }
-          
+
         return {
           data: response,
           nextPage:
-            isJobPage && isLoggedIn && !isDashboardMode
+            isJobPage && isLoggedIn && !isDashboardMode && !isCorporate
               ? response.pagination?.s3VectorLastKey
               : response.pagination?.lastKey,
         };

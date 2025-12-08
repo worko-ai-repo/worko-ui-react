@@ -162,7 +162,7 @@ const JobDescription = () => {
         data &&
         "CTC" in data &&
         data?.isCvExtracted === true &&
-        (designation || coreSkills?.length > 0 || yoe);
+        (coreSkills?.length > 0 || yoe);
       const jobDescription = jobDataState ?? jobData ?? null;
       if (jobDescription && !jobDescription.initialMatchingScoreDetails)
         await fetchMatchingScore(jobDataState ?? jobData ?? ({} as JobDto));
