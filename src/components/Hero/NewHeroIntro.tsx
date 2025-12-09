@@ -159,7 +159,7 @@ export default function SmoothHeroIntro() {
           </div>
         ))}
 
-        <div className="container section-wrapper mx-auto px-4 max-sm:pt-0   py-0">
+        <div className="container section-wrapper mx-auto px-4 max-sm:pt-0 !py-0">
           <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 
           {/* Hero Text */}

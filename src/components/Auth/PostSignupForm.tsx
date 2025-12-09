@@ -972,7 +972,7 @@ export default function JobRecommendationForm() {
                           }}
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                           style={{
-                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${experience}%, #e5e7eb ${experience}%, #e5e7eb 100%)`,
+                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(experience / 30) * 100}%, #e5e7eb ${(experience / 30) * 100}%, #e5e7eb 100%)`,
                           }}
                         />
                       )}

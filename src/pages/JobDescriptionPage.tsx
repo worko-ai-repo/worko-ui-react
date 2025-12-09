@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -51,25 +51,26 @@ const fetchUserBasicDetails = async () => {
 };
 
 const JobDescription = () => {
-  // check if the use is logged in
-  const { setPendingApply, isLoggedIn, userDetails } = useAppContext() as {
+  // ============================================
+  // ALL HOOKS MUST BE CALLED BEFORE ANY RETURNS
+  // ============================================
+  
+  // Context and Router Hooks
+  const { PendingApply, setPendingApply, isLoggedIn, userDetails } = useAppContext() as {
     PendingApply: continueReferralRequestDataDto | null;
     setPendingApply: React.Dispatch<React.SetStateAction<continueReferralRequestDataDto | null>>;
     isLoggedIn: boolean;
     userDetails: NormalizedUser;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   };
-
-  // navigate to a different page
   const nav = useNavigate();
-
-  // get the current location
   const location = useLocation();
+  const { jobid } = useParams();
 
-  // States For Internal Apply
-  const [isLoader, setLoader] = useState(false); // Show loader when the form is submitted
-  const [MessageEnabled, setMessageEnabled] = useState(false); // Show message when the form is submitted
-  const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0); // Current step of the loader
+  // State Hooks
+  const [isLoader, setLoader] = useState(false);
+  const [MessageEnabled, setMessageEnabled] = useState(false);
+  const [currStep, setCurrStep] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [ModalType, setModalType] = useState<
     | "zeroReferral"
     | "profileCompletion"
@@ -79,22 +80,17 @@ const JobDescription = () => {
     | "Error_250"
     | "Error_251"
     | "Max_tries"
-  >("zeroReferral"); // Current step of the loader
-  const [gaugeEnabled, setGaugeEnabled] = useState(false); // Show gauge when the form is submitted
-  const [gaugeScore, setGaugeScore] = useState(0); // Show gauge when the form is submitted
-  const [IsFeedbackOpen, setIsFeedbackOpen] = useState(false); // Show feedback modal when the form is submitted
+  >("zeroReferral");
+  const [gaugeEnabled, setGaugeEnabled] = useState(false);
+  const [gaugeScore, setGaugeScore] = useState(0);
+  const [IsFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [FeedbackInfo, setFeedbackInfo] = useState<FeedbackModalProps>();
-
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
-  const { jobid } = useParams();
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(() => {
     const job = (location.state as any)?.FullJob;
-
-    // Clear location state after extracting the data
     if (job) {
       window.history.replaceState({}, document.title);
     }
-
     return job;
   });
   const [isApplying, setIsApplying] = useState(false);
@@ -102,7 +98,7 @@ const JobDescription = () => {
   const [modalData, setModalData] = useState<MessagePopupProps | null>(null);
   const [globalMatchingScore, setGlobalMatchingScore] = useState<number | -1>(-1);
   const [applicationStatus, setApplicationStatus] = useState<boolean>(false);
-  const [isProfileCheckComplete, setIsProfileCheckComplete] = useState(false); // Track profile check completion
+  const [isProfileCheckComplete, setIsProfileCheckComplete] = useState(false);
   const [jobMatchDetails, setJobMatchDetails] = useState<JobMatchingScoreDto>({
     id: "",
     userId: "",
@@ -120,14 +116,39 @@ const JobDescription = () => {
     updatedAt: "",
     isTriggered: false,
   });
+  
+  const pendingApplyHandledRef = useRef(false);
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI;
 
+  // Query Hooks
   const { data, isSuccess } = useQuery({
     queryKey: ["userBasicDetails"],
     queryFn: fetchUserBasicDetails,
     refetchOnWindowFocus: false,
   });
 
+  const {
+    data: jobData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["jobData", jobid],
+    queryFn: async () => {
+      const { response, error } = await httpServiceObj.get<JobDto>(
+        `${APP_JOBS_API_URI}/job/${jobid}`,
+        true,
+        {},
+        true
+      );
+
+      if (error) throw new Error(error.message);
+      return response;
+    },
+    enabled: !!jobid && !jobDataState,
+    retry: 0,
+  });
+
+  // Helper function for fetching matching score
   async function fetchMatchingScore(job: JobDto) {
     try {
       const { response: finalScoreData, error: finalScoreError } = await httpServiceObj.get<{
@@ -144,13 +165,42 @@ const JobDescription = () => {
 
       if (finalScoreError) throw finalScoreError;
       if (finalScoreData && job) {
-        // Patch that score in finalScore of the job finalscore
         job.initialMatchingScoreDetails = finalScoreData.initialMatchingScoreDetails;
       }
     } catch (error) {
       console.error("Error fetching matching score:", error);
     }
   }
+
+  // Check application status
+  const checkApplicationStatus = async (retryCount = 0) => {
+    if (!isLoggedIn || !jobDataState) return;
+
+    try {
+      const userEmail =
+        secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
+      const { response, status } = await httpServiceObj.get<{
+        data: JobApplicationExternalDto[] | JobApplicationInternalDto[];
+        pagination: object;
+      }>(
+        `${APP_JOBS_API_URI}/${
+          jobDataState?.externalJobId ? "external-" : ""
+        }job-application/${jobid}/${userEmail}`,
+        true,
+        {},
+        true
+      );
+      if (status === 404) {
+        setApplicationStatus(false);
+      } else {
+        setApplicationStatus(true);
+      }
+    } catch (error) {
+      console.error("Error checking application status:", error);
+    }
+  };
+
+  // Effect: Process user data and matching scores
   useEffect(() => {
     if (!isSuccess || !data) return;
 
@@ -178,7 +228,6 @@ const JobDescription = () => {
             experienceScore,
             responsibilitiesScore,
           } = compareResumeWithJD(jobDescription, data);
-          // console.log("Matching Score:", matchingScore);
 
           setJobMatchDetails((prev) => ({
             ...prev,
@@ -199,11 +248,9 @@ const JobDescription = () => {
             isTriggered: prev?.isTriggered || false,
           }));
         }
-        // Mark profile check as complete only after all validations pass
         setIsProfileCheckComplete(true);
       } else {
         if (!coreSkills || coreSkills.length === 0 || !yoe || !("CTC" in data)) {
-          // If core skills or yoe or CTC is missing, prompt to update profile
           const continueReferralRequestData = {
             type: "referral",
             url: window.location.href,
@@ -220,13 +267,11 @@ const JobDescription = () => {
           );
           setShowApplyModal(true);
           showModalsError("NoBasicDetailsWithoutCv");
-          // Don't mark as complete since profile is incomplete
           setIsProfileCheckComplete(false);
           return;
         }
         setShowApplyModal(true);
         showModalsError("NoBasicDetails");
-        // Don't mark as complete since profile is incomplete
         setIsProfileCheckComplete(false);
       }
     };
@@ -234,69 +279,110 @@ const JobDescription = () => {
     processUserData();
   }, [isSuccess, data, jobDataState]);
 
-  // This effect will run when the component mounts or when jobid changes
-  // It will set the jobDataState from location state if available
+  // Effect: Update jobDataState from location
   useEffect(() => {
     const job = (location.state as any)?.FullJob;
     if (job) {
       setJobDataState(job);
-      window.history.replaceState({}, document.title); // Clean up state again
-      setApplicationStatus(false); // Reset application status
+      window.history.replaceState({}, document.title);
+      setApplicationStatus(false);
     }
-  }, [location, jobid]); // Depends on jobid or location change
+  }, [location, jobid]);
 
-  // Add this new function to check application status
-  const checkApplicationStatus = async (retryCount = 0) => {
-    if (!isLoggedIn || !jobDataState) return;
-
-    try {
-      const userEmail =
-        secureStorage.getItem<string>(SecureStorageKeyEnum.USEREMAIL) || userDetails.email;
-      const { response, status } = await httpServiceObj.get<{
-        data: JobApplicationExternalDto[] | JobApplicationInternalDto[];
-        pagination: object;
-      }>(
-        `${APP_JOBS_API_URI}/${
-          jobDataState?.externalJobId ? "external-" : ""
-        }job-application/${jobid}/${userEmail}`,
-        true,
-        {},
-        true
-      );
-      if (status === 404) {
-        setApplicationStatus(false); // Set application status to true if data is present
-      } else {
-        setApplicationStatus(true);
-      }
-    } catch (error) {
-      console.error("Error checking application status:", error);
-    }
-  };
-
-  // Add useEffect to call the check function when job data is loaded
+  // Effect: Check application status
   useEffect(() => {
     if (jobDataState) {
       checkApplicationStatus();
     }
   }, [jobDataState, isLoggedIn]);
 
-  /*   useEffect(() => {
+  // Effect: Fetch company details
+  useEffect(() => {
+    if (jobData && !jobData.externalJobId) {
+      const fetchCompanyDetails = async () => {
+        try {
+          const { response, error } = await httpServiceObj.get<[CompanyDto]>(
+            `/company/${jobData.companyId}`,
+            true
+          );
 
-      // Else , Check if the use has come from the page of auth or not by checking the secure storage for stale request data.
-      // If the user is not logged in and the referral request is not present in the secure storage, redirect to login page
-      // Retrieve any pending referral data from context or secure storage
-      const pendingReferral = PendingApply || secureStorage.getItem<continueReferralRequestDataDto>(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA);
-      if (pendingReferral && isLoggedIn) {
-  
-        // Remove from storage *after* submitting
-          setPendingApply(null);
-          secureStorage.setItem(SecureStorageKeyEnum.CONTINUEREFERRALREQUESTDATA, null); 
-  
-          // handleApplyClick(); // Call submit function
-      }
-    }, [location.hash, nav, isLoggedIn, PendingApply]);
- */
-  // Function to show error modals
+          if (error) throw new Error(error.message);
+          if (response)
+            setJobDataState({
+              ...jobData,
+              companyDetails: response[0],
+            });
+        } catch (fetchError) {
+          console.error("Error fetching company details:", fetchError);
+        }
+      };
+
+      fetchCompanyDetails();
+    } else if (jobData) {
+      setJobDataState(jobData);
+    }
+  }, [jobData]);
+
+  // Effect: Handle pending apply after login
+  useEffect(() => {
+    if (pendingApplyHandledRef.current) return;
+    if (!isLoggedIn || !isProfileCheckComplete) return;
+
+    const targetJob = jobDataState || jobData;
+    if (!targetJob) return;
+
+    const pendingReferral =
+      PendingApply ||
+      secureStorage.getItem<continueReferralRequestDataDto>(
+        SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS
+      ) ||
+      (() => {
+        const local = localStorage.getItem("continueReferralRequestData");
+        return local ? (JSON.parse(local) as continueReferralRequestDataDto) : null;
+      })();
+
+    if (!pendingReferral) return;
+
+    const clearPending = () => {
+      setPendingApply(null);
+      secureStorage.setItem(SecureStorageKeyEnum.CONTINUEPENDINGPRESIGNEDPROCESS, null);
+      localStorage.removeItem("continueReferralRequestData");
+    };
+
+    pendingApplyHandledRef.current = true;
+    setShowApplyModal(true);
+    setModalData({
+      type: "info",
+      heading: { message: "Resume your application?", type: "info" },
+      message: "You were about to apply for this job. Do you want to continue now?",
+      buttons: [
+        {
+          label: "Not now",
+          type: "danger",
+          action: () => {
+            clearPending();
+            setModalData(null);
+            setShowApplyModal(false);
+          },
+        },
+        {
+          label: "Yes, apply",
+          type: "primary",
+          action: () => {
+            clearPending();
+            setModalData(null);
+            setShowApplyModal(false);
+            handleApplyClick();
+          },
+        },
+      ],
+    });
+  }, [PendingApply, isLoggedIn, isProfileCheckComplete, jobDataState, jobData]);
+
+  // ============================================
+  // HELPER FUNCTIONS (after all hooks)
+  // ============================================
+
   const showModalsError = (
     caseType:
       | "isExternalJobApplied"
@@ -397,7 +483,7 @@ const JobDescription = () => {
           type: "error",
           heading: { message: "Failed to apply", type: "error" },
           message:
-            "It looks like you've managed to submit an application before the matching scores were fully processed. While your score generation is in process, please note that bypassing standard checks won’t affect the evaluation process. Matching insights will be available shortly. Kindly try again in a few minutes.",
+            "It looks like you've managed to submit an application before the matching scores were fully processed. While your score generation is in process, please note that bypassing standard checks won't affect the evaluation process. Matching insights will be available shortly. Kindly try again in a few minutes.",
           buttons: [
             {
               label: "OK",
@@ -457,12 +543,7 @@ const JobDescription = () => {
         });
     }
   };
-  /**
-   * Modal to handle promise for low score
-   * @description - It will handle the promise for low score modal.
-   * @param type
-   * @returns
-   */
+
   const showModalPromise = (type: "lowScore"): Promise<boolean> => {
     return new Promise((resolve) => {
       if (type === "lowScore") {
@@ -477,7 +558,7 @@ const JobDescription = () => {
               type: "danger",
               action: () => {
                 setModalData(null);
-                resolve(true); // Proceed
+                resolve(true);
               },
             },
             {
@@ -485,7 +566,7 @@ const JobDescription = () => {
               type: "primary",
               action: () => {
                 setModalData(null);
-                resolve(false); // Break the flow
+                resolve(false);
               },
             },
           ],
@@ -494,69 +575,6 @@ const JobDescription = () => {
     });
   };
 
-  /**
-   * Use Query to fetch job data
-   */
-  const {
-    data: jobData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["jobData", jobid],
-    queryFn: async () => {
-      const { response, error } = await httpServiceObj.get<JobDto>(
-        `${APP_JOBS_API_URI}/job/${jobid}`,
-        true,
-        {},
-        true
-      );
-
-      if (error) throw new Error(error.message);
-      return response;
-    },
-    enabled: !!jobid && !jobDataState,
-    retry: 0,
-  });
-
-  useEffect(() => {
-    if (jobData && !jobData.externalJobId) {
-      const fetchCompanyDetails = async () => {
-        try {
-          const { response, error } = await httpServiceObj.get<[CompanyDto]>(
-            `/company/${jobData.companyId}`,
-            true
-          );
-
-          if (error) throw new Error(error.message);
-          if (response)
-            setJobDataState({
-              ...jobData,
-              companyDetails: response[0],
-            });
-        } catch (fetchError) {
-          console.error("Error fetching company details:", fetchError);
-        }
-      };
-
-      fetchCompanyDetails();
-    } else if (jobData) {
-      // If it's an external job, we still want to update jobDataState
-      setJobDataState(jobData);
-    }
-  }, [jobData]);
-
-  if (isLoading) return <MainLoader />;
-
-  if (error)
-    return <div>Error loading job: {error instanceof Error ? error.message : "Unknown error"}</div>;
-
-  if (isLoading) return <div>Loading job data...</div>;
-
-  /**
-   * updateExternalJobApplication
-   *
-   * @description - It will handle post job apply function for external jobs.
-   */
   const updateExternalJobApplication = async () => {
     try {
       setIsApplying(true);
@@ -569,7 +587,6 @@ const JobDescription = () => {
           jobId: jobDataState?.id,
           jobPortal: jobDataState?.jobUrl || undefined,
           jobUrl: window.location.href,
-          // companyName:  jobDataState?.companyName,
           matchingScore: jobMatchDetails.matchingScore || 0,
         };
       } else {
@@ -578,7 +595,7 @@ const JobDescription = () => {
           companyName: jobDataState?.companyName || jobDataState?.companyDetails?.name,
           jobPortal: "worko",
           matchingScore: jobMatchDetails.matchingScore || 0,
-          ...(referAndEarnId ? { referAndEarnId } : {}), //conditionally check if referAndEarnId exists.
+          ...(referAndEarnId ? { referAndEarnId } : {}),
         };
       }
 
@@ -600,7 +617,6 @@ const JobDescription = () => {
       if (status === 403) {
         setApplicationStatus(true);
         setShowApplyModal(true);
-        // Show success modal after redundant application
         showModalsError("redundant");
         return;
       }
@@ -609,22 +625,17 @@ const JobDescription = () => {
       } else {
         setApplicationStatus(true);
         setShowApplyModal(true);
-        // Show success modal after successful application
         showModalsError("application_success");
       }
     } catch (error) {
       console.error("Application error:", error);
       setApplicationStatus(false);
-      // Show failure modal if application fails
       showModalsError("application_failure");
     } finally {
       setIsApplying(false);
     }
   };
 
-  /*
-   * Handle Apply Click function
-   */
   async function handleApplyClick() {
     if (!isLoggedIn) {
       const continueReferralRequestData = {
@@ -643,45 +654,19 @@ const JobDescription = () => {
       );
       nav("/auth/login");
       return;
-    } else {
-      // Open the job URL in a new tab if available
-      if (jobDataState?.externalJobId && jobDataState?.jobUrl) {
-        window.open(jobDataState.jobUrl, "_blank");
-        // Show the confirmation modal
-        setShowApplyModal(true);
-        showModalsError("isExternalJobApplied");
-      } else {
-        // If the scores are very Low then warn the user
-        /*  if (jobMatchDetails && jobMatchDetails.matchingScore < 30) {
-          if (jobMatchDetails.matchingScore < 0) {
-            setShowApplyModal(true);
-            showModalsError("badScore");
-            return;
-          } else {
-            setShowApplyModal(true);
-            const proceed = await showModalPromise("lowScore");
-            if (!proceed) return; // User cancelled, break the flow
-          }
-        } */
-        setCurrStep(0);
-        // this was commented because backend no longer needs profilePercentage
-        // const { response: profilePer } = await httpServiceObj.get<any>(`/user/${userDetails.email}/profilePercentage`, true);
-        // if (profilePer) {
-        //   const cvCurPerc = profilePer?.candidate[2]?.curPerc;
-        //   setCurrStep(1);
-        //   if (cvCurPerc === 0) {
-        //     setGaugeEnabled(false);
-        //     setMessageEnabled(true);
-        //     setModalType("profileCompletion");
-        //     setLoader(false);
-        //     return;
-        //   }
-        // }
-        // Step 2: Apply for the job
-        updateExternalJobApplication();
-      }
     }
+
+    if (jobDataState?.externalJobId && jobDataState?.jobUrl) {
+      window.open(jobDataState.jobUrl, "_blank");
+      setShowApplyModal(true);
+      showModalsError("isExternalJobApplied");
+      return;
+    }
+
+    setCurrStep(0);
+    updateExternalJobApplication();
   }
+
   function ModalAction() {
     switch (ModalType) {
       case "profileCompletion":
@@ -690,12 +675,29 @@ const JobDescription = () => {
     }
   }
 
+  // ============================================
+  // EARLY RETURNS (after all hooks)
+  // ============================================
+
   if (isLoading) return <MainLoader />;
 
-  // Use jobDataState which will be updated from the useEffect
+  if (error) {
+    return (
+      <div>
+        Error loading job: {error instanceof Error ? error.message : "Unknown error"}
+      </div>
+    );
+  }
+
   const displayData = jobDataState || jobData;
 
-  if (!displayData) return <div>Loading job data...</div>;
+  if (!displayData) {
+    return <div>Loading job data...</div>;
+  }
+
+  // ============================================
+  // MAIN RENDER
+  // ============================================
 
   return (
     <div className="w-full ">
@@ -739,7 +741,6 @@ const JobDescription = () => {
         />
       )}
 
-      {/* Will show modal after clicking apply on external job. */}
       {showApplyModal && modalData && (
         <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />
       )}
