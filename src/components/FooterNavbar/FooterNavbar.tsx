@@ -34,7 +34,7 @@ const FooterNavbar = () => {
   const internalLink = userDetails
     ? { 
         label: "Profile", 
-        to: `/candidate/profile`, // Relative path within the micro-frontend
+        to: `/${import.meta.env.APP_PROXY_DASH}/candidate/profile`, // Relative path within the micro-frontend
         icon: <User className="w-5 h-5" />,
         isActive: isDashboardActive
       }
