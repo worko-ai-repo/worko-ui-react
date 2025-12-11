@@ -84,14 +84,14 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
           {}
         );
         if (error) {
-          // toast.error('Error: ' + error, getToastOptions({ autoClose: false }));
+          // toast.error('Error: ' + error, getToastOptions({ autoClose: 3000 }));
           throw new Error(error.message);
         }
         userResponse = response?.[0] || {};
         if (userResponse?.isDeleted === true) {
           toast.error(
             "Your account has been deactivated. Please contact support for assistance.",
-            getToastOptions({ autoClose: false })
+            getToastOptions({ autoClose: 3000 })
           );
           CognitoServiceObj.handleSignOut();
           return;
@@ -103,7 +103,7 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
           {}
         );
         if (error) {
-          // toast.error('Error: ' + error, getToastOptions({ autoClose: false }));
+          // toast.error('Error: ' + error, getToastOptions({ autoClose: 3000 }));
           throw new Error(error.message);
         }
         userResponse = response?.[0] || {};
@@ -146,33 +146,35 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
       console.error("Error in fetchCorporateCompanyDetails: ", error);
     }
   };
-  const checkUserLoggedIn = async () => {
+  const checkUserLoggedIn = async (forceRefetch = false) => {
     try {
       console.info("Checking user authentication status...");
       const isUserLoggedIn = await CognitoServiceObj.isLoggedIn();
       setIsLoggedIn(isUserLoggedIn);
-
+  
       if (!isUserLoggedIn) return;
-
-      // Retrieve user-related information from secure storage
+  
       const { tokens } = await fetchAuthSession();
       const cognitoUserDetails: CognitoMetaDataDto | undefined = tokens?.idToken?.payload;
       const userType: string[] | undefined = cognitoUserDetails?.["cognito:groups"];
       const userEmail = cognitoUserDetails?.email;
       const userId = cognitoUserDetails?.sub;
-
-      // Get token and store it
+  
       const token = CognitoServiceObj.getAccessToken();
       setTokenData(token);
-
-      // Check if user details are already stored
+  
+      // ✅ If forceRefetch is true, skip cache and fetch fresh data
+      if (forceRefetch) {
+        await fetchUserDetails(userType, userId, userEmail);
+        return;
+      }
+  
       const storedUserDetails = secureStorage.getItem<NormalizedUser>(
         SecureStorageKeyEnum.LOGINDETAILS
       );
       if (storedUserDetails && Object.keys(storedUserDetails).length > 0) {
         setUserDetails(storedUserDetails);
       } else {
-        // No user details found, fetch them
         await fetchUserDetails(userType, userId, userEmail);
       }
     } catch (error) {
@@ -184,11 +186,18 @@ export const AppProvider = <T,>({ children }: ContextProviderProps) => {
 
   // Check if user is logged in
   useLayoutEffect(() => {
-    checkUserLoggedIn();
-
-    // Refresh user login status every 50 minutes
-    const interval = setInterval(checkUserLoggedIn, 50 * 60 * 1000);
+    // On initial mount, use cache
+    checkUserLoggedIn(false);
+  
+    const interval = setInterval(() => checkUserLoggedIn(false), 50 * 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useLayoutEffect(() => {
+    // Skip on initial mount (updateCheck's initial value)
+    if (isLoggedIn) {
+      checkUserLoggedIn(true); // Force refetch
+    }
   }, [updateCheck]);
 
   // Function to set authentication state

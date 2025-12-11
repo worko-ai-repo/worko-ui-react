@@ -43,7 +43,7 @@ const CorporateLoginForm = () => {
       const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
       // If error occurs, show the error message and reset the form
       if (error) {
-        toast.error(error.message, getToastOptions({ autoClose: false }));
+        toast.error(error.message, getToastOptions({ autoClose: 3000 }));
         throw new Error(error.message);
       } else {
         // Fetch stored user data and check if the user is a corporate user
@@ -51,7 +51,7 @@ const CorporateLoginForm = () => {
         if (!userType?.includes(UserRole.CORPORATE)) {
           toast.error(
             "Oops! You don't have access to log in to this portal. Please contact support for assistance.",
-            getToastOptions({ autoClose: false })
+            getToastOptions({ autoClose: 3000 })
           );
           CognitoServiceObj.handleSignOut();
           return;
@@ -67,7 +67,7 @@ const CorporateLoginForm = () => {
             [Partial<CorporateUserDetail>]
           >(`/user/${loginData.email}/details`, true, {});
           if (error) {
-            toast.error("Error: " + error, getToastOptions({ autoClose: false }));
+            toast.error("Error: " + error, getToastOptions({ autoClose: 3000 }));
             CognitoServiceObj.handleSignOut();
           }
           await checkUserLoggedIn();
@@ -82,7 +82,7 @@ const CorporateLoginForm = () => {
         }
       }
     } catch (error: any) {
-      // toast.error(error?.message || 'Something went wrong', getToastOptions({ autoClose: false }));
+      // toast.error(error?.message || 'Something went wrong', getToastOptions({ autoClose: 3000 }));
       // console.log("Error during sign-in:", error);
       // CognitoServiceObj.handleSignOut();
     }
@@ -106,7 +106,8 @@ const CorporateLoginForm = () => {
         <Info className="mr-2  p-0.5 text-orange-500 inline-block" />
         <span className="text-orange-500 leading-none  tracking-tighter font-semibold text-xs">
           We create accounts exclusively through our corporate partnership program to get onboarded
-          . <br />Book a demo call now!
+          . <br />
+          Book a demo call now!
         </span>
       </div>
       <div className="mainForm min-w-full grid sm:grid-cols-[repeat(auto,_minmax(500px,500px))] grid-row-[min-content]   w-full px-2 sm:px-3 md:py-6 rounded-2xl mx-auto sm:py-2 min-h-[250px] ">
@@ -155,8 +156,8 @@ const CorporateLoginForm = () => {
       <div className="mt-2">
         <div className="text-xs text-gray-500 ml-1 text-center">Dont have Login Credentials?</div>
         <div
-        onClick={() => window.open("/corporate", "_blank")}
-        className="text-sm font-semibold cursor-pointer mt-2 text-blue-500 ">
+          onClick={() => window.open("/corporate", "_blank")}
+          className="text-sm font-semibold cursor-pointer mt-2 text-blue-500 ">
           <ExternalLink className="inline-block mr-1 mb-0.5 " size={12} />
           Book a Demo Call Now
         </div>

@@ -42,7 +42,7 @@ const fetchJobs = async (search: string, dashboard: "CORPORATE" | "ADMIN" = "COR
   }
 };
 
-const JobListDropdown: React.FC<JobListDropdownProps> = ({ onSelect, placeholder = "Search jobs..." }) => {
+const JobListDropdown: React.FC<JobListDropdownProps> = ({ onSelect, placeholder = "Search by job titles, companies, skills." }) => {
   const [searchText, setSearchText] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ const JobListDropdown: React.FC<JobListDropdownProps> = ({ onSelect, placeholder
             setDropdownVisible(true);
           }}
           onFocus={() => setDropdownVisible(true)}
-          className={`shadow-[3px_4px_0px_#316bff] w-full h-14 pl-6 pr-14 text-lg border-2 bg-white rounded-2xl focus:border-blue-500 focus:outline-none ${
+          className={`shadow-[3px_4px_0px_#316bff] w-full h-14 pl-6 pr-14 text-xs border-2 bg-white rounded-xl focus:border-blue-500 focus:outline-none ${
             dropdownVisible ? "rounded-b-none" : ""
           }`}
         />

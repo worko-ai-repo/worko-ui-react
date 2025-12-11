@@ -38,7 +38,6 @@ export default function HeroSection({ hires, salary }: { hires: number; salary: 
     setIsSubmitting(true);
 
     try {
-      debugger;
       const AIRTABLE_API_KEY = import.meta.env.APP_AIRTABLE_API_KEY as string;
       const AIRTABLE_BASE_ID = import.meta.env.APP_AIRTABLE_BASE_ID as string;
       const AIRTABLE_TABLE =

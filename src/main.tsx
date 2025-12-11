@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 				<AppProvider>
 					<App />
 					<Tooltip id="my-tooltip" className='z-50' />
-					<ToastContainer stacked /> {/* Toast Container for the application */}
+					<ToastContainer stacked  autoClose={1000} /> {/* Toast Container for the application */}
 				</AppProvider>
 			</ErrorBoundary>
 		</QueryClientProvider>

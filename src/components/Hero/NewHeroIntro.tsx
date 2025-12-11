@@ -159,7 +159,7 @@ export default function SmoothHeroIntro() {
           </div>
         ))}
 
-        <div className="container section-wrapper mx-auto px-4 max-sm:pt-0   py-0">
+        <div className="container section-wrapper mx-auto px-4 max-sm:pt-0 !py-0">
           <img src={dash_lines} className=" bg-repeat z-0 absolute  " alt="" />
 
           {/* Hero Text */}
@@ -170,12 +170,12 @@ export default function SmoothHeroIntro() {
                 CName="scale_up"
                 threshold={0.5}
                 PCName="mb-7 mx-auto text-4xl lg:text-[64px] md:w-fit lg:w-2/3 h-auto">
-                <h1 className="text-center leading-[1.2]">
+                <h1 className="text-center font-semibold leading-[1.4]">
                   Increase your chances of getting a job by
                 </h1>
               </Reveal>
               <Reveal IsDual={false} CName="slide_up" threshold={0.5} PCName="mx-auto w-fit">
-                <p className="font-bold text-4xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-6 py-1 sm:px-4 sm:py-2 tracking-wide rounded-lg bg-[#6DE5E5] w-min mx-auto">
+                <p className="font-bold text-4xl sm:text-4xl md:text-4xl lg:text-5xl text-[#005EC2] px-3 py-1 sm:px-4 sm:py-2 tracking-wide rounded-lg bg-[#6DE5E5] w-min mx-auto">
                   10X
                 </p>
               </Reveal>

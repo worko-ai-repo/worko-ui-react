@@ -142,6 +142,11 @@ class CognitoService {
    * @returns Promise<boolean>
    */
   public async isLoggedIn(): Promise<boolean> {
+    // console the initiator of this function by logging an error
+    
+    
+    console.error("isLoggedIn function initiated");
+
     this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || false;
     this.linkedinSignInDetails = secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || "{}";
     //debugger;
@@ -196,7 +201,9 @@ class CognitoService {
         }
         return true;
       }
-      await this.handleSignOut();
+      // If no tokens are found, simply report not-logged-in without clearing storage.
+      // Clearing here was wiping any locally cached state (e.g., pending apply data)
+      // when this lightweight check runs from places like the Header.
       return false;
     } catch (err) {
       console.error("Error fetching auth session:", err);
