@@ -308,7 +308,7 @@ public async handleForceNewPassword(newPassword: string): Promise<AuthResponse<S
 
     this.authenticationSubject.next(true);
     await this.setAccessToken();
-    debugger
+    // debugger
     return { response: result };
   } catch (error) {
     console.error("Error confirming new password:", error);

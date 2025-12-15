@@ -352,6 +352,12 @@ const LoginForm = () => {
     try {
       console.log(payload)
       const {response, error} = await httpServiceObj.post<any>(`/user/request-otp/force-change-password`, payload, true, {}, false)
+      if(error && error.message === "Your email is already verified."){
+        console.log(error.message)
+        // setChangePassword(true)
+        setStep("password")
+        return
+      }
       if(error){
         toast.error(error.message,getToastOptions({}))
         setChangePassword(false)
@@ -409,7 +415,7 @@ const LoginForm = () => {
               type="text"
               placeholder="Enter Email"
               className={`input_primary auth_input ${errors.email && "error"}`}
-              {...register("email", validationRules.personalEmail)}
+              {...register("email")}
             />
             {errors.email && (
               <p className="text-sm text-left text-red-500">{errors.email.message?.toString()}</p>
@@ -553,6 +559,7 @@ const LoginForm = () => {
           step={step}
           setOtp={setOtp}
           otp={otp}
+          resendOtp={()=>handleSendOtpProcess(confEmail)}
         >
       </ChangePasswordModal>
       )}

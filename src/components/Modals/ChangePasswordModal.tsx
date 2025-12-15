@@ -1,4 +1,4 @@
-import { useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode, useRef } from "react";
 import { XCircle, AlertTriangle, CheckCircle, Info, Share } from "lucide-react";
 import { createPortal } from "react-dom";
 
@@ -23,6 +23,7 @@ interface ModalProps {
   step:string;
   setOtp:(value:string)=>void;
   otp:string;
+  resendOtp:() => void;
 }
 
 const icons = {
@@ -53,8 +54,24 @@ export default function ChangePasswordModal({
   setStep,
   step,
   setOtp,
-  otp
+  otp,
+  resendOtp,
 }: ModalProps) {
+
+  const [isSendOtp, setIsSendOtp] = useState(false)
+  const [timer,setTimer] = useState(30)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    startTimer()
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
@@ -66,6 +83,27 @@ export default function ChangePasswordModal({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const startTimer = () => {
+    setIsSendOtp(false)
+    setTimer(30)
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+
+    intervalRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!)
+          intervalRef.current = null
+          setIsSendOtp(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
 
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
@@ -160,6 +198,18 @@ export default function ChangePasswordModal({
         {/* <div className="mt-4">{children}</div> */}
         {!hideDefaultButtons && ( // for removing btns as required..
           <div className="flex justify-end gap-2 mt-4">
+          {step === "otp" ? <button
+              disabled={!isSendOtp}
+              onClick={()=>{
+                resendOtp()
+                startTimer()
+              }}
+              className="btn_secondary disabled:opacity-50 disabled:pointer-events-all disabled:cursor-not-allowed "
+            >
+              {`Resend OTP ${timer === 0 ? "" : `in ${timer}`}`}
+            </button>
+            : null
+            }
             <button
               disabled={
                 typeof isdisabled === "boolean"
