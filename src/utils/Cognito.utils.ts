@@ -126,7 +126,7 @@ class CognitoService {
       this.authenticationSubject.next(true);
       secureStorage.setItem(SecureStorageKeyEnum.SIGNINDETAILS, "false");
       await this.setAccessToken();
-      console.log(authData)
+      // console.log(authData)
       return { response: authData };
     } catch (error) {
       console.error("Error signing in:", error);

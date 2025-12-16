@@ -119,7 +119,6 @@ const LoginForm = () => {
 
         if(response?.nextStep?.signInStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"){
           await handleSendOtpProcess(data.email)
-          console.log(response)
           setChangePassword(true)
           setConfEmail(data.email);
           // toast.error("Please change your password before proceeding further otp", getToastOptions({}));
@@ -350,7 +349,6 @@ const LoginForm = () => {
       candidateRegisteredEmail: confEmail
     }
     try {
-      console.log(payload)
       const {response, error} = await httpServiceObj.post<any>(`/user/request-otp/force-change-password`, payload, true, {}, false)
       if(error && error.message === "Your email is already verified."){
         console.log(error.message)
@@ -378,6 +376,10 @@ const LoginForm = () => {
       const {response, error} = await httpServiceObj.post<any>(`/user/verify-otp/force-change-password`, payload, true, {}, false)
       if(error){
         toast.error(error.message,getToastOptions({}))
+        return
+      }
+      if(response.verificationStatus === false){
+        toast.error("Invalid otp please try again",getToastOptions({}))
         return
       }
       if(response.verificationStatus) {
