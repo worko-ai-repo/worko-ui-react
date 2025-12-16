@@ -379,7 +379,7 @@ const LoginForm = () => {
         return
       }
       if(response.verificationStatus === false){
-        toast.error("Invalid otp please try again",getToastOptions({}))
+        toast.error("Invalid otp please try again.",getToastOptions({}))
         return
       }
       if(response.verificationStatus) {
