@@ -1,6 +1,7 @@
+import { useCompanyContext } from "@Context/Company.context";
 import { CompanyPageModeEnum } from "@Interfaces/CompanyContext.dto";
 import { useEffect, useState } from "react";
-import { useCompanyContext } from "../../context/Company.context";
+
 import { useNavigate } from "react-router-dom";
 
 const JobRefButton = () => {

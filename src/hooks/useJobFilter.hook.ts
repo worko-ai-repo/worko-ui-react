@@ -17,8 +17,20 @@ export const useJobFilters = () => {
   
 
     const handleFilterChange = (key: string, values: string[], filter: any) => {
+  // Check if we need to remove dashboard filter when other filters are applied
+  const shouldRemoveDashboard = key !== 'dashboard' && 
+    values.length > 0 && 
+    (searchParams.get('dashboard') === 'USER');
+  
   // Update the UI selected values state
-  setSelectedValues(prev => ({ ...prev, [key]: values }));
+  setSelectedValues(prev => {
+    const updated = { ...prev, [key]: values };
+    // Remove dashboard if other filter is being applied
+    if (shouldRemoveDashboard) {
+      delete updated.dashboard;
+    }
+    return updated;
+  });
   
   // Update job filters and URL search parameters
   setJobFilters(prev => {
@@ -26,6 +38,13 @@ export const useJobFilters = () => {
     const newFilters: any = { ...prev };
     // Create a new URLSearchParams object based on current search parameters
     const updatedParams = new URLSearchParams(searchParams);
+    
+    // If a filter other than dashboard is being applied and dashboard is currently active,
+    // remove the dashboard filter (refer a friend) to use vector search instead
+    if (shouldRemoveDashboard) {
+      delete newFilters.dashboard;
+      updatedParams.delete('dashboard');
+    }
     
     // Case 1: When filter values are cleared/emptied
     if (values.length === 0) {
