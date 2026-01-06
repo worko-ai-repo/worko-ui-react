@@ -186,9 +186,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         }));
       } else {
         if (
-          (response &&
-            (!("isCvExtracted" in response) ||
-              response.isCvExtracted === false )) ||
+          (response && (!("isCvExtracted" in response) || response.isCvExtracted === false)) ||
           !response?.YOE ||
           coreSkills?.length === 0
         ) {
@@ -422,22 +420,28 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         includeCompanyDetails,
         ...rest
       } = filters;
-      
       // Check if "refer a friend" filter is applied
-      const isReferAFriendFilter = rest.dashboard === "USER" || filters.dashboard === "USER";
-      
+      const isReferAFriendFilter =
+        rest.dashboard?.includes("USER") ||
+        filters.dashboard?.includes("USER") ||
+        location.search.includes("dashboard=USER");
+
       // Determine if any other filters are applied (excluding dashboard, pageSize, sortOrder, status, and default filters)
-      // Other filters include: location, salaryRange, experienceRange, workMode, department, 
-      // coreSkills (when explicitly set), softSkills, technicalSkills, companyId, companyName, 
+      // Other filters include: location, salaryRange, experienceRange, workMode, department,
+      // coreSkills (when explicitly set), softSkills, technicalSkills, companyId, companyName,
       // industry, searchText, jobTitle (when explicitly set), YOE (when explicitly set)
-      const isDefaultJobTitle = isLoggedIn && filters.jobTitle === defaultFiltersState?.userDesignation;
+      const isDefaultJobTitle =
+        isLoggedIn && filters.jobTitle === defaultFiltersState?.userDesignation;
       const isDefaultYOE = isLoggedIn && filters.YOE === defaultFiltersState?.YOE;
-      const isDefaultCoreSkills = isLoggedIn && 
-        filters.coreSkills && 
-        Array.isArray(filters.coreSkills) && 
+      const isDefaultCoreSkills =
+        isLoggedIn &&
+        filters.coreSkills &&
+        Array.isArray(filters.coreSkills) &&
         filters.coreSkills.length > 0 &&
-        JSON.stringify([...filters.coreSkills].sort()) === JSON.stringify([...(defaultCoreSkills || [])].sort());
-      
+        JSON.stringify([...filters.coreSkills].sort()) ===
+          JSON.stringify([...(defaultCoreSkills || [])].sort());
+
+      // When dashboard=USER is set, ignore default filters when determining if other filters exist
       const hasOtherFilters = !!(
         rest.location ||
         rest.salaryRange ||
@@ -450,14 +454,19 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         rest.companyName ||
         rest.industry ||
         rest.searchText ||
-        (filters.jobTitle && !isDefaultJobTitle) ||
-        (filters.YOE !== undefined && !isDefaultYOE) ||
-        (filters.coreSkills && Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0 && !isDefaultCoreSkills)
+        // Only count default filters as "other filters" if dashboard=USER is NOT set
+        (!isReferAFriendFilter && filters.jobTitle && !isDefaultJobTitle) ||
+        (!isReferAFriendFilter && filters.YOE !== undefined && !isDefaultYOE) ||
+        (!isReferAFriendFilter &&
+          filters.coreSkills &&
+          Array.isArray(filters.coreSkills) &&
+          filters.coreSkills.length > 0 &&
+          !isDefaultCoreSkills)
       );
-      
+
       // Determine if this is a landing page (no filters applied except defaults for logged-in users)
       const isLandingPage = isFiltering && !hasOtherFilters && !isReferAFriendFilter;
-      
+
       // Logic for determining whether to use vector search:
       // 1. Non-logged-in user:
       //    - Landing page → normal API (no vector)
@@ -470,7 +479,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
       //    - Refer a friend filter → normal API
       //    - Other filters + refer a friend → remove refer a friend, use vector
       let shouldUseVectorSearch = false;
-      
+
       if (isJobPage && !isCorporate) {
         if (isReferAFriendFilter && hasOtherFilters) {
           // If refer a friend is present but other filters are also applied,
@@ -487,7 +496,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           shouldUseVectorSearch = isLoggedIn; // Logged-in uses vector, non-logged-in uses normal API
         }
       }
-      
+
       const isDashboardMode = "dashboard" in rest;
       // Create updated filters object
       const updatedFilters: JobFiltersDto = {
@@ -501,45 +510,66 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         ...(!isJobPage && { isVerified: 1 }),
       };
 
+      // CRITICAL: If dashboard=USER is set and no other filters exist, remove default filters IMMEDIATELY
+      // This must happen before any other processing to prevent them from being re-added
+      if (isJobPage && isReferAFriendFilter && !hasOtherFilters) {
+        delete updatedFilters.coreSkills;
+        delete updatedFilters.jobTitle;
+        delete updatedFilters.YOE;
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const coreSkillsFromParams = urlParams.get("coreSkills")?.split(",");
       // Determine effective coreSkills priority for job page:
       // explicit filter > URL param > default user core skills (if logged in)
+      // BUT: Skip default coreSkills if "refer a friend" (dashboard=USER) filter is active
       if (isJobPage) {
-        const hasExplicitCoreSkills =
-          Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0;
-        const hasParamCoreSkills =
-          Array.isArray(coreSkillsFromParams) && coreSkillsFromParams.length > 0;
-        if (hasExplicitCoreSkills) {
-          updatedFilters.coreSkills = filters.coreSkills;
-        } else if (hasParamCoreSkills) {
-          updatedFilters.coreSkills = coreSkillsFromParams;
-        } else if (isLoggedIn) {
-          updatedFilters.coreSkills = defaultCoreSkills;
+        // Only process coreSkills if dashboard=USER is NOT set, or if it's set but other filters exist
+        if (!isReferAFriendFilter || hasOtherFilters) {
+          const hasExplicitCoreSkills =
+            Array.isArray(filters.coreSkills) && filters.coreSkills.length > 0;
+          const hasParamCoreSkills =
+            Array.isArray(coreSkillsFromParams) && coreSkillsFromParams.length > 0;
+          if (hasExplicitCoreSkills) {
+            updatedFilters.coreSkills = filters.coreSkills;
+          } else if (hasParamCoreSkills) {
+            updatedFilters.coreSkills = coreSkillsFromParams;
+          } else if (isLoggedIn && !isReferAFriendFilter) {
+            // Only add default coreSkills if refer a friend filter is NOT active
+            updatedFilters.coreSkills = defaultCoreSkills;
+          }
+        } else {
+          // When dashboard=USER is set and no other filters, remove coreSkills
+          delete updatedFilters.coreSkills;
         }
         const { jobTitle, YOE, coreSkills, pageSize, sortOrder, status, lastKey, ...rest } =
           filters;
         console.log("Filters received in Job Page:", filters);
-        // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
-        const hasAnyOtherFilter = Object.values(rest).some(
-          (value) => value !== undefined && value !== null
-        );
-        //check if rest has searchText or companyId
-        const hasSearchOrCompanyId = !!(rest.searchText || rest.companyName);
-        if (hasSearchOrCompanyId) {
-          //then delete all default filters
-          delete updatedFilters.jobTitle;
-          delete updatedFilters.YOE;
-          delete updatedFilters.coreSkills;
-        } else if (hasAnyOtherFilter && !coreSkillsFromParams) {
-          delete updatedFilters.jobTitle;
-          delete updatedFilters.YOE;
-          console.info("Removed default filters because at least one other filter is present.");
-        } else if (hasAnyOtherFilter || coreSkillsFromParams) {
-          // If coreSkillsFromParams is present, keep it in the updatedFilters
-          updatedFilters.coreSkills = coreSkillsFromParams;
-          delete updatedFilters.jobTitle;
-          delete updatedFilters.YOE;
+
+        // Skip default filter processing if dashboard=USER is set and no other filters exist
+        // This prevents default filters from being re-added
+        if (!isReferAFriendFilter || hasOtherFilters) {
+          // Check if rest contains any filter (i.e., any key with a non-null/undefined value)
+          const hasAnyOtherFilter = Object.values(rest).some(
+            (value) => value !== undefined && value !== null
+          );
+          //check if rest has searchText or companyId
+          const hasSearchOrCompanyId = !!(rest.searchText || rest.companyName);
+          if (hasSearchOrCompanyId) {
+            //then delete all default filters
+            delete updatedFilters.jobTitle;
+            delete updatedFilters.YOE;
+            delete updatedFilters.coreSkills;
+          } else if (hasAnyOtherFilter && !coreSkillsFromParams) {
+            delete updatedFilters.jobTitle;
+            delete updatedFilters.YOE;
+            console.info("Removed default filters because at least one other filter is present.");
+          } else if (hasAnyOtherFilter || coreSkillsFromParams) {
+            // If coreSkillsFromParams is present, keep it in the updatedFilters
+            updatedFilters.coreSkills = coreSkillsFromParams;
+            delete updatedFilters.jobTitle;
+            delete updatedFilters.YOE;
+          }
         }
       }
 
@@ -566,7 +596,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         updatedFilters.status = "PUBLISHED";
         updatedFilters.sortOrder = "desc";
       }
-      
+
       // If refer a friend filter is present but other filters are also applied,
       // remove the refer a friend filter (dashboard) to use vector search
       if (isReferAFriendFilter && hasOtherFilters) {
@@ -576,7 +606,7 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
           delete rest.dashboard;
         }
       }
-      
+
       if (shouldUseVectorSearch) {
         updatedFilters.fromS3Vector = true;
         updatedFilters.includeCompanyDetails = true;
@@ -588,9 +618,17 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         delete updatedFilters.s3VectorPageNumber;
         delete updatedFilters.includeCompanyDetails;
       }
-      // if dashboard mode (refer a friend), remove vector specific and core skills filters
-      if (rest.dashboard === "USER" && !hasOtherFilters) {
+      // if dashboard mode (refer a friend), remove vector specific and all default filters
+      // This ensures that when dashboard=USER is set with no other filters, we use normal API
+      if (isReferAFriendFilter && !hasOtherFilters) {
         delete updatedFilters.coreSkills;
+        delete updatedFilters.jobTitle;
+        delete updatedFilters.YOE;
+        // Ensure vector search is disabled
+        delete updatedFilters.fromS3Vector;
+        delete updatedFilters.s3VectorPageNumber;
+        // Include company details for refer-a-friend jobs
+        updatedFilters.includeCompanyDetails = true;
       }
       //sanitize the filters by removing null or undefined values
       Object.keys(updatedFilters).forEach((key) => {
@@ -682,9 +720,10 @@ export const CompanyProvider = ({ children }: ContextProviderProps) => {
         }
 
         // Determine which pagination key to use based on whether we used vector search
-        const finalIsReferAFriend = updatedFilters.dashboard === "USER" || rest.dashboard === "USER";
+        const finalIsReferAFriend =
+          updatedFilters.dashboard === "USER" || rest.dashboard === "USER";
         const finalShouldUseVector = shouldUseVectorSearch && !finalIsReferAFriend;
-        
+
         return {
           data: response,
           nextPage:
