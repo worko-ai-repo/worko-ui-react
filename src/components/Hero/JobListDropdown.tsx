@@ -25,6 +25,7 @@ const fetchJobs = async (search: string, dashboard: "CORPORATE" | "ADMIN" = "COR
     const userType = userCognitoDetails?.["cognito:groups"]?.[0];
     const uri = import.meta.env.APP_JOBS_API_URI || "https://jobs.worko.ai";
     const payload = {
+      status: "PUBLISHED",
       pageSize: 25,
       sortOrder: "desc",
       searchText: search.trim(),

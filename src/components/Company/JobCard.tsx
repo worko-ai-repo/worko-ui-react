@@ -345,7 +345,7 @@ export const JobCard = ({ job }: any) => {
 
                 {/* Salary */}
                 <div className="text-left text-sm md:text-xs font-semibold text-[#0D0D0D]">
-                  {showSalary ? `₹${salary}` : "Not Disclosed"}
+                  {showSalary ? `₹ ${salary}` : "₹ Not Disclosed"}
                 </div>
               </div>
             </div>

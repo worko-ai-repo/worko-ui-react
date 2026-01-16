@@ -98,7 +98,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({
     return employmentType.includes("Senior") ? "3-4 Years" : "1-2 Years";
   };
   
-  const formattedSalary = (showSalary ? salary :"Not Disclosed" ) ?? "Not Disclosed";
+  const formattedSalary = (showSalary ? salary :"₹ Not Disclosed" ) ?? "₹ Not Disclosed";
   
   // Get the skills to display
   const skills = displaySkills();

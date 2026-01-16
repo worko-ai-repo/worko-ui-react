@@ -88,7 +88,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
             salary:
               job.salaryRange?.min && job.salaryRange?.max
                 ? `${job.salaryRange.min}L - ${job.salaryRange.max}L`
-                : "Not Disclosed",
+                : "₹ Not Disclosed",
             company: job.companyDetails?.name || job.companyName || "Unknown",
             logo: companyLogoUrl || "U",
             logoColor: "bg-blue-500",
