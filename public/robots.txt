@@ -1,9 +1,46 @@
 User-agent: *
 Allow: /
+Allow: /jobs
+Allow: /jobs/
+Allow: /referrals
+Allow: /referrals/
+Allow: /for-employee
+Allow: /corporate
+Allow: /about
+Allow: /faq
+Allow: /guidance
+Allow: /contact-us
+
+# Disallow API endpoints
+Disallow: /api/
 Disallow: //api.worko.ai/
 Disallow: //jobs.worko.ai/
+
+# Disallow authentication pages
+Disallow: /auth/
 Disallow: /auth/login
 Disallow: /auth/signup
 Disallow: /auth/resetpassword
-Disallow: /terms
+
+# Disallow dashboard and private areas
+Disallow: /dashboards/
+Disallow: /post-signup-form
+
+# Disallow admin/internal pages
+Disallow: /test
+Disallow: /admin/
+
+# Allow sitemap
 Sitemap: https://worko.ai/sitemap.xml
+
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Allow: /jobs
+Allow: /jobs/
+
+# Bing-specific
+User-agent: Bingbot
+Allow: /
+Allow: /jobs
+Allow: /jobs/

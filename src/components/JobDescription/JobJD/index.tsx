@@ -5,6 +5,7 @@ import SimilarJobs from "./SimilarJobs";
 import { JobDto } from "@Interfaces/JobsAndCompany.dto";
 import { JobDescriptionSubComponentDTO } from "../HeadBanner";
 import { SimilarJobsSkeleton } from "@Components/Loader/Skeleton/SkeletonLoader";
+import InternalLinks from "@Components/SEO/InternalLinks";
 
 const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({
   jobData,
@@ -85,6 +86,13 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({
           onApply={handleApplyClick}
           jobMatchDetails={jobMatchDetails}
           isProfileCheckComplete={isProfileCheckComplete}
+        />
+        {/* Internal linking for SEO */}
+        <InternalLinks
+          currentJob={jobData}
+          relatedJobs={similarJobs.filter((job) => job.id !== jobData?.id) as JobDto[]}
+          companyName={jobData?.companyName || jobData?.companyDetails?.name}
+          companyId={jobData?.companyId}
         />
       </div>
       <div className="w-full md:w-[33%]">

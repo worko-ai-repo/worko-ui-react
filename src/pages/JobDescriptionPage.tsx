@@ -29,6 +29,10 @@ import { handleEditProfileRedirection } from "@Components/Company/CompanyJobCont
 import UpdateResumeModal from "@Components/Modals/UpdateResumeModal";
 import { compareResumeWithJD } from "@Utils/CompareResumeWithJD.utils";
 import { NormalizedUser } from "@Utils/NormalizeUser";
+import SEOHead from "@Components/SEO/SEOHead";
+import { generateJobPostingSchema, generateBreadcrumbSchema } from "@Utils/JobSchema.utils";
+import { generateCanonicalJobSlug, generateSlugFromJob } from "@Utils/JobUriSlug.utils";
+import { doesSlugMatchJob } from "@Utils/JobSlugResolver.utils";
 
 interface initialMatchingScoreDetails {
   finalScore: number;
@@ -65,7 +69,11 @@ const JobDescription = () => {
   };
   const nav = useNavigate();
   const location = useLocation();
-  const { jobid } = useParams();
+  const params = useParams();
+  // Support both old format (jobid) and new format (slug)
+  const jobid = params.jobid;
+  const slug = params.slug;
+  const companyName = params.companyName; // Legacy support
 
   // State Hooks
   const [isLoader, setLoader] = useState(false);
@@ -127,26 +135,60 @@ const JobDescription = () => {
     refetchOnWindowFocus: false,
   });
 
+  // Determine job identifier - prefer jobid, fallback to slug extraction
+  const jobIdentifier = jobid || (slug ? extractJobIdFromSlug(slug) : null);
+  
   const {
     data: jobData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["jobData", jobid],
+    queryKey: ["jobData", jobIdentifier],
     queryFn: async () => {
-      const { response, error } = await httpServiceObj.get<JobDto>(
-        `${APP_JOBS_API_URI}/job/${jobid}`,
+      if (!jobIdentifier) {
+        throw new Error("No job identifier provided");
+      }
+
+      // Try to fetch by ID first
+      const { response, error, status } = await httpServiceObj.get<JobDto>(
+        `${APP_JOBS_API_URI}/job/${jobIdentifier}`,
         true,
         {},
         true
       );
 
+      // Handle expired/deleted jobs (410 Gone)
+      if (status === 410 || (error && error.message?.includes("expired"))) {
+        // Set expired flag for 410 handling
+        throw { status: 410, message: "Job has expired" };
+      }
+
       if (error) throw new Error(error.message);
+      if (!response) throw new Error("Job not found");
+
+      // If we have a slug, verify it matches the job for SEO canonical URL
+      if (slug && response) {
+        const expectedSlug = generateSlugFromJob(response);
+        if (slug !== expectedSlug && !doesSlugMatchJob(slug, response)) {
+          // Redirect to canonical URL for SEO
+          const canonicalSlug = generateCanonicalJobSlug(response);
+          nav(canonicalSlug, { replace: true });
+          return response; // Return response but URL will be updated
+        }
+      }
+
       return response;
     },
-    enabled: !!jobid && !jobDataState,
+    enabled: !!jobIdentifier && !jobDataState,
     retry: 0,
   });
+
+  // Helper to extract job ID from slug (for backward compatibility)
+  function extractJobIdFromSlug(slug: string): string | null {
+    // If slug ends with a number (old format), extract it
+    const match = slug.match(/\/(\d+)$/);
+    return match ? match[1] : null;
+  }
 
   // Helper function for fetching matching score
   async function fetchMatchingScore(job: JobDto) {
@@ -681,44 +723,141 @@ const JobDescription = () => {
 
   if (isLoading) return <MainLoader />;
 
+  // Handle expired jobs (410 Gone) - return 410 status for SEO
+  if (error && (error as any).status === 410) {
+    return (
+      <>
+        <SEOHead
+          title="Job Expired - Worko"
+          description="This job posting has expired and is no longer available."
+          noindex={true}
+          robots="noindex, nofollow"
+        />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4">Job Expired</h1>
+            <p className="text-gray-600 mb-6">
+              This job posting has expired and is no longer available.
+            </p>
+            <button
+              onClick={() => nav("/jobs")}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Browse Other Jobs
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (error) {
     return (
-      <div>
-        Error loading job: {error instanceof Error ? error.message : "Unknown error"}
-      </div>
+      <>
+        <SEOHead
+          title="Job Not Found - Worko"
+          description="The job you're looking for could not be found."
+          noindex={true}
+        />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4">Job Not Found</h1>
+            <p className="text-gray-600 mb-6">
+              {error instanceof Error ? error.message : "The job you're looking for could not be found."}
+            </p>
+            <button
+              onClick={() => nav("/jobs")}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Browse Jobs
+            </button>
+          </div>
+        </div>
+      </>
     );
   }
 
   const displayData = jobDataState || jobData;
 
   if (!displayData) {
-    return <div>Loading job data...</div>;
+    return <MainLoader />;
   }
+
+  // Generate SEO metadata
+  const baseUrl = import.meta.env.APP_WORKO_BASE_URL || window.location.origin;
+  const companyNameSEO = displayData.companyName || displayData.companyDetails?.name || "Company";
+  const jobTitle = displayData.jobTitle || "Job";
+  const locationSEO = displayData.location?.fullLocation?.join(", ") || "Location";
+  const experience = displayData.experienceRange
+    ? `${displayData.experienceRange.min}-${displayData.experienceRange.max} years`
+    : "Experience";
+  
+  const seoTitle = `${jobTitle} at ${companyNameSEO} - ${locationSEO} | Worko`;
+  const seoDescription = displayData.jobDescription
+    ? displayData.jobDescription.replace(/<[^>]*>/g, "").substring(0, 160) + "..."
+    : `Apply for ${jobTitle} at ${companyName} in ${locationSEO}. ${experience} experience required.`;
+  
+  const canonicalSlug = generateCanonicalJobSlug(displayData);
+  const canonicalUrl = `${baseUrl}${canonicalSlug}`;
+  
+  // Generate Schema.org JSON-LD - combine into single script tag
+  const jobSchema = generateJobPostingSchema(displayData, baseUrl);
+  
+  // Generate breadcrumb schema
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: baseUrl },
+    { name: "Jobs", url: `${baseUrl}/jobs` },
+    { name: companyNameSEO, url: `${baseUrl}/jobs?company=${encodeURIComponent(companyNameSEO)}` },
+    { name: jobTitle, url: canonicalUrl },
+  ]);
+  
+  // Combine schemas for single JSON-LD script
+  const combinedSchema = {
+    "@context": "https://schema.org",
+    "@graph": [jobSchema, breadcrumbSchema],
+  };
 
   // ============================================
   // MAIN RENDER
   // ============================================
 
   return (
-    <div className="w-full ">
-      {jobDataState && (
-        <Suspense fallback={<MainLoader />}>
-          <HeadBanner
-            jobData={jobDataState}
-            applicationStatus={applicationStatus}
-            handleApplyClick={handleApplyClick}
-            jobMatchDetails={jobMatchDetails}
-            isProfileCheckComplete={isProfileCheckComplete}
-          />
-          <JobJD
-            jobData={jobDataState}
-            applicationStatus={applicationStatus}
-            handleApplyClick={handleApplyClick}
-            jobMatchDetails={jobMatchDetails}
-            isProfileCheckComplete={isProfileCheckComplete}
-          />
-        </Suspense>
-      )}
+    <>
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={`${jobTitle}, ${companyNameSEO}, jobs, ${locationSEO}, ${displayData.department || ""}, ${displayData.coreSkills?.join(", ") || ""}`}
+        canonicalUrl={canonicalUrl}
+        ogTitle={seoTitle}
+        ogDescription={seoDescription}
+        ogImage={displayData.companyDetails?.logoUrl || displayData.companyLogoUrl || `${baseUrl}/logo-text.png`}
+        ogType="article"
+        ogUrl={canonicalUrl}
+        twitterCard="summary_large_image"
+        twitterTitle={seoTitle}
+        twitterDescription={seoDescription}
+        twitterImage={displayData.companyDetails?.logoUrl || displayData.companyLogoUrl || `${baseUrl}/logo-text.png`}
+        schemaJsonLd={combinedSchema}
+      />
+      <div className="w-full ">
+        {displayData && (
+          <Suspense fallback={<MainLoader />}>
+            <HeadBanner
+              jobData={displayData}
+              applicationStatus={applicationStatus}
+              handleApplyClick={handleApplyClick}
+              jobMatchDetails={jobMatchDetails}
+              isProfileCheckComplete={isProfileCheckComplete}
+            />
+            <JobJD
+              jobData={displayData}
+              applicationStatus={applicationStatus}
+              handleApplyClick={handleApplyClick}
+              jobMatchDetails={jobMatchDetails}
+              isProfileCheckComplete={isProfileCheckComplete}
+            />
+          </Suspense>
+        )}
 
       {isLoader && <ReferralLoader step={currStep} />}
       {MessageEnabled && (
@@ -745,7 +884,8 @@ const JobDescription = () => {
         <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />
       )}
       {updateResume && <UpdateResumeModal onClose={() => setUpdateResume(false)} />}
-    </div>
+      </div>
+    </>
   );
 };
 

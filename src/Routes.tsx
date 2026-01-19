@@ -28,6 +28,7 @@ const PrivacyPolicy = lazy(() => import("@Pages/privacy-policy/PrivacyPolicy"));
 const ContactUs = lazy(() => import("@Pages/contact-us/ContactUs"));
 const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/UnderConstruction"));
 const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
+const SitemapPage = lazy(() => import("@Pages/sitemap/SitemapPage"));
 const underConstructionPaths = [
   "faqs",
   "blogs",
@@ -82,6 +83,17 @@ const AppRoutes = createBrowserRouter(
               ),
             },
             {
+              // Support both old format (:companyName/:jobid) and new SEO-friendly format (slug)
+              // The component will handle both formats
+              path: ":slug",
+              element: (
+                <Suspense fallback={<MainLoader />}>
+                  <JobDescription />
+                </Suspense>
+              ),
+            },
+            {
+              // Legacy route support for backward compatibility
               path: ":companyName/:jobid",
               element: (
                 <Suspense fallback={<MainLoader />}>
@@ -188,6 +200,14 @@ const AppRoutes = createBrowserRouter(
           element: (
             <Suspense fallback={<MainLoader />}>
               <Guidance />
+            </Suspense>
+          ),
+        },
+        {
+          path: "sitemap.xml",
+          element: (
+            <Suspense fallback={<MainLoader />}>
+              <SitemapPage />
             </Suspense>
           ),
         },
