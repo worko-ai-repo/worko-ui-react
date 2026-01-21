@@ -43,7 +43,7 @@ export const generateJobSlug = ({
   const titleSlug = toSlug(title);
   const companySlug = toSlug(company);
   const locationSlug = toSlug(location);
-  const experienceSlug = toSlug(experience);
+  const experienceSlug = experience === "0 Years" ? "" : toSlug(experience)  ;
 
   // Build keyword-rich slug: title-company-location-experience
   const slugParts = [titleSlug, companySlug, locationSlug, experienceSlug]
@@ -88,7 +88,7 @@ export const generateCanonicalJobSlug = (job: {
   const location = job.location?.fullLocation?.join("-") || "location";
   const experience = job.experienceRange
     ? `${job.experienceRange.min}-${job.experienceRange.max}-years`
-    : "experience";
+    : '';
   
   return generateJobSlug({
     title: job.jobTitle,
@@ -114,7 +114,7 @@ export const generateSlugFromJob = (job: {
   const location = job.location?.fullLocation?.join("-") || "location";
   const experience = job.experienceRange
     ? `${job.experienceRange.min}-${job.experienceRange.max}-years`
-    : "experience";
+    : "";
   
   const titleSlug = toSlug(job.jobTitle);
   const companySlug = toSlug(companyName);

@@ -63,14 +63,14 @@ const AppRoutes = createBrowserRouter(
         />
       ),
       children: [
-     /*    {
+        {
           path: "debug-sitemap",
           element: (
             <Suspense fallback={<MainLoader />}>
               <SitemapPage />
             </Suspense>
           ),
-        }, */
+        },
         {
           index: true,
           element: (
