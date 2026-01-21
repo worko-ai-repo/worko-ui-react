@@ -24,11 +24,9 @@ const SitemapPage = () => {
       let allJobs: JobDto[] = [];
       let lastKey: string | undefined = undefined;
       const pageSize = 100; // Fetch in batches
-
+      let count = 0;
       do {
-        const { response, error } = await httpServiceObj.get<
-          GlobalApiQueryResponseDto<JobDto>
-        >(
+        const Job:any = await httpServiceObj.get<GlobalApiQueryResponseDto<JobDto>>(
           `${APP_JOBS_API_URI}/job/`,
           true,
           {
@@ -40,14 +38,15 @@ const SitemapPage = () => {
           true
         );
 
-        if (error) throw error;
-        if (response?.data) {
-          allJobs = [...allJobs, ...response.data];
-          lastKey = response.pagination?.lastKey;
+        if (Job.error) throw Job.error;
+        if (Job.response?.data) {
+          allJobs = [...allJobs, ...Job.response.data];
+          lastKey = Job.response.pagination?.lastKey;
         } else {
           break;
         }
-      } while (lastKey);
+        count++;
+      } while (lastKey && count < 10);
 
       return allJobs;
     },

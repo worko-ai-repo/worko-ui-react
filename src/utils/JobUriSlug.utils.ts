@@ -17,10 +17,15 @@ export const toSlug = (text: string): string => {
 
 /**
  * Generates a keyword-rich job slug for SEO-friendly URLs.
- * Format: /jobs/job-title-company-name-location-experience-years
- * 
+ *
+ * FINAL FORMAT (for routes & links):
+ *   /jobs/{seo-slug}/{jobId}
+ *
  * Example:
- *   /jobs/senior-software-engineer-google-bangalore-5-8-years
+ *   /jobs/senior-software-engineer-google-bangalore-5-8-years/12345
+ *
+ * This keeps the ID in the URL (for reliable lookup & sharing)
+ * while still providing a nice human-readable slug segment.
  */
 export const generateJobSlug = ({
   title,
@@ -39,19 +44,22 @@ export const generateJobSlug = ({
   const companySlug = toSlug(company);
   const locationSlug = toSlug(location);
   const experienceSlug = toSlug(experience);
-  
+
   // Build keyword-rich slug: title-company-location-experience
   const slugParts = [titleSlug, companySlug, locationSlug, experienceSlug]
     .filter(Boolean)
     .join("-");
-  
+
   // Ensure slug is not too long (max 100 chars for SEO)
   const maxLength = 100;
-  const finalSlug = slugParts.length > maxLength 
-    ? slugParts.substring(0, maxLength).replace(/-+$/, "")
-    : slugParts;
-  
-  return `/jobs/${finalSlug}`;
+  const finalSlug =
+    slugParts.length > maxLength
+      ? slugParts.substring(0, maxLength).replace(/-+$/, "")
+      : slugParts;
+
+  // IMPORTANT: keep the ID at the end so JobDescriptionPage
+  // can always read `jobid` from the URL and fetch by ID.
+  return `/jobs/${finalSlug}/${jobId}`;
 };
 
 /**

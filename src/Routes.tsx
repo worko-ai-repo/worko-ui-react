@@ -63,6 +63,14 @@ const AppRoutes = createBrowserRouter(
         />
       ),
       children: [
+     /*    {
+          path: "debug-sitemap",
+          element: (
+            <Suspense fallback={<MainLoader />}>
+              <SitemapPage />
+            </Suspense>
+          ),
+        }, */
         {
           index: true,
           element: (
@@ -83,9 +91,15 @@ const AppRoutes = createBrowserRouter(
               ),
             },
             {
-              // Support both old format (:companyName/:jobid) and new SEO-friendly format (slug)
-              // The component will handle both formats
-              path: ":slug",
+              // Primary SEO-friendly route:
+              // /jobs/{seo-slug}/{jobid}
+              //
+              // Example:
+              // /jobs/senior-software-engineer-google-bangalore-5-8-years/12345
+              //
+              // `JobDescriptionPage` reads `jobid` from params and fetches
+              // the job by ID, so hard refreshes and shared links work.
+              path: ":slug/:jobid",
               element: (
                 <Suspense fallback={<MainLoader />}>
                   <JobDescription />
@@ -200,14 +214,6 @@ const AppRoutes = createBrowserRouter(
           element: (
             <Suspense fallback={<MainLoader />}>
               <Guidance />
-            </Suspense>
-          ),
-        },
-        {
-          path: "sitemap.xml",
-          element: (
-            <Suspense fallback={<MainLoader />}>
-              <SitemapPage />
             </Suspense>
           ),
         },

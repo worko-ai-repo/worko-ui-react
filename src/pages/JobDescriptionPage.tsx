@@ -655,7 +655,12 @@ const JobDescription = () => {
       )) as ApiCallResponse;
 
       const { response, error, status } = result;
-
+      if(status === 409){
+        setApplicationStatus(true);
+        setShowApplyModal(true);
+        showModalsError("redundant");
+        return;
+      }
       if (status === 403) {
         setApplicationStatus(true);
         setShowApplyModal(true);
