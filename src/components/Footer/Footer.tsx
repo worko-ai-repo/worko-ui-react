@@ -59,7 +59,7 @@ const Footer = () => {
 							</div>
 							<div className="grow ">
 							<ul className={'space-y-2 text-gray-400 ' + styles.footer_list}>
-									<li onClick={()=>{NavTo('/about')}}>Our story</li>
+									{/* <li onClick={()=>{NavTo('/about')}}>Our story</li> */}
 									<li onClick={()=>{NavTo('/contact-us')}}>Contact us</li>
 									<li onClick={()=>{NavTo('/privacy-policy')}}>Privacy policy</li>
 									<li onClick={()=>{NavTo('/terms')}}>Terms of use</li>
