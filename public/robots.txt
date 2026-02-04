@@ -31,7 +31,7 @@ Disallow: /test
 Disallow: /admin/
 
 # Allow sitemap
-Sitemap: https://jobs.dev.worko.work/sitemap/sitemap.xml
+Sitemap: https://worko.ai/sitemap/sitemap.xml
 
 # Google-specific
 User-agent: Googlebot
