@@ -19,6 +19,7 @@ import LatestJobOpportunities from "./LatestJobOpportunities";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "@Context/App.context";
 import JobListDropdown, { DropDownSelectedJobData } from "./JobListDropdown";
+import { generateJobSlug } from "@Utils/JobUriSlug.utils";
 
 interface JobCategories {
   name: string;
@@ -188,8 +189,18 @@ export default function SmoothHeroIntro() {
             <div className="max-w-2xl mx-auto mb-8">
               <JobListDropdown
                 onSelect={(job: DropDownSelectedJobData) => {
-                  const encodedTitle = encodeURI(job.jobTitle);
-                  nav(`/jobs/${encodedTitle}/${job.id}`);
+                  const slug = generateJobSlug({
+                    title: job.jobTitle,
+                    company: "comp",
+                    location: "location",
+                    experience: "0-2 years",
+                    jobId: job.id,
+                  });
+                  
+                  // Navigate with full job data in state
+                  nav(slug, {
+                    state: { FullJob: job },
+                  });
                 }}
               />
             </div>

@@ -150,20 +150,26 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
 
   const handleReferralNav = (jobId: string) => {
     const fullJob = displayedJobs.find((job) => job.id === jobId);
-    const slug: any = generateJobSlug({
-      title: fullJob?.title || "Unknown Job",
-      company: fullJob?.company ?? "comp",
+    if (!fullJob) return;
+    
+    const slug = generateJobSlug({
+      title: fullJob.title || "Unknown Job",
+      company: fullJob.company ?? "comp",
       location: Array.isArray(fullJob?.location?.city)
-        ? fullJob?.location?.city.join(", ")
+        ? fullJob.location.city.join(", ")
         : fullJob?.location?.city ||
           (Array.isArray(fullJob?.location?.fullLocation)
-            ? fullJob?.location?.fullLocation.join(", ")
+            ? fullJob.location.fullLocation.join(", ")
             : fullJob?.location?.fullLocation) ||
           "Not specified",
-      experience: fullJob?.experience || "0-2 years",
-      jobId: fullJob?.id ?? "Unknown",
+      experience: fullJob.experience || "0-2 years",
+      jobId: fullJob.id ?? "Unknown",
     });
-    nav(slug);
+    
+    // Navigate with full job data in state, similar to JobCard
+    nav(slug, {
+      state: { FullJob: fullJob },
+    });
   };
 
   return (
@@ -291,14 +297,14 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
                       className="text-lg text-left line-clamp-2 capitalize max-w-[300px] font-semibold h-[48px]">
                       {job.title}
                     </h3>
-                    <div className="flex items-center gap-2 mb-1 h-[40px]">
+                    <div className="flex  w-[100%] items-center gap-2 mb-1 h-[40px]">
                       <div
                       className={`px-2 py-2 text-xs capitalize font-medium rounded-3xl bg-[#BBD3F8] text-black text-left group-hover:bg-white/20 group-hover:text-white truncate max-w-[150px]`}
                       title={job.type.toLowerCase()}>
                       {job.type.toLowerCase()}
                       </div>
                       <div
-                      className={`px-3 py-2 text-xs capitalize font-medium rounded-3xl bg-[#BBD3F8] text-black text-left group-hover:bg-white/20 group-hover:text-white truncate max-w-[180px]`}
+                      className={`px-3 py-2 text-xs capitalize font-medium rounded-3xl bg-[#BBD3F8] text-black text-left group-hover:bg-white/20 group-hover:text-white truncate max-w-[120px]`}
                       title={job.department}>
                       {job.department}
                       </div>
