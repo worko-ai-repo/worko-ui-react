@@ -88,12 +88,12 @@ const JobJD: React.FC<JobDescriptionSubComponentDTO> = ({
           isProfileCheckComplete={isProfileCheckComplete}
         />
         {/* Internal linking for SEO */}
-        <InternalLinks
+  {/*       <InternalLinks
           currentJob={jobData}
           relatedJobs={similarJobs.filter((job) => job.id !== jobData?.id) as JobDto[]}
           companyName={jobData?.companyName || jobData?.companyDetails?.name}
           companyId={jobData?.companyId}
-        />
+        /> */}
       </div>
       <div className="w-full md:w-[33%]">
         {isLoading ? (
