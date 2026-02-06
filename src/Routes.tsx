@@ -29,6 +29,7 @@ const ContactUs = lazy(() => import("@Pages/contact-us/ContactUs"));
 const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/UnderConstruction"));
 const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
 const SitemapPage = lazy(() => import("@Pages/sitemap/SitemapPage"));
+const ApplyJob = lazy(() => import("@Pages/ApplyJob/Applyjob"));
 const underConstructionPaths = [
   "faqs",
   "blogs",
@@ -254,6 +255,14 @@ const AppRoutes = createBrowserRouter(
       element: (
         <Suspense fallback={<MainLoader />}>
           <DashboardRouter />
+        </Suspense>
+      ),
+    },
+    {
+      path: "apply-job/*",
+      element: (
+        <Suspense fallback={<MainLoader />}>
+          <ApplyJob />
         </Suspense>
       ),
     },
