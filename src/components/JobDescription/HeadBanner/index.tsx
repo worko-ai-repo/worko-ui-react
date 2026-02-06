@@ -138,14 +138,14 @@ const HeadBanner: React.FC<JobDescriptionSubComponentDTO> = ({
   }, []);
 
   // Process company name with proper capitalization
-  const companyName = jobData.externalJobId ? jobData.companyName : jobData?.companyDetails?.name;
+  const companyName = jobData.companyName ?? jobData?.companyDetails?.name;
   const titleCasedCompanyName = toTitleCase(companyName!);
   return (
     <div className="p-6 bg-[#316BFF]">
       <div className="max-w-[1350px] mx-auto">
         <div className="mb-4 mt-6">
           <h1 className="text-white text-left text-2xl font-bold">
-            {jobData ? `Apply for jobs at ${titleCasedCompanyName} ` : "Apply for this position"}
+            {jobData && titleCasedCompanyName ? `Apply for jobs at ${titleCasedCompanyName} ` : "Apply for this position"}
           </h1>
         </div>
 
