@@ -118,28 +118,29 @@ const AppRoutes = createBrowserRouter(
             },
           ],
         },
-        {
-          path: "referrals/",
-          children: [
-            {
-              index: true,
-              element: (
-                <Suspense>
-                  <Company />
-                </Suspense>
-              ),
-            },
+        //referrals has been told to remove 
+        // {
+        //   path: "referrals/",
+        //   children: [
+        //     {
+        //       index: true,
+        //       element: (
+        //         <Suspense>
+        //           <Company />
+        //         </Suspense>
+        //       ),
+        //     },
 
-            {
-              path: ":compId/:id",
-              element: (
-                <Suspense fallback={<MainLoader />}>
-                  <RequestReferral />
-                </Suspense>
-              ),
-            },
-          ],
-        },
+        //     {
+        //       path: ":compId/:id",
+        //       element: (
+        //         <Suspense fallback={<MainLoader />}>
+        //           <RequestReferral />
+        //         </Suspense>
+        //       ),
+        //     },
+        //   ],
+        // },
         {
           path: "for-employee",
           element: (
@@ -210,13 +211,35 @@ const AppRoutes = createBrowserRouter(
           ],
         },
 
+        // {
+        //   path: "guidance*",
+        //   element: (
+        //     <Suspense fallback={<MainLoader />}>
+        //       <Guidance />
+        //     </Suspense>
+        //   ),
+        // },
         {
-          path: "guidance*",
-          element: (
-            <Suspense fallback={<MainLoader />}>
-              <Guidance />
-            </Suspense>
-          ),
+          path: "guidance/",
+          children: [
+            {
+              index: true,
+              element: (
+                <Suspense>
+                  <Company />
+                </Suspense>
+              ),
+            },
+
+            {
+              path: ":compId/:id",
+              element: (
+                <Suspense fallback={<MainLoader />}>
+                  <Guidance />
+                </Suspense>
+              ),
+            },
+          ],
         },
         ...underConstructionRoutes,
       ],
@@ -258,14 +281,14 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
-    {
-      path: "apply-job/*",
-      element: (
-        <Suspense fallback={<MainLoader />}>
-          <ApplyJob />
-        </Suspense>
-      ),
-    },
+    // {
+    //   path: "apply-job/*",
+    //   element: (
+    //     <Suspense fallback={<MainLoader />}>
+    //       <ApplyJob />
+    //     </Suspense>
+    //   ),
+    // },
     /* {
       path:"test" ,
       element: (

@@ -16,12 +16,12 @@ const JobRefButton = () => {
       Navigate(`/jobs`);
     } else {
       // window.location.href = `/referrals`;
-      Navigate(`/referrals`);
+      Navigate(`/guidance`);
     }
   };
 
   useEffect(() => {
-    const urlMode = location.pathname.includes("referrals") ? CompanyPageModeEnum.REFERRAL : CompanyPageModeEnum.JOB;
+    const urlMode = location.pathname.includes("guidance") ? CompanyPageModeEnum.REFERRAL : CompanyPageModeEnum.JOB;
     setActiveFrame(urlMode);
   }, [location.pathname, companyPageMode]);
 
@@ -40,10 +40,18 @@ const JobRefButton = () => {
         </div>
 
         {/* Referrals Toggle */}
-        <div className="relative flex-1">
+        {/* <div className="relative flex-1">
           <input type="radio" onClick={(e) => toggleCompanyPageMode(e)} id="referrals" name="ref_toggle" value="referrals" checked={activeFrame === CompanyPageModeEnum.REFERRAL} onChange={() => setActiveFrame(CompanyPageModeEnum.REFERRAL)} className="peer absolute opacity-0 w-full h-full cursor-pointer" />
           <label htmlFor="referrals" className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200">
             <span className={activeFrame === CompanyPageModeEnum.REFERRAL ? "text-white" : "text-gray-600 hover:text-gray-800"}>Referrals</span>
+          </label>
+        </div> */}
+
+        {/* Guidance Toggle */}
+        <div className="relative flex-1">
+          <input type="radio" onClick={(e) => toggleCompanyPageMode(e)} id="guidance" name="ref_toggle" value="guidance" checked={activeFrame === CompanyPageModeEnum.GUIDANCE} onChange={() => setActiveFrame(CompanyPageModeEnum.GUIDANCE)} className="peer absolute opacity-0 w-full h-full cursor-pointer" />
+          <label htmlFor="guidance" className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200">
+            <span className={activeFrame === CompanyPageModeEnum.GUIDANCE ? "text-white" : "text-gray-600 hover:text-gray-800"}>Guidance</span>
           </label>
         </div>
       </div>

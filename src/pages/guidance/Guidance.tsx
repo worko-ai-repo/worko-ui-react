@@ -78,9 +78,16 @@ const Guidance = () => {
 		retry: 0,
 	});
 
-	if (data) {
-		setValue('companyName', data.name);
-	}
+	// if (data) {
+	// 	setValue('companyName', data.name);
+	// }
+
+	useEffect(() => {
+		if (data?.name) {
+			setValue("companyName", data.name);
+		}
+	}, [data, setValue]);
+
 
 	// Function to show different modal messages
 	const showModalMessage = (type: 'success' | 'error' | 'duplicate' | 'jobUrlInvalid') => {
@@ -293,7 +300,9 @@ const Guidance = () => {
 						</div>
 						<div className="flex flex-col items-start justify-start">
 							<label className="my-3 block text-sm font-semibold text-black">Company Name</label>
-							<input disabled={data ? true : false} {...register('companyName', { required: 'Company name is required' })} className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" placeholder="Enter the company name" />
+							<input 
+							// disabled={data ? true : false} 
+							{...register('companyName', { required: 'Company name is required' })} className="w-full max-sm:min-w-[70vw] sm:max-w-[300px] p-3 bg-[#FAFAFA] rounded-xl text-gray-500 text-sm" placeholder="Enter the company name" />
 							{errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message as string}</p>}
 						</div>
 

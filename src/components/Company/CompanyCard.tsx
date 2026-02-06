@@ -46,7 +46,7 @@ const CompanyCard = ({ companyData }: { companyData: CompanyShortDto }) => {
 								LinkedIn Page
 							</a>
 						</div>
-						<button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>handleNav('referrals')}>Request Referral</button>
+						{/* <button className="scale-90 btn_secondary bg-[#4B7EFF] text-[12px] w-[150px] px-0 " onClick={()=>handleNav('referrals')}>Request Referral</button> */}
 					</div>
 					<div className="flex justify-between gap-2  ">
 						<div className="linkedin_ref flex  justify-start  items-start gap-2  md:my-1  relative top-2 ">
