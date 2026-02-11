@@ -5,6 +5,7 @@ import { SecureStorageKeyEnum } from "@Enums/SecureStorage.enum";
 import secureStorage from "@Utils/SecureStorage.utils";
 import httpServiceObj from "@Services/ApiHandler.service";
 import { GlobalApiQueryResponseDto, JobDto } from "@Interfaces/JobsAndCompany.dto";
+import { useNavigate } from "react-router-dom";
 
 export type DropDownSelectedJobData = {
   id: string;
@@ -66,6 +67,7 @@ const JobListDropdown: React.FC<JobListDropdownProps> = ({
   const [searchText, setSearchText] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const trimmedSearch = searchText.trim();
 
@@ -80,6 +82,20 @@ const JobListDropdown: React.FC<JobListDropdownProps> = ({
     setSearchText(job.jobTitle);
     setDropdownVisible(false);
     onSelect(job);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && trimmedSearch) {
+      setDropdownVisible(false);
+      navigate(`/jobs?searchText=${encodeURIComponent(trimmedSearch)}`);
+    }
+  };
+
+  const handleSearchClick = () => {
+    if (trimmedSearch) {
+      setDropdownVisible(false);
+      navigate(`/jobs?searchText=${encodeURIComponent(trimmedSearch)}`);
+    }
   };
 
   // Close dropdown on outside click
@@ -104,13 +120,14 @@ const JobListDropdown: React.FC<JobListDropdownProps> = ({
           setDropdownVisible(true);
         }}
         onFocus={() => setDropdownVisible(true)}
+        onKeyDown={handleKeyDown}
         className={`shadow-[3px_4px_0px_#316bff] w-full h-14 pl-6 pr-14 text-xs border-2 bg-white rounded-xl focus:border-blue-500 focus:outline-none ${
           dropdownVisible ? "rounded-b-none" : ""
         }`}
       />
       <button
         className="absolute right-2 top-2 h-10 w-16 rounded-xl flex items-center justify-center text-blue-500 hover:bg-blue-100 transition-colors duration-200"
-        onClick={() => console.log("")}>
+        onClick={handleSearchClick}>
         <Search className="h-18 w-8" />
       </button>
 
