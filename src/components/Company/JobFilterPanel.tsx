@@ -110,7 +110,8 @@ useEffect(() => {
 					</div>
 				</div>
 			</div>
-			{companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={typeof userDetails?.lastAccessedDash === 'object' ? userDetails?.lastAccessedDash : {}} /> : null}{/*  @TODO: ADD APPROPIATE TYE HERE */}
+			{/* {companyPageMode === CompanyPageModeEnum.REFERRAL ? <RequestCompany userType={typeof userDetails?.lastAccessedDash === 'object' ? userDetails?.lastAccessedDash : {}} /> : null} */}
+			{/*  @TODO: ADD APPROPIATE TYE HERE */}
 		</div>
 	);
 };

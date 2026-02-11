@@ -62,19 +62,26 @@ export default function MessageModal({ type, heading, size = '2xl', message = ''
 	return createPortal(
 		<div className="overflow-y-hidden fixed inset-0 flex items-center justify-center bg-black/50 w-full backdrop-blur-sm z-50  ">
 			<div className={` bg-white rounded-xl shadow-xl p-5 transform transition-transform scale-95 opacity-1 animate-fadeIn ${sizeClasses[size] || sizeClasses['2xl']} `}>
+				<div className="relative w-full">
+					{showCloseButton && onClose && (
+						<button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+							✖
+						</button>
+					)}
+				</div>
 				<div className="flex flex-col items-center">
 					<div className="flex gap-2 items-center justify-center ">
 						{icons[type]}
 						{heading && <h2 className={`text-xl font-bold ${HeadingStyles[heading.type]}`}>{heading.message}</h2>}
 					</div>
 					<p className="mt-5 mb-2 text-gray-700 flex-1 text-justify max-h-[50vh] overflow-auto px-4" dangerouslySetInnerHTML={{ __html: message }}></p>
-					<div className="relative w-full">
+					{/* <div className="relative w-full">
 						{showCloseButton && onClose && (
-							<button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+							<button onClick={onClose} className="bc absolute top-2 right-2 text-gray-400 hover:text-gray-600">
 								✖
 							</button>
 						)}
-					</div>
+					</div> */}
 				</div>
 				<div className="flex justify-end gap-2 mt-4">
 					{buttons.map((btn, index) => (

@@ -281,14 +281,14 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
-    // {
-    //   path: "apply-job/*",
-    //   element: (
-    //     <Suspense fallback={<MainLoader />}>
-    //       <ApplyJob />
-    //     </Suspense>
-    //   ),
-    // },
+    {
+      path: "apply-job/*",
+      element: (
+        <Suspense fallback={<MainLoader />}>
+          <ApplyJob />
+        </Suspense>
+      ),
+    },
     /* {
       path:"test" ,
       element: (

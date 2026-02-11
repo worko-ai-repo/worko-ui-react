@@ -53,7 +53,7 @@ const Footer = () => {
 								<h3 className="font-semibold mb-4">For Candidates</h3>
 								<ul className={'space-y-2  text-gray-400 ' + styles.footer_list} >
 									<li onClick={()=>{NavTo('/jobs')}}>Browse jobs & Apply via AI</li>
-									<li onClick={()=>{NavTo('/referrals')}}>Request a referral</li>
+									{/* <li onClick={()=>{NavTo('/referrals')}}>Request a referral</li> */}
 									<li onClick={()=>{NavTo('/guidance')}}>Request interview guidance</li>
 								</ul>
 							</div>
