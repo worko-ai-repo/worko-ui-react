@@ -372,14 +372,17 @@ const Applyjob:React.FC = () => {
               {toTitleCase(jobDetails?.workMode ?? "On Site")}
             </p>
 
-            {jobDetails?.displaySalaryRange && 
+            {jobDetails?.displaySalaryRange ? 
             <p className="text-sm font-bold text-[#777] mb-2">
-              Salary range : {`${jobDetails?.salaryRange?.min} - ${jobDetails?.salaryRange?.max}`}
+              Salary (CTC) : {`${jobDetails?.salaryRange?.min} LPA - ${jobDetails?.salaryRange?.max} LPA`}
+            </p>
+            : <p className="text-sm font-bold text-[#777] mb-2">
+              Salary (CTC) : Not Disclosed
             </p>
             }
 
             <p className="text-sm font-bold text-[#777]">
-              Years of experience required : {
+              YOE Required : {
                 jobDetails?.experienceRange?.min != null && jobDetails?.experienceRange?.max != null
                   ? `${jobDetails.experienceRange.min} - ${jobDetails.experienceRange.max}`
                   : jobDetails?.experienceRange?.min != null
