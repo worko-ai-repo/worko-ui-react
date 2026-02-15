@@ -232,6 +232,7 @@ const Applyjob:React.FC = () => {
       heading: { message: "Thanks for showing interest!", type: "success" },
       message: "Your application has been successfully submitted. Please keep an eye on your email for the next steps.",
     });
+    reset()
     // toast.success("Resume uploaded successfully. Please check your email for further updates.", getToastOptions({}))
     // // step 4 sending the parse details to submit
     // const payloadWithParsedData = {
