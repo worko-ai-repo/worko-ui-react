@@ -254,7 +254,7 @@ const Header = () => {
                           <h5 className="text-sm font-semibold text-gray-900 capitalize mb-1">
                             {userDetails?.fullName || "user"}
                           </h5>
-                          {userType?.includes(UserRole.GENERAL_USER) ||
+                          {/* {userType?.includes(UserRole.GENERAL_USER) ||
                           userType?.includes(UserRole.LINKEDIN) ||
                           userType?.includes(UserRole.ADMIN) ? (
                             <div className="flex items-center justify-between w-full">
@@ -268,12 +268,12 @@ const Header = () => {
                                 + Referrals
                               </span>
                             </div>
-                          ) : (
+                          ) : ( */}
                             <span className="text-sm font-bold text-gray-500 max-w-[100px] flex items-center">
                               <i className="fa-solid fa-user-tie mr-2"></i>
                               {getMiscUserPosition()}
                             </span>
-                          )}
+                          {/* )} */}
                         </div>
                       </div>
                     </li>

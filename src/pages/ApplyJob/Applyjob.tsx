@@ -511,10 +511,12 @@ const Applyjob:React.FC = () => {
           </form>
           </>
         ) : jobDescription ?
-        ( <div
-            className={`text-left ${styles.job_description_container}`}
-            dangerouslySetInnerHTML={{ __html: decode }}
-          />)
+          <div className={`text-left mb-6 min-h-[250px] break-words text-wrap ${styles.job_description_container}`}>
+            <h2 className="text-xl font-semibold mb-4 break-words text-wrap">Job description</h2>
+            <div
+              className={`space-y-4 mb-4 break-words  ${styles.job_description}`}
+              dangerouslySetInnerHTML={{ __html: decode }}></div>
+          </div>
           : (<p className="text-center text-red-500">No job description found</p>)
         }
         </div>
