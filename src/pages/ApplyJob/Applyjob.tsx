@@ -426,9 +426,9 @@ const Applyjob:React.FC = () => {
         {isFormOpen ?   
         (  <>   
           {/* LEFT aligned section title */}
-          <h2 className="text-left text-md font-semibold text-[#444] mb-10 tracking-wide">SUBMIT YOUR APPLICATION</h2>
+          <h2 className="text-left text-md font-semibold text-[#444] px-8 mb-10 tracking-wide">SUBMIT YOUR APPLICATION</h2>
           {/* FORM */}
-          <form onSubmit={handleSubmit(formSubmit)} className="max-w-[720px] w-full space-y-8">
+          <form onSubmit={handleSubmit(formSubmit)} className="w-full space-y-8 px-8">
             {/* Resume Upload */}
             <div className="grid grid-cols-2 gap-4 items-center mb-5">
               <label htmlFor="resume" className="text-[#444]">Upload Resume <span className='text-red-500'>*</span></label>
@@ -458,7 +458,7 @@ const Applyjob:React.FC = () => {
                 </span>
                 </label>
                 {errors.resume && (<p className="text-red-500 text-sm mt-1 text-center">{errors.resume.message}</p>)}
-                <p className="text-xs text-slate-500 text-center">Only .pdf files allowed (max 5MB)</p>
+                <p className="text-xs text-slate-500 text-left">Only .pdf files allowed (max 5MB)</p>
               </div>
             </div>
 
@@ -466,8 +466,14 @@ const Applyjob:React.FC = () => {
             <div className='grid grid-cols-2 gap-4 items-center mb-5'>
               <label htmlFor="currentCTC" className="text-[#444]">Current CTC <span className='text-red-500'>*</span></label>
               <div>
-                <input type="number" step="0.1" min={0} placeholder='10' className="w-full border rounded-lg px-4 py-2" {...register("currentCTC", { required: "Current CTC is required", valueAsNumber: true })} />
+                <input type="number" 
+                step="0.1" 
+                min={0} 
+                max={300}
+                placeholder='Enter your salary in LPA' 
+                className="placeholder:text-xs w-full border rounded-lg px-4 py-2" {...register("currentCTC", { required: "Current CTC is required", valueAsNumber: true })} />
                 {errors.currentCTC && <p className="text-left text-red-500 text-sm mt-1">{errors.currentCTC.message}</p>}
+                <p className='text-xs text-slate-500 text-left'>(e.g., 25 for 25,00,000 Lakhs per annum).</p>
               </div>
             </div>
 
@@ -479,15 +485,19 @@ const Applyjob:React.FC = () => {
                 type="number" 
                 step="0.1" 
                 min={0}
-                placeholder='12' 
-                className="w-full border rounded-lg px-4 py-2" 
+                max={400}
+                placeholder='Enter your salary in LPA' 
+                className="w-full border rounded-lg px-4 py-2 placeholder:text-xs" 
                 {...register("expectedCTC", { required: "Expected CTC is required", valueAsNumber: true, 
                   validate: (value) => {
                     const current = Number(watch("currentCTC") ?? 0);
                     const expected = Number(value ?? 0);
+                    if (isNaN(current)) return true;
+                    if (isNaN(expected)) return true;
                     return expected >= current || "Expected CTC cannot be less than Current CTC";
                 } })} />
                 {errors.expectedCTC && <p className="text-left text-red-500 text-sm mt-1">{errors.expectedCTC.message}</p>}
+                <p className='text-xs text-slate-500 text-left'>(e.g., 25 for 25,00,000 Lakhs per annum).</p>
               </div>
             </div>
 
@@ -505,8 +515,10 @@ const Applyjob:React.FC = () => {
             </div>
 
             {/* Submit button */}
-            <button className={`text-white text-sm font-medium h-12 px-6 rounded-md ${isSubmitting ? "bg-blue-300 cursor-not-allowed opacity-70" : "bg-blue-500"}`}>
-              {isSubmitting ? 'Submitting Application...' : 'Submit Application'}
+            <button 
+            disabled={isSubmitting}
+            className={`text-white text-sm font-medium h-12 px-6 rounded-md ${isSubmitting ? "bg-blue-300 cursor-not-allowed opacity-70" : "bg-blue-500"}`}>
+              {isSubmitting ? 'Submitting Application...' : 'Quick Apply'}
             </button>
           </form>
           </>
