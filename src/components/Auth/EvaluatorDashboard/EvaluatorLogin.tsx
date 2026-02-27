@@ -143,7 +143,7 @@ useEffect(() => {
           setStep('error');
           handleLogout();
           setTimeout(() => {
-          window.location.href = `${window.location.origin}/v0/auth/evaluator-dashboard/login?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
+          window.location.href = `${window.location.origin}/auth/evaluator-dashboard/login?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
         }, 1000);
           return;
         }
