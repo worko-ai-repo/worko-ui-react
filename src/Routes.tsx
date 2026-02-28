@@ -30,6 +30,7 @@ const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/Und
 const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
 const SitemapPage = lazy(() => import("@Pages/sitemap/SitemapPage"));
 const ApplyJob = lazy(() => import("@Pages/ApplyJob/Applyjob"));
+const WorkoFutureProofLanding = lazy(() => import("@Pages/WorkoFutureProofLanding/WorkoFutureProofLanding"));
 const underConstructionPaths = [
   "faqs",
   "blogs",
@@ -286,6 +287,14 @@ const AppRoutes = createBrowserRouter(
       element: (
         <Suspense fallback={<MainLoader />}>
           <ApplyJob />
+        </Suspense>
+      ),
+    },
+    {
+      path: "worko-future-proof",
+      element: (
+        <Suspense fallback={<MainLoader />}>
+          <WorkoFutureProofLanding />
         </Suspense>
       ),
     },
