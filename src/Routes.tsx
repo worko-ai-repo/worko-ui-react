@@ -30,7 +30,7 @@ const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/Und
 const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
 const SitemapPage = lazy(() => import("@Pages/sitemap/SitemapPage"));
 const ApplyJob = lazy(() => import("@Pages/ApplyJob/Applyjob"));
-const WorkoFutureProofLanding = lazy(() => import("@Pages/WorkoFutureProofLanding/WorkoFutureProofLanding"));
+const WillAiReplaceYouLanding = lazy(() => import("@Pages/WillAiReplaceYouLanding/WillAiReplaceYouLanding"));
 const underConstructionPaths = [
   "faqs",
   "blogs",
@@ -291,10 +291,10 @@ const AppRoutes = createBrowserRouter(
       ),
     },
     {
-      path: "worko-future-proof",
+      path: "can-ai-replace-you",
       element: (
         <Suspense fallback={<MainLoader />}>
-          <WorkoFutureProofLanding />
+          <WillAiReplaceYouLanding />
         </Suspense>
       ),
     },

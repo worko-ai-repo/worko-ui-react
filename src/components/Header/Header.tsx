@@ -28,8 +28,9 @@ const navItems: NavItem[] = [
   { label: "Jobs", href: "/jobs" },
   { label: "Guidance", href: "/guidance" },
   { label: "Refer-n-Earn", href: "/jobs?dashboard=USER" },
-  { label: "For Employee", href: "/for-employee" },
+  // { label: "For Employee", href: "/for-employee" },
   { label: "For Corporate", href: "/corporate" },
+  { label: "Can AI Replace You", href: "/can-ai-replace-you"},
 ];
 
 const Header = () => {
@@ -180,7 +181,14 @@ const Header = () => {
                   onMouseLeave={() => setActiveDropdown(null)}>
                   <a
                     onClick={() => navigateTo(item.href || "#")}
-                    className="text-sm font-normal text-black-500 hover:text-blue-600 flex items-center gap-2 cursor-pointer py-2 relative transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full">
+                    className={`
+                      text-sm flex items-center gap-2 cursor-pointer py-2 relative transition-colors duration-300
+                      ${item.label === "Can AI Replace You" 
+                        ? "font-semibold text-black after:w-full hover:after:bg-black hover:text-blue-500" 
+                        : "font-normal text-black-500 hover:text-blue-600 after:w-0"}
+                      after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:bg-blue-600 after:transition-all after:duration-300
+                      hover:after:w-full
+                    `}>
                     {item.label}
                     {item.subItems && (
                       <ChevronDown className="w-4 h-4 transition-transform duration-300" />
