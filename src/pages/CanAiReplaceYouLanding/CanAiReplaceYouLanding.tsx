@@ -34,7 +34,7 @@ interface FinalFormattedData {
   sections: FormattedSection[];
 }
 
-const WillAiReplaceYouLanding: React.FC = () => {
+const CanAiReplaceYouLanding: React.FC = () => {
   const { register, handleSubmit, watch, clearErrors,setValue, setError, formState: { errors } } = useForm();
   const linkedinValue = watch("linkedin");
   const resumeValue = watch("resume");
@@ -311,7 +311,11 @@ const WillAiReplaceYouLanding: React.FC = () => {
       {/* STICKY NAVBAR */}
       <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-lg border-b border-blue-100">
         <div className="flex items-center justify-between px-4 py-2 max-w-6xl mx-auto">
-          <img src={logo_text} alt="" className="h-12 w-auto" />
+          <img
+          onClick={() => window.location.href = "https://www.worko.ai"} 
+          src={logo_text} 
+          alt="logo_text" 
+          className="h-12 w-auto cursor-pointer" />
           {/* <div className="text-xl px-4 py-2 font-semibold">Worko FutureProof</div> */}
           {/* <button className="text-sm bg-gradient-to-r from-blue-500 to-blue-400 text-white px-4 py-2 rounded-lg font-medium">
             Get Your Score
@@ -668,4 +672,4 @@ const WillAiReplaceYouLanding: React.FC = () => {
   );
 };
 
-export default WillAiReplaceYouLanding;
+export default CanAiReplaceYouLanding;
