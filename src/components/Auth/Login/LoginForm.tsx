@@ -78,6 +78,7 @@ const LoginForm = () => {
   const [password, setPassword] = React.useState("");
   const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
   const [step, setStep] = React.useState<"otp" | "password">("otp");
+  const agencyBaseUrl = import.meta.env.APP_PROXY_AGENCY_BASE
   const {
     register,
     handleSubmit,
@@ -108,7 +109,16 @@ const LoginForm = () => {
 
     try {
       const { response, error } = await CognitoServiceObj.handleSignIn(loginData);
-      // If error occurs, show the error message and reset the form
+      if(error && error.message === "Temporary password has expired and must be reset by an administrator."){
+        reset(undefined, { keepValues: false });
+        const { response: resetResponse, error: resetError } = await httpServiceObj.post(`${agencyBaseUrl}/candidate-parsed-cv/reset-temporary-credentials`,{candidateEmail:loginData?.email},true,{},true)
+        if(resetError){
+          toast.error(resetError.message, getToastOptions({}))
+          return
+        }
+        toast.success(`Your password has expired. A new temporary password has been sent to ${loginData?.email}.`, getToastOptions());
+        return
+      }
       if (error) {
         toast.error(error.message, getToastOptions());
         reset(undefined, { keepValues: false });
@@ -299,7 +309,6 @@ const LoginForm = () => {
     }
   };
 
-  
   // Simulate OTP verification
   const handleVerifyOtpProcess = async () => {
     try {

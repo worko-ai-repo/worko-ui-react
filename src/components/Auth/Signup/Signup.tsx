@@ -27,6 +27,7 @@ import ReferralLoader from "@Components/ReferralRequest/ReferralLoader";
 import MessageModal from "@Components/Modals/MessageModal";
 import { useCrossAppAuth } from "@Hooks/useCrossAppAuth.hook";
 import { NormalizedUser, normalizeUserData } from "@Utils/NormalizeUser";
+import CustomModal from "@Components/Modals/FormModal";
 
 export type SignupMode = "EMP" | "CAND";
 interface ToggleOptionsDto {
@@ -73,6 +74,9 @@ const Signup = () => {
   const [OpenReferralLoader, setOpenReferralLoader] = useState<boolean>(false);
   const [resumeUserFileName, setResumeUserFileName] = useState<string>("");
   const [resumeUserFileMimeType, setResumeUserFileMimeType] = useState<string>("");
+  const [confirmAccount, setConfirmAccount] = useState<boolean>(false);
+  const [otp, setOtp] = useState("");
+  const [confEmail, setConfEmail] = useState("");
   const [modalData, setModalData] = useState<{
     type: "none" | "error" | "warning" | "success" | "info";
     heading?: { message: string; type: "error" | "warning" | "success" | "info" };
@@ -612,7 +616,7 @@ const Signup = () => {
 
       if (error) {
         // Handle specific Cognito errors
-        if (error.name === "UserLambdaValidationException" && error.message.includes("PreSignUp")) {
+        if (error.name === "UserLambdaValidationException" && error.message.includes("PreSignUp failed with error A user with this email already exists and verified.")) {
           toast.info(
             "An account with this email already exists. Please sign in instead.",
             getToastOptions({})
@@ -641,7 +645,23 @@ const Signup = () => {
             toast.error("Account exists but setup failed. Please contact support.", getToastOptions());
             return false;
           } */
-        } else {
+        } if (error.name === "UserLambdaValidationException" && error.message.includes("PreSignUp failed with error A user with this email already exists and unverified.")) {
+          setModalData({
+            type: "warning",
+            heading: { message: "Account Already Exists – Verification Required", type: "warning" },
+            message: "A user with the same email has already been registered but is unverified. Do you want to log in and verify your account?",
+            buttons: [
+              { label: "Redirect to login",  action: () => navigateTo("/auth/login"), type: "primary" },
+              { label: "Verify & Reset Password", action: async () => {
+                  const response = await sendOtp(processed.emailId);
+                  if (!response) return;
+                setConfEmail(processed.emailId);
+                setConfirmAccount(true)
+              }},
+            ],
+          });
+          return false;
+        }else {
           toast.error(error.message, getToastOptions());
           return false;
         }
@@ -718,6 +738,57 @@ const Signup = () => {
     setUploadedFile(null);
   }, [activeFrame]);
 
+  const sendOtp = async (email: string) => {
+    try {
+      const { response, error } = await CognitoServiceObj.resendOtp({ username: email });
+
+      if (error) {
+        toast.error(error.message, getToastOptions());
+        throw new Error(error.message);
+      }
+
+      toast.success("OTP sent to your email", getToastOptions());
+      return response;
+
+    } catch (err: any) {
+      toast.error("Failed to send OTP", getToastOptions());
+      console.error("Failed to send OTP:", err);
+      throw err;
+    }
+  };
+
+  const handleVerifyOtpProcess = async () => {
+    try {
+      const signupform = {
+        username: confEmail,
+        confirmationCode: otp,
+      };
+
+      await toast.promise(
+        CognitoServiceObj.handleSignUpConfirmation(signupform),
+        {
+          pending: "Verifying OTP...",
+          success: "Account verified successfully",
+          error: "Error verifying OTP",
+        },
+        getToastOptions({})
+      );
+
+      setConfirmAccount(false);
+      setOtp("");
+
+      toast.info(
+        "Your account is verified. Please reset your password to continue.",
+        getToastOptions({})
+      );
+
+      navigateTo("/auth/resetpassword", {state: { email: confEmail }});
+
+    } catch (error) {
+      console.error("OTP verification failed", error);
+    }
+  };
+
   return (
     <>
       <img src={auth_bg} alt="auth_bg" className="absolute -left-20 top-10 z-10 " />
@@ -766,6 +837,31 @@ const Signup = () => {
       )}
 
       {OpenReferralLoader && <ReferralLoader step={currStep} />}
+
+      {confirmAccount && (
+        <CustomModal
+          type="info"
+          title="Verify Account"
+          onSubmit={handleVerifyOtpProcess}
+          onClose={() => setConfirmAccount(false)}
+          isdisabled={otp.length !== 6} // Disable if OTP is not entered
+        >
+          <div className="flex flex-col gap-3">
+            <p>
+              An one time password has been sent to your registered email address.Please enter it in
+              to verify your account.
+            </p>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              className={`input_primary auth_input ${otp.length !== 6 && "error"}`}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+            />
+            <label className="text-xs text-gray-500">OTP will expire in 5 minutes</label>
+          </div>
+        </CustomModal>
+      )}
     </>
   );
 };
