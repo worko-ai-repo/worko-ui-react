@@ -112,7 +112,7 @@ const CanAiReplaceYouLanding: React.FC = () => {
   const getData = async (id: string): Promise<GetDataResponse> => {
     const { response, error } =
       await httpServiceObj.get<GetDataResponse>(
-        `https://rayyanblue.app.n8n.cloud/webhook/get-data`,
+        `https://rayyan71.app.n8n.cloud/webhook/get-data`,
         true,
         { id },
         true
@@ -200,7 +200,7 @@ const CanAiReplaceYouLanding: React.FC = () => {
       formData.append("file", file);
 
       const res = await fetch(
-        "https://rayyanblue.app.n8n.cloud/webhook/resume-upload",
+        "https://rayyan71.app.n8n.cloud/webhook/resume-upload",
         {
           method: "POST",
           body: formData,
@@ -217,7 +217,7 @@ const CanAiReplaceYouLanding: React.FC = () => {
           const payload = {
             link
           }
-          const {response,error} = await httpServiceObj.post<ResponseFromPost>(`https://rayyanblue.app.n8n.cloud/webhook/submit-resume-link`,payload,true,{},true)
+          const {response,error} = await httpServiceObj.post<ResponseFromPost>(`https://rayyan71.app.n8n.cloud/webhook/submit-resume-link`,payload,true,{},true)
           if(error){
             toast.error(error.message,getToastOptions({}))
             setIsParsing(false);
@@ -243,7 +243,7 @@ const CanAiReplaceYouLanding: React.FC = () => {
         const payload = {
           link:linkedin
         }
-        const {response,error} = await httpServiceObj.post<ResponseFromPost>(`https://rayyanblue.app.n8n.cloud/webhook/submit-resume-link`,payload,true,{},true)
+        const {response,error} = await httpServiceObj.post<ResponseFromPost>(`https://rayyan71.app.n8n.cloud/webhook/submit-resume-link`,payload,true,{},true)
         if(error){
           toast.error(error.message,getToastOptions({}))
           setIsParsing(false);
