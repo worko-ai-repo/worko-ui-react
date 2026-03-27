@@ -290,14 +290,14 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
-    {
-      path: "can-ai-replace-you",
-      element: (
-        <Suspense fallback={<MainLoader />}>
-          <CanAiReplaceYouLanding />
-        </Suspense>
-      ),
-    },
+    // {
+    //   path: "can-ai-replace-you",
+    //   element: (
+    //     <Suspense fallback={<MainLoader />}>
+    //       <CanAiReplaceYouLanding />
+    //     </Suspense>
+    //   ),
+    // },
     /* {
       path:"test" ,
       element: (

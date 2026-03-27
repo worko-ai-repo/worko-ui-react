@@ -28,9 +28,9 @@ const navItems: NavItem[] = [
   { label: "Jobs", href: "/jobs" },
   { label: "Guidance", href: "/guidance" },
   { label: "Refer-n-Earn", href: "/jobs?dashboard=USER" },
-  // { label: "For Employee", href: "/for-employee" },
+  { label: "For Employee", href: "/for-employee" },
   { label: "For Corporate", href: "/corporate" },
-  { label: "Can AI Replace You", href: "/can-ai-replace-you"},
+  // { label: "Can AI Replace You", href: "/can-ai-replace-you"},
 ];
 
 const Header = () => {
