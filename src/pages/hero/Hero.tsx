@@ -44,7 +44,7 @@ const Hero = () => {
 						 <span>tells you exactly what worked, what didn’t, and how you can secure that coveted role.</span>
 					</Reveal>
 				</h2> */}
-				<ProductHighlight />
+				{/* <ProductHighlight /> */}
 				<HeroOutro />
 				<NewTestimonials  title={`Don’t take our word for it. See what job seekers are saying about ${worko_new}`} titleImage={worko_new} testimonials={testimonials}  className="bg-white p-1" badgeIcon='fa-md fa-solid fa-box-open' />
 			</Suspense>

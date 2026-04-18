@@ -17,44 +17,44 @@ function CorporatePlans() {
 
   const plans = [
     {
-      title: 'Job Board',
-      price: '2%',
-      desc: 'of CTC',
-      suitableFor: 'Startups and companies seeking intelligent sourcing solutions with cost-effective, results-driven recruitment technology.',
+      title: 'ATS Only',
+      price: '₹2,500 / recruiter / month',
+      
+      suitableFor: 'Best for teams with in-house recruiters who need a smarter hiring system with AI-powered sourcing and full pipeline visibility.',
       features: [
         {
-          name: 'Pay-As-You-Go model',
-          description: 'Only pay when you successfully hire a candidate. No monthly subscriptions, no setup fees, no hidden costs. You invest only when you get results.'
+          name: 'Intelligent ATS Platform',
+          description: 'End-to-end hiring management in one system — from job posting to offer rollout. Scheduling, feedback tracking, candidate documents and offer letters all built in. One system. Zero fragmentation.'
         },
         {
-          name: 'AI-Powered candidate filtering',
-          description: 'Our advanced AI analyzes resumes beyond keywords, evaluating skills, experience relevance, cultural fit, and career progression to deliver 98% relevant candidates.'
+          name: 'ATLAS AI — Internal Database Activation',
+          description: 'Our AI engine (ATLAS) re-activates your existing candidate pool, surfaces and ranks best-fit profiles — reducing the cost of constant fresh sourcing. Faster shortlisting, better accuracy.'
         },
         {
-          name: 'IATS (Intelligent Applicant Tracking System)',
-          description: 'Complete applicant tracking system with pipeline management, candidate communication tools, interview scheduling, and hiring analytics - all integrated seamlessly into one platform.'
+          name: 'Interview Scheduling & Feedback Tracking',
+          description: 'We manage all scheduling logistics — reminders, rescheduling, and centralised feedback collection. Your team focuses on the interview, not the calendar. No more chasing updates — everything is live.'
         },
         {
-          name: 'Enhanced Insights',
-          description: 'Get detailed analytics on your hiring funnel, candidate quality metrics, time-to-hire data, and market salary benchmarks to optimize your recruitment strategy.'
+          name: 'Complete Visibility & Analytics',
+          description: 'One live dashboard for HR, hiring managers and founders. Stage-wise pipeline for every open role. Real-time view of all roles, candidates and pipeline stages — one source of truth for your entire team.'
         },
         {
-          name: 'Priority support',
-          description: 'Dedicated customer success team available via email and chat during business hours. Get help with job posting optimization and platform guidance.'
+          name: 'Vendor Management — All Agencies, One Platform',
+          description: 'Consolidate every recruitment agency centrally. Track submissions and performance across all vendors. Eliminate duplication and fragmented communication with a single performance scorecard.'
         },
         {
-          name: 'Custom Solutions',
-          description: 'Tailored integrations with your existing ATS, custom reporting dashboards, and specialized filtering criteria based on your unique hiring requirements.'
+          name: 'Priority Support',
+          description: 'Dedicated customer success team available via email and chat during business hours. Get help with platform onboarding, job posting optimisation, and ongoing platform guidance.'
         }
       ],
       button: 'Try Now',
       buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
-      buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=Job%20Board`,
+      buttonLink: `${import.meta.env.APP_WORKO_BASE_URL}/corporate/connect-with-us?plan=ATS%20Only`,
     },
     {
       title: 'Hiring Co-Pilot',
-      price: '3%',
-      desc: 'of CTC + Retainership*',
+      price: '5%',
+      desc: 'of CTC + ₹45K monthly retainer',
       suitableFor: 'Companies seeking comprehensive long-term hiring solutions with dedicated recruitment support.',
       features: [
         {
@@ -93,7 +93,7 @@ function CorporatePlans() {
     },
     {
       title: 'Full Recruitment',
-      price: '8.5 to 15%',
+      price: '8.33% to 12%',
       desc: 'of CTC',
       suitableFor: 'Organizations with ad-hoc hiring requirements needing flexible, full-service recruitment solutions for specialized or urgent positions.',
       features: [

@@ -33,8 +33,8 @@ const CorporateCardsSection = () => {
           Why Choose <span className="text-blue-500">Worko</span> Over Others?
         </h2>
         <p className="w-[80%] mx-auto mt-2 sm:mt-3 text-base sm:text-lg text-gray-600">
-          We're not just another hiring platform. Here's what makes us the smart choice for modern
-          companies.
+          Worko combines AI-driven sourcing, dedicated execution, and complete hiring visibility to
+          close roles faster with full accountability.
         </p>
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {[
@@ -49,8 +49,8 @@ const CorporateCardsSection = () => {
             },
             {
               icon: <IndianRupee className="text-white w-6 h-6" />,
-              title: "Only 2% of CTC",
-              text: "Pay only when you hire. No upfront costs, no hidden fees. Just 2% of the candidate's annual package upon successful placement.",
+              title: "Only 5% of CTC",
+              text: "Pay only when you hire. No upfront costs, no hidden fees. Just 5% of the candidate's annual package upon successful placement.",
               subText: "Success based pricing",
               border: "border-blue-400",
               bg: "bg-blue-500",
@@ -58,9 +58,9 @@ const CorporateCardsSection = () => {
             },
             {
               icon: <Infinity className="text-white w-6 h-6" />,
-              title: "Unlimited Job Posts",
-              text: "Post as many jobs as you need. No limits, no restrictions. Scale your hiring without worrying about additional posting costs.",
-              subText: "No Posting Limits",
+              title: "ATLAS AI + Complete Visibility",
+              text: "ATLAS AI ranks best-fit candidates while a live dashboard gives HR, hiring managers, and founders real-time stage-wise pipeline visibility.",
+              subText: "One hiring command center",
               border: "border-purple-400",
               bg: "bg-purple-500",
               color: "text-purple-500",

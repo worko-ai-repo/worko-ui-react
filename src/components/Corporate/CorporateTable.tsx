@@ -18,7 +18,7 @@ function CorporateTable({
   const screeningHrs = 20;
   const callHrs = 8;
   const traditionalCost = Math.round(hires * salary * 100000 * 0.12);
-  const workoCost = Math.round(hires * salary * 100000 * 0.02);
+  const workoCost = Math.round(hires * salary * 100000 * 0.05);
   const savings = traditionalCost - workoCost;
   const totalCurrentHrs = (screeningHrs + callHrs) * hires;
   const screeningReduced = Math.round(screeningHrs * hires * 0.2);
@@ -80,7 +80,7 @@ function CorporateTable({
                 <span className="font-bold">{formatCurrency(traditionalCost)}</span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm mb-4">
-                <span>Worko Cost (2% of CTC):</span>
+                <span>Worko Cost (5% of CTC):</span>
                 <span className="font-bold">{formatCurrency(workoCost)}</span>
               </div>
               <hr className="border-blue-400 mb-3" />
@@ -94,7 +94,7 @@ function CorporateTable({
           <div className="animate-slide-up">
             <h3 className="font-semibold mb-2 text-sm sm:text-base">Time Savings Breakdown</h3>
             <div className="bg-red-100 p-3 rounded mb-3">
-              <p className="text-left font-semibold text-sm">Current Process</p>
+              <p className="text-left font-semibold text-sm">Traditional Hiring Process</p>
               <ul className="text-left list-disc ml-5 text-xs sm:text-sm">
                 <li>{screeningHrs * hires} hrs screening resumes</li>
                 <li>{callHrs * hires} hrs conducting initial calls</li>
@@ -103,7 +103,7 @@ function CorporateTable({
               </ul>
             </div>
             <div className="bg-green-100 p-3 rounded mb-3">
-              <p className="text-left font-semibold text-sm">With Worko.ai (80% less effort)</p>
+              <p className="text-left font-semibold text-sm">With Worko (AI + Dedicated Recruiters)</p>
               <ul className="text-left  list-disc ml-5 text-xs sm:text-sm">
                 <li>{screeningReduced} hrs reviewing qualified candidates</li>
                 <li>{callsReduced} hrs conducting interviews</li>

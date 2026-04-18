@@ -15,7 +15,7 @@ type CorporateDemoForm = {
 
 export default function HeroSection({ hires, salary }: { hires: number; salary: number }) {
   const traditionalCost = Math.round(hires * salary * 100000 * 0.12);
-  const workoCost = Math.round(hires * salary * 100000 * 0.02);
+  const workoCost = Math.round(hires * salary * 100000 * 0.05);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
