@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Shield, ArrowRight, RefreshCw, CheckCircle, AlertCircle, User } from 'lucide-react';
+import { Mail, Shield, ArrowRight, RefreshCw, CheckCircle, AlertCircle, User, Info } from 'lucide-react';
 import PasswordlessAuthService, { EvaluatorAuthUser } from '../../../utils/PasswordlessAuth.utils';
 import { EvaluatorService, getEvaluatorById, fetchEvaluationDetails} from '../../../services/EvaluatorService.service';
 import CognitoServiceObj from '../../../utils/Cognito.utils';
@@ -30,6 +30,16 @@ const EvaluatorLogin: React.FC = () => {
   const evaluationRequestId = searchParams.get('evaluationRequestId') || '';
   //@TODO change v2 to some sensible variable name
   const v2 = import.meta.env.APP_PROXY_DASH
+
+  const handleLogout = async () => {
+  try {
+    await CognitoServiceObj.handleSignOut();
+    sessionStorage.clear();
+    // window.location.href = "https://worko.ai/";
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+};
 //   useEffect(() => {
 //     const getEvaluationDetails = async () => {
 //       try {
@@ -131,6 +141,10 @@ useEffect(() => {
         if (payload.email !== expectedEmail) {
           setError('Logged in user does not match the evaluator email.');
           setStep('error');
+          handleLogout();
+          setTimeout(() => {
+          window.location.href = `${window.location.origin}/auth/evaluator-dashboard/login?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
+        }, 1000);
           return;
         }
 
@@ -342,7 +356,7 @@ useEffect(() => {
       setTimeout(() => {
         // window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?evaluatorEmail=${encodeURIComponent(evaluatorEmail)}`;
         window.location.href = `${window.location.origin}/${v2}/evaluator-dashboard/?jobApplicationId=${jobApplicationId}&evaluationRequestId=${evaluationRequestId}`;
-      }, 2000);
+      }, 1000);
     } catch (error: any) {
       console.error('Redirect error:', error);
       setError(error.message);
@@ -520,6 +534,13 @@ useEffect(() => {
                   ? 'We sent a 6-digit code to your email to complete setup'
                   : 'Check your email for a 6-digit verification code'
                 }
+              </p>
+              <p className="text-gray-600 text-[0.625rem] flex gap-1 justify-center items-center">
+                <Info               
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content={"This can happen during your first-time setup. Just enter the latest OTP you receive."}
+                size={10}/>
+                Please note you may recieve 3 otps for the first time
               </p>
             </div>
 

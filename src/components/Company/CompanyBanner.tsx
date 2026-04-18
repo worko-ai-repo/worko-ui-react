@@ -22,14 +22,26 @@ const companyStaticData = {
       </ul>
     `,
   },
+  // [CompanyPageModeEnum.REFERRAL]: {
+  //   title: 'Get referred to over <span class="font-bold px-3 py-1 bg-[#57E1E1] rounded-lg">1000+</span> companies',
+  //   description: `
+  //     <ul class="list-disc pl-5 space-y-2">
+  //       <li>With our referral system, your dream job is closer than you think.</li>
+  //       <li>Submit the application for the role you want to apply for.</li>
+  //       <li>We'll connect you with a referee (working in the same company) who'll personally refer you.</li>
+  //       <li>Get insider coaching to nail that interview and more.</li>
+  //     </ul>
+  //   `,
+  // },
   [CompanyPageModeEnum.REFERRAL]: {
-    title: 'Get referred to over <span class="font-bold px-3 py-1 bg-[#57E1E1] rounded-lg">1000+</span> companies',
+    title: 'Real Guidance. Real Insiders. Real Edge.',
     description: `
       <ul class="list-disc pl-5 space-y-2">
-        <li>With our referral system, your dream job is closer than you think.</li>
-        <li>Submit the application for the role you want to apply for.</li>
-        <li>We'll connect you with a referee (working in the same company) who'll personally refer you.</li>
-        <li>Get insider coaching to nail that interview and more.</li>
+        <p>Stop guessing what the interview will be like.</p>
+        <li>Choose the company and role you’re preparing for.</li>
+        <li>We connect you with someone who already works in that exact company or function.</li>
+        <li>Get actionable guidance on interview rounds, case questions, technical depth, and what actually gets candidates selected.</li>
+        <li>Walk into interviews knowing what to expect and how to stand out.</li>
       </ul>
     `,
   },
@@ -46,7 +58,7 @@ const companyStaticData = {
 const referDetails = [
   { icon: "🎯", title: "Your Reward", description: "Receive a monetary reward for every successful hire." },
   { icon: "🌟", title: "Help Friends", description: "Connect talented candidates with their dream roles." },
-  { icon: "🔄", title: "No Limits", description: "Refer as many people as you like – rewards stack up!" },
+  { icon: "🔄", title: "No Limits", description: "Refer as many people as you like - rewards stack up!" },
 ];
 
 interface CompanyData {

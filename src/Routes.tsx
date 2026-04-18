@@ -30,6 +30,7 @@ const UnderConstruction = lazy(() => import("@Pages/errors/under-constuction/Und
 const JobRecommendationForm = lazy(() => import("@Components/Auth/PostSignupForm"));
 const SitemapPage = lazy(() => import("@Pages/sitemap/SitemapPage"));
 const ApplyJob = lazy(() => import("@Pages/ApplyJob/Applyjob"));
+const CanAiReplaceYouLanding = lazy(() => import("@Pages/CanAiReplaceYouLanding/CanAiReplaceYouLanding"));
 const underConstructionPaths = [
   "faqs",
   "blogs",
@@ -281,11 +282,19 @@ const AppRoutes = createBrowserRouter(
         </Suspense>
       ),
     },
+    {
+      path: "apply-job/*",
+      element: (
+        <Suspense fallback={<MainLoader />}>
+          <ApplyJob />
+        </Suspense>
+      ),
+    },
     // {
-    //   path: "apply-job/*",
+    //   path: "can-ai-replace-you",
     //   element: (
     //     <Suspense fallback={<MainLoader />}>
-    //       <ApplyJob />
+    //       <CanAiReplaceYouLanding />
     //     </Suspense>
     //   ),
     // },

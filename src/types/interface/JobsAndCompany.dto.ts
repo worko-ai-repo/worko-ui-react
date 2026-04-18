@@ -99,6 +99,7 @@ export interface JobDto extends CompanyDto {
   miscellaneousSkills?: string[];
   status: string;
   createdByUserId?: string;
+  createdByCorporateUserId?:string;
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;

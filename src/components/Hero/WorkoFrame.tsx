@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { job_frame, ref_frame } from '@Assets';
+import { job_frame, ref_frame, gui_frame } from '@Assets';
 import styles from './hero_component.module.scss';
 
 const WorkoFrame = ({ frameId }: { frameId: string }) => {
-  const [activeFrame, setActiveFrame] = useState<'jobs' | 'referrals'>('jobs');
+  const [activeFrame, setActiveFrame] = useState<'jobs' | 'guidance'>('jobs');
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveFrame((prev) => (prev === 'jobs' ? 'referrals' : 'jobs'));
+      setActiveFrame((prev) => (prev === 'jobs' ? 'guidance' : 'jobs'));
     }, 3000);
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-  const handleToggle = (frame: 'jobs' | 'referrals') => {
+  const handleToggle = (frame: 'jobs' | 'guidance') => {
     setActiveFrame(frame);
   };
 
@@ -30,7 +30,7 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
               {/* Sliding Background */}
               <div
                 className={`absolute inset-y-1 w-[calc(50%-4px)] rounded-md bg-blue-500 transition-all duration-300 ease-in-out ${
-                  activeFrame === 'referrals' ? 'translate-x-[100%]' : 'translate-x-0'
+                  activeFrame === 'guidance' ? 'translate-x-[100%]' : 'translate-x-0'
                 }`}
               />
 
@@ -55,23 +55,23 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
                 </label>
               </div>
 
-              {/* Referrals Toggle */}
+              {/* Guidance Toggle */}
               <div className="relative flex-1">
                 <input
                   type="radio"
-                  id={`referrals-${frameId}`}
+                  id={`guidance-${frameId}`}
                   name={`toggle-${frameId}`}
-                  value="referrals"
-                  checked={activeFrame === 'referrals'}
-                  onChange={() => handleToggle('referrals')}
+                  value="guidance"
+                  checked={activeFrame === 'guidance'}
+                  onChange={() => handleToggle('guidance')}
                   className="peer absolute opacity-0 w-full h-full cursor-pointer"
                 />
                 <label
-                  htmlFor={`referrals-${frameId}`}
+                  htmlFor={`guidance-${frameId}`}
                   className="relative block w-full text-center px-4 py-1 text-sm font-medium cursor-pointer transition-colors duration-200"
                 >
-                  <span className={activeFrame === 'referrals' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
-                    Referrals
+                  <span className={activeFrame === 'guidance' ? 'text-white' : 'text-gray-600 hover:text-gray-800'}>
+                    Guidance
                   </span>
                 </label>
               </div>
@@ -83,7 +83,7 @@ const WorkoFrame = ({ frameId }: { frameId: string }) => {
             <div className=" rounded-2xl  lg:h-[600px] max-h-[600px] sm:min-w-[500px] lg:min-w-[900px] p-4 md:p-10 ">
               <img
                 fetchPriority="high" 
-                src={activeFrame === 'jobs' ? job_frame : ref_frame}
+                src={activeFrame === 'jobs' ? job_frame : gui_frame}
                 alt="job_frame"
                 className="mx-auto max-h-[600px] md:min-w-[500px] sm:h-[100%] object-contain "
               />

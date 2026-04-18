@@ -12,6 +12,7 @@ export const emailDomainDenyListValidator = (email: string) => {
       'mail.com',
       'protonmail.com',
       'yandex.com',
+      'ymail.com'
       // Add more personal email domains you want to block
     ];
   

@@ -46,7 +46,7 @@ const FooterNavbar = () => {
         isActive: isDashboardActive,
         isExternal: true, // Mark as external to use window.location.assign
       }
-    : { label: "Login/Signup", to: "/login", icon: <User className="w-5 h-5" />, isExternal: true };
+    : { label: "Login/Signup", to: "/auth/login", icon: <User className="w-5 h-5" />, isExternal: true };
 
   const handleExternalNavigation = (path: string) => {
     // Use window.location.assign for navigation outside micro-frontend

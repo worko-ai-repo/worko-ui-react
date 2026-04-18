@@ -10,6 +10,7 @@ import {
   ss_guidance,
   ss_job,
   ss_ref,
+  ss_gui,
   student,
   student1,
   cloudUpload,
@@ -34,13 +35,6 @@ export const dorpDown = {
       bigimg: ss_job,
     },
     {
-      title: "Tap into company referrals",
-      description:
-        "Get direct referrals from verified employees who work at your dream companies and will boost you to the top of the pile.",
-      image: ph2,
-      bigimg: ss_ref,
-    },
-    {
       title: "Get personalized career guidance",
       description:
         "Get battle-tested tips every step of the way from people who have already won those challenges. You’ll get the edge you need.",
@@ -53,6 +47,13 @@ export const dorpDown = {
         "Know talented people companies can benefit from? Refer them to our platform and earn exclusive bonuses, rewards, and perks.",
       image: ph4,
       bigimg: mini_Frame_5,
+    },
+    {
+      title: "Stronger, Value-Driven Feedback Version",
+      description:
+        "Get feedback on your applications. Understand what worked and what didn’t. Get role-specific feedback for most jobs you apply to - not silence.",
+      image: ph2,
+      bigimg: ss_gui,
     },
   ],
   two: [
@@ -205,7 +206,7 @@ export const floatingStats = [
   },
   {
     text: "Insider Guidance",
-    subText: "Get tips from employees inside the company — know what interviews are really like.",
+    subText: "Get tips from employees inside the company - know what interviews are really like.",
     position: "top-[10rem] left-[13rem]",
     icon: Support,
   },

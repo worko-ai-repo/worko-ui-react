@@ -19,6 +19,7 @@ import logo_text from './worko-assets/logo-text.webp';
 import logo_text_bright from './worko-assets/logo-text-bright.webp';
 import job_frame from './worko-assets/Job_Frame.webp'
 import ref_frame from './worko-assets/Referral_Frame.webp'
+import gui_frame from './worko-assets/Guidance_Frame.webp'
 import corp_office_bg from './worko-assets/office-background.jpg';
 
 import student_male from './backgrounds/student_male.webp'
@@ -50,6 +51,7 @@ import mini_Frame_5 from './backgrounds/Mini_Frame_5.webp'
 import mini_Frame_6 from './backgrounds/Mini_Frame_6.webp'
 import ss_job from './backgrounds/ss_job.webp'
 import ss_ref from './backgrounds/ss_ref.webp'
+import ss_gui from './backgrounds/ss_gui.webp'
 import ss_guidance from './backgrounds/ss_guid.webp'
 import c11 from './backgrounds/c11.webp';
 import c12 from './backgrounds/c12.webp';
@@ -117,6 +119,7 @@ export {
     ,mini_Frame_6,
     ss_job,
     ss_ref,
+    ss_gui,
     ss_guidance,
      
     auth_bg,
@@ -147,6 +150,7 @@ export {
     logo_text_bright,
     job_frame,
     ref_frame,
+    gui_frame,
     worko_new,
     corporatehero,
     corp_office_bg,
