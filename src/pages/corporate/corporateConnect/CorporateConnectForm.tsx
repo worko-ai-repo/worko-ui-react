@@ -8,22 +8,25 @@ import { ChevronDown } from "lucide-react";
 import countryCodes from "@Utils/CountryCodes.utils";
 
 export enum UserCorporatePaymentPlanEnum {
-  JOB_BOARD = "JOB_BOARD",
-  HIRING_PARTNER = "HIRING_PARTNER",
+  SOURCING_ONLY = "SOURCING_ONLY",
   CO_PILOT = "CO_PILOT",
+  FULL_RECRUITMENT = "FULL_RECRUITMENT", // Map FULL_RECRUITMENT to HIRING_PARTNER
+  HIRING_PARTNER = "HIRING_PARTNER",
 }
 
 // Map UI-friendly names to enum values
 const PLAN_NAME_MAP: Record<string, UserCorporatePaymentPlanEnum> = {
-  "Job Board": UserCorporatePaymentPlanEnum.JOB_BOARD,
-  "Hiring Partner": UserCorporatePaymentPlanEnum.HIRING_PARTNER,
+  "ATS Only": UserCorporatePaymentPlanEnum.HIRING_PARTNER,
+  "Sourcing Only": UserCorporatePaymentPlanEnum.SOURCING_ONLY,
   "Co-Pilot": UserCorporatePaymentPlanEnum.CO_PILOT,
+  "Full Recruitment": UserCorporatePaymentPlanEnum.FULL_RECRUITMENT, // Map "Full Recruitment" to FULL_RECRUITMENT
 };
 
 const planOptions = [
-  { value: UserCorporatePaymentPlanEnum.JOB_BOARD, label: "Job Board" },
-  { value: UserCorporatePaymentPlanEnum.HIRING_PARTNER, label: "Full Recruitment" },
-  { value: UserCorporatePaymentPlanEnum.CO_PILOT, label: "Hiring Co-Pilot" },
+  { label: "ATS Only", value: UserCorporatePaymentPlanEnum.HIRING_PARTNER },
+  { label: "Sourcing Only", value: UserCorporatePaymentPlanEnum.SOURCING_ONLY },
+  { label: "Co-Pilot", value: UserCorporatePaymentPlanEnum.CO_PILOT },
+  { label: "Full Recruitment", value: UserCorporatePaymentPlanEnum.FULL_RECRUITMENT }, // Map "Full Recruitment" to FULL_RECRUITMENT
 ];
 
 const CorporateConnectForm = ({

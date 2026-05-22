@@ -1,8 +1,11 @@
+import { SectionLabel } from "@Pages/corporate/Corporate";
+import Reveal from "@Views/intersection-observer/IntersectionObs";
+import { Dot } from "lucide-react";
 import { ChangeEvent } from "react";
 
-// Results Section (ROI Calculator)
 const formatCurrency = (num: number): string =>
   `₹${Math.abs(num).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+
 
 function CorporateTable({
   hires = 10,
@@ -28,93 +31,148 @@ function CorporateTable({
   const weekSaved = Math.round(hoursSaved / 168);
 
   return (
-    <section id="results" className="py-12 sm:py-16 bg-blue-50">
+    <section id="results" className="py-12 sm:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">
-          Calculate Your Hiring ROI
-        </h2>
-        <p className="text-gray-600 text-center mb-8 text-sm sm:text-base">
-          See how much time and money Worko.ai saves your company
-        </p>
-        <div className="bg-white rounded-xl shadow p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 mt-8">
-          {/* Sliders */}
-          <div className="animate-slide-up">
-            <label className="font-medium text-sm sm:text-base" htmlFor="hires-slider">
-              Number of Hires per Quarter: {hires}
-            </label>
-            <input
-              id="hires-slider"
-              type="range"
-              min={1}
-              max={200}
-              value={hires}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setHires(Number(e.target.value))}
-              className="w-full my-4 sm:my-5 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              aria-valuenow={hires}
-              aria-valuemin={1}
-              aria-valuemax={200}
-              aria-label="Number of Hires per Quarter"
-            />
-            <label className="font-medium text-sm sm:text-base" htmlFor="salary-slider">
-              Average Salary (LPA): ₹{salary}
-            </label>
-            <input
-              id="salary-slider"
-              type="range"
-              min={3}
-              max={50}
-              value={salary}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setSalary(Number(e.target.value))}
-              className="w-full my-4 sm:my-5 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              aria-valuenow={salary}
-              aria-valuemin={3}
-              aria-valuemax={50}
-              aria-label="Average Salary in LPA"
-            />
-            <div className="bg-blue-600 text-white rounded-lg p-4 sm:p-6 mt-6 sm:mt-10">
-              <h3 className="font-semibold mb-4 text-sm sm:text-base">
-                Your Potential Savings with Worko
-              </h3>
-              <div className="flex justify-between text-xs sm:text-sm mb-2">
-                <span>Traditional Hiring Cost (12% of CTC):</span>
-                <span className="font-bold">{formatCurrency(traditionalCost)}</span>
+        <Reveal PCName="w-fit mx-auto text-center" IsDual={false} CName="slide_up" threshold={0.1}>
+          <SectionLabel text="ROI Calculator" />
+          <h2 className="text-[clamp(28px,4vw,44px)] font-bold leading-[1.1] text-zinc-950">
+            Calculate your hiring ROI
+            <br />
+            in 10 seconds.
+          </h2>
+          <p className="mt-2 text-sm text-zinc-500">
+            Adjust the sliders to see how much Worko saves your team.
+          </p>
+        </Reveal>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* ── Left card: sliders + savings ── */}
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 sm:p-8">
+            {/* Hires slider */}
+            <div className="mb-6">
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="text-sm text-zinc-500">Hires per quarter</span>
+                <span className="text-base font-semibold text-zinc-900">{hires}</span>
               </div>
-              <div className="flex justify-between text-xs sm:text-sm mb-4">
-                <span>Worko Cost (5% of CTC):</span>
-                <span className="font-bold">{formatCurrency(workoCost)}</span>
+              <input
+                id="hires-slider"
+                type="range"
+                min={1}
+                max={200}
+                step={1}
+                value={hires}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setHires(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+                aria-valuenow={hires}
+                aria-valuemin={1}
+                aria-valuemax={200}
+                aria-label="Number of Hires per Quarter"
+              />
+            </div>
+
+            {/* Salary slider */}
+            <div className="mb-6">
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="text-sm text-zinc-500">Average salary (LPA)</span>
+                <span className="text-base font-semibold text-zinc-900">₹{salary}L</span>
               </div>
-              <hr className="border-blue-400 mb-3" />
-              <div className="flex justify-between text-sm sm:text-lg font-bold">
-                <span>You Save:</span>
-                <span className="text-green-400">{formatCurrency(savings)}</span>
+              <input
+                id="salary-slider"
+                type="range"
+                min={3}
+                max={50}
+                step={1}
+                value={salary}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSalary(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+                aria-valuenow={salary}
+                aria-valuemin={3}
+                aria-valuemax={50}
+                aria-label="Average Salary in LPA"
+              />
+            </div>
+
+            {/* Savings panel */}
+            <div className="rounded-xl p-5 sm:p-6 mt-2" style={{ background: "#042C53" }}>
+              <p
+                className="text-xs font-semibold tracking-widest uppercase mb-4"
+                style={{ color: "#378ADD" }}>
+                Your potential savings
+              </p>
+              <div className="flex justify-between items-center text-xs mb-2">
+                <span style={{ color: "#85B7EB" }}>Traditional (12% of CTC)</span>
+                <span className="font-medium" style={{ color: "#B5D4F4" }}>
+                  {formatCurrency(traditionalCost)}
+                </span>
               </div>
+              <div className="flex justify-between items-center text-xs mb-4">
+                <span style={{ color: "#85B7EB" }}>Worko (5% of CTC)</span>
+                <span className="font-medium" style={{ color: "#B5D4F4" }}>
+                  {formatCurrency(workoCost)}
+                </span>
+              </div>
+              <div className="border-t mb-3" style={{ borderColor: "#185FA5" }} />
+              <div className="flex justify-between items-baseline">
+                <span className="text-sm" style={{ color: "#85B7EB" }}>
+                  You save
+                </span>
+                <span className="text-xl font-semibold" style={{ color: "#5DCAA5" }}>
+                  {formatCurrency(savings)}
+                </span>
+              </div>
+            </div>
+            {/* Hero stat */}
+            <div className=" mt-2 rounded-xl bg-zinc-50 border border-zinc-200 p-4 text-center">
+              <p className="text-2xl font-semibold text-zinc-900">
+                {hoursSaved.toLocaleString()} hours
+              </p>
+              <p className="text-xs text-zinc-500 mt-1">saved per quarter</p>
+              {weekSaved > 0 && (
+                <p className="text-xs text-zinc-400 mt-0.5 italic">
+                  That's ~{weekSaved} week{weekSaved !== 1 ? "s" : ""} of full-time work
+                </p>
+              )}
             </div>
           </div>
-          {/* Time Savings */}
-          <div className="animate-slide-up">
-            <h3 className="font-semibold mb-2 text-sm sm:text-base">Time Savings Breakdown</h3>
-            <div className="bg-red-100 p-3 rounded mb-3">
-              <p className="text-left font-semibold text-sm">Traditional Hiring Process</p>
-              <ul className="text-left list-disc ml-5 text-xs sm:text-sm">
-                <li>{screeningHrs * hires} hrs screening resumes</li>
-                <li>{callHrs * hires} hrs conducting initial calls</li>
-                <li>6 weeks average time to hire</li>
-                <li>60% candidate drop-off rate</li>
-              </ul>
+
+          {/* ── Right card: time breakdown ── */}
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 sm:p-8">
+            <p className="text-xs font-semibold tracking-widest uppercase text-zinc-400 mb-4">
+              Time savings breakdown
+            </p>
+
+            {/* Traditional */}
+            <div className="rounded-xl bg-red-50 border border-red-100 p-4 mb-3">
+              <p className="text-xl text-left font-semibold text-red-800 mb-2">Traditional hiring process</p>
+              {[
+                `${screeningHrs * hires} hrs screening resumes`,
+                `${callHrs * hires} hrs on initial calls`,
+                "6 weeks average to hire",
+                "60% candidate drop-off",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2 text-xl text-left text-red-700 mt-1.5">
+                  <Dot color="red" />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
-            <div className="bg-green-100 p-3 rounded mb-3">
-              <p className="text-left font-semibold text-sm">With Worko (AI + Dedicated Recruiters)</p>
-              <ul className="text-left  list-disc ml-5 text-xs sm:text-sm">
-                <li>{screeningReduced} hrs reviewing qualified candidates</li>
-                <li>{callsReduced} hrs conducting interviews</li>
-                <li>~1 week average time to hire</li>
-                <li>~12% candidate drop-off rate</li>
-              </ul>
-            </div>
-            <div className="bg-yellow-100 p-4 rounded text-center">
-              <p className="text-lg sm:text-xl font-bold">{hoursSaved} hours</p>
-              <p className="text-xs sm:text-sm">Saved per quarter</p>
-              <p className="text-xs sm:text-sm">That's {weekSaved} weeks of full-time work!</p>
+
+            {/* Worko */}
+            <div className="rounded-xl bg-green-50 border border-green-100 p-4 mb-4">
+              <p className="text-xl text-left font-semibold text-green-800 mb-2">
+                With Worko — AI + dedicated recruiters
+              </p>
+              {[
+                `${screeningReduced} hrs reviewing qualified candidates`,
+                `${callsReduced} hrs conducting interviews`,
+                "~1 week average to hire",
+                "~12% candidate drop-off",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2 text-lg text-green-700 mt-1.5">
+                  <Dot color="green" />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -122,4 +180,5 @@ function CorporateTable({
     </section>
   );
 }
+
 export default CorporateTable;
