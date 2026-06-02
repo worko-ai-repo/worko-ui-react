@@ -125,6 +125,7 @@ class CognitoService {
       const authData = await signIn(login);
       this.authenticationSubject.next(true);
       secureStorage.setItem(SecureStorageKeyEnum.SIGNINDETAILS, "false");
+      // Sync session tokens into SecureStorage after successful sign in
       await this.setAccessToken();
       // console.log(authData)
       return { response: authData };
@@ -145,7 +146,7 @@ class CognitoService {
     // console the initiator of this function by logging an error
     
     
-    console.error("isLoggedIn function initiated");
+    // console.info("isLoggedIn function initiated");
 
     this.UserRegistered = secureStorage.getItem(SecureStorageKeyEnum.REDACTED_SECRET) || false;
     this.linkedinSignInDetails = secureStorage.getItem(SecureStorageKeyEnum.SIGNINDETAILS) || "{}";
@@ -154,6 +155,68 @@ class CognitoService {
       return this.handleLinkedInLogin();
     }
     return this.handleRegularLogin();
+  }
+
+  /**
+   * Synchronize tokens from Amplify/Cognito into SecureStorage.
+   * If forceRefresh is true, ask Amplify to refresh tokens before syncing.
+   */
+  public async sessionSync(forceRefresh = false): Promise<boolean> {
+    try {
+      const session = await fetchAuthSession({ forceRefresh });
+      const idToken = session.tokens?.idToken?.toString() || "";
+      const accessToken = session.tokens?.accessToken?.toString() || "";
+
+      if (idToken) {
+        secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, idToken);
+      }
+      if (accessToken) {
+        secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, accessToken);
+      }
+
+      // Also refresh stored user id and roles if available
+      const userType = session.tokens?.idToken?.payload["cognito:groups"];
+      const userId = session.tokens?.idToken?.payload["sub"];
+      if (userId) {
+        secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERID, userId);
+      }
+      if (Array.isArray(userType)) {
+        // map Cognito groups to our UserRole array and persist
+        const roles: any[] = [];
+        for (const role of userType) {
+          switch (role) {
+            case UserRole.CORPORATE_ADMIN:
+            case UserRole.CORPORATE_RECRUITER: {
+              secureStorage.setItem<typeof role>(SecureStorageKeyEnum.CORPORATEUSERTYPE, role);
+              roles.push(UserRole.CORPORATE);
+              break;
+            }
+            case UserRole.ADMIN: {
+              roles.push(UserRole.ADMIN);
+              break;
+            }
+            case UserRole.EVALUATOR: {
+              roles.push(UserRole.EVALUATOR);
+              break;
+            }
+            case UserRole.LINKEDIN: {
+              roles.push(UserRole.LINKEDIN);
+              break;
+            }
+            case UserRole.GENERAL_USER: {
+              roles.push(UserRole.GENERAL_USER);
+              break;
+            }
+          }
+        }
+        secureStorage.setItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE, roles);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("sessionSync failed:", error);
+      return false;
+    }
   }
 
   /**
@@ -360,6 +423,11 @@ public async handleForceNewPassword(newPassword: string): Promise<AuthResponse<S
    * @returns string
    */
   public getAccessToken(): string {
+    // Prefer the encrypted secure storage value if available
+    const stored = secureStorage.getItem<string>(SecureStorageKeyEnum.ACCESSTOKEN);
+    if (stored) return stored;
+
+    // Fallback: search localStorage for Amplify's accessToken entry
     let accessToken = "";
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -378,8 +446,18 @@ public async handleForceNewPassword(newPassword: string): Promise<AuthResponse<S
   public async setAccessToken(): Promise<boolean> {
     try {
       const { tokens } = await fetchAuthSession();
-      const userType = tokens?.idToken?.payload["cognito:groups"];
+      const  userType= tokens?.idToken?.payload["cognito:groups"];
       const userId = tokens?.idToken?.payload["sub"];
+      const idToken = tokens?.idToken?.toString();
+      const accessToken = tokens?.accessToken?.toString();
+
+      // Persist tokens into secure storage (preferred)
+      if (idToken) {
+        secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, idToken);
+      }
+      if (accessToken) {
+        secureStorage.setItem<string>(SecureStorageKeyEnum.ACCESSTOKEN, accessToken);
+      }
 
       if (userId) {
         secureStorage.setItem(SecureStorageKeyEnum.COGNITOUSERID, userId);
@@ -416,16 +494,6 @@ public async handleForceNewPassword(newPassword: string): Promise<AuthResponse<S
         secureStorage.setItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE, roles);
       } else {
         secureStorage.setItem<UserRole[]>(SecureStorageKeyEnum.USERTYPE, [UserRole.GENERAL_USER]);
-      }
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith("CognitoIdentityServiceProvider.") && key.includes(".accessToken")) {
-          const value = localStorage.getItem(key);
-          if (value) {
-            secureStorage.setItem<string>(SecureStorageKeyEnum.ACCESSTOKEN, value);
-          }
-        }
       }
 
       return true;

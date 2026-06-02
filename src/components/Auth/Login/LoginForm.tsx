@@ -8,7 +8,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { fetchAuthSession, rememberDevice } from "@aws-amplify/auth";
+import { rememberDevice } from "@aws-amplify/auth";
 import { useAppContext } from "@Context/App.context";
 import { AuthLoginForGeneralUserDto } from "@Interfaces/Auth.dto";
 import useLinkedInSignup from "@Hooks/useSignupLinkedIn.hook";
@@ -27,17 +27,8 @@ import ChangePasswordModal from "@Components/Modals/ChangePasswordModal";
  */
 export const currentSession = async () => {
   try {
-    const session = await fetchAuthSession({ forceRefresh: false }); // Use false to avoid unnecessary refresh
-    const authToken = session.tokens?.idToken?.toString();
-    const refreshToken = session.tokens?.accessToken?.toString();
-
-    if (authToken) {
-      secureStorage.setItem(SecureStorageKeyEnum.USERTOKEN, authToken);
-    }
-
-    if (refreshToken) {
-      secureStorage.setItem(SecureStorageKeyEnum.ACCESSTOKEN, refreshToken);
-    }
+    // Delegate to centralized session sync in Cognito utils
+    await CognitoServiceObj.sessionSync(false);
   } catch (err) {
     console.error("Session retrieval error", err);
   }
@@ -46,11 +37,13 @@ export const currentSession = async () => {
 // Functions
 export const handleRememberDevice = async (isToggleEnabled = true) => {
   try {
-    // console.log('Is Remembered me enabled :', isToggleEnabled);
-    // Remember the device
-    await rememberDevice();
-    // If the device is successfully remembered, refresh the session
-    await fetchAuthSession({ forceRefresh: isToggleEnabled });
+    // If user opted into "Remember me", register device with Cognito
+    if (isToggleEnabled) {
+      await rememberDevice();
+    }
+
+    // Always refresh the auth session so tokens are synchronized into storage
+    await CognitoServiceObj.sessionSync(true);
   } catch (error) {
     console.log(error);
   }
@@ -198,7 +191,7 @@ const LoginForm = () => {
             // console.log(secureStorage.getItem(SecureStorageKeyEnum.LASTACCESSEDDASH));
 
             // Refresh session
-            await handleRememberDevice();
+            await handleRememberDevice(isToggleEnabled);
             await currentSession();
             setUpdateCheck(true);
             toast.success("Successfully signed in", getToastOptions({}));
@@ -278,7 +271,7 @@ const LoginForm = () => {
       secureStorage.setItem<NormalizedUser>(SecureStorageKeyEnum.LOGINDETAILS, user);
 
       // Refresh session & broadcast
-      await handleRememberDevice();
+      await handleRememberDevice(isToggleEnabled);
       await currentSession();
       setUpdateCheck(true);
 

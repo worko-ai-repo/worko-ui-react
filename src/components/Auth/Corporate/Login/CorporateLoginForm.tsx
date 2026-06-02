@@ -71,7 +71,8 @@ const CorporateLoginForm = () => {
             CognitoServiceObj.handleSignOut();
           }
           await checkUserLoggedIn();
-          await handleRememberDevice();
+          // Do not implicitly register device for corporate login (no toggle available)
+          await handleRememberDevice(false);
           await currentSession();
           setUpdateCheck(true);
           await fetchCorporateCompanyDetails();

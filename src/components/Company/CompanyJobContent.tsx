@@ -255,9 +255,11 @@ const CompanyJobContent = () => {
                   const finalCompanyName = job?.externalJobId
                     ? job.companyName
                     : job.companyDetails?.name;
-                  const Finallocations = !job?.location?.fullLocation?.length
-                    ? "Not Disclosed"
-                    : job?.location?.fullLocation.join(", ");
+                  const fullLocation = job?.location?.fullLocation;
+                  const Finallocations =
+                    Array.isArray(fullLocation) && fullLocation.length > 0
+                      ? fullLocation.join(", ")
+                      : "Not Disclosed";
                   const finalLogoUrl = job?.companyDetails?.logo
                     ? `${import.meta.env.APP_WORKO_BASE_URL}/images/${job?.companyDetails?.logo}`
                     : job?.companyDetails?.logoUrl;

@@ -40,6 +40,30 @@ interface initialMatchingScoreDetails {
   matchRank: number;
 }
 
+const normalizeJobFromLocationState = (job: unknown): JobDto | undefined => {
+  if (!job || typeof job !== "object") return undefined;
+
+  const incomingJob = job as Partial<JobDto> & {
+    title?: string;
+    jobdescription?: string;
+    company?: string;
+  };
+
+  const companyName =
+    incomingJob.companyName || incomingJob.companyDetails?.name || incomingJob.company || "";
+
+  return {
+    ...(incomingJob as JobDto),
+    jobTitle: incomingJob.jobTitle || incomingJob.title || "",
+    jobDescription: incomingJob.jobDescription || incomingJob.jobdescription || "",
+    companyName,
+  };
+};
+
+const hasHydratedJobDetails = (job: JobDto | undefined): boolean => {
+  return !!(job?.companyName || job?.companyDetails?.name);
+};
+
 const HeadBanner = React.lazy(() => import("@Components/JobDescription/HeadBanner"));
 const JobJD = React.lazy(() => import("@Components/JobDescription/JobJD"));
 
@@ -58,7 +82,7 @@ const JobDescription = () => {
   // ============================================
   // ALL HOOKS MUST BE CALLED BEFORE ANY RETURNS
   // ============================================
-  
+
   // Context and Router Hooks
   const { PendingApply, setPendingApply, isLoggedIn, userDetails } = useAppContext() as {
     PendingApply: continueReferralRequestDataDto | null;
@@ -95,9 +119,10 @@ const JobDescription = () => {
   const [FeedbackInfo, setFeedbackInfo] = useState<FeedbackModalProps>();
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const [jobDataState, setJobDataState] = useState<JobDto | undefined>(() => {
-    const job = (location.state as any)?.FullJob;
+    const job = normalizeJobFromLocationState((location.state as any)?.FullJob);
+    console.debug("Initializing jobDataState from location state:", job);
     if (job) {
-      window.history.replaceState({}, document.title);
+      window.history.replaceState({}, document.title); // This prevents the back button from going to the same page with state again
     }
     return job;
   });
@@ -124,7 +149,7 @@ const JobDescription = () => {
     updatedAt: "",
     isTriggered: false,
   });
-  
+
   const pendingApplyHandledRef = useRef(false);
   const APP_JOBS_API_URI = import.meta.env.APP_JOBS_API_URI;
 
@@ -137,7 +162,7 @@ const JobDescription = () => {
 
   // Determine job identifier - prefer jobid, fallback to slug extraction
   const jobIdentifier = jobid || (slug ? extractJobIdFromSlug(slug) : null);
-  
+
   const {
     data: jobData,
     isLoading,
@@ -179,7 +204,7 @@ const JobDescription = () => {
 
       return response;
     },
-    enabled: !!jobIdentifier && !jobDataState,
+    enabled: !!jobIdentifier && (!jobDataState || !hasHydratedJobDetails(jobDataState)),
     retry: 0,
   });
 
@@ -251,10 +276,7 @@ const JobDescription = () => {
       const coreSkills = data?.coreSkills?.map((s) => s.skillName);
       const yoe = data?.YOE;
       const isProfileComplete =
-        data &&
-        "CTC" in data &&
-        data?.isCvExtracted === true &&
-        (coreSkills?.length > 0 || yoe);
+        data && "CTC" in data && data?.isCvExtracted === true && (coreSkills?.length > 0 || yoe);
       const jobDescription = jobDataState ?? jobData ?? null;
       if (jobDescription && !jobDescription.initialMatchingScoreDetails)
         await fetchMatchingScore(jobDataState ?? jobData ?? ({} as JobDto));
@@ -323,7 +345,7 @@ const JobDescription = () => {
 
   // Effect: Update jobDataState from location
   useEffect(() => {
-    const job = (location.state as any)?.FullJob;
+    const job = normalizeJobFromLocationState((location.state as any)?.FullJob);
     if (job) {
       setJobDataState(job);
       window.history.replaceState({}, document.title);
@@ -655,7 +677,7 @@ const JobDescription = () => {
       )) as ApiCallResponse;
 
       const { response, error, status } = result;
-      if(status === 409){
+      if (status === 409) {
         setApplicationStatus(true);
         setShowApplyModal(true);
         showModalsError("redundant");
@@ -746,8 +768,7 @@ const JobDescription = () => {
             </p>
             <button
               onClick={() => nav("/jobs")}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Browse Other Jobs
             </button>
           </div>
@@ -768,12 +789,13 @@ const JobDescription = () => {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-4">Job Not Found</h1>
             <p className="text-gray-600 mb-6">
-              {error instanceof Error ? error.message : "The job you're looking for could not be found."}
+              {error instanceof Error
+                ? error.message
+                : "The job you're looking for could not be found."}
             </p>
             <button
               onClick={() => nav("/jobs")}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Browse Jobs
             </button>
           </div>
@@ -796,18 +818,18 @@ const JobDescription = () => {
   const experience = displayData.experienceRange
     ? `${displayData.experienceRange.min}-${displayData.experienceRange.max} years`
     : "Experience";
-  
+
   const seoTitle = `${jobTitle} at ${companyNameSEO} - ${locationSEO} | Worko`;
   const seoDescription = displayData.jobDescription
     ? displayData.jobDescription.replace(/<[^>]*>/g, "").substring(0, 160) + "..."
     : `Apply for ${jobTitle} at ${companyName} in ${locationSEO}. ${experience} experience required.`;
-  
+
   const canonicalSlug = generateCanonicalJobSlug(displayData);
   const canonicalUrl = `${baseUrl}${canonicalSlug}`;
-  
+
   // Generate Schema.org JSON-LD - combine into single script tag
   const jobSchema = generateJobPostingSchema(displayData, baseUrl);
-  
+
   // Generate breadcrumb schema
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: baseUrl },
@@ -815,7 +837,7 @@ const JobDescription = () => {
     { name: companyNameSEO, url: `${baseUrl}/jobs?company=${encodeURIComponent(companyNameSEO)}` },
     { name: jobTitle, url: canonicalUrl },
   ]);
-  
+
   // Combine schemas for single JSON-LD script
   const combinedSchema = {
     "@context": "https://schema.org",
@@ -831,17 +853,27 @@ const JobDescription = () => {
       <SEOHead
         title={seoTitle}
         description={seoDescription}
-        keywords={`${jobTitle}, ${companyNameSEO}, jobs, ${locationSEO}, ${displayData.department || ""}, ${displayData.coreSkills?.join(", ") || ""}`}
+        keywords={`${jobTitle}, ${companyNameSEO}, jobs, ${locationSEO}, ${
+          displayData.department || ""
+        }, ${displayData.coreSkills?.join(", ") || ""}`}
         canonicalUrl={canonicalUrl}
         ogTitle={seoTitle}
         ogDescription={seoDescription}
-        ogImage={displayData.companyDetails?.logoUrl || displayData.companyLogoUrl || `${baseUrl}/logo-text.png`}
+        ogImage={
+          displayData.companyDetails?.logoUrl ||
+          displayData.companyLogoUrl ||
+          `${baseUrl}/logo-text.png`
+        }
         ogType="article"
         ogUrl={canonicalUrl}
         twitterCard="summary_large_image"
         twitterTitle={seoTitle}
         twitterDescription={seoDescription}
-        twitterImage={displayData.companyDetails?.logoUrl || displayData.companyLogoUrl || `${baseUrl}/logo-text.png`}
+        twitterImage={
+          displayData.companyDetails?.logoUrl ||
+          displayData.companyLogoUrl ||
+          `${baseUrl}/logo-text.png`
+        }
         schemaJsonLd={combinedSchema}
       />
       <div className="w-full ">
@@ -864,31 +896,31 @@ const JobDescription = () => {
           </Suspense>
         )}
 
-      {isLoader && <ReferralLoader step={currStep} />}
-      {MessageEnabled && (
-        <RequestReferralMessage
-          Type={ModalType}
-          gaugeScore={gaugeScore}
-          gaugeEnabled={gaugeEnabled}
-          onClose={() => ModalAction()}
-        />
-      )}
-      {IsFeedbackOpen && (
-        <FeedbackModal
-          title={FeedbackInfo?.title || ""}
-          details={FeedbackInfo?.details || ""}
-          onClose={() => {
-            setIsFeedbackOpen(false);
-            setLoader(false);
-            setMessageEnabled(false);
-          }}
-        />
-      )}
+        {isLoader && <ReferralLoader step={currStep} />}
+        {MessageEnabled && (
+          <RequestReferralMessage
+            Type={ModalType}
+            gaugeScore={gaugeScore}
+            gaugeEnabled={gaugeEnabled}
+            onClose={() => ModalAction()}
+          />
+        )}
+        {IsFeedbackOpen && (
+          <FeedbackModal
+            title={FeedbackInfo?.title || ""}
+            details={FeedbackInfo?.details || ""}
+            onClose={() => {
+              setIsFeedbackOpen(false);
+              setLoader(false);
+              setMessageEnabled(false);
+            }}
+          />
+        )}
 
-      {showApplyModal && modalData && (
-        <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />
-      )}
-      {updateResume && <UpdateResumeModal onClose={() => setUpdateResume(false)} />}
+        {showApplyModal && modalData && (
+          <MessageModal {...modalData} onClose={() => setModalData(null)} showCloseButton={false} />
+        )}
+        {updateResume && <UpdateResumeModal onClose={() => setUpdateResume(false)} />}
       </div>
     </>
   );
