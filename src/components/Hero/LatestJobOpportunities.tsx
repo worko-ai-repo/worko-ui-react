@@ -23,6 +23,7 @@ interface JobCardDto {
   timeAgo: string;
   featured: boolean;
   isLogoAvailable: boolean;
+  rawJob: JobDto;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   location?: any;
   experience?: string;
@@ -96,6 +97,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
             jobCount: `${job.numOfOpenings || 0} Jobs`,
             timeAgo: DaysFormatter(job.externalJobId ? job?.jobPostedDate : job?.createdAt),
             isLogoAvailable: isLogoAvailable ? true : false,
+            rawJob: job,
           } as JobCardDto;
         }) || []
       );
@@ -168,7 +170,7 @@ const LatestJobOpportunities: React.FC<LatestJobOpportunitiesProps> = ({
     
     // Navigate with full job data in state, similar to JobCard
     nav(slug, {
-      state: { FullJob: fullJob },
+      state: { FullJob: fullJob.rawJob },
     });
   };
 
